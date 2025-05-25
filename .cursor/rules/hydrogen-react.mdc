@@ -1,0 +1,129 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Shopify Hydrogen Template 
+
+## Project Overview
+This is a Shopify Hydrogen template, which is a React-based framework for building custom storefronts with Shopify. The project uses TypeScript, React, and GraphQL to interact with Shopify's Storefront API and Customer Account API.
+
+## Key Project Structure
+
+### Main Directories
+- `/app`: Main application code
+  - `/components`: React components for the storefront
+  - `/graphql`: GraphQL queries and schema references
+    - `/customer-account`: Customer API query files
+    - `/graphql-schema`: Complete API schema reference files (for developer reference)
+  - `/routes`: Route files using Remix-style file conventions
+  - `/lib`: Utility libraries
+  - `/styles`: CSS styles
+  - `/utils`: Utility functions
+- `/public`: Static assets
+- `/guides`: Documentation
+
+### Key Configuration Files
+- `.graphqlrc.ts`: GraphQL configuration for code generation
+- `storefrontapi.generated.d.ts`: Generated types for Storefront API (only used types)
+- `customer-accountapi.generated.d.ts`: Generated types for Customer API (only used types)
+- `vite.config.ts`: Vite configuration
+- `tailwind.config.ts`: Tailwind CSS configuration
+
+## GraphQL Schema Generation
+
+The project is configured to generate two sets of type definitions:
+
+1. **Used Types Only**:
+   - `storefrontapi.generated.d.ts`: Contains types from the Storefront API that are actually used in the application
+   - `customer-accountapi.generated.d.ts`: Contains types from the Customer API that are actually used in the application
+
+2. **Full Schema Reference**:
+   - `graphql-schema/storefront-schema.generated.ts`: Complete schema types for Storefront API
+   - `graphql-schema/customer-schema.generated.ts`: Complete schema types for Customer API
+
+## How to Regenerate Schema Types
+
+To regenerate both used type definitions and full schema references:
+
+```bash
+npm run codegen
+# or
+yarn codegen
+```
+
+This command triggers GraphQL code generation based on the configuration in `.graphqlrc.ts`.
+
+## Important Developer Notes
+
+1. When developing new features that interact with Shopify's APIs:
+   - For implementation: Use the root-level generated type files (`storefrontapi.generated.d.ts` and `customer-accountapi.generated.d.ts`)
+   - For reference/discovery of available API features: Consult the full schema files in `graphql-schema`
+
+2. When adding new GraphQL queries:
+   - For Storefront API: Add them to the appropriate component or route files
+   - For Customer API: Add them to `/app/graphql/customer-account/` directory
+   - Then run `npm run codegen` to update the type definitions
+
+3. Don't manually edit the generated type files as they will be overwritten when codegen runs.
+
+## Routes Structure
+
+The project uses a file-based routing system with Remix-style conventions:
+- Routes with `($locale)` handle internationalization
+- Routes with `._index` represent index pages
+- Routes with `.$paramName` handle dynamic parameters
+- Routes with `._` denote layout routes
+
+## Key Components
+- `PageLayout.tsx`: Main layout component
+- `Header.tsx` and `Footer.tsx`: Site-wide navigation components
+- `ProductCard.tsx`, `ProductDetail.tsx`, etc.: Product-related components
+- `CartMain.tsx`, `CartSummary.tsx`: Shopping cart components
+
+# React Router Import Rule for Hydrogen
+
+## Overview
+
+This Hydrogen project is based on React Router, not Remix. When working with documentation or code examples, you should always use imports from the appropriate React Router packages instead of Remix packages.
+
+## Import Replacements
+
+When you see imports from Remix packages, replace them with their equivalent React Router v7 packages. Here are the common replacements:
+
+| Remix v2 Package | React Router v7 Package |
+|------------------|-------------------------|
+| `@remix-run/react` | `react-router` |
+| `@remix-run/dev` | `@react-router/dev` |
+| `@remix-run/architect` | `@react-router/architect` |
+| `@remix-run/cloudflare` | `@react-router/cloudflare` |
+| `@remix-run/express` | `@react-router/express` |
+| `@remix-run/fs-routes` | `@react-router/fs-routes` |
+| `@remix-run/node` | `@react-router/node` |
+| `@remix-run/route-config` | `@react-router/dev` |
+| `@remix-run/routes-option-adapter` | `@react-router/remix-routes-option-adapter` |
+| `@remix-run/serve` | `@react-router/serve` |
+| `@remix-run/server-runtime` | `react-router` |
+| `@remix-run/testing` | `react-router` |
+
+NEVER USE 'react-router-dom' imports!
+
+## Common Import Examples
+
+```js
+// INCORRECT (Remix style)
+import { useLoaderData, Link, Form, useActionData, useNavigation, useSubmit } from '@remix-run/react';
+
+// CORRECT (React Router style)
+import { useLoaderData, Link, Form, useActionData, useNavigation, useSubmit } from 'react-router';
+```
+
+## Development Guidelines
+
+1. Always check existing code in the project to understand which specific React Router hooks and components are being used
+2. When generating new code or modifying existing code, ensure all routing-related imports come from the correct React Router packages
+3. If following documentation or examples based on Remix, adapt the code to use React Router equivalents
+
+When working in this codebase, always follow the React Router patterns that are already established in the existing code.
+
+For more information, consult the official Remix to React Router upgrade guide: https://reactrouter.com/upgrading/remix

@@ -2,7 +2,90 @@ import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {useLoaderData, type MetaFunction} from 'react-router';
 import {Money, Image, flattenConnection} from '@shopify/hydrogen';
 import type {OrderLineItemFullFragment} from 'customer-accountapi.generated';
-import {CUSTOMER_ORDER_QUERY} from '~/graphql/customer-account/CustomerOrderQuery';
+// import {CUSTOMER_ORDER_QUERY} from '~/graphql/customer-account/CustomerOrderQuery';
+const CUSTOMER_ORDER_QUERY = `#graphql
+  query CustomerOrder($orderId: ID!, $customerAccessToken: String!) {
+    node(id: $orderId) {
+      ... on Order {
+        id
+        name
+        processedAt
+        financialStatus
+        statusUrl
+        totalPrice {
+          amount
+          currencyCode
+        }
+        originalTotalPrice {
+          amount
+          currencyCode
+        }
+        totalTax {
+          amount
+          currencyCode
+        }
+        fulfillmentStatus
+        discountApplications(first: 100) {
+          nodes {
+            value {
+              __typename
+              ... on MoneyV2 {
+                amount
+                currencyCode
+              }
+              ... on PricingPercentageValue {
+                percentage
+              }
+            }
+          }
+        }
+        shippingAddress {
+          name
+          formatted(withName: true)
+          formattedArea
+        }
+        lineItems(first: 100) {
+          nodes {
+            title
+            quantity
+            variant {
+              title
+              price {
+                amount
+                currencyCode
+              }
+              image {
+                altText
+                height
+                url
+                id
+                width
+              }
+            }
+            discountAllocations {
+              allocatedAmount {
+                amount
+                currencyCode
+              }
+              discountApplication {
+                value {
+                  __typename
+                  ... on MoneyV2 {
+                    amount
+                    currencyCode
+                  }
+                  ... on PricingPercentageValue {
+                    percentage
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 import {getConfig} from '~/lib/config';
 import {Link} from 'react-router';
 import {ArrowLeft, Package, Truck, CreditCard, MapPin, ExternalLink} from 'lucide-react';
@@ -18,26 +101,36 @@ export async function loader({params, context}: LoaderFunctionArgs) {
   }
 
   const orderId = atob(params.id);
+  
+  // Get customer access token
+  const customerAccessToken = await context.customerAccount.getAccessToken();
+  if (!customerAccessToken) {
+    return redirect('/account/login');
+  }
+
   const {data, errors} = await context.customerAccount.query(
     CUSTOMER_ORDER_QUERY,
     {
-      variables: {orderId},
+      variables: {
+        orderId,
+        customerAccessToken
+      },
     },
   );
 
-  if (errors?.length || !data?.order) {
+  if (errors?.length || !data?.node) {
     throw new Error('Order not found');
   }
 
-  const {order} = data;
+  const order = data.node;
 
   const lineItems = flattenConnection(order.lineItems);
   const discountApplications = flattenConnection(order.discountApplications);
 
   const fulfillmentStatus =
-    flattenConnection(order.fulfillments)[0]?.status ?? 'N/A';
+    (flattenConnection(order.fulfillments)[0] as any)?.status ?? 'N/A';
 
-  const firstDiscount = discountApplications[0]?.value;
+  const firstDiscount = (discountApplications[0] as any)?.value;
 
   const discountValue =
     firstDiscount?.__typename === 'MoneyV2' && firstDiscount;
@@ -129,7 +222,7 @@ export default function OrderRoute() {
 
           <a 
             target="_blank" 
-            href={order.statusPageUrl} 
+            href={order.statusUrl} 
             rel="noreferrer"
             className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
           >
@@ -145,7 +238,7 @@ export default function OrderRoute() {
               <h2 className="text-xl font-bold text-white mb-6">Order Items</h2>
               <div className="space-y-4">
                 {lineItems.map((lineItem, lineItemIndex) => (
-                  <OrderLineRow key={lineItemIndex} lineItem={lineItem} />
+                  <OrderLineRow key={lineItemIndex} lineItem={lineItem as any} />
                 ))}
               </div>
             </div>

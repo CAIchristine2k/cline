@@ -376,6 +376,108 @@ export type CollectionsQuery = {
   };
 };
 
+export type CustomerOrderQueryVariables = StorefrontAPI.Exact<{
+  orderId: StorefrontAPI.Scalars['ID']['input'];
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type CustomerOrderQuery = {
+  node?: StorefrontAPI.Maybe<
+    Pick<
+      StorefrontAPI.Order,
+      | 'id'
+      | 'name'
+      | 'processedAt'
+      | 'financialStatus'
+      | 'statusUrl'
+      | 'fulfillmentStatus'
+    > & {
+      totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+      originalTotalPrice: Pick<
+        StorefrontAPI.MoneyV2,
+        'amount' | 'currencyCode'
+      >;
+      totalTax?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+      >;
+      discountApplications: {
+        nodes: Array<{
+          value:
+            | ({__typename: 'MoneyV2'} & Pick<
+                StorefrontAPI.MoneyV2,
+                'amount' | 'currencyCode'
+              >)
+            | ({__typename: 'PricingPercentageValue'} & Pick<
+                StorefrontAPI.PricingPercentageValue,
+                'percentage'
+              >);
+        }>;
+      };
+      shippingAddress?: StorefrontAPI.Maybe<
+        Pick<
+          StorefrontAPI.MailingAddress,
+          'name' | 'formatted' | 'formattedArea'
+        >
+      >;
+      lineItems: {
+        nodes: Array<
+          Pick<StorefrontAPI.OrderLineItem, 'title' | 'quantity'> & {
+            variant?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.ProductVariant, 'title'> & {
+                price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+                image?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'altText' | 'height' | 'url' | 'id' | 'width'
+                  >
+                >;
+              }
+            >;
+            discountAllocations: Array<{
+              allocatedAmount: Pick<
+                StorefrontAPI.MoneyV2,
+                'amount' | 'currencyCode'
+              >;
+              discountApplication: {
+                value:
+                  | ({__typename: 'MoneyV2'} & Pick<
+                      StorefrontAPI.MoneyV2,
+                      'amount' | 'currencyCode'
+                    >)
+                  | ({__typename: 'PricingPercentageValue'} & Pick<
+                      StorefrontAPI.PricingPercentageValue,
+                      'percentage'
+                    >);
+              };
+            }>;
+          }
+        >;
+      };
+    }
+  >;
+};
+
+export type CustomerOrdersQueryVariables = StorefrontAPI.Exact<{
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type CustomerOrdersQuery = {
+  customer?: StorefrontAPI.Maybe<{
+    orders: {
+      nodes: Array<
+        Pick<
+          StorefrontAPI.Order,
+          'id' | 'name' | 'processedAt' | 'financialStatus'
+        > & {totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>}
+      >;
+      pageInfo: Pick<
+        StorefrontAPI.PageInfo,
+        'hasNextPage' | 'hasPreviousPage' | 'startCursor' | 'endCursor'
+      >;
+    };
+  }>;
+};
+
 export type ArticleDetailsQueryVariables = StorefrontAPI.Exact<{
   articleHandle: StorefrontAPI.Scalars['String']['input'];
   blogHandle: StorefrontAPI.Scalars['String']['input'];
@@ -1172,6 +1274,14 @@ interface GeneratedQueryTypes {
   '#graphql\n  query Collections($first: Int, $handle: String) {\n    collections(first: $first, query: $handle) {\n      nodes {\n        id\n        title\n        handle\n        description\n        image {\n          id\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n  }\n': {
     return: CollectionsQuery;
     variables: CollectionsQueryVariables;
+  };
+  '#graphql\n  query CustomerOrder($orderId: ID!, $customerAccessToken: String!) {\n    node(id: $orderId) {\n      ... on Order {\n        id\n        name\n        processedAt\n        financialStatus\n        statusUrl\n        totalPrice {\n          amount\n          currencyCode\n        }\n        originalTotalPrice {\n          amount\n          currencyCode\n        }\n        totalTax {\n          amount\n          currencyCode\n        }\n        fulfillmentStatus\n        discountApplications(first: 100) {\n          nodes {\n            value {\n              __typename\n              ... on MoneyV2 {\n                amount\n                currencyCode\n              }\n              ... on PricingPercentageValue {\n                percentage\n              }\n            }\n          }\n        }\n        shippingAddress {\n          name\n          formatted(withName: true)\n          formattedArea\n        }\n        lineItems(first: 100) {\n          nodes {\n            title\n            quantity\n            variant {\n              title\n              price {\n                amount\n                currencyCode\n              }\n              image {\n                altText\n                height\n                url\n                id\n                width\n              }\n            }\n            discountAllocations {\n              allocatedAmount {\n                amount\n                currencyCode\n              }\n              discountApplication {\n                value {\n                  __typename\n                  ... on MoneyV2 {\n                    amount\n                    currencyCode\n                  }\n                  ... on PricingPercentageValue {\n                    percentage\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: CustomerOrderQuery;
+    variables: CustomerOrderQueryVariables;
+  };
+  '#graphql\n  query CustomerOrders($customerAccessToken: String!) {\n    customer(customerAccessToken: $customerAccessToken) {\n      orders(first: 20) {\n        nodes {\n          id\n          name\n          processedAt\n          financialStatus\n          totalPrice {\n            amount\n            currencyCode\n          }\n        }\n        pageInfo {\n          hasNextPage\n          hasPreviousPage\n          startCursor\n          endCursor\n        }\n      }\n    }\n  }\n': {
+    return: CustomerOrdersQuery;
+    variables: CustomerOrdersQueryVariables;
   };
   '#graphql\n  query ArticleDetails(\n    $articleHandle: String!\n    $blogHandle: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    blog(handle: $blogHandle) {\n      handle\n      articleByHandle(handle: $articleHandle) {\n        handle\n        title\n        contentHtml\n        publishedAt\n        author: authorV2 {\n          name\n        }\n        image {\n          id\n          altText\n          url\n          width\n          height\n        }\n        seo {\n          description\n          title\n        }\n        blog {\n          handle\n        }\n      }\n    }\n  }\n': {
     return: ArticleDetailsQuery;

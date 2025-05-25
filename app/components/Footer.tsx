@@ -1,9 +1,12 @@
 import React from 'react';
 import { Instagram, Twitter, Facebook, Youtube, Mail, MapPin, Phone, Music } from 'lucide-react';
 import { FooterLogo } from './FooterLogo';
-import config from '~/lib/config';
+import { useConfig } from '~/utils/themeContext';
+import { accentStyles, inlineStyles, sectionStyles } from '~/utils/styleUtils';
 
 export function Footer() {
+  const config = useConfig();
+  
   // Build social links from config
   const socialLinks = Object.entries(config.socialLinks)
     .filter(([_, url]) => url) // Only include links that have URLs
@@ -53,7 +56,7 @@ export function Footer() {
 
   return (
     <footer className="bg-gray-950 pt-20 pb-10">
-      <div className="container mx-auto px-4">
+      <div className={sectionStyles.container}>
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand Column */}
@@ -73,7 +76,8 @@ export function Footer() {
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-sm bg-gray-900 hover:bg-gold-500 flex items-center justify-center text-white hover:text-black transition-all duration-300 transform hover:scale-105"
+                      className="w-10 h-10 rounded-sm bg-gray-900 hover:bg-primary flex items-center justify-center text-white hover:text-black transition-all duration-300 transform hover:scale-105"
+                      style={inlineStyles.hoverPrimary as React.CSSProperties}
                       aria-label={social.label}
                     >
                       <IconComponent className="h-5 w-5" />
@@ -88,16 +92,20 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold text-lg mb-6 relative inline-block">
               Quick Links
-              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-gold-500"></span>
+              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-primary" style={inlineStyles.primaryBackground}></span>
             </h4>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
                   <a
                     href={`#${link.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="text-gray-400 hover:text-gold-500 transition-all duration-300 text-sm flex items-center group"
+                    className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
+                    style={inlineStyles.hoverPrimary as React.CSSProperties}
                   >
-                    <span className="w-1 h-1 bg-gold-500 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                    <span 
+                      className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={inlineStyles.primaryBackground}
+                    ></span>
                     {link}
                   </a>
                 </li>
@@ -109,16 +117,20 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold text-lg mb-6 relative inline-block">
               Support
-              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-gold-500"></span>
+              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-primary" style={inlineStyles.primaryBackground}></span>
             </h4>
             <ul className="space-y-3">
               {supportLinks.map((link, index) => (
                 <li key={index}>
                   <a
                     href={`#${link.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="text-gray-400 hover:text-gold-500 transition-all duration-300 text-sm flex items-center group"
+                    className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
+                    style={inlineStyles.hoverPrimary as React.CSSProperties}
                   >
-                    <span className="w-1 h-1 bg-gold-500 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                    <span 
+                      className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={inlineStyles.primaryBackground}
+                    ></span>
                     {link}
                   </a>
                 </li>
@@ -130,7 +142,7 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold text-lg mb-6 relative inline-block">
               Contact Info
-              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-gold-500"></span>
+              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-primary" style={inlineStyles.primaryBackground}></span>
             </h4>
             <ul className="space-y-5">
               {contactInfo.map((info, index) => {
@@ -138,7 +150,7 @@ export function Footer() {
                 return (
                   <li key={index} className="flex items-start">
                     <div className="bg-gray-900 p-2 rounded-sm mr-3 flex-shrink-0">
-                      <IconComponent className="h-4 w-4 text-gold-500" />
+                      <IconComponent className={`h-4 w-4 ${accentStyles.primaryText}`} style={inlineStyles.primaryText} />
                     </div>
                     <span className="text-gray-400 text-sm leading-relaxed">{info.text}</span>
                   </li>
@@ -160,7 +172,8 @@ export function Footer() {
                 <a
                   key={index}
                   href={`#${policy.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-gray-500 hover:text-gold-500 text-sm transition-all duration-300"
+                  className="text-gray-500 hover:text-primary text-sm transition-all duration-300"
+                  style={inlineStyles.hoverPrimary as React.CSSProperties}
                 >
                   {policy}
                 </a>

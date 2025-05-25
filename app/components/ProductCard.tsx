@@ -6,7 +6,9 @@ import { AddToCartButton } from '~/components/AddToCartButton';
 import type {
   ProductItemFragment,
 } from 'storefrontapi.generated';
-import { defaultConfig } from '~/lib/config';
+import { useConfig } from '~/utils/themeContext';
+import { cssVars } from '~/lib/themeConfig';
+import { buttonStyles, cardStyles, accentStyles, inlineStyles } from '~/utils/styleUtils';
 
 interface ProductItemExtendedFragment extends ProductItemFragment {
   description?: string;
@@ -26,6 +28,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, loading, label }: ProductCardProps) {
+  const config = useConfig();
+
   // Generate mock rating and reviews for display (since Shopify doesn't provide this)
   const rating = 4.8 + (Math.random() * 0.2);
   const reviews = 70 + Math.floor(Math.random() * 60);
@@ -34,7 +38,10 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
   const firstVariant = product.variants?.nodes[0];
   
   return (
-    <div className="group relative rounded-sm overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]">
+    <div 
+      className={cardStyles.product}
+      style={inlineStyles.hoverPrimary as React.CSSProperties}
+    >
       {/* Product image */}
       <div className="relative h-72 overflow-hidden">
         {product.featuredImage && (
@@ -51,7 +58,10 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
         {(label || product.tags?.some(tag => 
           tag === 'New' || tag === 'Bestseller' || tag === 'Sale'
         )) && (
-          <div className="absolute top-3 right-3 bg-primary text-black text-xs font-bold py-1 px-3 rounded-sm">
+          <div 
+            className={accentStyles.badge}
+            style={inlineStyles.primaryBackgroundWithText}
+          >
             {label || product.tags?.find(tag => 
               tag === 'New' || tag === 'Bestseller' || tag === 'Sale'
             )}
@@ -62,7 +72,8 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <Link
             to={`/products/${product.handle}`}
-            className="bg-primary hover:bg-primary/90 text-black font-bold py-2 px-4 rounded-sm transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 uppercase text-sm tracking-wider"
+            className={`${buttonStyles.primary} transform translate-y-4 group-hover:translate-y-0 uppercase text-sm tracking-wider`}
+            style={inlineStyles.primaryBackgroundWithText}
           >
             Quick View
           </Link>
@@ -71,7 +82,10 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
       
       {/* Product info */}
       <div className="p-5">
-        <h3 className="text-white font-bold text-lg mb-2 group-hover:text-primary transition-colors duration-300">
+        <h3 
+          className="text-white font-bold text-lg mb-2 group-hover:text-primary transition-colors duration-300"
+          style={inlineStyles.hoverPrimary as React.CSSProperties}
+        >
           {product.title}
         </h3>
         
@@ -92,7 +106,10 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
               .slice(0, 2)
               .map((feature, idx) => (
                 <li key={idx} className="flex items-start text-xs text-gray-500">
-                  <div className="w-1 h-1 bg-primary rounded-full mr-2 mt-1.5"></div>
+                  <div 
+                    className="w-1 h-1 bg-primary rounded-full mr-2 mt-1.5"
+                    style={inlineStyles.primaryBackground}
+                  ></div>
                   <span>{feature}</span>
                 </li>
               ))
@@ -102,7 +119,7 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
         
         {/* Rating stars */}
         <div className="flex items-center mb-3">
-          <div className="flex text-primary">
+          <div className={`flex ${accentStyles.primaryText}`} style={inlineStyles.primaryText}>
             {[...Array(Math.floor(rating))].map((_, i) => (
               <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
             ))}
@@ -121,7 +138,8 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
           {product.priceRange?.minVariantPrice && (
             <Money 
               data={product.priceRange.minVariantPrice} 
-              className="text-primary font-bold text-lg"
+              className={`${accentStyles.primaryText} font-bold text-lg`}
+              style={inlineStyles.primaryText}
             />
           )}
           
@@ -131,7 +149,7 @@ export function ProductCard({ product, loading, label }: ProductCardProps) {
                 merchandiseId: firstVariant.id,
                 quantity: 1,
               }]}
-              className="bg-gray-800 hover:bg-primary text-white hover:text-black rounded-sm p-2.5 transition-all duration-300 transform hover:scale-105"
+              className={`${buttonStyles.subtle} hover:bg-primary hover:text-black`}
               disabled={!firstVariant.availableForSale}
             >
               <ShoppingCart className="w-4 h-4" />

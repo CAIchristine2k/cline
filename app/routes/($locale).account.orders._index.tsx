@@ -4,8 +4,7 @@ import {
   getPaginationVariables,
   flattenConnection,
 } from '@shopify/hydrogen';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {CUSTOMER_ORDERS_QUERY} from '~/graphql/customer-account/CustomerOrdersQuery';
+import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import type {
   CustomerOrdersFragment,
   OrderItemFragment,
@@ -13,6 +12,32 @@ import type {
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {Package, Calendar, CreditCard, Truck, Eye, ShoppingBag} from 'lucide-react';
 import {getConfig} from '~/lib/config';
+
+// Temporary placeholder query
+const CUSTOMER_ORDERS_QUERY = `#graphql
+  query CustomerOrders($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      orders(first: 20) {
+        nodes {
+          id
+          name
+          processedAt
+          financialStatus
+          totalPrice {
+            amount
+            currencyCode
+          }
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
+        }
+      }
+    }
+  }
+`;
 
 export const meta: MetaFunction = () => {
   const config = getConfig();
@@ -24,11 +49,18 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     pageBy: 20,
   });
   
-  // Get customer orders
+  // Get customer access token
   await context.customerAccount.handleAuthStatus();
+  const customerAccessToken = await context.customerAccount.getAccessToken();
+  
+  if (!customerAccessToken) {
+    return redirect('/account/login');
+  }
+  
   const response = await context.customerAccount.query(CUSTOMER_ORDERS_QUERY, {
     variables: {
       ...paginationVariables,
+      customerAccessToken,
     },
   });
   const customer = response.data?.customer;

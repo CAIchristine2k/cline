@@ -191,17 +191,22 @@ body {
   border-color: var(--color-primary-500);
 }
 
-/* Enhanced gold text effects - matches Vue styling */
+/* Special glow effects for themed text */
 .hero-title-glow {
-  text-shadow: 0 0 20px rgba(230, 176, 0, 0.6);
+  text-shadow: 0 0 15px var(--color-primary-400, rgba(255, 199, 0, 0.6));
 }
 
 .hero-stat-glow {
-  text-shadow: 0 0 10px rgba(230, 176, 0, 0.4);
+  text-shadow: 0 0 10px var(--color-primary-400, rgba(255, 199, 0, 0.4));
 }
 
 .shadow-glow {
-  box-shadow: 0 4px 20px rgba(230, 176, 0, 0.3);
+  box-shadow: 0 0 15px rgba(var(--color-primary-rgb, 230, 176, 0), 0.3);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(var(--color-primary-rgb, 230, 176, 0), 0.5);
+  transform: translateY(-2px);
 }
 
 .drop-shadow-glow {

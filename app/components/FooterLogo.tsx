@@ -1,13 +1,21 @@
+import { useConfig } from '~/utils/themeContext';
+import { cssVars } from '~/lib/themeConfig';
+
 export function FooterLogo() {
+  const config = useConfig();
+  
   return (
     <div className="flex items-center justify-center py-2">
       <a href="#home" className="flex items-center">
         <div className="relative">
           <div className="absolute -inset-1"></div>
           <img 
-            src="/images/footer-logo.png" 
-            alt="Sugar Shane Logo" 
-            className="h-32 w-auto relative filter drop-shadow-glow" 
+            src={config.brandLogo || "/images/footer-logo.png"}
+            alt={`${config.brandName} Logo`}
+            className="h-32 w-auto relative filter drop-shadow-glow"
+            style={{
+              filter: `drop-shadow(0 0 8px ${cssVars.primary}30)`
+            }}
           />
         </div>
       </a>

@@ -130,6 +130,19 @@ export function setColorTheme(style: BrandStyle | ThemeColors): void {
   }
 }
 
+// Helper function to convert hex to RGB
+function hexToRgb(hex: string): string {
+  // Remove # if present
+  hex = hex.replace('#', '');
+  
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  return `${r}, ${g}, ${b}`;
+}
+
 // Update CSS custom properties (variables) based on theme colors
 function updateCssVariables(colors: ThemeColors): void {
   const root = document.documentElement;
@@ -140,6 +153,10 @@ function updateCssVariables(colors: ThemeColors): void {
   root.style.setProperty("--color-accent", colors.accent);
   root.style.setProperty("--color-background", colors.background);
   root.style.setProperty("--color-text", colors.text);
+  
+  // Set RGB versions for shadows and opacity effects
+  root.style.setProperty("--color-primary-rgb", hexToRgb(colors.primary));
+  root.style.setProperty("--color-secondary-rgb", hexToRgb(colors.secondary));
 
   // Set additional variables for Tailwind CSS with shades
   const primaryShades = generateColorShades(colors.primary);
@@ -148,11 +165,17 @@ function updateCssVariables(colors: ThemeColors): void {
   // Primary color shades
   Object.entries(primaryShades).forEach(([shade, color]) => {
     root.style.setProperty(`--color-primary-${shade}`, color);
+    
+    // Add RGB versions of each shade
+    root.style.setProperty(`--color-primary-${shade}-rgb`, hexToRgb(color));
   });
 
   // Secondary color shades
   Object.entries(secondaryShades).forEach(([shade, color]) => {
     root.style.setProperty(`--color-secondary-${shade}`, color);
+    
+    // Add RGB versions of each shade
+    root.style.setProperty(`--color-secondary-${shade}-rgb`, hexToRgb(color));
   });
 
   // Set gold color variables (for luxury theme compatibility)
@@ -160,6 +183,11 @@ function updateCssVariables(colors: ThemeColors): void {
     root.style.setProperty("--color-gold-500", colors.primary);
     root.style.setProperty("--color-gold-400", "#E5C158");
     root.style.setProperty("--color-gold-600", "#BF9B2F");
+    
+    // RGB versions
+    root.style.setProperty("--color-gold-500-rgb", hexToRgb(colors.primary));
+    root.style.setProperty("--color-gold-400-rgb", hexToRgb("#E5C158"));
+    root.style.setProperty("--color-gold-600-rgb", hexToRgb("#BF9B2F"));
   }
 }
 

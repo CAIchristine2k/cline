@@ -146,6 +146,19 @@ const LAYOUT_QUERY = `#graphql
   }
 ` as const;
 
+// Helper function to convert hex to RGB for CSS variables
+function hexToRgb(hex: string) {
+  // Remove # if present
+  hex = hex.replace('#', '');
+  
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  return `${r}, ${g}, ${b}`;
+}
+
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useLoaderData<typeof loader>();
@@ -153,6 +166,16 @@ export function Layout({children}: {children?: React.ReactNode}) {
   // Initialize theme on client side
   useEffect(() => {
     initializeTheme();
+
+    // Add RGB versions of color variables for shadows and opacity
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
+      
+      if (primaryColor) {
+        root.style.setProperty('--color-primary-rgb', hexToRgb(primaryColor));
+      }
+    }
   }, []);
 
   const hasUserConsent = true;
@@ -174,6 +197,10 @@ export function Layout({children}: {children?: React.ReactNode}) {
                 --color-accent: #FFFFFF;
                 --color-background: #000000;
                 --color-text: #FFFFFF;
+                
+                /* RGB versions for opacity/shadows */
+                --color-primary-rgb: 212, 175, 55;
+                --color-secondary-rgb: 31, 31, 31;
                 
                 /* Gold color theme variables - Vue template compatibility */
                 --color-gold-400: #E5C158;
@@ -216,6 +243,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
                 --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
                 --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
                 --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                --shadow-primary: 0 0 15px rgba(var(--color-primary-rgb), 0.3);
               }
               
               /* Dark theme support */

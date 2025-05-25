@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { defaultConfig, type LandingPageConfig } from '~/lib/config';
 import TimeUnit from './TimeUnit';
+import { buttonStyles, sectionStyles, accentStyles, inlineStyles } from '~/utils/styleUtils';
 
 interface LimitedEditionProps {
   config?: LandingPageConfig;
@@ -62,9 +63,9 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
   ];
 
   return (
-    <section id="limited" className="py-20 relative">
+    <section id="limited" className={sectionStyles.padding + " relative"}>
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0 bg-black/70 z-10"></div>
+      <div className={`absolute inset-0 ${accentStyles.overlay} z-10`}></div>
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
@@ -73,19 +74,19 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
         }}
       ></div>
 
-      <div className="container mx-auto px-4 relative z-20">
+      <div className={`${sectionStyles.container} relative z-20`}>
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-block bg-primary text-black font-bold py-1 px-4 rounded-full text-sm mb-6">
+          <div className={accentStyles.badge + " inline-block rounded-full text-sm mb-6"} style={inlineStyles.primaryBackgroundWithText}>
             LIMITED TIME OFFER
           </div>
 
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+          <h2 className={sectionStyles.heading}>
             {config.limitedEdition.title}
             <br />
-            <span className="text-primary">SIGNED EDITION</span>
+            <span className={accentStyles.primaryText} style={inlineStyles.primaryText}>SIGNED EDITION</span>
           </h2>
 
-          <p className="text-lg text-gray-200 mb-8 max-w-xl mx-auto">
+          <p className={sectionStyles.subheading + " max-w-xl mx-auto"}>
             {config.limitedEdition.description}
           </p>
 
@@ -98,13 +99,16 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
             <div className="text-lg md:text-xl font-bold">
               <span className="text-gray-400 line-through">{config.limitedEdition.originalPrice}</span>
-              <span className="text-primary ml-3">{config.limitedEdition.salePrice}</span>
+              <span className={accentStyles.primaryText + " ml-3"} style={inlineStyles.primaryText}>
+                {config.limitedEdition.salePrice}
+              </span>
             </div>
           </div>
 
           <Link 
             to={`/products/${config.limitedEdition.productHandle}`}
-            className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-8 rounded-sm transition-all duration-300 shadow-glow"
+            className={`${buttonStyles.primary} group shadow-glow`}
+            style={inlineStyles.primaryBackgroundWithText}
           >
             SHOP LIMITED EDITION
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
