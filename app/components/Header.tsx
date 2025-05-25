@@ -1,4 +1,4 @@
-import {Suspense} from 'react';
+import {Suspense, useState, useEffect} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
@@ -7,9 +7,10 @@ import {
 } from '@shopify/hydrogen';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
+import {Menu, X, Search, ShoppingBag, User} from 'lucide-react';
 
 interface HeaderProps {
-  header: HeaderQuery;
+  header: Promise<HeaderQuery | null>;
   cart: Promise<CartApiQueryFragment | null>;
   isLoggedIn: Promise<boolean>;
   publicStoreDomain: string;
@@ -23,20 +24,60 @@ export function Header({
   cart,
   publicStoreDomain,
 }: HeaderProps) {
-  const {shop, menu} = header;
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="header">
-      <NavLink prefetch="intent" to="/" style={activeLinkStyle} end>
-        <strong>{shop.name}</strong>
-      </NavLink>
-      <HeaderMenu
-        menu={menu}
-        viewport="desktop"
-        primaryDomainUrl={header.shop.primaryDomain.url}
-        publicStoreDomain={publicStoreDomain}
-      />
-      <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
-    </header>
+    <Suspense fallback={<div className="h-16 bg-black" />}>
+      <Await resolve={header}>
+        {(header) => (
+          <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+            isScrolled 
+              ? 'bg-black/95 backdrop-blur-sm border-b border-gold-500/20' 
+              : 'bg-transparent'
+          }`}>
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between h-16">
+                {/* Logo */}
+                <NavLink 
+                  prefetch="intent" 
+                  to="/" 
+                  className="flex items-center space-x-2 group"
+                >
+                  <img 
+                    src="/images/logo.png" 
+                    alt="Sugar Shane" 
+                    className="h-8 w-auto transition-transform group-hover:scale-105"
+                  />
+                  <span className="text-gold-500 font-bold text-xl tracking-wider hidden sm:block">
+                    SUGAR SHANE
+                  </span>
+                </NavLink>
+
+                {/* Desktop Navigation */}
+                <HeaderMenu
+                  menu={header?.menu}
+                  viewport="desktop"
+                  primaryDomainUrl={header?.shop?.primaryDomain?.url}
+                  publicStoreDomain={publicStoreDomain}
+                />
+
+                {/* Header Actions */}
+                <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
+              </div>
+            </div>
+          </header>
+        )}
+      </Await>
+    </Suspense>
   );
 }
 
@@ -46,49 +87,80 @@ export function HeaderMenu({
   viewport,
   publicStoreDomain,
 }: {
-  menu: HeaderProps['header']['menu'];
-  primaryDomainUrl: HeaderProps['header']['shop']['primaryDomain']['url'];
+  menu: HeaderQuery['menu'];
+  primaryDomainUrl?: string;
   viewport: Viewport;
-  publicStoreDomain: HeaderProps['publicStoreDomain'];
+  publicStoreDomain: string;
 }) {
-  const className = `header-menu-${viewport}`;
   const {close} = useAside();
 
-  return (
-    <nav className={className} role="navigation">
-      {viewport === 'mobile' && (
-        <NavLink
-          end
-          onClick={close}
-          prefetch="intent"
-          style={activeLinkStyle}
-          to="/"
-        >
-          Home
-        </NavLink>
-      )}
-      {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
-        if (!item.url) return null;
+  // Sugar Shane specific navigation items
+  const sugarShaneNavItems = [
+    { title: 'Home', url: '/' },
+    { title: 'Shop', url: '#shop' },
+    { title: 'Career', url: '#career' },
+    { title: 'Collections', url: '/collections' },
+    { title: 'About', url: '/pages/about' },
+  ];
 
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain) ||
-          item.url.includes(primaryDomainUrl)
-            ? new URL(item.url).pathname
-            : item.url;
+  const navigationItems = menu?.items?.length ? menu.items : sugarShaneNavItems;
+
+  if (viewport === 'mobile') {
+    return (
+      <nav className="flex flex-col space-y-4 p-4" role="navigation">
+        {navigationItems.map((item, index) => {
+          const url = item.url?.includes('myshopify.com') ||
+                     item.url?.includes(publicStoreDomain) ||
+                     (primaryDomainUrl && item.url?.includes(primaryDomainUrl))
+                     ? new URL(item.url).pathname
+                     : item.url || '/';
+
+          return (
+            <a
+              key={('id' in item ? item.id : null) || index}
+              href={url}
+              onClick={(e) => {
+                close();
+                if (url.startsWith('#')) {
+                  e.preventDefault();
+                  const element = document.querySelector(url);
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300"
+            >
+              {item.title}
+            </a>
+          );
+        })}
+      </nav>
+    );
+  }
+
+  return (
+    <nav className="hidden md:flex items-center space-x-8" role="navigation">
+      {navigationItems.map((item, index) => {
+        const url = item.url?.includes('myshopify.com') ||
+                   item.url?.includes(publicStoreDomain) ||
+                   (primaryDomainUrl && item.url?.includes(primaryDomainUrl))
+                   ? new URL(item.url).pathname
+                   : item.url || '/';
+
         return (
-          <NavLink
-            className="header-menu-item"
-            end
-            key={item.id}
-            onClick={close}
-            prefetch="intent"
-            style={activeLinkStyle}
-            to={url}
+          <a
+            key={('id' in item ? item.id : null) || index}
+            href={url}
+            onClick={(e) => {
+              if (url.startsWith('#')) {
+                e.preventDefault();
+                const element = document.querySelector(url);
+                element?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="text-white hover:text-gold-500 font-semibold transition-colors duration-300 uppercase tracking-wider text-sm"
           >
             {item.title}
-          </NavLink>
+          </a>
         );
       })}
     </nav>
@@ -100,18 +172,30 @@ function HeaderCtas({
   cart,
 }: Pick<HeaderProps, 'isLoggedIn' | 'cart'>) {
   return (
-    <nav className="header-ctas" role="navigation">
-      <HeaderMenuMobileToggle />
-      <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
-        <Suspense fallback="Sign in">
+    <div className="flex items-center space-x-4">
+      {/* Search Toggle */}
+      <SearchToggle />
+
+      {/* Account Link */}
+      <NavLink 
+        prefetch="intent" 
+        to="/account" 
+        className="hidden sm:flex items-center text-white hover:text-gold-500 transition-colors duration-300"
+      >
+        <User className="h-5 w-5 mr-1" />
+        <Suspense fallback="Account">
           <Await resolve={isLoggedIn} errorElement="Sign in">
             {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
           </Await>
         </Suspense>
       </NavLink>
-      <SearchToggle />
+
+      {/* Cart Toggle */}
       <CartToggle cart={cart} />
-    </nav>
+
+      {/* Mobile Menu Toggle */}
+      <HeaderMenuMobileToggle />
+    </div>
   );
 }
 
@@ -119,10 +203,11 @@ function HeaderMenuMobileToggle() {
   const {open} = useAside();
   return (
     <button
-      className="header-menu-mobile-toggle reset"
+      className="md:hidden text-white hover:text-gold-500 transition-colors duration-300"
       onClick={() => open('mobile')}
+      aria-label="Open mobile menu"
     >
-      <h3>☰</h3>
+      <Menu className="h-6 w-6" />
     </button>
   );
 }
@@ -130,8 +215,12 @@ function HeaderMenuMobileToggle() {
 function SearchToggle() {
   const {open} = useAside();
   return (
-    <button className="reset" onClick={() => open('search')}>
-      Search
+    <button 
+      className="text-white hover:text-gold-500 transition-colors duration-300"
+      onClick={() => open('search')}
+      aria-label="Open search"
+    >
+      <Search className="h-5 w-5" />
     </button>
   );
 }
@@ -141,8 +230,7 @@ function CartBadge({count}: {count: number | null}) {
   const {publish, shop, cart, prevCart} = useAnalytics();
 
   return (
-    <a
-      href="/cart"
+    <button
       onClick={(e) => {
         e.preventDefault();
         open('cart');
@@ -153,9 +241,16 @@ function CartBadge({count}: {count: number | null}) {
           url: window.location.href || '',
         } as CartViewPayload);
       }}
+      className="relative text-white hover:text-gold-500 transition-colors duration-300"
+      aria-label="Open cart"
     >
-      Cart {count === null ? <span>&nbsp;</span> : count}
-    </a>
+      <ShoppingBag className="h-5 w-5" />
+      {count !== null && count > 0 && (
+        <span className="absolute -top-2 -right-2 bg-gold-500 text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+          {count}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -173,59 +268,4 @@ function CartBanner() {
   const originalCart = useAsyncValue() as CartApiQueryFragment | null;
   const cart = useOptimisticCart(originalCart);
   return <CartBadge count={cart?.totalQuantity ?? 0} />;
-}
-
-const FALLBACK_HEADER_MENU = {
-  id: 'gid://shopify/Menu/199655587896',
-  items: [
-    {
-      id: 'gid://shopify/MenuItem/461609500728',
-      resourceId: null,
-      tags: [],
-      title: 'Collections',
-      type: 'HTTP',
-      url: '/collections',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461609533496',
-      resourceId: null,
-      tags: [],
-      title: 'Blog',
-      type: 'HTTP',
-      url: '/blogs/journal',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461609566264',
-      resourceId: null,
-      tags: [],
-      title: 'Policies',
-      type: 'HTTP',
-      url: '/policies',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461609599032',
-      resourceId: 'gid://shopify/Page/92591030328',
-      tags: [],
-      title: 'About',
-      type: 'PAGE',
-      url: '/pages/about',
-      items: [],
-    },
-  ],
-};
-
-function activeLinkStyle({
-  isActive,
-  isPending,
-}: {
-  isActive: boolean;
-  isPending: boolean;
-}) {
-  return {
-    fontWeight: isActive ? 'bold' : undefined,
-    color: isPending ? 'grey' : 'black',
-  };
 }

@@ -1,15 +1,34 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {Await, useLoaderData, Link, type MetaFunction} from 'react-router';
+import {Await, useLoaderData, type MetaFunction} from 'react-router';
 import {Suspense} from 'react';
-import {Image, Money} from '@shopify/hydrogen';
 import type {
   FeaturedCollectionFragment,
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
-import {ProductItem} from '~/components/ProductItem';
+import {Hero} from '~/components/Hero';
+import {ProductShowcase} from '~/components/ProductShowcase';
+import {CareerHighlights} from '~/components/CareerHighlights';
+import {Testimonials} from '~/components/Testimonials';
+import {SocialFeed} from '~/components/SocialFeed';
+import {NewsletterSignup} from '~/components/NewsletterSignup';
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Hydrogen | Home'}];
+  return [
+    {title: 'Sugar Shane Mosley - Official Store | Boxing Legend Collection'},
+    {
+      name: 'description',
+      content:
+        'Exclusive boxing equipment and merchandise from three-division world champion Sugar Shane Mosley. Championship quality gear for champions.',
+    },
+    {
+      name: 'keywords',
+      content: 'Sugar Shane Mosley, boxing equipment, boxing gloves, merchandise, champion gear',
+    },
+    {property: 'og:title', content: 'Sugar Shane Mosley - Official Store'},
+    {property: 'og:description', content: 'Championship quality boxing equipment from the legend himself'},
+    {property: 'og:image', content: '/images/logo.png'},
+    {property: 'og:type', content: 'website'},
+  ];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -58,58 +77,86 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
-  return (
-    <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
-      <RecommendedProducts products={data.recommendedProducts} />
-    </div>
-  );
-}
 
-function FeaturedCollection({
-  collection,
-}: {
-  collection: FeaturedCollectionFragment;
-}) {
-  if (!collection) return null;
-  const image = collection?.image;
   return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image data={image} sizes="100vw" />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
-  );
-}
+    <div className="min-h-screen bg-black text-white">
+      {/* Hero Section */}
+      <Hero />
 
-function RecommendedProducts({
-  products,
-}: {
-  products: Promise<RecommendedProductsQuery | null>;
-}) {
-  return (
-    <div className="recommended-products">
-      <h2>Recommended Products</h2>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Await resolve={products}>
-          {(response) => (
-            <div className="recommended-products-grid">
-              {response
-                ? response.products.nodes.map((product) => (
-                    <ProductItem key={product.id} product={product} />
-                  ))
-                : null}
+      {/* Product Showcase */}
+      <section id="shop" className="py-20">
+        <Suspense fallback={<div className="text-center py-20">Loading products...</div>}>
+          <Await resolve={data.recommendedProducts}>
+            {(response) => (
+              <ProductShowcase
+                products={response?.products?.nodes || []}
+                featuredCollection={data.featuredCollection}
+              />
+            )}
+          </Await>
+        </Suspense>
+      </section>
+
+      {/* Career Highlights */}
+      <section id="career" className="py-20 bg-gray-900">
+        <CareerHighlights />
+      </section>
+
+      {/* Limited Edition Section */}
+      <section className="py-20 bg-gradient-to-r from-gold-900 via-gold-600 to-gold-900">
+        <div className="container mx-auto px-4">
+          <div className="relative overflow-hidden rounded-lg bg-black/80 backdrop-blur-sm">
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-30"
+              style={{
+                backgroundImage: 'url(/images/limited-edition-bg.jpeg)',
+              }}
+            />
+            <div className="relative z-10 px-8 py-16 md:px-16 md:py-24">
+              <div className="max-w-3xl mx-auto text-center">
+                <h2 className="text-4xl md:text-6xl font-bold text-gold-500 mb-6 tracking-wider">
+                  LIMITED EDITION
+                </h2>
+                <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+                  Exclusive championship collection. Only 500 pieces available worldwide.
+                </p>
+                <div className="flex items-center justify-center space-x-4 mb-8">
+                  <div className="bg-gold-500 text-black px-4 py-2 rounded font-bold">
+                    <span className="text-2xl">72</span>
+                    <span className="text-sm block">HOURS</span>
+                  </div>
+                  <div className="bg-gold-500 text-black px-4 py-2 rounded font-bold">
+                    <span className="text-2xl">15</span>
+                    <span className="text-sm block">MINS</span>
+                  </div>
+                  <div className="bg-gold-500 text-black px-4 py-2 rounded font-bold">
+                    <span className="text-2xl">43</span>
+                    <span className="text-sm block">SECS</span>
+                  </div>
+                </div>
+                <button className="bg-gold-500 hover:bg-gold-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 transform hover:scale-105 uppercase tracking-wider">
+                  Claim Your Piece
+                </button>
+              </div>
             </div>
-          )}
-        </Await>
-      </Suspense>
-      <br />
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 bg-black">
+        <Testimonials />
+      </section>
+
+      {/* Social Feed */}
+      <section className="py-20 bg-gray-900">
+        <SocialFeed />
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-20 bg-gradient-to-b from-black to-gray-900">
+        <NewsletterSignup />
+      </section>
     </div>
   );
 }
@@ -126,6 +173,7 @@ const FEATURED_COLLECTION_QUERY = `#graphql
       height
     }
     handle
+    description
   }
   query FeaturedCollection($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
@@ -142,8 +190,14 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     id
     title
     handle
+    description
+    tags
     priceRange {
       minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
         amount
         currencyCode
       }
@@ -155,10 +209,37 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       width
       height
     }
+    images(first: 5) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+    variants(first: 1) {
+      nodes {
+        id
+        selectedOptions {
+          name
+          value
+        }
+        price {
+          amount
+          currencyCode
+        }
+        compareAtPrice {
+          amount
+          currencyCode
+        }
+        availableForSale
+      }
+    }
   }
   query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    products(first: 4, sortKey: UPDATED_AT, reverse: true) {
+    products(first: 8, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...RecommendedProduct
       }

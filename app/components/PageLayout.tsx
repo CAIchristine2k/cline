@@ -1,5 +1,5 @@
-import {Await, Link} from 'react-router';
-import {Suspense, useId} from 'react';
+import {Suspense} from 'react';
+import {Await} from 'react-router';
 import type {
   CartApiQueryFragment,
   FooterQuery,
@@ -7,22 +7,20 @@ import type {
 } from 'storefrontapi.generated';
 import {Aside} from '~/components/Aside';
 import {Footer} from '~/components/Footer';
-import {Header, HeaderMenu} from '~/components/Header';
+import {Header} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
-import {
-  SEARCH_ENDPOINT,
-  SearchFormPredictive,
-} from '~/components/SearchFormPredictive';
+import {SearchFormPredictive} from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
+import {ThemeSwitcher, ThemeConfigPanel} from '~/components/ThemeSwitcher';
 
-interface PageLayoutProps {
+export type PageLayoutProps = {
   cart: Promise<CartApiQueryFragment | null>;
   footer: Promise<FooterQuery | null>;
-  header: HeaderQuery;
+  header: Promise<HeaderQuery | null>;
   isLoggedIn: Promise<boolean>;
   publicStoreDomain: string;
   children?: React.ReactNode;
-}
+};
 
 export function PageLayout({
   cart,
@@ -34,141 +32,137 @@ export function PageLayout({
 }: PageLayoutProps) {
   return (
     <Aside.Provider>
-      <CartAside cart={cart} />
-      <SearchAside />
-      <MobileMenuAside header={header} publicStoreDomain={publicStoreDomain} />
-      {header && (
+      <div className="flex flex-col min-h-screen bg-black text-white">
         <Header
           header={header}
           cart={cart}
           isLoggedIn={isLoggedIn}
           publicStoreDomain={publicStoreDomain}
         />
-      )}
-      <main>{children}</main>
-      <Footer
-        footer={footer}
-        header={header}
-        publicStoreDomain={publicStoreDomain}
-      />
-    </Aside.Provider>
-  );
-}
-
-function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
-  return (
-    <Aside type="cart" heading="CART">
-      <Suspense fallback={<p>Loading cart ...</p>}>
-        <Await resolve={cart}>
-          {(cart) => {
-            return <CartMain cart={cart} layout="aside" />;
-          }}
-        </Await>
-      </Suspense>
-    </Aside>
-  );
-}
-
-function SearchAside() {
-  const queriesDatalistId = useId();
-  return (
-    <Aside type="search" heading="SEARCH">
-      <div className="predictive-search">
-        <br />
-        <SearchFormPredictive>
-          {({fetchResults, goToSearch, inputRef}) => (
-            <>
-              <input
-                name="q"
-                onChange={fetchResults}
-                onFocus={fetchResults}
-                placeholder="Search"
-                ref={inputRef}
-                type="search"
-                list={queriesDatalistId}
+        
+        <main className="flex-grow">
+          {children}
+        </main>
+        
+        <Suspense>
+          <Await resolve={Promise.all([footer, header])}>
+            {([footerData, headerData]) => (
+              <Footer 
+                menu={footerData?.menu} 
+                shop={headerData?.shop} 
               />
-              &nbsp;
-              <button onClick={goToSearch}>Search</button>
-            </>
-          )}
-        </SearchFormPredictive>
-
-        <SearchResultsPredictive>
-          {({items, total, term, state, closeSearch}) => {
-            const {articles, collections, pages, products, queries} = items;
-
-            if (state === 'loading' && term.current) {
-              return <div>Loading...</div>;
-            }
-
-            if (!total) {
-              return <SearchResultsPredictive.Empty term={term} />;
-            }
-
-            return (
-              <>
-                <SearchResultsPredictive.Queries
-                  queries={queries}
-                  queriesDatalistId={queriesDatalistId}
-                />
-                <SearchResultsPredictive.Products
-                  products={products}
-                  closeSearch={closeSearch}
-                  term={term}
-                />
-                <SearchResultsPredictive.Collections
-                  collections={collections}
-                  closeSearch={closeSearch}
-                  term={term}
-                />
-                <SearchResultsPredictive.Pages
-                  pages={pages}
-                  closeSearch={closeSearch}
-                  term={term}
-                />
-                <SearchResultsPredictive.Articles
-                  articles={articles}
-                  closeSearch={closeSearch}
-                  term={term}
-                />
-                {term.current && total ? (
-                  <Link
-                    onClick={closeSearch}
-                    to={`${SEARCH_ENDPOINT}?q=${term.current}`}
-                  >
-                    <p>
-                      View all results for <q>{term.current}</q>
-                      &nbsp; →
-                    </p>
-                  </Link>
-                ) : null}
-              </>
-            );
-          }}
-        </SearchResultsPredictive>
+            )}
+          </Await>
+        </Suspense>
       </div>
-    </Aside>
-  );
-}
-
-function MobileMenuAside({
-  header,
-  publicStoreDomain,
-}: {
-  header: PageLayoutProps['header'];
-  publicStoreDomain: PageLayoutProps['publicStoreDomain'];
-}) {
-  return (
-    header.menu &&
-    header.shop.primaryDomain?.url && (
-      <Aside type="mobile" heading="MENU">
-        <HeaderMenu
-          menu={header.menu}
-          viewport="mobile"
-          primaryDomainUrl={header.shop.primaryDomain.url}
-          publicStoreDomain={publicStoreDomain}
-        />
+      
+      {/* Aside Components */}
+      <Aside type="search" heading="SEARCH">
+        <div className="bg-black text-white p-4">
+          <SearchFormPredictive>
+            {({fetchResults, inputRef}) => (
+              <div>
+                <input
+                  name="q"
+                  onChange={fetchResults}
+                  onFocus={fetchResults}
+                  placeholder="Search products..."
+                  ref={inputRef}
+                  type="search"
+                  className="w-full p-3 bg-gray-800 border border-gray-700 rounded-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+                &nbsp;
+                <button
+                  onClick={() => {
+                    window.location.href = inputRef?.current?.value
+                      ? `/search?q=${inputRef.current.value}`
+                      : `/search`;
+                  }}
+                  className="mt-2 bg-gold-500 hover:bg-gold-400 text-black font-bold py-2 px-4 rounded-sm transition-colors duration-300"
+                >
+                  Search
+                </button>
+              </div>
+            )}
+          </SearchFormPredictive>
+          <SearchResultsPredictive>
+            {({items, total, term, state, closeSearch}) => (
+              <div>
+                {state === 'loading' && <p>Loading...</p>}
+                {items && (
+                  <div>
+                    <SearchResultsPredictive.Products
+                      products={items.products}
+                      closeSearch={closeSearch}
+                      term={term}
+                    />
+                    <SearchResultsPredictive.Collections
+                      collections={items.collections}
+                      closeSearch={closeSearch}
+                      term={term}
+                    />
+                    <SearchResultsPredictive.Pages
+                      pages={items.pages}
+                      closeSearch={closeSearch}
+                      term={term}
+                    />
+                    <SearchResultsPredictive.Articles
+                      articles={items.articles}
+                      closeSearch={closeSearch}
+                      term={term}
+                    />
+                  </div>
+                )}
+                {!total && term.current && (
+                  <SearchResultsPredictive.Empty term={term} />
+                )}
+              </div>
+            )}
+          </SearchResultsPredictive>
+        </div>
       </Aside>
-    )
+      
+      <Aside type="cart" heading="CART">
+        <Suspense fallback={<p>Loading cart...</p>}>
+          <Await resolve={cart}>
+            {(cart) => {
+              return <CartMain cart={cart} layout="aside" />;
+            }}
+          </Await>
+        </Suspense>
+      </Aside>
+      
+      <Aside type="mobile" heading="MENU">
+        <Suspense>
+          <Await resolve={header}>
+            {(header) => (
+              <div className="bg-black text-white p-4">
+                <nav className="space-y-4">
+                  <a href="/" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+                    Home
+                  </a>
+                  <a href="#shop" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+                    Shop
+                  </a>
+                  <a href="#career" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+                    Career
+                  </a>
+                  <a href="/collections" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+                    Collections
+                  </a>
+                  <a href="/pages/about" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+                    About
+                  </a>
+                </nav>
+              </div>
+            )}
+          </Await>
+        </Suspense>
+      </Aside>
+
+      {/* Theme Customization Tools */}
+      <ThemeSwitcher />
+      <ThemeConfigPanel />
+    </Aside.Provider>
   );
 }
