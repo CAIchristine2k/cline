@@ -4,12 +4,12 @@ import {Link} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {ProductCard} from './ProductCard';
 import type {LandingPageConfig} from '~/lib/config';
-import type {RecommendedProductsQuery, FeaturedCollectionFragment} from 'storefrontapi.generated';
+import type {ProductItemFragment, CollectionFragment} from 'storefrontapi.generated';
 
 interface ProductShowcaseProps {
   config: LandingPageConfig;
-  products?: RecommendedProductsQuery['products']['nodes'] | null;
-  featuredCollection?: FeaturedCollectionFragment | null;
+  products?: ProductItemFragment[] | null;
+  featuredCollection?: CollectionFragment | null;
 }
 
 export default function ProductShowcase({config, products = [], featuredCollection}: ProductShowcaseProps) {
@@ -63,7 +63,7 @@ export default function ProductShowcase({config, products = [], featuredCollecti
         {/* Products Grid - Shopify products with config fallbacks */}
         {displayProducts ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {displayProducts.map((product, index) => (
+            {displayProducts.map((product: ProductItemFragment, index: number) => (
               <ProductCard 
                 key={product.id} 
                 product={product} 

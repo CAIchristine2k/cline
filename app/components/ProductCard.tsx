@@ -5,11 +5,10 @@ import { Image, Money } from '@shopify/hydrogen';
 import type {
   ProductItemFragment,
   CollectionItemFragment,
-  RecommendedProductFragment,
 } from 'storefrontapi.generated';
 
 interface ProductCardProps {
-  product: ProductItemFragment | CollectionItemFragment | RecommendedProductFragment;
+  product: ProductItemFragment | CollectionItemFragment;
   loading?: 'eager' | 'lazy';
 }
 

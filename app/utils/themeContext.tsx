@@ -17,7 +17,11 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderProps) {
-  const [config, setConfig] = useState<LandingPageConfig>(() => getConfig(initialConfig));
+  const baseConfig = getConfig();
+  const [config, setConfig] = useState<LandingPageConfig>(() => ({
+    ...baseConfig,
+    ...initialConfig
+  }));
   const [theme, setThemeState] = useState<ThemeConfig>(() => getTheme());
 
   // Initialize theme based on config
@@ -30,10 +34,10 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
       influencerTitle: config.influencerTitle,
       influencerImage: config.influencerImage,
       socialLinks: {
-        instagram: config.instagramHandle ? `https://instagram.com/${config.instagramHandle}` : undefined,
-        twitter: config.twitterHandle ? `https://twitter.com/${config.twitterHandle}` : undefined,
-        youtube: config.youtubeChannel ? `https://youtube.com/${config.youtubeChannel}` : undefined,
-        tiktok: config.tiktokHandle ? `https://tiktok.com/@${config.tiktokHandle}` : undefined,
+        instagram: config.socialLinks.instagram,
+        twitter: config.socialLinks.twitter,
+        youtube: config.socialLinks.youtube,
+        tiktok: config.socialLinks.tiktok,
       }
     };
 
@@ -52,7 +56,12 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
   };
 
   const updateConfig = (newConfig: Partial<LandingPageConfig>) => {
-    const updatedConfig = getConfig({ ...config, ...newConfig });
+    const baseConfig = getConfig();
+    const updatedConfig = {
+      ...baseConfig,
+      ...config,
+      ...newConfig
+    };
     setConfig(updatedConfig);
   };
 
