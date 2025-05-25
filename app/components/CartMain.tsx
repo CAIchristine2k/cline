@@ -4,12 +4,14 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
+import type {LandingPageConfig} from '~/lib/config';
 
 export type CartLayout = 'page' | 'aside';
 
 export type CartMainProps = {
   cart: CartApiQueryFragment | null;
   layout: CartLayout;
+  config?: LandingPageConfig;
 };
 
 /**

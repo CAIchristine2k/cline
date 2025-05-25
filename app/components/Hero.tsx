@@ -1,235 +1,117 @@
-import React, {useState, useEffect} from 'react';
-import {Play, Star, Trophy, Users, Calendar} from 'lucide-react';
-import {useConfig} from '~/utils/themeContext';
-import {AnimatedSection, StaggerContainer, StaggerItem, AnimatedCounter} from '~/utils/animations';
-import {cn, responsiveText, container} from '~/utils/cn';
-import {motion} from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { ShoppingBag, Trophy } from 'lucide-react';
+import type { LandingPageConfig } from '~/lib/config';
 
-export function Hero() {
-  const config = useConfig();
-  const [currentVideoTime, setCurrentVideoTime] = useState(0);
+interface HeroProps {
+  config: LandingPageConfig;
+}
+
+export default function Hero({ config }: HeroProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentVideoTime(prev => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.8;
+    }
   }, []);
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
-      {/* Background Image/Video */}
-      <div className="absolute inset-0 z-0">
-        {config.heroBackgroundImage && (
-          <motion.div
-            initial={{scale: 1.1, opacity: 0}}
-            animate={{scale: 1, opacity: 0.6}}
-            transition={{duration: 1.5, ease: 'easeOut'}}
-            className="w-full h-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${config.heroBackgroundImage})`,
-            }}
+    <section id="home" className="relative min-h-screen overflow-hidden flex items-center pt-16">
+      {/* Video Background with Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10"></div>
+      
+      {config.heroVideoUrl ? (
+        <video
+          ref={videoRef}
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+        >
+          <source src={config.heroVideoUrl} type="video/mp4" />
+          {/* Fallback to image if video doesn't load */}
+          <img 
+            src={config.heroBackgroundImage}
+            alt={`${config.influencerName} hero background`}
+            className="absolute inset-0 w-full h-full object-cover"
           />
-        )}
-        
-        {/* Overlay Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60"></div>
-      </div>
+        </video>
+      ) : (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('${config.heroBackgroundImage}')`,
+          }}
+        />
+      )}
 
-      {/* Content */}
-      <div className={cn('relative z-10 text-center', container('5xl'))}>
-        <StaggerContainer className="max-w-5xl mx-auto" staggerDelay={0.2}>
-          {/* Championship Badge */}
-          <StaggerItem>
-            <div className="inline-flex items-center space-x-2 bg-gold-500/20 backdrop-blur-sm border border-gold-500/30 rounded-full px-6 py-3 mb-8">
-              <Trophy className="h-5 w-5 text-gold-500" />
-              <span className="text-gold-500 font-bold text-sm uppercase tracking-wider">
-                {config.influencerTitle}
-              </span>
-            </div>
-          </StaggerItem>
-
-          {/* Main Heading */}
-          <StaggerItem>
-            <h1 className={cn(
-              'font-bold mb-6 leading-tight',
-              responsiveText('7xl')
-            )}>
-              <span className="text-white">{config.heroTitle}</span>
-            </h1>
-          </StaggerItem>
-
-          {/* Subtitle */}
-          <StaggerItem>
-            <p className={cn(
-              'text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed',
-              responsiveText('xl')
-            )}>
-              {config.heroSubtitle}
-            </p>
-          </StaggerItem>
-
-          {/* Stats - Dynamic based on influencer */}
-          <StaggerItem>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 max-w-4xl mx-auto">
-              <motion.div 
-                className="bg-black/40 backdrop-blur-sm border border-gray-700 rounded-lg p-4"
-                whileHover={{
-                  scale: 1.05,
-                  borderColor: 'rgb(212, 175, 55)',
-                  transition: {duration: 0.2}
-                }}
-              >
-                <AnimatedCounter 
-                  value={49} 
-                  className="text-2xl md:text-3xl font-bold text-gold-500 mb-1 block"
-                />
-                <div className="text-sm text-gray-400 uppercase tracking-wider">Total Fights</div>
-              </motion.div>
-              <motion.div 
-                className="bg-black/40 backdrop-blur-sm border border-gray-700 rounded-lg p-4"
-                whileHover={{
-                  scale: 1.05,
-                  borderColor: 'rgb(212, 175, 55)',
-                  transition: {duration: 0.2}
-                }}
-              >
-                <AnimatedCounter 
-                  value={39} 
-                  className="text-2xl md:text-3xl font-bold text-gold-500 mb-1 block"
-                />
-                <div className="text-sm text-gray-400 uppercase tracking-wider">Wins</div>
-              </motion.div>
-              <motion.div 
-                className="bg-black/40 backdrop-blur-sm border border-gray-700 rounded-lg p-4"
-                whileHover={{
-                  scale: 1.05,
-                  borderColor: 'rgb(212, 175, 55)',
-                  transition: {duration: 0.2}
-                }}
-              >
-                <AnimatedCounter 
-                  value={30} 
-                  className="text-2xl md:text-3xl font-bold text-gold-500 mb-1 block"
-                />
-                <div className="text-sm text-gray-400 uppercase tracking-wider">Knockouts</div>
-              </motion.div>
-              <motion.div 
-                className="bg-black/40 backdrop-blur-sm border border-gray-700 rounded-lg p-4"
-                whileHover={{
-                  scale: 1.05,
-                  borderColor: 'rgb(212, 175, 55)',
-                  transition: {duration: 0.2}
-                }}
-              >
-                <AnimatedCounter 
-                  value={3} 
-                  className="text-2xl md:text-3xl font-bold text-gold-500 mb-1 block"
-                />
-                <div className="text-sm text-gray-400 uppercase tracking-wider">World Titles</div>
-              </motion.div>
-            </div>
-          </StaggerItem>
-
-          {/* Call to Action Buttons */}
-          <StaggerItem>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-              <motion.button
-                onClick={() => scrollToSection('shop')}
-                className="group bg-gold-500 hover:bg-gold-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center space-x-2 uppercase tracking-wider shadow-2xl"
-                whileHover={{scale: 1.05, boxShadow: '0 0 25px rgba(212, 175, 55, 0.5)'}}
-                whileTap={{scale: 0.95}}
-              >
-                <Trophy className="h-5 w-5" />
-                <span>{config.ctaText}</span>
-              </motion.button>
-              
-              <motion.button
-                onClick={() => scrollToSection('career')}
-                className="group bg-transparent hover:bg-white/10 text-white border-2 border-white hover:border-gold-500 hover:text-gold-500 font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center space-x-2 uppercase tracking-wider backdrop-blur-sm"
-                whileHover={{scale: 1.05}}
-                whileTap={{scale: 0.95}}
-              >
-                <Play className="h-5 w-5 transition-transform group-hover:scale-110" />
-                <span>Watch Legacy</span>
-              </motion.button>
-            </div>
-          </StaggerItem>
-
-          {/* Social Proof */}
-          <StaggerItem>
-            <div className="flex items-center justify-center space-x-8 text-gray-400">
-              <div className="flex items-center space-x-2">
-                <Star className="h-5 w-5 text-gold-500 fill-current" />
-                <span className="text-sm">
-                  <span className="text-gold-500 font-bold">4.9</span> Champion Rating
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Users className="h-5 w-5 text-gold-500" />
-                <span className="text-sm">
-                  <span className="text-gold-500 font-bold">50K+</span> Boxing Fans
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-gold-500" />
-                <span className="text-sm">
-                  <span className="text-gold-500 font-bold">30+</span> Years Legacy
-                </span>
-              </div>
-            </div>
-          </StaggerItem>
-        </StaggerContainer>
-      </div>
-
-      {/* Scroll Indicator */}
-      <AnimatedSection 
-        variant="fadeIn" 
-        delay={1.5}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
-      >
-        <div className="animate-bounce">
-          <div className="w-6 h-10 border-2 border-gold-500 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gold-500 rounded-full mt-2 animate-pulse"></div>
+      {/* Hero Content */}
+      <div className="relative container mx-auto px-4 z-20 py-20">
+        <div className="max-w-3xl">
+          <div className="inline-block bg-primary text-black font-bold py-1 px-4 mb-6 tracking-wider rounded-sm">
+            {config.influencerTitle.toUpperCase()}
           </div>
-        </div>
-      </AnimatedSection>
+          
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <span className="text-white">{config.heroTitle.split(' ').slice(0, -1).join(' ')}</span>
+            <br />
+            <span className="text-primary tracking-wider hero-title-glow">
+              {config.heroTitle.split(' ').slice(-1)[0] || config.influencerName.toUpperCase()}
+            </span>
+          </h1>
 
-      {/* Decorative Elements */}
-      <motion.div 
-        className="absolute top-20 left-10 w-32 h-32 bg-gold-500/10 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.6, 0.3],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
-      <motion.div 
-        className="absolute bottom-40 right-20 w-48 h-48 bg-gold-500/5 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.2, 0.5, 0.2],
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 2,
-        }}
-      />
+          <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-xl leading-relaxed">
+            {config.heroSubtitle}
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-5">
+            <a
+              href={config.ctaLink}
+              className="group bg-primary hover:bg-primary/90 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center sm:justify-start shadow-glow"
+            >
+              {config.ctaText}
+              <ShoppingBag className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </a>
+
+            <a
+              href="#career"
+              className="group bg-transparent border-2 border-white hover:border-primary text-white hover:text-primary font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center sm:justify-start"
+            >
+              EXPLORE CAREER
+              <Trophy className="ml-2 h-5 w-5 transition-transform group-hover:translate-y-[-2px]" />
+            </a>
+          </div>
+          
+          {/* Boxing statistics badges - pulled from config */}
+          {config.careerHighlights && config.careerHighlights.length > 0 && (
+            <div className="mt-16 mb-16 md:mb-24 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-primary text-3xl font-bold hero-stat-glow">49</div>
+                <div className="text-white text-sm tracking-wider">CAREER WINS</div>
+              </div>
+              <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-primary text-3xl font-bold hero-stat-glow">41</div>
+                <div className="text-white text-sm tracking-wider">KOs</div>
+              </div>
+              <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-primary text-3xl font-bold hero-stat-glow">9</div>
+                <div className="text-white text-sm tracking-wider">WORLD TITLES</div>
+              </div>
+              <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-primary text-3xl font-bold hero-stat-glow">3</div>
+                <div className="text-white text-sm tracking-wider">WEIGHT DIVISIONS</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
+          <span className="text-white text-xs mb-2 tracking-widest">SCROLL DOWN</span>
+          <div className="w-0.5 h-12 bg-primary"></div>
+        </div>
+      </div>
     </section>
   );
 }

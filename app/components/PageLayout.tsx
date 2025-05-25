@@ -33,27 +33,13 @@ export function PageLayout({
   return (
     <Aside.Provider>
       <div className="flex flex-col min-h-screen bg-black text-white">
-        <Header
-          header={header}
-          cart={cart}
-          isLoggedIn={isLoggedIn}
-          publicStoreDomain={publicStoreDomain}
-        />
+        <Header />
         
         <main className="flex-grow">
           {children}
         </main>
         
-        <Suspense>
-          <Await resolve={Promise.all([footer, header])}>
-            {([footerData, headerData]) => (
-              <Footer 
-                menu={footerData?.menu} 
-                shop={headerData?.shop} 
-              />
-            )}
-          </Await>
-        </Suspense>
+        <Footer />
       </div>
       
       {/* Aside Components */}
@@ -133,31 +119,25 @@ export function PageLayout({
       </Aside>
       
       <Aside type="mobile" heading="MENU">
-        <Suspense>
-          <Await resolve={header}>
-            {(header) => (
-              <div className="bg-black text-white p-4">
-                <nav className="space-y-4">
-                  <a href="/" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
-                    Home
-                  </a>
-                  <a href="#shop" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
-                    Shop
-                  </a>
-                  <a href="#career" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
-                    Career
-                  </a>
-                  <a href="/collections" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
-                    Collections
-                  </a>
-                  <a href="/pages/about" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
-                    About
-                  </a>
-                </nav>
-              </div>
-            )}
-          </Await>
-        </Suspense>
+        <div className="bg-black text-white p-4">
+          <nav className="space-y-4">
+            <a href="/" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+              Home
+            </a>
+            <a href="#shop" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+              Shop
+            </a>
+            <a href="#career" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+              Career
+            </a>
+            <a href="/collections" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+              Collections
+            </a>
+            <a href="/pages/about" className="block text-white hover:text-gold-500 font-semibold text-lg transition-colors duration-300">
+              About
+            </a>
+          </nav>
+        </div>
       </Aside>
 
       {/* Theme Customization Tools */}

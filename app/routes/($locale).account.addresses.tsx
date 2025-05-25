@@ -21,6 +21,7 @@ import {
   DELETE_ADDRESS_MUTATION,
   CREATE_ADDRESS_MUTATION,
 } from '~/graphql/customer-account/CustomerAddressMutations';
+import {MapPin, Plus, Save, Trash2, AlertCircle, CheckCircle} from 'lucide-react';
 
 export type ActionResponse = {
   addressId?: string | null;
@@ -32,7 +33,7 @@ export type ActionResponse = {
 };
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Addresses'}];
+  return [{title: 'Sugar Shane | Addresses'}];
 };
 
 export async function loader({context}: LoaderFunctionArgs) {

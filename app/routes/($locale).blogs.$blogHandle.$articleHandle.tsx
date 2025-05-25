@@ -1,10 +1,13 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, type MetaFunction} from 'react-router';
+import {useLoaderData, type MetaFunction, Link} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {getConfig} from '~/lib/config';
+import {ArrowLeft, Calendar, User} from 'lucide-react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return [{title: `Hydrogen | ${data?.article.title ?? ''} article`}];
+  const config = getConfig();
+  return [{title: `${config.brandName} | ${data?.article.title ?? ''}`}];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -66,11 +69,19 @@ async function loadCriticalData({
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
 function loadDeferredData({context}: LoaderFunctionArgs) {
-  return {};
+  // Get configuration
+  const config = getConfig();
+
+  return {
+    config: {
+      ...config,
+      theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
+    },
+  };
 }
 
 export default function Article() {
-  const {article} = useLoaderData<typeof loader>();
+  const {article, config} = useLoaderData<typeof loader>();
   const {title, image, contentHtml, author} = article;
 
   const publishedDate = new Intl.DateTimeFormat('en-US', {
@@ -80,20 +91,84 @@ export default function Article() {
   }).format(new Date(article.publishedAt));
 
   return (
-    <div className="article">
-      <h1>
-        {title}
-        <div>
-          <time dateTime={article.publishedAt}>{publishedDate}</time> &middot;{' '}
-          <address>{author?.name}</address>
+    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-4 py-24">
+        {/* Back Navigation */}
+        <div className="mb-8">
+          <Link
+            to={`/blogs/${article.blog?.handle || 'news'}`}
+            className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Blog
+          </Link>
         </div>
-      </h1>
 
-      {image && <Image data={image} sizes="90vw" loading="eager" />}
-      <div
-        dangerouslySetInnerHTML={{__html: contentHtml}}
-        className="article"
-      />
+        {/* Article Content */}
+        <article className="max-w-4xl mx-auto">
+          {/* Article Header */}
+          <header className="text-center mb-12">
+            <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-6 rounded-sm">
+              Article
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+              {title}
+            </h1>
+
+            <div className="flex items-center justify-center text-gray-400 text-sm">
+              <Calendar className="w-4 h-4 mr-2" />
+              <time dateTime={article.publishedAt}>{publishedDate}</time>
+              {author && (
+                <>
+                  <span className="mx-3">•</span>
+                  <User className="w-4 h-4 mr-2" />
+                  <span>{author.name}</span>
+                </>
+              )}
+            </div>
+          </header>
+
+          {/* Featured Image */}
+          {image && (
+            <div className="mb-12 rounded-sm overflow-hidden">
+              <Image
+                data={image}
+                sizes="(max-width: 768px) 100vw, 80vw"
+                loading="eager"
+                className="w-full h-auto"
+              />
+            </div>
+          )}
+
+          {/* Article Content */}
+          <div className="prose prose-invert prose-lg max-w-none">
+            <div
+              dangerouslySetInnerHTML={{__html: contentHtml}}
+              className="text-gray-300 leading-relaxed [&>h1]:text-white [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-6 [&>h1]:mt-8 [&>h2]:text-white [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:mt-6 [&>h3]:text-white [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-3 [&>h3]:mt-5 [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:mb-4 [&>ul]:pl-6 [&>li]:mb-2 [&>li]:text-gray-300 [&>blockquote]:border-l-4 [&>blockquote]:border-gold-500 [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-gold-300 [&>blockquote]:bg-gold-900/10 [&>blockquote]:py-4 [&>blockquote]:my-6 [&>a]:text-gold-500 [&>a]:hover:text-gold-400 [&>a]:transition-colors [&>a]:duration-300"
+            />
+          </div>
+
+          {/* Share Section */}
+          <div className="mt-16 pt-8 border-t border-gray-800">
+            <div className="bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 border border-gold-500/30 rounded-sm p-8 text-center">
+              <h3 className="text-xl font-bold text-gold-500 mb-4">
+                Enjoyed This Article?
+              </h3>
+              <p className="text-gray-300 mb-6">
+                Stay updated with the latest insights and training tips from{' '}
+                {config.influencerName}.
+              </p>
+              <Link
+                to="/blogs"
+                className="inline-flex items-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
+              >
+                Read More Articles
+              </Link>
+            </div>
+          </div>
+        </article>
+      </div>
     </div>
   );
 }
@@ -126,6 +201,9 @@ const ARTICLE_QUERY = `#graphql
         seo {
           description
           title
+        }
+        blog {
+          handle
         }
       }
     }

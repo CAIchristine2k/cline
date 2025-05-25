@@ -18,15 +18,17 @@ export function ProductForm({
   const navigate = useNavigate();
   const {open} = useAside();
   return (
-    <div className="product-form">
+    <div className="space-y-6">
       {productOptions.map((option) => {
         // If there is only a single value in the option values, don't display the option
         if (option.optionValues.length === 1) return null;
 
         return (
-          <div className="product-options" key={option.name}>
-            <h5>{option.name}</h5>
-            <div className="product-options-grid">
+          <div key={option.name} className="space-y-3">
+            <h5 className="text-lg font-semibold text-white uppercase tracking-wider">
+              {option.name}
+            </h5>
+            <div className="flex flex-wrap gap-3">
               {option.optionValues.map((value) => {
                 const {
                   name,
@@ -39,6 +41,17 @@ export function ProductForm({
                   swatch,
                 } = value;
 
+                const baseClasses = `
+                  inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-sm 
+                  border-2 transition-all duration-300 min-w-[60px] h-10
+                  ${selected 
+                    ? 'border-gold-500 bg-gold-500 text-black' 
+                    : 'border-gray-600 bg-transparent text-white hover:border-gold-500 hover:text-gold-500'
+                  }
+                  ${!available ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                  ${!exists ? 'opacity-30' : ''}
+                `;
+
                 if (isDifferentProduct) {
                   // SEO
                   // When the variant is a combined listing child product
@@ -46,18 +59,12 @@ export function ProductForm({
                   // as an anchor tag
                   return (
                     <Link
-                      className="product-options-item"
+                      className={baseClasses}
                       key={option.name + name}
                       prefetch="intent"
                       preventScrollReset
                       replace
                       to={`/products/${handle}?${variantUriQuery}`}
-                      style={{
-                        border: selected
-                          ? '1px solid black'
-                          : '1px solid transparent',
-                        opacity: available ? 1 : 0.3,
-                      }}
                     >
                       <ProductOptionSwatch swatch={swatch} name={name} />
                     </Link>
@@ -71,19 +78,11 @@ export function ProductForm({
                   return (
                     <button
                       type="button"
-                      className={`product-options-item${
-                        exists && !selected ? ' link' : ''
-                      }`}
+                      className={baseClasses}
                       key={option.name + name}
-                      style={{
-                        border: selected
-                          ? '1px solid black'
-                          : '1px solid transparent',
-                        opacity: available ? 1 : 0.3,
-                      }}
-                      disabled={!exists}
+                      disabled={!exists || !available}
                       onClick={() => {
-                        if (!selected) {
+                        if (!selected && available) {
                           navigate(`?${variantUriQuery}`, {
                             replace: true,
                             preventScrollReset: true,
@@ -97,29 +96,32 @@ export function ProductForm({
                 }
               })}
             </div>
-            <br />
           </div>
         );
       })}
-      <AddToCartButton
-        disabled={!selectedVariant || !selectedVariant.availableForSale}
-        onClick={() => {
-          open('cart');
-        }}
-        lines={
-          selectedVariant
-            ? [
-                {
-                  merchandiseId: selectedVariant.id,
-                  quantity: 1,
-                  selectedVariant,
-                },
-              ]
-            : []
-        }
-      >
-        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
-      </AddToCartButton>
+      
+      <div className="pt-4">
+        <AddToCartButton
+          disabled={!selectedVariant || !selectedVariant.availableForSale}
+          onClick={() => {
+            open('cart');
+          }}
+          lines={
+            selectedVariant
+              ? [
+                  {
+                    merchandiseId: selectedVariant.id,
+                    quantity: 1,
+                    selectedVariant,
+                  },
+                ]
+              : []
+          }
+          className="w-full bg-gold-500 hover:bg-gold-400 text-black font-bold py-4 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        >
+          {selectedVariant?.availableForSale ? 'Add to Cart' : 'Sold Out'}
+        </AddToCartButton>
+      </div>
     </div>
   );
 }
@@ -134,17 +136,26 @@ function ProductOptionSwatch({
   const image = swatch?.image?.previewImage?.url;
   const color = swatch?.color;
 
-  if (!image && !color) return name;
+  if (!image && !color) {
+    return <span className="text-center">{name}</span>;
+  }
 
   return (
-    <div
-      aria-label={name}
-      className="product-option-label-swatch"
-      style={{
-        backgroundColor: color || 'transparent',
-      }}
-    >
-      {!!image && <img src={image} alt={name} />}
+    <div className="flex items-center justify-center">
+      {image ? (
+        <img 
+          src={image} 
+          alt={name} 
+          className="w-6 h-6 rounded-sm object-cover"
+        />
+      ) : color ? (
+        <div
+          className="w-6 h-6 rounded-sm border border-gray-400"
+          style={{ backgroundColor: color }}
+          aria-label={name}
+        />
+      ) : null}
+      <span className="ml-2 text-center">{name}</span>
     </div>
   );
 }

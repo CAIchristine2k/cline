@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle } from './themeConfig';
-import { initConfig, defaultConfig, LandingPageConfig } from './config';
+import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle } from '~/lib/themeConfig';
+import { getConfig, type LandingPageConfig } from '~/lib/config';
 
 interface ThemeContextType {
   theme: ThemeConfig;
@@ -17,7 +17,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderProps) {
-  const [config, setConfig] = useState<LandingPageConfig>(() => initConfig(initialConfig));
+  const [config, setConfig] = useState<LandingPageConfig>(() => getConfig(initialConfig));
   const [theme, setThemeState] = useState<ThemeConfig>(() => getTheme());
 
   // Initialize theme based on config
@@ -52,7 +52,7 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
   };
 
   const updateConfig = (newConfig: Partial<LandingPageConfig>) => {
-    const updatedConfig = initConfig({ ...config, ...newConfig });
+    const updatedConfig = getConfig({ ...config, ...newConfig });
     setConfig(updatedConfig);
   };
 
@@ -84,4 +84,4 @@ export function useConfig() {
     throw new Error('useConfig must be used within a ThemeProvider');
   }
   return context.config;
-} 
+}

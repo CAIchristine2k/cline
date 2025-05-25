@@ -1,182 +1,164 @@
 import React from 'react';
-import {Instagram, Heart, MessageCircle, Share} from 'lucide-react';
+import { Instagram, Twitter, Facebook, ExternalLink } from 'lucide-react';
+import type { LandingPageConfig } from '~/lib/config';
 
-export function SocialFeed() {
-  const socialPosts = [
+interface SocialFeedProps {
+  config: LandingPageConfig;
+}
+
+type Platform = 'instagram' | 'twitter' | 'facebook';
+
+interface SocialPost {
+  id: number;
+  platform: Platform;
+  content: string;
+  image: string;
+  likes: number;
+  date: string;
+}
+
+export default function SocialFeed({ config }: SocialFeedProps) {
+  // Mock social posts - in a real implementation, these would come from social media APIs
+  const socialPosts: SocialPost[] = [
     {
       id: 1,
-      image: "/images/social-feed-1.jpeg",
-      caption: "Training never stops. Championship mentality 💪 #SugarShane #BoxingLegend",
-      likes: 15420,
-      comments: 892,
-      timeAgo: "2h"
+      platform: 'instagram',
+      content: `Training the next generation of champions. The legacy continues! #${config.influencerName.replace(' ', '')} #Boxing`,
+      image: 'https://images.unsplash.com/photo-1517438322307-e67111335449?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwzfHxib3hpbmclMjBob29kaWUlMjBzcG9ydHN3ZWFyfGVufDB8MHx8fDE3NDc4NjQ1NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      likes: 15423,
+      date: '2d ago'
     },
     {
       id: 2,
-      image: "/images/social-feed-2.jpeg", 
-      caption: "New collection dropping soon! Premium quality for champions 🥊✨",
-      likes: 22150,
-      comments: 1340,
-      timeAgo: "1d"
+      platform: 'twitter',
+      content: `Just announced! New limited edition gloves dropping next week. Stay tuned for early access! #${config.brandName}Collection`,
+      image: 'https://images.unsplash.com/photo-1622599518895-be813cc42628?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwxfHxwcmVtaXVtJTIwYm94aW5nJTIwZ2xvdmVzfGVufDB8MHx8fDE3NDc4NjQ1NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      likes: 8742,
+      date: '5d ago'
     },
     {
       id: 3,
-      image: "/images/social-feed-3.jpeg",
-      caption: "Throwback to championship days. The hunger never dies 🏆",
-      likes: 31800,
-      comments: 2156,
-      timeAgo: "3d"
+      platform: 'instagram',
+      content: `Throwback to one of my favorite moments in the ring. What's your favorite ${config.influencerName} fight? Comment below! 👇`,
+      image: config.influencerImage,
+      likes: 23156,
+      date: '1w ago'
     },
     {
       id: 4,
-      image: "/images/social-feed-4.jpeg",
-      caption: "Behind the scenes: Crafting excellence for the next generation 🥊",
-      likes: 18900,
-      comments: 967,
-      timeAgo: "5d"
+      platform: 'facebook',
+      content: 'Honored to be featured in this month\'s Boxing Legacy magazine. Check out the full interview at the link in bio.',
+      image: 'https://images.unsplash.com/photo-1652169916747-17834febef96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwzfHxhdGhsZXRpYyUyMG1hbiUyMGJveGluZ3xlbnwwfDB8fHwxNzQ3ODY0NTk1fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      likes: 5621,
+      date: '2w ago'
     }
   ];
 
+  const socialLinks = [
+    { platform: 'Instagram', icon: Instagram, color: 'hover:text-pink-500', url: config.socialLinks.instagram },
+    { platform: 'Twitter', icon: Twitter, color: 'hover:text-blue-400', url: config.socialLinks.twitter },
+    { platform: 'Facebook', icon: Facebook, color: 'hover:text-blue-600', url: config.socialLinks.facebook }
+  ].filter(link => link.url); // Only show links that are configured
+
+  const getPlatformIcon = (platform: Platform) => {
+    switch (platform) {
+      case 'instagram': return Instagram;
+      case 'twitter': return Twitter;
+      case 'facebook': return Facebook;
+      default: return Instagram;
+    }
+  };
+
+  const getPlatformColor = (platform: Platform): string => {
+    switch (platform) {
+      case 'instagram': return 'text-pink-500';
+      case 'twitter': return 'text-blue-400';
+      case 'facebook': return 'text-blue-600';
+      default: return '';
+    }
+  };
+
+  const formatLikes = (likes: number): string => {
+    return likes.toLocaleString();
+  };
+
   return (
-    <section className="py-24 bg-gray-900 relative overflow-hidden">
+    <section id="news" className="py-20 bg-gradient-to-b from-gray-900 to-black">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
-            Follow the Legend
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="text-white">SOCIAL</span>{' '}
-            <span className="text-gold-500">FEED</span>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            FOLLOW <span className="text-primary">@{config.influencerName.toUpperCase().replace(' ', '')}</span>
           </h2>
-          <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
-            Stay connected with Sugar Shane's journey. Follow for exclusive behind-the-scenes content, 
-            training tips, and championship insights.
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Stay connected with {config.influencerName} on social media for exclusive content, behind-the-scenes footage, and the
+            latest product announcements.
           </p>
         </div>
 
-        {/* Social Posts Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {socialPosts.map((post) => (
-            <div 
-              key={post.id}
-              className="group bg-black/60 backdrop-blur-sm border border-gray-700 hover:border-gold-500/50 rounded-lg overflow-hidden transition-all duration-300 hover:transform hover:scale-105"
-            >
-              {/* Post Image */}
-              <div className="relative aspect-square overflow-hidden">
-                <img 
-                  src={post.image}
-                  alt={`Social post ${post.id}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {socialPosts.map((post) => {
+            const IconComponent = getPlatformIcon(post.platform);
+            return (
+              <div key={post.id} className="bg-gray-900 rounded-lg overflow-hidden shadow-lg group">
+                <div className="relative h-64 overflow-hidden">
+                  <img 
+                    src={post.image} 
+                    alt={`Social post ${post.id}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <a 
+                      href="#view-post"
+                      className="text-white text-sm font-medium flex items-center hover:text-primary transition-colors"
+                    >
+                      View Post
+                      <ExternalLink className="ml-1 h-4 w-4" />
+                    </a>
+                  </div>
                 </div>
 
-                {/* Time Badge */}
-                <div className="absolute top-3 right-3 bg-black/80 text-white text-xs px-2 py-1 rounded-sm">
-                  {post.timeAgo}
-                </div>
-              </div>
-
-              {/* Post Content */}
-              <div className="p-4">
-                {/* Caption */}
-                <p className="text-gray-300 text-sm leading-relaxed mb-4 group-hover:text-white transition-colors duration-300">
-                  {post.caption}
-                </p>
-
-                {/* Engagement Stats */}
-                <div className="flex items-center justify-between text-gray-400 text-sm">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                      <Heart className="h-4 w-4" />
-                      <span>{post.likes.toLocaleString()}</span>
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <IconComponent 
+                        className={`h-5 w-5 ${getPlatformColor(post.platform)}`}
+                      />
+                      <span className="ml-2 text-sm text-gray-400">{post.date}</span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <MessageCircle className="h-4 w-4" />
-                      <span>{post.comments.toLocaleString()}</span>
+                    <div className="text-sm text-gray-400">
+                      {formatLikes(post.likes)} likes
                     </div>
                   </div>
-                  <Share className="h-4 w-4 hover:text-gold-500 cursor-pointer transition-colors duration-300" />
+
+                  <p className="text-gray-200 text-sm line-clamp-3">
+                    {post.content}
+                  </p>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Follow Section */}
-        <div className="bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 backdrop-blur-sm border border-gold-500/30 rounded-lg p-8 md:p-12 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Follow <span className="text-gold-500">@SugarShaneMosley</span>
-            </h3>
-            <p className="text-gray-300 text-lg mb-8 leading-relaxed">
-              Get exclusive access to training videos, behind-the-scenes content, and be the first 
-              to know about new product launches and special events.
-            </p>
-            
-            {/* Social Stats */}
-            <div className="grid grid-cols-3 gap-8 mb-8">
-              <div className="space-y-2">
-                <div className="text-2xl md:text-3xl font-bold text-gold-500">
-                  2.1M
-                </div>
-                <div className="text-gray-400 text-sm uppercase tracking-wider">
-                  Followers
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-2xl md:text-3xl font-bold text-gold-500">
-                  850
-                </div>
-                <div className="text-gray-400 text-sm uppercase tracking-wider">
-                  Posts
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-2xl md:text-3xl font-bold text-gold-500">
-                  95K
-                </div>
-                <div className="text-gray-400 text-sm uppercase tracking-wider">
-                  Avg. Likes
-                </div>
-              </div>
-            </div>
-
-            {/* Follow Button */}
-            <a
-              href="https://instagram.com/sugarshanemosley"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-4 px-8 rounded-sm transition-all duration-300 transform hover:scale-105 uppercase tracking-wider"
-            >
-              <Instagram className="mr-2 h-5 w-5" />
-              Follow on Instagram
-            </a>
+        {socialLinks.length > 0 && (
+          <div className="mt-12 flex justify-center space-x-6">
+            {socialLinks.map((social) => {
+              const IconComponent = social.icon;
+              return (
+                <a 
+                  key={social.platform} 
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`text-white transition-colors flex items-center font-medium ${social.color}`}
+                >
+                  <IconComponent className="h-6 w-6" />
+                  <span className="ml-2">{social.platform}</span>
+                </a>
+              );
+            })}
           </div>
-        </div>
-
-        {/* Hashtags */}
-        <div className="text-center mt-12">
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {['#SugarShane', '#BoxingLegend', '#ChampionGear', '#SugarShaneMosley', '#BoxingLife'].map((hashtag) => (
-              <span 
-                key={hashtag}
-                className="bg-gray-800 hover:bg-gold-500/20 hover:text-gold-500 text-gray-400 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 cursor-pointer"
-              >
-                {hashtag}
-              </span>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
-
-      {/* Background Decorative Elements */}
-      <div className="absolute top-1/4 -left-20 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-gold-500/5 rounded-full blur-3xl"></div>
     </section>
   );
 }

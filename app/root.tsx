@@ -1,4 +1,4 @@
-import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
+import {getShopAnalytics, useNonce} from '@shopify/hydrogen';
 import {
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -16,6 +16,9 @@ import {
 } from 'react-router';
 import {PageLayout} from '~/components/PageLayout';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
+import {useEffect} from 'react';
+import {initializeTheme} from '~/lib/themeConfig';
+import config from '~/lib/config';
 import {ThemeProvider} from '~/utils/themeContext';
 
 import appStyles from './styles/app.css?url';
@@ -32,7 +35,7 @@ export const links: LinksFunction = () => {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    // Google Fonts for Sugar Shane theme
+    // Google Fonts for theme compatibility
     {
       rel: 'preconnect',
       href: 'https://fonts.googleapis.com',
@@ -52,8 +55,13 @@ export const links: LinksFunction = () => {
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [
-    {title: data?.layout?.shop?.name ?? 'Sugar Shane Mosley'},
-    {name: 'description', content: data?.layout?.shop?.description ?? 'Official store of boxing legend Sugar Shane Mosley'},
+    {title: `${config.brandName} - ${config.influencerTitle} | Official Store`},
+    {name: 'description', content: `${config.influencerBio.substring(0, 160)}...`},
+    {name: 'keywords', content: `${config.influencerName}, ${config.brandName}, boxing equipment, merchandise, champion gear`},
+    {property: 'og:title', content: `${config.brandName} - Official Store`},
+    {property: 'og:description', content: config.heroSubtitle},
+    {property: 'og:image', content: config.brandLogo},
+    {property: 'og:type', content: 'website'},
   ];
 };
 
@@ -142,6 +150,11 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useLoaderData<typeof loader>();
 
+  // Initialize theme on client side
+  useEffect(() => {
+    initializeTheme();
+  }, []);
+
   const hasUserConsent = true;
 
   return (
@@ -151,25 +164,77 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              /* Theme CSS Variables - matches Vue template approach */
+              :root {
+                --color-primary: #D4AF37;
+                --color-secondary: #1F1F1F;
+                --color-accent: #FFFFFF;
+                --color-background: #000000;
+                --color-text: #FFFFFF;
+                
+                /* Gold color theme variables - Vue template compatibility */
+                --color-gold-400: #E5C158;
+                --color-gold-500: #D4AF37;
+                --color-gold-600: #BF9B2F;
+                
+                /* Primary color variants */
+                --color-primary-50: #F9F7F0;
+                --color-primary-100: #F3EFE1;
+                --color-primary-200: #E7DFC3;
+                --color-primary-300: #DBCFA5;
+                --color-primary-400: #CFBF87;
+                --color-primary-500: #D4AF37;
+                --color-primary-600: #AA8C2C;
+                --color-primary-700: #806921;
+                --color-primary-800: #554616;
+                --color-primary-900: #2B230B;
+                
+                /* Typography */
+                --font-primary: 'Inter', system-ui, sans-serif;
+                --font-secondary: 'Montserrat', system-ui, sans-serif;
+                
+                /* Spacing scale */
+                --spacing-xs: 0.25rem;
+                --spacing-sm: 0.5rem;
+                --spacing-md: 1rem;
+                --spacing-lg: 1.5rem;
+                --spacing-xl: 2rem;
+                --spacing-2xl: 3rem;
+                --spacing-3xl: 4rem;
+                
+                /* Border radius */
+                --radius-sm: 0.25rem;
+                --radius-md: 0.5rem;
+                --radius-lg: 0.75rem;
+                --radius-xl: 1rem;
+                
+                /* Shadows */
+                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+              }
+              
+              /* Dark theme support */
+              @media (prefers-color-scheme: dark) {
+                :root {
+                  --color-background: #000000;
+                  --color-text: #FFFFFF;
+                }
+              }
+            `,
+          }}
+        />
       </head>
-      <body className="min-h-screen bg-black text-white overflow-x-hidden font-display">
+      <body>
         <ThemeProvider>
           <PageLayout {...data}>{children}</PageLayout>
         </ThemeProvider>
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
-        {hasUserConsent && (
-          <Analytics.Provider
-            cart={data.cart}
-            shop={null}
-            consent={{
-              checkoutDomain: undefined,
-              storefrontAccessToken: 'dummy-token',
-            }}
-          >
-            <Analytics.CartView />
-          </Analytics.Provider>
-        )}
       </body>
     </html>
   );
@@ -192,16 +257,14 @@ export function ErrorBoundary() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gold-500 mb-4">Oops!</h1>
-        <h2 className="text-2xl mb-4">{errorStatus}</h2>
-        {errorMessage && (
-          <fieldset className="bg-gray-900 p-4 rounded border border-gray-700">
-            <pre className="text-sm text-gray-300">{errorMessage}</pre>
-          </fieldset>
-        )}
-      </div>
+    <div className="route-error">
+      <h1>Oops!</h1>
+      <h2>{errorStatus}</h2>
+      {errorMessage && (
+        <fieldset>
+          <pre>{errorMessage}</pre>
+        </fieldset>
+      )}
     </div>
   );
 }

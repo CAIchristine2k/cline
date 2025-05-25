@@ -4,9 +4,12 @@ import {Image, getPaginationVariables} from '@shopify/hydrogen';
 import type {ArticleItemFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {getConfig} from '~/lib/config';
+import {ArrowLeft, Calendar, User} from 'lucide-react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return [{title: `Hydrogen | ${data?.blog.title ?? ''} blog`}];
+  const config = getConfig();
+  return [{title: `${config.brandName} | ${data?.blog.title ?? ''} Blog`}];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -61,26 +64,61 @@ async function loadCriticalData({
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
 function loadDeferredData({context}: LoaderFunctionArgs) {
-  return {};
+  // Get configuration
+  const config = getConfig();
+
+  return {
+    config: {
+      ...config,
+      theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
+    },
+  };
 }
 
 export default function Blog() {
-  const {blog} = useLoaderData<typeof loader>();
+  const {blog, config} = useLoaderData<typeof loader>();
   const {articles} = blog;
 
   return (
-    <div className="blog">
-      <h1>{blog.title}</h1>
-      <div className="blog-grid">
-        <PaginatedResourceSection connection={articles}>
-          {({node: article, index}) => (
-            <ArticleItem
-              article={article}
-              key={article.id}
-              loading={index < 2 ? 'eager' : 'lazy'}
-            />
-          )}
-        </PaginatedResourceSection>
+    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-4 py-24">
+        {/* Back Navigation */}
+        <div className="mb-8">
+          <Link 
+            to="/blogs"
+            className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Blogs
+          </Link>
+        </div>
+
+        {/* Blog Header */}
+        <div className="text-center mb-16">
+          <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
+            Blog
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{blog.title}</h1>
+          <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Latest insights, training tips, and stories from the {config.influencerName} community.
+          </p>
+        </div>
+
+        {/* Articles Grid */}
+        <div className="max-w-6xl mx-auto">
+          <PaginatedResourceSection
+            connection={articles}
+            resourcesClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {({node: article, index}) => (
+              <ArticleItem
+                article={article}
+                key={article.id}
+                loading={index < 2 ? 'eager' : 'lazy'}
+              />
+            )}
+          </PaginatedResourceSection>
+        </div>
       </div>
     </div>
   );
@@ -98,22 +136,40 @@ function ArticleItem({
     month: 'long',
     day: 'numeric',
   }).format(new Date(article.publishedAt!));
+  
   return (
-    <div className="blog-article" key={article.id}>
+    <div className="group bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-gold-500 rounded-sm overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]">
       <Link to={`/blogs/${article.blog.handle}/${article.handle}`}>
         {article.image && (
-          <div className="blog-article-image">
+          <div className="relative h-48 overflow-hidden">
             <Image
               alt={article.image.altText || article.title}
               aspectRatio="3/2"
               data={article.image}
               loading={loading}
               sizes="(min-width: 768px) 50vw, 100vw"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           </div>
         )}
-        <h3>{article.title}</h3>
-        <small>{publishedAt}</small>
+        
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-gold-400 transition-colors duration-300 line-clamp-2">
+            {article.title}
+          </h3>
+          
+          <div className="flex items-center text-gray-400 text-sm">
+            <Calendar className="w-4 h-4 mr-2" />
+            <span>{publishedAt}</span>
+            {article.author && (
+              <>
+                <span className="mx-2">•</span>
+                <User className="w-4 h-4 mr-1" />
+                <span>{article.author.name}</span>
+              </>
+            )}
+          </div>
+        </div>
       </Link>
     </div>
   );

@@ -1,93 +1,76 @@
 import React from 'react';
-import {Star, StarHalf, ShoppingCart} from 'lucide-react';
-
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  rating: number;
-  reviews: number;
-  badge: string | null;
-}
+import { Star, ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router';
+import { Image, Money } from '@shopify/hydrogen';
+import type {
+  ProductItemFragment,
+  CollectionItemFragment,
+  RecommendedProductFragment,
+} from 'storefrontapi.generated';
 
 interface ProductCardProps {
-  product: Product;
+  product: ProductItemFragment | CollectionItemFragment | RecommendedProductFragment;
+  loading?: 'eager' | 'lazy';
 }
 
-export function ProductCard({product}: ProductCardProps) {
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    // Full stars
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <Star key={`full-${i}`} className="w-4 h-4 fill-gold-500 stroke-gold-500" />
-      );
-    }
-
-    // Half star
-    if (hasHalfStar) {
-      stars.push(
-        <StarHalf key="half" className="w-4 h-4 fill-gold-500 stroke-gold-500" />
-      );
-    }
-
-    // Empty stars
-    const emptyStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(
-        <Star key={`empty-${i}`} className="w-4 h-4 stroke-current fill-transparent" />
-      );
-    }
-
-    return stars;
-  };
-
+export function ProductCard({ product, loading }: ProductCardProps) {
+  // Generate mock rating and reviews for display (since Shopify doesn't provide this)
+  const rating = 4.8 + (Math.random() * 0.2);
+  const reviews = 70 + Math.floor(Math.random() * 60);
+  
   return (
-    <div className="group relative rounded-sm overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-gold-500 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+    <div className="group relative rounded-sm overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-gold-500 transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]">
       {/* Product image */}
       <div className="relative h-72 overflow-hidden">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
-        />
-        
-        {/* Badge if available */}
-        {product.badge && (
-          <div className="absolute top-3 right-3 bg-gold-500 text-black text-xs font-bold py-1 px-3 rounded-sm">
-            {product.badge}
-          </div>
+        {product.featuredImage && (
+          <Image
+            data={product.featuredImage}
+            alt={product.title}
+            className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            loading={loading}
+          />
         )}
-
+        
         {/* Quick view overlay */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <button className="bg-gold-500 hover:bg-gold-400 text-black font-bold py-2 px-6 rounded-sm transition-all duration-300">
+          <Link
+            to={`/products/${product.handle}`}
+            className="bg-gold-500 hover:bg-gold-400 text-black font-bold py-2 px-4 rounded-sm transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 uppercase text-sm tracking-wider"
+          >
             Quick View
-          </button>
+          </Link>
         </div>
       </div>
-
+      
+      {/* Product info */}
       <div className="p-5">
-        {/* Product name */}
-        <h3 className="text-lg font-semibold mb-3 text-white group-hover:text-gold-400 transition-colors duration-300">
-          {product.name}
+        <h3 className="text-white font-bold text-lg mb-2 group-hover:text-gold-400 transition-colors duration-300">
+          {product.title}
         </h3>
         
-        {/* Rating */}
-        <div className="flex items-center mb-4">
-          <div className="flex items-center text-gold-500">
-            {renderStars(product.rating)}
+        {/* Rating stars */}
+        <div className="flex items-center mb-3">
+          <div className="flex text-gold-500">
+            {[...Array(Math.floor(rating))].map((_, i) => (
+              <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
+            ))}
+            {rating % 1 >= 0.5 && (
+              <Star className="w-4 h-4 fill-current opacity-50" />
+            )}
+            {[...Array(5 - Math.ceil(rating))].map((_, i) => (
+              <Star key={`empty-${i}`} className="w-4 h-4 stroke-current fill-transparent" />
+            ))}
           </div>
-          <span className="text-sm text-gray-400 ml-2">({product.reviews})</span>
+          <span className="text-sm text-gray-400 ml-2">({reviews})</span>
         </div>
         
         {/* Price */}
         <div className="flex justify-between items-center">
-          <p className="text-gold-500 font-bold text-lg">${product.price.toFixed(2)}</p>
+          <Money 
+            data={product.priceRange.minVariantPrice} 
+            className="text-gold-500 font-bold text-lg"
+          />
           <button 
             className="bg-gray-800 hover:bg-gold-500 text-white hover:text-black rounded-sm p-2.5 transition-all duration-300 transform hover:scale-105"
             aria-label="Add to cart"

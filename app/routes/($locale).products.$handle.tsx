@@ -8,14 +8,14 @@ import {
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
-import {ProductPrice} from '~/components/ProductPrice';
-import {ProductImage} from '~/components/ProductImage';
-import {ProductForm} from '~/components/ProductForm';
+import {ProductDetail} from '~/components/ProductDetail';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {getConfig} from '~/lib/config';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
+  const config = getConfig();
   return [
-    {title: `Hydrogen | ${data?.product.title ?? ''}`},
+    {title: `${config.brandName} | ${data?.product.title ?? ''}`},
     {
       rel: 'canonical',
       href: `/products/${data?.product.handle}`,
@@ -30,7 +30,17 @@ export async function loader(args: LoaderFunctionArgs) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
-  return {...deferredData, ...criticalData};
+  // Get configuration
+  const config = getConfig();
+
+  return {
+    ...deferredData, 
+    ...criticalData,
+    config: {
+      ...config,
+      theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
+    },
+  };
 }
 
 /**
@@ -81,7 +91,7 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
 }
 
 export default function Product() {
-  const {product} = useLoaderData<typeof loader>();
+  const {product, config} = useLoaderData<typeof loader>();
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -99,31 +109,15 @@ export default function Product() {
     selectedOrFirstAvailableVariant: selectedVariant,
   });
 
-  const {title, descriptionHtml} = product;
-
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
-        <ProductForm
-          productOptions={productOptions}
-          selectedVariant={selectedVariant}
-        />
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
-      </div>
+    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
+      <ProductDetail 
+        product={product}
+        selectedVariant={selectedVariant}
+        productOptions={productOptions}
+        config={config}
+      />
+      
       <Analytics.ProductView
         data={{
           products: [
@@ -188,30 +182,28 @@ const PRODUCT_FRAGMENT = `#graphql
     handle
     descriptionHtml
     description
-    encodedVariantExistence
-    encodedVariantAvailability
     options {
       name
       optionValues {
         name
-        firstSelectableVariant {
-          ...ProductVariant
-        }
-        swatch {
-          color
-          image {
-            previewImage {
-              url
-            }
-          }
-        }
       }
     }
-    selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {
+    images(first: 10) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+    selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions) {
       ...ProductVariant
     }
-    adjacentVariants (selectedOptions: $selectedOptions) {
-      ...ProductVariant
+    variants(first: 1) {
+      nodes {
+        ...ProductVariant
+      }
     }
     seo {
       description

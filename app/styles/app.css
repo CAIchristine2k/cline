@@ -9,23 +9,49 @@
   --color-dark: #000;
   --color-light: #fff;
   color-scheme: dark;
-  /* Gold color theme variables */
+  
+  /* Dynamic theming variables - these can be overridden per influencer */
+  --color-primary: #D4AF37;
+  --color-primary-dark: #BF9B2F;
+  --color-primary-light: #E5C158;
+  
+  /* Legacy gold variables for backwards compatibility */
   --color-gold-500: #D4AF37;
   --color-gold-400: #E5C158;
   --color-gold-600: #BF9B2F;
 }
 
+/* Theme override for different influencers */
+[data-theme="shane-mosley"] {
+  --color-primary: #D4AF37;
+  --color-primary-dark: #BF9B2F;
+  --color-primary-light: #E5C158;
+}
+
+[data-theme="mike-tyson"] {
+  --color-primary: #DC2626;
+  --color-primary-dark: #B91C1C;
+  --color-primary-light: #EF4444;
+}
+
+[data-theme="floyd-mayweather"] {
+  --color-primary: #10B981;
+  --color-primary-dark: #059669;
+  --color-primary-light: #34D399;
+}
+
 html {
   scroll-behavior: smooth;
+  min-height: 100%;
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
-  background-color: #000;
-  color: #fff;
-  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100%;
 }
 
 /* Custom scrollbar */
@@ -38,12 +64,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #BF9B2F;
+  background-color: var(--color-primary-dark);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #D4AF37;
+  background-color: var(--color-primary);
 }
 
 /* Line clamp utility */
@@ -55,21 +81,97 @@ body {
   overflow: hidden;
 }
 
-/* Gold text effects */
+/* Primary color text effects */
 .hero-title-glow {
-  text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  text-shadow: 0 0 15px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 .hero-stat-glow {
-  text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 .shadow-glow {
-  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 .drop-shadow-glow {
-  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-primary) 30%, transparent));
+}
+
+/* Smooth animations for component interactions */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Custom form styles */
+input[type="checkbox"]:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+input[type="checkbox"]:focus {
+  ring-color: var(--color-primary);
+}
+
+/* Video background optimization */
+video {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Backdrop blur support for older browsers */
+@supports not (backdrop-filter: blur(1px)) {
+  .backdrop-blur-sm {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
 }
 
 /*
@@ -381,7 +483,7 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
 }
 
-.predictive-search-result-item a img {
+.predictive-search-result-item img {
   margin-right: 0.75rem;
   height: 100%;
 }

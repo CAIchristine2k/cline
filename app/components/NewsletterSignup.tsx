@@ -1,163 +1,182 @@
-import React, {useState} from 'react';
-import {Mail, Send, Gift, Star, Trophy} from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, ChevronRight, Check, Trophy } from 'lucide-react';
+import type { LandingPageConfig } from '~/lib/config';
 
-export function NewsletterSignup() {
+interface NewsletterSignupProps {
+  config: LandingPageConfig;
+}
+
+export default function NewsletterSignup({ config }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [interests, setInterests] = useState<string[]>(['products']);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const benefits = [
+    'Early access to limited-edition boxing gear',
+    `Exclusive training tips from ${config.influencerName}`,
+    '10% off your first purchase',
+    `Invites to virtual Q&A sessions with ${config.influencerName.split(' ')[0]}`
+  ];
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
     
-    setIsSubmitted(true);
-    setIsLoading(false);
-    setEmail('');
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    // In a real app, you would send this to your backend or Shopify Customer API
+    console.log('Email submitted:', email);
+    console.log('Interests:', interests);
+    setSubmitted(true);
+    setError('');
   };
 
+  const handleInterestChange = (value: string) => {
+    setInterests(prev => 
+      prev.includes(value) 
+        ? prev.filter(interest => interest !== value)
+        : [...prev, value]
+    );
+  };
+
+  if (!config.newsletterEnabled) {
+    return null;
+  }
+
   return (
-    <section className="py-24 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+    <section id="contact" className="py-20 bg-black">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-12">
-            <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
-              Join the Champions
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-white">CHAMPION'S</span>{' '}
-              <span className="text-gold-500">NEWSLETTER</span>
-            </h2>
-            <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
-              Get exclusive access to championship insights, training tips, early product releases, 
-              and special offers directly from Sugar Shane Mosley.
-            </p>
+        <div className="max-w-4xl mx-auto bg-gradient-to-r from-gray-900 to-black rounded-2xl p-8 md:p-12 shadow-xl border border-gray-800 relative overflow-hidden">
+          {/* Boxing glove decorative element */}
+          <div className="absolute -right-16 -bottom-16 opacity-10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <path d="M12 6v4l2 2" />
+              <path d="M15.536 13.9a3 3 0 1 0-4.072-4.4 7.1 7.1 0 0 0-2.464 5.5v1" />
+              <path d="M9 16a2 2 0 1 1 4 0v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z" />
+              <path d="M9 19h4" />
+            </svg>
           </div>
-
-          {/* Benefits */}
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="text-center space-y-4">
-              <div className="bg-gold-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                <Gift className="h-8 w-8 text-gold-500" />
+          
+          <div className="flex flex-col md:flex-row items-center relative z-10">
+            <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+              <div className="inline-block bg-primary text-black font-bold py-1 px-4 rounded-full text-sm mb-4">
+                CHAMPION'S INNER CIRCLE
               </div>
-              <h3 className="text-xl font-bold text-white">Exclusive Offers</h3>
-              <p className="text-gray-400">
-                Be the first to access limited-time discounts and champion-only deals
+              
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                JOIN <span className="text-primary">{config.influencerName.toUpperCase()}'S</span> EXCLUSIVE COMMUNITY
+              </h2>
+              
+              <p className="text-gray-300 mb-6 leading-relaxed">
+                Get ringside access to {config.influencerName}'s world with early product releases, training tips from a {config.influencerTitle.toLowerCase()}, and exclusive content you won't find anywhere else.
               </p>
+              
+              <ul className="space-y-3">
+                {benefits.map((benefit, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="bg-primary rounded-full p-1 mr-3 mt-0.5">
+                      <Check className="h-3 w-3 text-black" />
+                    </div>
+                    <span className="text-gray-300">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="text-center space-y-4">
-              <div className="bg-gold-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                <Star className="h-8 w-8 text-gold-500" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Early Access</h3>
-              <p className="text-gray-400">
-                Get first access to new product launches and exclusive collections
-              </p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="bg-gold-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                <Trophy className="h-8 w-8 text-gold-500" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Champion Tips</h3>
-              <p className="text-gray-400">
-                Receive training insights and boxing wisdom directly from the legend
-              </p>
-            </div>
-          </div>
-
-          {/* Newsletter Form */}
-          <div className="bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 backdrop-blur-sm border border-gold-500/30 rounded-lg p-8 md:p-12">
-            {!isSubmitted ? (
-              <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                    Ready to Train Like a <span className="text-gold-500">Champion</span>?
-                  </h3>
-                  <p className="text-gray-300">
-                    Join 50,000+ boxing enthusiasts and champions in training
-                  </p>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex-1 relative">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      required
-                      className="w-full bg-black/60 border border-gray-600 rounded-sm py-4 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors duration-300"
-                    />
+            
+            <div className="md:w-1/2 w-full">
+              <div className="bg-black bg-opacity-50 rounded-xl p-6 border border-gray-800 shadow-lg">
+                {!submitted ? (
+                  <>
+                    <h3 className="text-xl font-bold mb-4 text-white">
+                      Get Ringside Updates
+                    </h3>
+                    
+                    <form onSubmit={handleSubmit}>
+                      <div className="mb-4 relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                          <Mail className="h-5 w-5" />
+                        </div>
+                        <input 
+                          type="email" 
+                          value={email}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            setError('');
+                          }}
+                          className="w-full py-3 pl-10 pr-4 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-primary text-white placeholder-gray-400"
+                          placeholder="Enter your email address"
+                        />
+                      </div>
+                      
+                      <div className="mb-4">
+                        <label className="flex items-start">
+                          <input 
+                            type="checkbox" 
+                            checked={interests.includes('products')}
+                            onChange={() => handleInterestChange('products')}
+                            className="mt-1 h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary"
+                          />
+                          <span className="ml-2 text-sm text-gray-300">New product releases &amp; merch drops</span>
+                        </label>
+                      </div>
+                      
+                      <div className="mb-4">
+                        <label className="flex items-start">
+                          <input 
+                            type="checkbox" 
+                            checked={interests.includes('events')}
+                            onChange={() => handleInterestChange('events')}
+                            className="mt-1 h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary"
+                          />
+                          <span className="ml-2 text-sm text-gray-300">Boxing events &amp; appearances</span>
+                        </label>
+                      </div>
+                      
+                      {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+                      
+                      <button 
+                        type="submit"
+                        className="group w-full bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center"
+                      >
+                        JOIN THE INNER CIRCLE
+                        <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                      </button>
+                    </form>
+                    
+                    <p className="text-gray-500 text-xs mt-4 text-center">
+                      By subscribing, you agree to receive marketing emails from us. 
+                      You can unsubscribe at any time.
+                    </p>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="bg-primary rounded-full p-3 inline-flex items-center justify-center mb-4">
+                      <Trophy className="h-8 w-8 text-black" />
+                    </div>
+                    
+                    <h3 className="text-xl font-bold mb-2 text-white">
+                      Welcome to the Champion's Circle!
+                    </h3>
+                    
+                    <p className="text-gray-300">
+                      You've successfully joined {config.influencerName}'s exclusive community. 
+                      Check your inbox soon for your 10% discount code!
+                    </p>
                   </div>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="group bg-gold-500 hover:bg-gold-400 disabled:bg-gold-600 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 transform hover:scale-105 flex items-center justify-center uppercase tracking-wider min-w-[140px]"
-                  >
-                    {isLoading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                        Join Now
-                      </>
-                    )}
-                  </button>
-                </div>
-                
-                <p className="text-center text-gray-400 text-sm mt-6">
-                  By subscribing, you agree to our privacy policy. Unsubscribe at any time.
-                </p>
-              </form>
-            ) : (
-              <div className="text-center max-w-2xl mx-auto">
-                <div className="bg-green-500/20 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                  <Trophy className="h-10 w-10 text-green-400" />
-                </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                  Welcome to the <span className="text-gold-500">Champions Circle</span>!
-                </h3>
-                <p className="text-gray-300 mb-6">
-                  Thank you for joining! You'll receive your first champion's newsletter within 24 hours, 
-                  including exclusive content and special offers.
-                </p>
-                <button
-                  onClick={() => setIsSubmitted(false)}
-                  className="text-gold-500 hover:text-gold-400 font-medium transition-colors duration-300"
-                >
-                  Subscribe another email →
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Social Proof */}
-          <div className="text-center mt-12">
-            <div className="flex items-center justify-center space-x-8 text-gray-400 text-sm">
-              <div className="flex items-center space-x-2">
-                <Star className="h-4 w-4 text-gold-500 fill-current" />
-                <span>50K+ Subscribers</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-gold-500" />
-                <span>Weekly Champion Tips</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Gift className="h-4 w-4 text-gold-500" />
-                <span>Exclusive Deals</span>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Background Decorative Elements */}
-      <div className="absolute top-1/4 -left-20 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-gold-500/5 rounded-full blur-3xl"></div>
     </section>
   );
 }
