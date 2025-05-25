@@ -15,8 +15,18 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
+  
+  // Get configuration
+  const config = getConfig();
 
-  return {...deferredData, ...criticalData};
+  return {
+    ...deferredData, 
+    ...criticalData,
+    config: {
+      ...config,
+      theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
+    },
+  };
 }
 
 /**
@@ -58,28 +68,21 @@ async function loadCriticalData({
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
 function loadDeferredData({context}: LoaderFunctionArgs) {
-  // Get configuration
-  const config = getConfig();
-
-  return {
-    config: {
-      ...config,
-      theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
-    },
-  };
+  // No deferred data needed for this page
+  return {};
 }
 
 export default function Page() {
-  const {page} = useLoaderData<typeof loader>();
+  const {page, config} = useLoaderData<typeof loader>();
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
           <Link 
             to="/"
-            className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
+            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
@@ -88,7 +91,7 @@ export default function Page() {
 
         {/* Page Header */}
         <div className="text-center mb-16">
-          <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
+          <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
             Page
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -105,20 +108,20 @@ export default function Page() {
         <div className="max-w-4xl mx-auto mb-16">
           <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-sm p-8">
             <div className="flex items-center mb-8">
-              <FileText className="w-6 h-6 text-gold-500 mr-3" />
+              <FileText className="w-6 h-6 text-primary mr-3" />
               <h2 className="text-2xl font-bold text-white">{page.title}</h2>
             </div>
             
             <div 
-              className="prose prose-invert prose-gold max-w-none text-gray-300 leading-relaxed"
+              className="prose prose-invert prose-primary max-w-none text-gray-300 leading-relaxed"
               dangerouslySetInnerHTML={{__html: page.body}} 
             />
           </div>
         </div>
 
         {/* Championship Banner */}
-        <div className="bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 border border-gold-500/30 rounded-sm p-8 text-center">
-          <h3 className="text-2xl font-bold text-gold-500 mb-4">
+        <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/30 rounded-sm p-8 text-center">
+          <h3 className="text-2xl font-bold text-primary mb-4">
             Questions About Our Policies?
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
@@ -126,7 +129,7 @@ export default function Page() {
           </p>
           <Link 
             to="/collections/all"
-            className="inline-flex items-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
+            className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >
             Continue Shopping
           </Link>
@@ -137,12 +140,11 @@ export default function Page() {
 }
 
 const PAGE_QUERY = `#graphql
-  query Page(
-    $language: LanguageCode,
-    $country: CountryCode,
+  query PageDetails(
     $handle: String!
-  )
-  @inContext(language: $language, country: $country) {
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
     page(handle: $handle) {
       handle
       id

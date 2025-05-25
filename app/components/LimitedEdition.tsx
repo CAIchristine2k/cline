@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
-import type { LandingPageConfig } from '~/lib/config';
+import { Link } from 'react-router';
+import { defaultConfig, type LandingPageConfig } from '~/lib/config';
 import TimeUnit from './TimeUnit';
 
 interface LimitedEditionProps {
-  config: LandingPageConfig;
-  products?: any;
+  config?: LandingPageConfig;
 }
 
 interface TimeLeft {
@@ -15,8 +15,13 @@ interface TimeLeft {
   seconds: number;
 }
 
-export default function LimitedEdition({ config, products }: LimitedEditionProps) {
+export default function LimitedEdition({ config = defaultConfig }: LimitedEditionProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  // Skip rendering if limited edition section is disabled in config
+  if (!config.showLimitedEdition || !config.limitedEdition) {
+    return null;
+  }
 
   useEffect(() => {
     if (!config.limitedEdition) return;
@@ -49,10 +54,6 @@ export default function LimitedEdition({ config, products }: LimitedEditionProps
     return () => clearInterval(timer);
   }, [config.limitedEdition]);
 
-  if (!config.limitedEdition) {
-    return null;
-  }
-
   const timeUnits = [
     { value: timeLeft.days, label: 'Days' },
     { value: timeLeft.hours, label: 'Hours' },
@@ -61,7 +62,7 @@ export default function LimitedEdition({ config, products }: LimitedEditionProps
   ];
 
   return (
-    <section className="py-20 relative">
+    <section id="limited" className="py-20 relative">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 bg-black/70 z-10"></div>
       <div 
@@ -88,19 +89,26 @@ export default function LimitedEdition({ config, products }: LimitedEditionProps
             {config.limitedEdition.description}
           </p>
 
-          <div className="flex justify-center gap-3 md:gap-6 mb-10">
+          <div className="flex flex-wrap justify-center gap-3 md:gap-6 mb-10">
             {timeUnits.map((unit, index) => (
               <TimeUnit key={index} value={unit.value} label={unit.label} />
             ))}
           </div>
 
-          <a 
-            href={`/products/${config.limitedEdition.productHandle}`}
-            className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-8 rounded-md transition-all duration-300"
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+            <div className="text-lg md:text-xl font-bold">
+              <span className="text-gray-400 line-through">{config.limitedEdition.originalPrice}</span>
+              <span className="text-primary ml-3">{config.limitedEdition.salePrice}</span>
+            </div>
+          </div>
+
+          <Link 
+            to={`/products/${config.limitedEdition.productHandle}`}
+            className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-8 rounded-sm transition-all duration-300 shadow-glow"
           >
             SHOP LIMITED EDITION
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

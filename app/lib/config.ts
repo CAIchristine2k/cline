@@ -75,6 +75,7 @@ export interface LandingPageConfig {
   
   // Shopify Store Configuration
   shopDomain: string;
+  shopifyCollections?: any[]; // Shopify collections from API
   
   // Products with Shopify integration
   products: ProductInfo[];

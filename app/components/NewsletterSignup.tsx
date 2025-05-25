@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Mail, ChevronRight, Check, Trophy } from 'lucide-react';
-import type { LandingPageConfig } from '~/lib/config';
+import { defaultConfig, type LandingPageConfig } from '~/lib/config';
 
 interface NewsletterSignupProps {
-  config: LandingPageConfig;
+  config?: LandingPageConfig;
 }
 
-export default function NewsletterSignup({ config }: NewsletterSignupProps) {
+export default function NewsletterSignup({ config = defaultConfig }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [interests, setInterests] = useState<string[]>(['products']);
+
+  // Skip rendering if newsletter is disabled in config
+  if (!config.newsletterEnabled) {
+    return null;
+  }
 
   const benefits = [
     'Early access to limited-edition boxing gear',
@@ -32,7 +37,7 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
       return;
     }
     
-    // In a real app, you would send this to your backend or Shopify Customer API
+    // In a real implementation, you would send this to a Shopify customer API endpoint or store's newsletter service
     console.log('Email submitted:', email);
     console.log('Interests:', interests);
     setSubmitted(true);
@@ -46,10 +51,6 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
         : [...prev, value]
     );
   };
-
-  if (!config.newsletterEnabled) {
-    return null;
-  }
 
   return (
     <section id="contact" className="py-20 bg-black">
@@ -72,7 +73,7 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
               </div>
               
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                JOIN <span className="text-primary">{config.influencerName.toUpperCase()}'S</span> EXCLUSIVE COMMUNITY
+                JOIN <span className="text-primary">{config.brandName}</span> EXCLUSIVE COMMUNITY
               </h2>
               
               <p className="text-gray-300 mb-6 leading-relaxed">
@@ -92,7 +93,7 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
             </div>
             
             <div className="md:w-1/2 w-full">
-              <div className="bg-black bg-opacity-50 rounded-xl p-6 border border-gray-800 shadow-lg">
+              <div className="bg-black bg-opacity-50 rounded-lg p-6 border border-gray-800 shadow-lg backdrop-blur-sm">
                 {!submitted ? (
                   <>
                     <h3 className="text-xl font-bold mb-4 text-white">
@@ -144,7 +145,7 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
                       
                       <button 
                         type="submit"
-                        className="group w-full bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center"
+                        className="group w-full bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 flex items-center justify-center"
                       >
                         JOIN THE INNER CIRCLE
                         <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />

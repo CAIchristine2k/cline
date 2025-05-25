@@ -1,13 +1,14 @@
 import {
-  data as remixData,
   type LoaderFunctionArgs,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 import {Form, NavLink, Outlet, useLoaderData, Link, type MetaFunction} from 'react-router';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 import {ArrowLeft, User, Package, MapPin, LogOut} from 'lucide-react';
+import {getConfig} from '~/lib/config';
 
 export const meta: MetaFunction = () => {
-  return [{title: `Sugar Shane | Account`}];
+  const config = getConfig();
+  return [{title: `${config.brandName} | Account`}];
 };
 
 export function shouldRevalidate() {
@@ -15,51 +16,48 @@ export function shouldRevalidate() {
 }
 
 export async function loader({context}: LoaderFunctionArgs) {
-  const {data, errors} = await context.customerAccount.query(
-    CUSTOMER_DETAILS_QUERY,
-  );
+  await context.customerAccount.handleAuthStatus();
 
-  if (errors?.length || !data?.customer) {
-    throw new Error('Customer not found');
-  }
+  const heading = 'Account';
 
-  return remixData(
-    {customer: data.customer},
-    {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-      },
-    },
-  );
+  // Fetch the customer information
+  const response = await context.customerAccount.query(CUSTOMER_DETAILS_QUERY);
+  const customer = response.data?.customer;
+
+  // Get configuration
+  const config = getConfig();
+
+  return {
+    customer, 
+    heading, 
+    config: {
+      ...config,
+      theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
+    }
+  };
 }
 
 export default function AccountLayout() {
-  const {customer} = useLoaderData<typeof loader>();
-
-  const heading = customer
-    ? customer.firstName
-      ? `Welcome, ${customer.firstName}`
-      : `Welcome to your account.`
-    : 'Account Details';
+  const {customer, heading, config} = useLoaderData<typeof loader>();
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
           <Link 
             to="/"
-            className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
+            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
         </div>
 
-        {/* Page Header */}
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
-            Account
+        {/* Account Header */}
+        <div className="text-center mb-12">
+          <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
+            My Account
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             {heading}
@@ -85,11 +83,11 @@ export default function AccountLayout() {
 
 function AccountMenu() {
   function getNavLinkClass({isActive}: {isActive: boolean}) {
-    return `flex items-center space-x-2 px-6 py-3 rounded-sm border transition-all duration-300 ${
+    return `flex items-center px-4 py-2 ${
       isActive
-        ? 'bg-gold-500 text-black border-gold-500 font-bold'
-        : 'bg-gray-900/80 text-white border-gray-800 hover:border-gold-500 hover:text-gold-500'
-    }`;
+        ? 'bg-primary text-black font-bold'
+        : 'bg-gray-800 text-white hover:bg-gray-700'
+    } rounded-sm transition-colors duration-300`;
   }
 
   return (
@@ -116,13 +114,13 @@ function AccountMenu() {
 
 function Logout() {
   return (
-    <Form method="POST" action="/account/logout">
-      <button 
+    <Form action="/account/logout" method="POST" className="flex">
+      <button
         type="submit"
-        className="flex items-center space-x-2 px-6 py-3 rounded-sm border bg-red-900/20 text-red-400 border-red-800 hover:border-red-500 hover:text-red-300 transition-all duration-300"
+        className="flex items-center px-4 py-2 bg-red-900/30 text-red-400 hover:bg-red-900/50 rounded-sm transition-colors duration-300"
       >
         <LogOut className="w-4 h-4" />
-        <span>Sign Out</span>
+        <span>Sign out</span>
       </button>
     </Form>
   );

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import type { LandingPageConfig } from '~/lib/config';
+import { defaultConfig, type LandingPageConfig } from '~/lib/config';
 
 interface CareerHighlightsProps {
-  config: LandingPageConfig;
+  config?: LandingPageConfig;
 }
 
-export default function CareerHighlights({ config }: CareerHighlightsProps) {
+export default function CareerHighlights({ config = defaultConfig }: CareerHighlightsProps) {
   const [activeHighlight, setActiveHighlight] = useState(0);
 
-  if (!config.careerHighlights || config.careerHighlights.length === 0) {
+  // Skip rendering if career highlights section is disabled in config
+  if (!config.showCareerHighlights || !config.careerHighlights || config.careerHighlights.length === 0) {
     return null;
   }
 
@@ -78,18 +79,18 @@ export default function CareerHighlights({ config }: CareerHighlightsProps) {
               <img
                 src={config.careerHighlights[activeHighlight]?.image || config.influencerImage}
                 alt={`${config.influencerName} boxing career - ${config.careerHighlights[activeHighlight]?.title}`}
-                className="absolute inset-0 w-full h-full object-cover object-center"
+                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out"
               />
 
               <div className="absolute inset-0 flex items-center justify-center z-20">
-                <div className="bg-black/70 p-6 md:p-8 rounded-lg max-w-lg">
+                <div className="bg-black/70 p-6 md:p-8 rounded-lg max-w-lg backdrop-blur-sm border border-gray-800/50 hover:border-primary/20 transition-all duration-300">
                   <div className="text-primary font-semibold mb-2">
                     {config.careerHighlights[activeHighlight]?.year}
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold mb-4 text-white">
                     {config.careerHighlights[activeHighlight]?.title}
                   </h3>
-                  <p className="text-gray-300">
+                  <p className="text-gray-300 leading-relaxed">
                     {config.careerHighlights[activeHighlight]?.description}
                   </p>
                 </div>

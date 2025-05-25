@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import type { LandingPageConfig } from '~/lib/config';
+import { defaultConfig, type LandingPageConfig } from '~/lib/config';
 
 interface TestimonialsProps {
-  config: LandingPageConfig;
+  config?: LandingPageConfig;
 }
 
-export default function Testimonials({ config }: TestimonialsProps) {
+export default function Testimonials({ config = defaultConfig }: TestimonialsProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Skip rendering if testimonials section is disabled in config
+  if (!config.showTestimonials || !config.testimonials || config.testimonials.length === 0) {
+    return null;
+  }
 
   const handlePrev = (): void => {
     if (isAnimating || config.testimonials.length === 0) return;
@@ -37,11 +42,6 @@ export default function Testimonials({ config }: TestimonialsProps) {
       return () => clearInterval(interval);
     }
   }, [currentIndex, config.testimonials.length]);
-
-  // Don't render if no testimonials are configured
-  if (!config.testimonials || config.testimonials.length === 0) {
-    return null;
-  }
 
   const currentTestimonial = config.testimonials[currentIndex];
 
@@ -80,7 +80,7 @@ export default function Testimonials({ config }: TestimonialsProps) {
           )}
           
           {/* Testimonial Slider */}
-          <div className="overflow-hidden rounded-lg bg-gray-900 p-6 md:p-10 shadow-xl">
+          <div className="overflow-hidden rounded-lg bg-gray-900 p-6 md:p-10 shadow-xl border border-gray-800 hover:border-primary/30 transition-all duration-300">
             <div 
               className={`transition-transform duration-500 ease-in-out ${
                 isAnimating ? 'opacity-0' : 'opacity-100'

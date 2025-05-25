@@ -23,25 +23,21 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   const paginationVariables = getPaginationVariables(request, {
     pageBy: 20,
   });
-
-  const {data, errors} = await context.customerAccount.query(
-    CUSTOMER_ORDERS_QUERY,
-    {
-      variables: {
-        ...paginationVariables,
-      },
+  
+  // Get customer orders
+  await context.customerAccount.handleAuthStatus();
+  const response = await context.customerAccount.query(CUSTOMER_ORDERS_QUERY, {
+    variables: {
+      ...paginationVariables,
     },
-  );
-
-  if (errors?.length || !data?.customer) {
-    throw Error('Customer orders not found');
-  }
+  });
+  const customer = response.data?.customer;
 
   // Get configuration
   const config = getConfig();
 
   return {
-    customer: data.customer,
+    customer,
     config: {
       ...config,
       theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
@@ -50,13 +46,14 @@ export async function loader({request, context}: LoaderFunctionArgs) {
 }
 
 export default function Orders() {
-  const {customer} = useLoaderData<{customer: CustomerOrdersFragment}>();
+  const {customer, config} = useLoaderData<{customer: CustomerOrdersFragment, config: any}>();
   const {orders} = customer;
+  
   return (
     <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-sm p-8">
       {/* Header */}
       <div className="flex items-center mb-8">
-        <Package className="w-6 h-6 text-gold-500 mr-3" />
+        <Package className="w-6 h-6 text-primary mr-3" />
         <h2 className="text-2xl font-bold text-white">Order History</h2>
       </div>
 
@@ -92,7 +89,7 @@ function EmptyOrders() {
       
       <Link 
         to="/collections/all"
-        className="group inline-flex items-center justify-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-lg hover:shadow-xl transform hover:scale-105"
+        className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-lg hover:shadow-xl transform hover:scale-105"
       >
         <ShoppingBag className="mr-2 h-5 w-5" />
         Start Shopping
@@ -102,10 +99,12 @@ function EmptyOrders() {
 }
 
 function OrderItem({order}: {order: OrderItemFragment}) {
-  const fulfillmentStatus = flattenConnection(order.fulfillments)[0]?.status;
+  const fulfillmentStatus = flattenConnection(order.fulfillments)[0]?.status || 'UNFULFILLED';
   
   const getStatusColor = (status: string | null | undefined) => {
-    switch (status?.toLowerCase()) {
+    if (!status) return 'text-gray-400 bg-gray-900/20 border-gray-500/30';
+    
+    switch (status.toLowerCase()) {
       case 'paid':
       case 'fulfilled':
         return 'text-green-400 bg-green-900/20 border-green-500/30';
@@ -119,16 +118,16 @@ function OrderItem({order}: {order: OrderItemFragment}) {
         return 'text-gray-400 bg-gray-900/20 border-gray-500/30';
     }
   };
-
+  
   return (
-    <div className="bg-gray-800/50 border border-gray-700 rounded-sm p-6 hover:border-gold-500/50 transition-colors duration-300">
+    <div className="border-b border-gray-800 py-6 last:border-b-0">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         {/* Order Info */}
         <div className="flex-1">
           <div className="flex items-center mb-3">
             <Link 
               to={`/account/orders/${btoa(order.id)}`}
-              className="text-xl font-bold text-gold-500 hover:text-gold-400 transition-colors duration-300"
+              className="text-xl font-bold text-primary hover:text-primary/80 transition-colors duration-300"
             >
               #{order.number}
             </Link>
@@ -167,13 +166,13 @@ function OrderItem({order}: {order: OrderItemFragment}) {
             <div className="text-sm text-gray-400 mb-1">Total</div>
             <Money 
               data={order.totalPrice} 
-              className="text-xl font-bold text-gold-500"
+              className="text-xl font-bold text-primary"
             />
           </div>
           
           <Link 
             to={`/account/orders/${btoa(order.id)}`}
-            className="inline-flex items-center bg-gray-700 hover:bg-gold-500 text-white hover:text-black px-4 py-2 rounded-sm transition-all duration-300 text-sm font-bold"
+            className="inline-flex items-center bg-gray-700 hover:bg-primary text-white hover:text-black px-4 py-2 rounded-sm transition-all duration-300 text-sm font-bold"
           >
             <Eye className="w-4 h-4 mr-2" />
             View Order

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronRight, ShoppingBag, Instagram, Twitter, Youtube, Facebook, Music } from 'lucide-react';
+import { Link } from 'react-router';
 import { Logo } from './Logo';
-import config from '~/lib/config';
+import { defaultConfig } from '~/lib/config';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Build social links from config
-  const socialLinks = Object.entries(config.socialLinks)
+  const socialLinks = Object.entries(defaultConfig.socialLinks)
     .filter(([_, url]) => url) // Only include links that have URLs
     .map(([platform, url]) => ({
       name: platform.charAt(0).toUpperCase() + platform.slice(1),
@@ -68,58 +69,58 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center">
           <div className="flex space-x-10">
-            {config.navigation.map((item) => (
-              <a
+            {defaultConfig.navigation.map((item) => (
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 onClick={(e) => {
                   if (item.href.startsWith('#')) {
                     e.preventDefault();
                     handleNavClick(item.href);
                   }
                 }}
-                className="text-white hover:text-gold-400 transition-all duration-300 font-medium relative group uppercase tracking-wider text-sm"
+                className="text-white hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-sm"
               >
                 {item.name}
-                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gold-500 transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
-              </a>
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
             ))}
           </div>
           
           {/* CTA Button */}
-          <a 
-            href={config.ctaLink}
+          <Link 
+            to={defaultConfig.ctaLink}
             onClick={(e) => {
-              if (config.ctaLink.startsWith('#')) {
+              if (defaultConfig.ctaLink.startsWith('#')) {
                 e.preventDefault();
-                handleNavClick(config.ctaLink);
+                handleNavClick(defaultConfig.ctaLink);
               }
             }}
-            className="ml-10 bg-gold-500 hover:bg-gold-400 text-black font-bold py-2.5 px-5 rounded-sm transition-all duration-300 flex items-center text-sm uppercase shadow-glow"
+            className="ml-10 bg-primary hover:bg-primary/80 text-black font-bold py-2.5 px-5 rounded-sm transition-all duration-300 flex items-center text-sm uppercase shadow-glow"
           >
             <ShoppingBag className="mr-1.5 h-4 w-4" />
-            {config.ctaText}
-          </a>
+            Shop Now
+          </Link>
         </nav>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-4">
-          <a 
-            href={config.ctaLink}
+          <Link 
+            to={defaultConfig.ctaLink}
             onClick={(e) => {
-              if (config.ctaLink.startsWith('#')) {
+              if (defaultConfig.ctaLink.startsWith('#')) {
                 e.preventDefault();
-                handleNavClick(config.ctaLink);
+                handleNavClick(defaultConfig.ctaLink);
               }
             }}
-            className="bg-gold-500 hover:bg-gold-400 text-black p-2 rounded-sm transition-all duration-300 shadow-glow"
-            aria-label={config.ctaText}
+            className="bg-primary hover:bg-primary/80 text-black p-2 rounded-sm transition-all duration-300 shadow-glow"
+            aria-label="Shop Now"
           >
             <ShoppingBag className="h-5 w-5" />
-          </a>
+          </Link>
           
           <button
-            className="text-white focus:outline-none p-1.5 border border-white/20 rounded-sm hover:border-gold-500 transition-all duration-300"
+            className="text-white focus:outline-none p-1.5 border border-white/20 rounded-sm hover:border-primary transition-all duration-300"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle Menu"
           >
@@ -133,21 +134,21 @@ export function Header() {
         <div className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-sm shadow-xl border-t border-gray-800">
           <div className="container mx-auto py-4">
             <nav className="flex flex-col divide-y divide-gray-800/50">
-              {config.navigation.map((item) => (
-                <a
+              {defaultConfig.navigation.map((item) => (
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   onClick={(e) => {
                     if (item.href.startsWith('#')) {
                       e.preventDefault();
                     }
                     handleNavClick(item.href);
                   }}
-                  className="text-white hover:text-gold-400 hover:bg-gray-900/30 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
+                  className="text-white hover:text-primary hover:bg-gray-900/30 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
                 >
                   {item.name}
                   <ChevronRight className="h-4 w-4 text-gray-500" />
-                </a>
+                </Link>
               ))}
             </nav>
             
@@ -160,7 +161,7 @@ export function Header() {
                     <a 
                       key={social.name}
                       href={social.link}
-                      className="text-gray-400 hover:text-gold-400 transition-all duration-300"
+                      className="text-gray-400 hover:text-primary transition-all duration-300"
                       aria-label={social.name}
                       target="_blank"
                       rel="noopener noreferrer"

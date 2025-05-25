@@ -3,9 +3,11 @@ import {Link, useLoaderData, type MetaFunction} from 'react-router';
 import {getPaginationVariables} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {ArrowLeft, BookOpen, Calendar} from 'lucide-react';
+import {getConfig} from '~/lib/config';
 
 export const meta: MetaFunction = () => {
-  return [{title: `Sugar Shane | Blog`}];
+  const config = getConfig();
+  return [{title: `${config.brandName} | Blog`}];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -14,8 +16,18 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
+  
+  // Get configuration
+  const config = getConfig();
 
-  return {...deferredData, ...criticalData};
+  return {
+    ...deferredData, 
+    ...criticalData,
+    config: {
+      ...config,
+      theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
+    },
+  };
 }
 
 /**
@@ -49,16 +61,16 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 }
 
 export default function Blogs() {
-  const {blogs} = useLoaderData<typeof loader>();
+  const {blogs, config} = useLoaderData<typeof loader>();
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
           <Link 
             to="/"
-            className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
+            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
@@ -67,14 +79,14 @@ export default function Blogs() {
 
         {/* Page Header */}
         <div className="text-center mb-16">
-          <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
+          <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
             Blog
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="text-gold-500">CHAMPIONSHIP</span> INSIGHTS
+            <span className="text-primary">CHAMPIONSHIP</span> INSIGHTS
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Discover training tips, boxing insights, and stories from Sugar Shane Mosley's legendary career and the world of professional boxing.
+            Discover training tips, boxing insights, and stories from {config.influencerName}'s legendary career and the world of professional boxing.
           </p>
         </div>
 
@@ -89,16 +101,16 @@ export default function Blogs() {
                 key={blog.handle}
                 prefetch="intent"
                 to={`/blogs/${blog.handle}`}
-                className="group block bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-gold-500 rounded-sm overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]"
+                className="group block bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-primary/50 rounded-sm overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]"
               >
                 {/* Blog Header */}
                 <div className="p-6">
                   <div className="flex items-center mb-4">
-                    <BookOpen className="w-5 h-5 text-gold-500 mr-2" />
-                    <span className="text-sm text-gold-500 font-bold uppercase tracking-wider">Blog</span>
+                    <BookOpen className="w-5 h-5 text-primary mr-2" />
+                    <span className="text-sm text-primary font-bold uppercase tracking-wider">Blog</span>
                   </div>
                   
-                  <h2 className="text-xl font-bold text-white group-hover:text-gold-400 transition-colors duration-300 mb-4">
+                  <h2 className="text-xl font-bold text-white group-hover:text-primary transition-colors duration-300 mb-4">
                     {blog.title}
                   </h2>
                   
@@ -119,18 +131,18 @@ export default function Blogs() {
         </div>
 
         {/* Championship Banner */}
-        <div className="bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 border border-gold-500/30 rounded-sm p-8 text-center">
-          <h3 className="text-2xl font-bold text-gold-500 mb-4">
+        <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/30 rounded-sm p-8 text-center">
+          <h3 className="text-2xl font-bold text-primary mb-4">
             Train Your Mind Like a Champion
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Mental preparation is just as important as physical training. Learn from Sugar Shane's experience and develop the champion mindset.
+            Mental preparation is just as important as physical training. Learn from {config.influencerName}'s experience and develop the champion mindset.
           </p>
           <Link 
             to="/"
-            className="inline-flex items-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
+            className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >
-            Explore Sugar Shane's Story
+            Explore {config.influencerName}'s Story
           </Link>
         </div>
       </div>
@@ -138,7 +150,6 @@ export default function Blogs() {
   );
 }
 
-// NOTE: https://shopify.dev/docs/api/storefront/latest/objects/blog
 const BLOGS_QUERY = `#graphql
   query Blogs(
     $country: CountryCode

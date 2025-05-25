@@ -1,10 +1,8 @@
-import { useLoaderData } from 'react-router';
-import type { LoaderFunctionArgs } from 'react-router';
+import { useLoaderData, type LoaderFunctionArgs } from 'react-router';
 import { getPaginationVariables } from '@shopify/hydrogen';
-import { getConfig } from '~/lib/config';
 
 // Import configuration and theme system
-import { defaultConfig } from '~/lib/config';
+import { defaultConfig, getConfig } from '~/lib/config';
 import { initThemeFromConfig } from '~/lib/themeConfig';
 
 // Import components that match Vue template structure
@@ -15,74 +13,170 @@ import CareerHighlights from '~/components/CareerHighlights';
 import SocialFeed from '~/components/SocialFeed';
 import Testimonials from '~/components/Testimonials';
 import NewsletterSignup from '~/components/NewsletterSignup';
+import { Footer } from '~/components/Footer';
 
 export const meta = () => {
   return [{ title: `${defaultConfig.brandName} | ${defaultConfig.influencerTitle}` }];
 };
 
-export async function loader(args: LoaderFunctionArgs) {
-  const paginationVariables = getPaginationVariables(args.request, {
+export async function loader({ context, request }: LoaderFunctionArgs) {
+  const paginationVariables = getPaginationVariables(request, {
     pageBy: 8,
   });
 
-  // Handle pagination variables properly - check if it has 'first' property
+  // Handle pagination variables properly
   const queryVariables = 'first' in paginationVariables 
     ? { first: paginationVariables.first, after: paginationVariables.endCursor }
     : { first: 8, after: null };
 
-  // Simplified queries for now - we'll enhance these later
-  const [collectionsResponse] = await Promise.all([
-    args.context.storefront.query(COLLECTIONS_QUERY, {
-      variables: queryVariables,
-    }).catch(() => ({ collections: { nodes: [] } })),
-  ]);
+  // Fetch products from Shopify for the ProductShowcase component
+  let products = null;
+  let featuredCollection = null;
+  let collections: any[] = [];
 
-  // Get configuration - pass the whole env object
+  try {
+    // Fetch featured products
+    const productsResponse = await context.storefront.query(PRODUCTS_QUERY, {
+      variables: { ...queryVariables, sortKey: 'BEST_SELLING' },
+    });
+    products = productsResponse.products?.nodes;
+    
+    // Fetch all collections
+    const collectionsResponse = await context.storefront.query(COLLECTIONS_QUERY, {
+      variables: { first: 10 },
+    });
+    collections = collectionsResponse.collections?.nodes || [];
+    
+    // Try to find featured collection by handle first
+    featuredCollection = collections.find((collection: any) => 
+      collection.handle === 'featured' || 
+      collection.handle === 'homepage' || 
+      collection.title.toLowerCase().includes('featured')
+    );
+    
+    // If no featured collection found, use the first collection
+    if (!featuredCollection && collections.length > 0) {
+      featuredCollection = collections[0];
+    }
+  } catch (error) {
+    console.error('Error fetching products or collections:', error);
+  }
+  
+  // Get configuration - this retrieves the configuration that's appropriate for the current influencer
   const config = getConfig();
   
-  // Add theme property to config
-  const configWithTheme = {
-    ...config,
-    theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
-  };
+  // Initialize theme based on configuration (only has an effect on client-side)
+  if (typeof window !== 'undefined') {
+    initThemeFromConfig(config);
+  }
+
+  // Update config with Shopify data if available
+  if (collections.length > 0) {
+    config.shopifyCollections = collections;
+  }
 
   return {
-    collections: collectionsResponse.collections,
-    config: configWithTheme,
+    products,
+    featuredCollection,
+    collections,
+    config,
   };
 }
 
 export default function Homepage() {
-  const { collections, config } = useLoaderData<typeof loader>();
+  const { products, featuredCollection, config } = useLoaderData<typeof loader>();
 
   return (
-    <div data-theme={config.theme} className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div data-theme={config.brandStyle} className="min-h-screen bg-black text-white overflow-x-hidden">
       <main>
-        {/* Hero Section */}
-        <Hero />
+        {/* Hero Section - pass config to each component */}
+        <Hero config={config} />
         
-        {/* Product Showcase */}
-        <ProductShowcase config={config} />
+        {/* Product Showcase - use Shopify products when available */}
+        <ProductShowcase 
+          config={config} 
+          products={products} 
+          featuredCollection={featuredCollection} 
+        />
         
-        {/* Conditional Sections based on config */}
-        <LimitedEdition config={config} />
+        {/* Conditional Sections - controlled by config */}
+        {config.showLimitedEdition && <LimitedEdition config={config} />}
         
-        <CareerHighlights config={config} />
+        {config.showCareerHighlights && <CareerHighlights config={config} />}
         
-        <Testimonials config={config} />
+        {config.showTestimonials && <Testimonials config={config} />}
         
-        <SocialFeed config={config} />
+        {config.showSocialFeed && <SocialFeed config={config} />}
         
         <NewsletterSignup config={config} />
       </main>
+
+      {/* Footer to match the Vue template */}
+      <Footer />
     </div>
   );
 }
 
-// Simplified GraphQL queries
+// Updated Shopify GraphQL query for products
+const PRODUCTS_QUERY = `#graphql
+  query Products($first: Int, $last: Int, $startCursor: String, $endCursor: String, $sortKey: ProductSortKeys) {
+    products(first: $first, last: $last, before: $startCursor, after: $endCursor, sortKey: $sortKey) {
+      nodes {
+        id
+        title
+        description
+        handle
+        tags
+        featuredImage {
+          id
+          url
+          altText
+          width
+          height
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+          maxVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: 1) {
+          nodes {
+            id
+            availableForSale
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
+            selectedOptions {
+              name
+              value
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+` as const;
+
+// Shopify GraphQL query for collections
 const COLLECTIONS_QUERY = `#graphql
-  query Collections($first: Int, $after: String) {
-    collections(first: $first, after: $after) {
+  query Collections($first: Int, $handle: String) {
+    collections(first: $first, query: $handle) {
       nodes {
         id
         title
@@ -95,10 +189,6 @@ const COLLECTIONS_QUERY = `#graphql
           width
           height
         }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
       }
     }
   }

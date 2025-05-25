@@ -48,6 +48,11 @@ cd shane-hydrogen
 # Install dependencies
 npm install
 
+# Configure Shopify Integration
+# 1. Create a .env file (see .env.example)
+# 2. Add your Shopify API credentials
+# See SHOPIFY-INTEGRATION.md for detailed instructions
+
 # Start development server
 npm run dev
 
@@ -60,9 +65,15 @@ npm run preview
 
 ### Shopify Integration
 
+This project includes full Shopify integration using the Hydrogen framework:
+
 1. **Connect Your Store**: Update `.env` with your Shopify store credentials
-2. **Configure GraphQL**: The template uses Shopify's Storefront API
-3. **Products**: Products are automatically pulled from your Shopify store
+2. **Products**: Automatically load products from your Shopify store
+3. **Collections**: Display collections and featured products 
+4. **Customer Accounts**: Full customer account management
+5. **Cart & Checkout**: Seamless cart and checkout experience
+
+For detailed Shopify integration instructions, see [SHOPIFY-INTEGRATION.md](SHOPIFY-INTEGRATION.md)
 
 ## 🛠️ Customization Guide
 

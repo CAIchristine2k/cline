@@ -1,18 +1,22 @@
 import React from 'react';
-import {ShoppingCart} from 'lucide-react';
-import {Link} from 'react-router';
-import {Image} from '@shopify/hydrogen';
-import {ProductCard} from './ProductCard';
-import type {LandingPageConfig} from '~/lib/config';
-import type {ProductItemFragment, CollectionFragment} from 'storefrontapi.generated';
+import { ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router';
+import { Image } from '@shopify/hydrogen';
+import { ProductCard } from './ProductCard';
+import { defaultConfig, type LandingPageConfig } from '~/lib/config';
+import type { ProductItemFragment, CollectionFragment } from 'storefrontapi.generated';
 
 interface ProductShowcaseProps {
-  config: LandingPageConfig;
+  config?: LandingPageConfig;
   products?: ProductItemFragment[] | null;
   featuredCollection?: CollectionFragment | null;
 }
 
-export default function ProductShowcase({config, products = [], featuredCollection}: ProductShowcaseProps) {
+export default function ProductShowcase({ 
+  config = defaultConfig, 
+  products = [], 
+  featuredCollection 
+}: ProductShowcaseProps) {
   // Use Shopify products if available, otherwise fall back to config products
   const displayProducts = products && products.length > 0 ? products : null;
   const configProducts = config.products;
@@ -32,105 +36,98 @@ export default function ProductShowcase({config, products = [], featuredCollecti
           </p>
         </div>
         
-        {/* Featured Collection Banner - Shopify integration */}
-        {featuredCollection && (
-          <div className="mb-16">
-            <Link 
-              to={`/collections/${featuredCollection.handle}`}
-              className="group block relative overflow-hidden rounded-lg bg-gradient-to-r from-primary/80 to-primary hover:from-primary/90 hover:to-primary/110 transition-all duration-300 transform hover:scale-[1.02]"
-            >
-              {featuredCollection.image && (
-                <div className="absolute inset-0 opacity-30">
-                  <Image
-                    data={featuredCollection.image}
-                    className="w-full h-full object-cover"
-                    sizes="100vw"
-                  />
-                </div>
-              )}
-              <div className="relative z-10 px-8 py-12 text-center">
-                <h3 className="text-3xl md:text-4xl font-bold text-black mb-4">
-                  {featuredCollection.title}
-                </h3>
-                <span className="inline-block bg-black text-primary px-6 py-3 rounded-sm font-bold uppercase tracking-wider group-hover:bg-gray-900 transition-colors duration-300">
-                  Shop Collection
-                </span>
-              </div>
-            </Link>
-          </div>
-        )}
-        
         {/* Products Grid - Shopify products with config fallbacks */}
-        {displayProducts ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {displayProducts.map((product: ProductItemFragment, index: number) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {displayProducts ? (
+            // Using Shopify products when available
+            displayProducts.map((product: ProductItemFragment, index: number) => (
               <ProductCard 
                 key={product.id} 
                 product={product} 
                 loading={index < 4 ? 'eager' : 'lazy'}
               />
-            ))}
-          </div>
-        ) : (
-          /* Fallback to config products if Shopify products not available */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {configProducts.map((product, index) => (
-              <div key={index} className="group bg-gray-900/50 rounded-lg overflow-hidden border border-gray-800 hover:border-primary transition-all duration-300 transform hover:scale-[1.02]">
-                <div className="relative overflow-hidden">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+            ))
+          ) : (
+            // Fallback to config products when Shopify products aren't available
+            configProducts.map((product, index) => (
+              <div key={index} className="group relative rounded-sm overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-xl">
+                {/* Product image */}
+                <div className="relative h-72 overflow-hidden">
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
                     loading={index < 4 ? 'eager' : 'lazy'}
                   />
+                  
+                  {/* Badge if available */}
                   {product.label && (
-                    <div className="absolute top-4 left-4 bg-primary text-black px-3 py-1 rounded-sm text-sm font-bold uppercase">
+                    <div className="absolute top-3 right-3 bg-primary text-black text-xs font-bold py-1 px-3 rounded-sm">
                       {product.label}
                     </div>
                   )}
+
+                  {/* Quick view overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <Link 
+                      to={product.handle ? `/products/${product.handle}` : '#'}
+                      className="bg-primary hover:bg-primary/90 text-black font-bold px-6 py-2 rounded-sm transition-all duration-300 uppercase text-sm mx-2 flex items-center"
+                    >
+                      Quick View
+                    </Link>
+                  </div>
                 </div>
                 
+                {/* Product details */}
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors duration-300">
+                  <h3 className="text-lg font-bold text-white mb-2">
                     {product.name}
                   </h3>
+                  
                   <p className="text-gray-400 text-sm mb-4 line-clamp-2">
                     {product.description}
                   </p>
                   
+                  {/* Features list */}
                   {product.features && product.features.length > 0 && (
-                    <ul className="text-xs text-gray-500 mb-4 space-y-1">
+                    <ul className="space-y-2 mb-4">
                       {product.features.slice(0, 2).map((feature, idx) => (
-                        <li key={idx} className="flex items-center">
-                          <div className="w-1 h-1 bg-primary rounded-full mr-2"></div>
-                          {feature}
+                        <li key={idx} className="flex items-start text-xs text-gray-500">
+                          <div className="w-1 h-1 bg-primary rounded-full mr-2 mt-1.5"></div>
+                          <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
                   )}
                   
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-primary">
-                      {product.price}
-                    </span>
-                    {product.handle ? (
-                      <Link 
-                        to={`/products/${product.handle}`}
-                        className="bg-primary hover:bg-primary/90 text-black font-bold px-4 py-2 rounded-sm transition-all duration-300 uppercase text-sm"
-                      >
-                        Shop Now
-                      </Link>
-                    ) : (
-                      <button className="bg-primary hover:bg-primary/90 text-black font-bold px-4 py-2 rounded-sm transition-all duration-300 uppercase text-sm">
-                        Add to Cart
-                      </button>
-                    )}
+                  {/* Rating stars - adding this to match Vue template */}
+                  <div className="flex items-center mb-4">
+                    <div className="flex text-primary">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <svg key={star} className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-400 ml-2">(75+)</span>
+                  </div>
+                  
+                  {/* Price and CTA button */}
+                  <div className="flex justify-between items-center">
+                    <p className="text-primary font-bold text-lg">{product.price}</p>
+                    <Link
+                      to={product.handle ? `/products/${product.handle}` : '#shop'}
+                      className="bg-gray-800 hover:bg-primary text-white hover:text-black rounded-sm p-2.5 transition-all duration-300 transform hover:scale-105"
+                      aria-label="Add to cart"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                    </Link>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
         
         {/* View All Products Button */}
         <div className="mt-16 text-center">
@@ -143,7 +140,7 @@ export default function ProductShowcase({config, products = [], featuredCollecti
           </Link>
         </div>
 
-        {/* Background decorative elements */}
+        {/* Background decorative element */}
         <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
         <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
       </div>
