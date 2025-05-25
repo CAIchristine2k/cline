@@ -1,5 +1,3 @@
-import { cssVars } from '~/lib/themeConfig';
-
 // Utility functions for applying themed styles consistently across components
 
 // Button styles
@@ -65,18 +63,18 @@ export const accentStyles = {
   glowText: `hero-title-glow`,
   
   // Badge style
-  badge: `bg-primary text-black text-xs font-bold py-1 px-3 rounded-sm`,
+  badge: `bg-primary text-black text-xs font-bold py-1 px-3 rounded-sm absolute top-4 right-4`,
   
   // Underline accent
   underline: `relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary`,
   
   // Gradient overlay
-  overlay: `bg-black/60`,
+  overlay: `bg-gradient-to-b from-black/80 via-black/60 to-black/90`,
 };
 
 // Animation classes
 export const animationStyles = {
-  fadeIn: `animate-fade-in`,
+  fadeIn: `animate-pulse`,
   slideUp: `animate-slide-up`,
   slideDown: `animate-slide-down`,
   slideInRight: `animate-slide-in-right`,
@@ -84,35 +82,35 @@ export const animationStyles = {
   scaleIn: `animate-scale-in`,
 };
 
-// Common inline styles that use CSS variables
+// Common inline styles that need access to theme colors
 export const inlineStyles = {
   // Primary background color
-  primaryBackground: { backgroundColor: cssVars.primary },
+  primaryBackground: { backgroundColor: 'var(--color-primary)' },
   
   // Primary text color
-  primaryText: { color: cssVars.primary },
+  primaryText: { color: 'var(--color-primary)' },
   
   // Primary border color
-  primaryBorder: { borderColor: cssVars.primary },
+  primaryBorder: { borderColor: 'var(--color-primary)' },
   
   // Primary with opacity (for borders, etc)
   primaryWithOpacity: (opacity: number) => ({ 
-    borderColor: `${cssVars.primary}${Math.floor(opacity * 100).toString(16).padStart(2, '0')}` 
+    borderColor: `rgba(var(--color-primary-rgb), ${opacity})` 
   }),
   
   // Background with primary color
   primaryBackgroundWithText: { 
-    backgroundColor: cssVars.primary,
-    color: cssVars.background
+    backgroundColor: 'var(--color-primary)',
+    color: 'var(--color-background)'
   },
   
   // Secondary color styles
-  secondaryBackground: { backgroundColor: cssVars.secondary },
-  secondaryText: { color: cssVars.secondary },
+  secondaryBackground: { backgroundColor: 'var(--color-secondary)' },
+  secondaryText: { color: 'var(--color-secondary)' },
   
   // Hover styles for interactive elements
   hoverPrimary: { 
-    '--hover-border-color': cssVars.primary,
-    '--hover-text-color': cssVars.primary,
+    '--hover-border-color': 'var(--color-primary)',
+    '--hover-text-color': 'var(--color-primary)',
   },
 }; 

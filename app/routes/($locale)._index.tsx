@@ -1,9 +1,10 @@
 import { useLoaderData, type LoaderFunctionArgs } from 'react-router';
 import { getPaginationVariables } from '@shopify/hydrogen';
+import React from 'react';
 
-// Import configuration and theme system
-import { defaultConfig, getConfig } from '~/lib/config';
-import { initThemeFromConfig } from '~/lib/themeConfig';
+// Import configuration and theme system from utils (consistent directory)
+import { defaultConfig } from '~/utils/config';
+import { useTheme, useConfig, useUpdateConfig } from '~/utils/themeContext';
 
 // Import components that match Vue template structure
 import { Hero } from '~/components/Hero';
@@ -61,57 +62,57 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   } catch (error) {
     console.error('Error fetching products or collections:', error);
   }
-  
-  // Get configuration - this retrieves the configuration that's appropriate for the current influencer
-  const config = getConfig();
-  
-  // Initialize theme based on configuration (only has an effect on client-side)
-  if (typeof window !== 'undefined') {
-    initThemeFromConfig(config);
-  }
-
-  // Update config with Shopify data if available
-  if (collections.length > 0) {
-    config.shopifyCollections = collections;
-  }
 
   return {
     products,
     featuredCollection,
     collections,
-    config,
+    // Return the Shopify data but do not modify the config here
+    // The config will be handled by the ThemeProvider context
   };
 }
 
 export default function Homepage() {
-  const { products, featuredCollection, config } = useLoaderData<typeof loader>();
+  const { products, featuredCollection, collections } = useLoaderData<typeof loader>();
+  
+  // Use the centralized configuration from context
+  const { config } = useTheme();
+  const updateConfig = useUpdateConfig();
+  
+  // Update config with Shopify data if available - but maintain single source of truth
+  // by using the context system
+  React.useEffect(() => {
+    if (collections && collections.length > 0) {
+      updateConfig({ 
+        shopifyCollections: collections 
+      });
+    }
+  }, [collections, updateConfig]);
 
   return (
     <div data-theme={config.brandStyle} className="min-h-screen bg-black text-white overflow-x-hidden">
       <main>
-        {/* Hero Section - pass config to each component */}
-        <Hero config={config} />
+        {/* Each component uses the shared config from context */}
+        <Hero />
         
-        {/* Product Showcase - use Shopify products when available */}
+        {/* Pass Shopify data to components that need it */}
         <ProductShowcase 
-          config={config} 
           products={products} 
           featuredCollection={featuredCollection} 
         />
         
-        {/* Conditional Sections - controlled by config */}
-        {config.showLimitedEdition && <LimitedEdition config={config} />}
+        {/* Conditional sections based on config */}
+        {config.showLimitedEdition && <LimitedEdition />}
         
-        {config.showCareerHighlights && <CareerHighlights config={config} />}
+        {config.showCareerHighlights && <CareerHighlights />}
         
-        {config.showTestimonials && <Testimonials config={config} />}
+        {config.showTestimonials && <Testimonials />}
         
-        {config.showSocialFeed && <SocialFeed config={config} />}
+        {config.showSocialFeed && <SocialFeed />}
         
-        <NewsletterSignup config={config} />
+        <NewsletterSignup />
       </main>
 
-      {/* Footer to match the Vue template */}
       <Footer />
     </div>
   );

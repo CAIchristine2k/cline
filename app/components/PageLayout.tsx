@@ -11,15 +11,17 @@ import {Header} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
 import {SearchFormPredictive} from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
-import {ThemeSwitcher, ThemeConfigPanel} from '~/components/ThemeSwitcher';
 
 export type PageLayoutProps = {
-  cart: Promise<CartApiQueryFragment | null>;
-  footer: Promise<FooterQuery | null>;
-  header: Promise<HeaderQuery | null>;
-  isLoggedIn: Promise<boolean>;
-  publicStoreDomain: string;
   children?: React.ReactNode;
+  layout?: {
+    shop: any;
+  };
+  cart?: Promise<CartApiQueryFragment | null>;
+  header?: HeaderQuery;
+  footer?: FooterQuery;
+  isLoggedIn?: boolean;
+  publicStoreDomain?: string;
 };
 
 export function PageLayout({
@@ -109,13 +111,15 @@ export function PageLayout({
       </Aside>
       
       <Aside type="cart" heading="CART">
-        <Suspense fallback={<p>Loading cart...</p>}>
-          <Await resolve={cart}>
-            {(cart) => {
-              return <CartMain cart={cart} layout="aside" />;
-            }}
-          </Await>
-        </Suspense>
+        {cart && (
+          <Suspense fallback={<p>Loading cart...</p>}>
+            <Await resolve={cart}>
+              {(resolvedCart) => {
+                return <CartMain cart={resolvedCart} layout="aside" />;
+              }}
+            </Await>
+          </Suspense>
+        )}
       </Aside>
       
       <Aside type="mobile" heading="MENU">
@@ -139,10 +143,6 @@ export function PageLayout({
           </nav>
         </div>
       </Aside>
-
-      {/* Theme Customization Tools */}
-      <ThemeSwitcher />
-      <ThemeConfigPanel />
     </Aside.Provider>
   );
 }

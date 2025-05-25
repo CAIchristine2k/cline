@@ -9,6 +9,7 @@ export interface ProductInfo {
   image: string;
   features?: string[];
   label?: string;
+  handle?: string; // Add handle for linking to Shopify products
 }
 
 export interface LandingPageConfig {
@@ -29,6 +30,7 @@ export interface LandingPageConfig {
   | "vibrant"
   | "custom";
   heroBackgroundImage: string;
+  heroVideoUrl?: string; // Optional video URL for background
   // Content
   heroTitle: string;
   heroSubtitle: string;
@@ -52,6 +54,9 @@ export interface LandingPageConfig {
   showSocialFeed: boolean;
   // Products
   products: ProductInfo[];
+  // Shopify Data - used to store fetched data
+  shopifyCollections?: any[];
+  shopifyProducts?: any[];
 }
 
 // Shane Mosley specific configuration
@@ -197,6 +202,10 @@ export const defaultConfig: LandingPageConfig = {
       ]
     }
   ],
+
+  // Shopify Data - used to store fetched data
+  shopifyCollections: [],
+  shopifyProducts: [],
 };
 
 /**

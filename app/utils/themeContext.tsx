@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle } from '~/lib/themeConfig';
-import { getConfig, type LandingPageConfig } from '~/lib/config';
+import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle } from './themeConfig';
+import { defaultConfig, initConfig, type LandingPageConfig } from './config';
 
 interface ThemeContextType {
   theme: ThemeConfig;
@@ -17,14 +17,15 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderProps) {
-  const baseConfig = getConfig();
-  const [config, setConfig] = useState<LandingPageConfig>(() => ({
-    ...baseConfig,
-    ...initialConfig
-  }));
+  // Initialize config with default values and any custom overrides
+  const [config, setConfig] = useState<LandingPageConfig>(() => 
+    initConfig(initialConfig)
+  );
+  
+  // Get current theme state
   const [theme, setThemeState] = useState<ThemeConfig>(() => getTheme());
 
-  // Initialize theme based on config
+  // Apply theme whenever config changes
   useEffect(() => {
     const configuredTheme: Partial<ThemeConfig> = {
       brandName: config.brandName,
@@ -34,35 +35,35 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
       influencerTitle: config.influencerTitle,
       influencerImage: config.influencerImage,
       socialLinks: {
-        instagram: config.socialLinks.instagram,
-        twitter: config.socialLinks.twitter,
-        youtube: config.socialLinks.youtube,
-        tiktok: config.socialLinks.tiktok,
+        instagram: config.instagramHandle
+          ? `https://instagram.com/${config.instagramHandle}`
+          : undefined,
+        twitter: config.twitterHandle
+          ? `https://twitter.com/${config.twitterHandle}`
+          : undefined,
+        youtube: config.youtubeChannel
+          ? `https://youtube.com/${config.youtubeChannel}`
+          : undefined,
+        tiktok: config.tiktokHandle
+          ? `https://tiktok.com/@${config.tiktokHandle}`
+          : undefined,
       }
     };
 
-    // Apply the brand style colors
-    if (config.brandStyle !== 'custom' && config.brandStyle in colorSchemes) {
-      configuredTheme.colors = colorSchemes[config.brandStyle as Exclude<BrandStyle, 'custom'>];
-    }
-
+    // Apply the theme
     setGlobalTheme(configuredTheme);
     setThemeState(getTheme());
   }, [config]);
 
+  // Function to update theme
   const updateTheme = (newTheme: Partial<ThemeConfig>) => {
     setGlobalTheme(newTheme);
     setThemeState(getTheme());
   };
 
+  // Function to update config
   const updateConfig = (newConfig: Partial<LandingPageConfig>) => {
-    const baseConfig = getConfig();
-    const updatedConfig = {
-      ...baseConfig,
-      ...config,
-      ...newConfig
-    };
-    setConfig(updatedConfig);
+    setConfig(current => initConfig({...current, ...newConfig}));
   };
 
   return (
@@ -79,6 +80,7 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
   );
 }
 
+// Hook to access theme and config
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
@@ -87,10 +89,20 @@ export function useTheme() {
   return context;
 }
 
+// Hook to access just the config
 export function useConfig() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useConfig must be used within a ThemeProvider');
   }
   return context.config;
+}
+
+// Hook to update config
+export function useUpdateConfig() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useUpdateConfig must be used within a ThemeProvider');
+  }
+  return context.updateConfig;
 }

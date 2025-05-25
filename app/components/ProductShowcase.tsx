@@ -3,36 +3,36 @@ import { ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router';
 import { Image } from '@shopify/hydrogen';
 import { ProductCard } from './ProductCard';
-import { defaultConfig, type LandingPageConfig } from '~/lib/config';
+import { useConfig } from '~/utils/themeContext';
 import type { ProductItemFragment, CollectionFragment } from 'storefrontapi.generated';
-import { buttonStyles, sectionStyles, cardStyles, accentStyles, inlineStyles } from '~/utils/styleUtils';
 
 interface ProductShowcaseProps {
-  config?: LandingPageConfig;
   products?: ProductItemFragment[] | null;
   featuredCollection?: CollectionFragment | null;
 }
 
 export default function ProductShowcase({ 
-  config = defaultConfig, 
   products = [], 
   featuredCollection 
 }: ProductShowcaseProps) {
+  // Use centralized config from context
+  const config = useConfig();
+  
   // Use Shopify products if available, otherwise fall back to config products
   const displayProducts = products && products.length > 0 ? products : null;
   const configProducts = config.products;
 
   return (
-    <section id="shop" className={`${sectionStyles.padding} ${sectionStyles.darkGradient} relative overflow-hidden`}>
-      <div className={sectionStyles.container}>
-        <div className={sectionStyles.headingWrapper}>
-          <div className={sectionStyles.tag}>
+    <section id="shop" className="py-20 md:py-24 bg-gradient-to-b from-black via-gray-900/95 to-black relative overflow-hidden">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="mb-12 md:mb-16 text-center">
+          <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
             Premium Collection
           </div>
-          <h2 className={sectionStyles.heading}>
-            <span className={accentStyles.primaryText}>EXCLUSIVE</span> MERCHANDISE
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-5">
+            <span className="text-primary">EXCLUSIVE</span> MERCHANDISE
           </h2>
-          <p className={sectionStyles.subheading}>
+          <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Premium quality products inspired by the legacy of {config.influencerName}. Elevate your performance with our exclusive collection.
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function ProductShowcase({
           ) : (
             // Fallback to config products when Shopify products aren't available
             configProducts.map((product, index) => (
-              <div key={index} className={cardStyles.product}>
+              <div key={index} className="group relative rounded-sm overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-xl">
                 {/* Product image */}
                 <div className="relative h-72 overflow-hidden">
                   <img 
@@ -63,7 +63,7 @@ export default function ProductShowcase({
                   
                   {/* Badge if available */}
                   {product.label && (
-                    <div className={accentStyles.badge} style={inlineStyles.primaryBackgroundWithText}>
+                    <div className="bg-primary text-black text-xs font-bold py-1 px-3 rounded-sm absolute top-4 right-4">
                       {product.label}
                     </div>
                   )}
@@ -72,8 +72,7 @@ export default function ProductShowcase({
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <Link 
                       to={product.handle ? `/products/${product.handle}` : '#'}
-                      className={`${buttonStyles.primary} uppercase text-sm mx-2`}
-                      style={inlineStyles.primaryBackgroundWithText}
+                      className="bg-primary hover:bg-primary-600 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 flex items-center justify-center uppercase text-sm mx-2"
                     >
                       Quick View
                     </Link>
@@ -95,18 +94,18 @@ export default function ProductShowcase({
                     <ul className="space-y-2 mb-4">
                       {product.features.slice(0, 2).map((feature, idx) => (
                         <li key={idx} className="flex items-start text-xs text-gray-500">
-                          <div className="w-1 h-1 bg-primary rounded-full mr-2 mt-1.5" style={inlineStyles.primaryBackground}></div>
+                          <div className="w-1 h-1 bg-primary rounded-full mr-2 mt-1.5"></div>
                           <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
                   )}
                   
-                  {/* Rating stars - adding this to match Vue template */}
+                  {/* Rating stars - matching Vue template */}
                   <div className="flex items-center mb-4">
                     <div className="flex text-primary">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <svg key={star} className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={inlineStyles.primaryText}>
+                        <svg key={star} className="w-4 h-4 fill-current text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                           <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                         </svg>
                       ))}
@@ -116,12 +115,12 @@ export default function ProductShowcase({
                   
                   {/* Price and CTA button */}
                   <div className="flex justify-between items-center">
-                    <p className={`${accentStyles.primaryText} font-bold text-lg`} style={inlineStyles.primaryText}>
+                    <p className="text-primary font-bold text-lg">
                       {product.price}
                     </p>
                     <Link
                       to={product.handle ? `/products/${product.handle}` : '#shop'}
-                      className={buttonStyles.subtle}
+                      className="bg-gray-800 hover:bg-primary text-white hover:text-black rounded-sm p-2.5 transition-all duration-300 transform hover:scale-105"
                       aria-label="Add to cart"
                     >
                       <ShoppingCart className="w-4 h-4" />
@@ -138,10 +137,6 @@ export default function ProductShowcase({
           <Link 
             to="/collections/all"
             className="group inline-flex items-center justify-center bg-transparent hover:bg-primary text-primary hover:text-black border-2 border-primary font-bold py-3.5 px-10 rounded-sm transition-all duration-300 uppercase tracking-wider"
-            style={{
-              borderColor: inlineStyles.primaryText.color,
-              color: inlineStyles.primaryText.color,
-            }}
           >
             <ShoppingCart className="mr-2 h-5 w-5 transition-transform group-hover:rotate-12" />
             View All Products
