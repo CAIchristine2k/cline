@@ -3,6 +3,7 @@ import type {CartLayout} from '~/components/CartMain';
 import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
 import {useRef} from 'react';
 import {FetcherWithComponents} from 'react-router';
+import {useConfig} from '~/utils/themeContext';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -10,15 +11,17 @@ type CartSummaryProps = {
 };
 
 export function CartSummary({cart, layout}: CartSummaryProps) {
-  const className =
-    layout === 'page' ? 'cart-summary-page' : 'cart-summary-aside';
+  const config = useConfig();
 
   return (
-    <div aria-labelledby="cart-summary" className={className}>
-      <h4>Totals</h4>
-      <dl className="cart-subtotal">
-        <dt>Subtotal</dt>
-        <dd>
+    <div 
+      aria-labelledby="cart-summary" 
+      className={`border-t border-primary/10 pt-6 ${layout === 'page' ? 'max-w-md ml-auto' : ''}`}
+    >
+      <h4 className="text-lg font-bold text-primary mb-4">Totals</h4>
+      <dl className="flex justify-between mb-4">
+        <dt className="text-primary-800">Subtotal</dt>
+        <dd className="font-medium text-primary">
           {cart.cost?.subtotalAmount?.amount ? (
             <Money data={cart.cost?.subtotalAmount} />
           ) : (
@@ -32,15 +35,21 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
     </div>
   );
 }
+
 function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
+  const config = useConfig();
+  
   if (!checkoutUrl) return null;
 
   return (
-    <div>
-      <a href={checkoutUrl} target="_self">
-        <p>Continue to Checkout &rarr;</p>
+    <div className="mt-6">
+      <a 
+        href={checkoutUrl} 
+        target="_self"
+        className="block w-full bg-primary text-background text-center py-4 px-6 rounded-sm hover:bg-primary-600 transition-colors font-bold"
+      >
+        Continue to Checkout &rarr;
       </a>
-      <br />
     </div>
   );
 }
@@ -50,22 +59,22 @@ function CartDiscounts({
 }: {
   discountCodes?: CartApiQueryFragment['discountCodes'];
 }) {
+  const config = useConfig();
   const codes: string[] =
     discountCodes
       ?.filter((discount) => discount.applicable)
       ?.map(({code}) => code) || [];
 
   return (
-    <div>
+    <div className="mb-4">
       {/* Have existing discount, display it with a remove option */}
-      <dl hidden={!codes.length}>
+      <dl hidden={!codes.length} className="flex justify-between mb-2">
         <div>
-          <dt>Discount(s)</dt>
+          <dt className="text-primary-800">Discount(s)</dt>
           <UpdateDiscountForm>
-            <div className="cart-discount">
-              <code>{codes?.join(', ')}</code>
-              &nbsp;
-              <button>Remove</button>
+            <div className="flex items-center mt-1">
+              <code className="text-sm bg-primary/10 px-2 py-1 rounded">{codes?.join(', ')}</code>
+              <button className="ml-2 text-sm text-red-500 hover:underline">Remove</button>
             </div>
           </UpdateDiscountForm>
         </div>
@@ -73,10 +82,19 @@ function CartDiscounts({
 
       {/* Show an input to apply a discount */}
       <UpdateDiscountForm discountCodes={codes}>
-        <div>
-          <input type="text" name="discountCode" placeholder="Discount code" />
-          &nbsp;
-          <button type="submit">Apply</button>
+        <div className="flex mt-4">
+          <input 
+            type="text" 
+            name="discountCode" 
+            placeholder="Discount code" 
+            className="flex-grow border border-primary/20 rounded-l-sm px-3 py-2 focus:outline-none focus:border-primary/50"
+          />
+          <button 
+            type="submit" 
+            className="bg-primary-700 text-background px-4 py-2 rounded-r-sm hover:bg-primary-600 transition-colors"
+          >
+            Apply
+          </button>
         </div>
       </UpdateDiscountForm>
     </div>
@@ -108,6 +126,7 @@ function CartGiftCard({
 }: {
   giftCardCodes: CartApiQueryFragment['appliedGiftCards'] | undefined;
 }) {
+  const config = useConfig();
   const appliedGiftCardCodes = useRef<string[]>([]);
   const giftCardCodeInput = useRef<HTMLInputElement>(null);
   const codes: string[] =
@@ -126,35 +145,44 @@ function CartGiftCard({
   }
 
   return (
-    <div>
+    <div className="mb-4">
       {/* Have existing gift card applied, display it with a remove option */}
-      <dl hidden={!codes.length}>
+      <dl hidden={!codes.length} className="flex justify-between mb-2">
         <div>
-          <dt>Applied Gift Card(s)</dt>
+          <dt className="text-primary-800">Applied Gift Card(s)</dt>
           <UpdateGiftCardForm>
-            <div className="cart-discount">
-              <code>{codes?.join(', ')}</code>
-              &nbsp;
-              <button onSubmit={() => removeAppliedCode}>Remove</button>
+            <div className="flex items-center mt-1">
+              <code className="text-sm bg-primary/10 px-2 py-1 rounded">{codes?.join(', ')}</code>
+              <button 
+                onSubmit={() => removeAppliedCode}
+                className="ml-2 text-sm text-red-500 hover:underline"
+              >
+                Remove
+              </button>
             </div>
           </UpdateGiftCardForm>
         </div>
       </dl>
 
-      {/* Show an input to apply a discount */}
+      {/* Show an input to apply a gift card */}
       <UpdateGiftCardForm
         giftCardCodes={appliedGiftCardCodes.current}
         saveAppliedCode={saveAppliedCode}
       >
-        <div>
+        <div className="flex mt-4">
           <input
             type="text"
             name="giftCardCode"
             placeholder="Gift card code"
             ref={giftCardCodeInput}
+            className="flex-grow border border-primary/20 rounded-l-sm px-3 py-2 focus:outline-none focus:border-primary/50"
           />
-          &nbsp;
-          <button type="submit">Apply</button>
+          <button 
+            type="submit"
+            className="bg-primary-700 text-background px-4 py-2 rounded-r-sm hover:bg-primary-600 transition-colors"
+          >
+            Apply
+          </button>
         </div>
       </UpdateGiftCardForm>
     </div>

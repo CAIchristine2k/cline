@@ -89,10 +89,7 @@ export function ProductDetail({
 
             {/* Product Form */}
             <div className="border-t border-gray-800 pt-6">
-              <ProductForm
-                productOptions={productOptions}
-                selectedVariant={selectedVariant}
-              />
+              <ProductForm product={product} />
             </div>
 
             {/* Product Features */}

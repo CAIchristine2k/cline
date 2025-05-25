@@ -17,9 +17,11 @@ import {
 import {PageLayout} from '~/components/PageLayout';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import {useEffect} from 'react';
-import {initializeTheme} from '~/lib/themeConfig';
-import config from '~/lib/config';
+import {initializeTheme} from '~/utils/themeConfig';
+import config from '~/utils/config';
 import {ThemeProvider} from '~/utils/themeContext';
+import {CartProvider} from '~/providers/CartProvider';
+import {Aside} from '~/components/Aside';
 
 import appStyles from './styles/app.css?url';
 import favicon from '~/assets/favicon.svg';
@@ -259,7 +261,11 @@ export function Layout({children}: {children?: React.ReactNode}) {
       </head>
       <body>
         <ThemeProvider>
-          <PageLayout {...data}>{children}</PageLayout>
+          <CartProvider>
+            <Aside.Provider>
+              <PageLayout {...data}>{children}</PageLayout>
+            </Aside.Provider>
+          </CartProvider>
         </ThemeProvider>
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />

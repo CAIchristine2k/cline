@@ -248,6 +248,26 @@ function adjustColorBrightness(hex: string, factor: number): string {
     .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
+// Helper function to convert hex to RGB
+export function hexToRgb(hex: string): string {
+  // Remove # if present
+  hex = hex.replace('#', '');
+  
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  return `${r}, ${g}, ${b}`;
+}
+
+// Initialize theme on app startup
+export function initializeTheme(): void {
+  if (typeof document !== 'undefined') {
+    updateCssVariables(currentTheme.colors);
+  }
+}
+
 // Initialize theme on load
 if (typeof window !== "undefined") {
   updateCssVariables(currentTheme.colors);

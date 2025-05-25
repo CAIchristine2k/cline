@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { ShoppingBag, Trophy } from 'lucide-react';
 import { Link } from 'react-router';
 import { useConfig } from '~/utils/themeContext';
-import { buttonStyles, sectionStyles, cardStyles, accentStyles, inlineStyles, animationStyles } from '~/utils/styleUtils';
 
 export function Hero() {
   // Get config from context instead of props
@@ -123,15 +122,15 @@ export function Hero() {
       <style dangerouslySetInnerHTML={{
         __html: `
           .hero-title-glow {
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            text-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.4);
           }
           
           .hero-stat-glow {
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+            text-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.3);
           }
           
           .shadow-glow {
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+            box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.25);
           }
         `
       }} />

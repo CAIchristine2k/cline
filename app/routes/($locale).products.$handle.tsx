@@ -1,5 +1,5 @@
 import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, type MetaFunction} from 'react-router';
+import {useLoaderData, type MetaFunction, Link} from 'react-router';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -7,10 +7,14 @@ import {
   getProductOptions,
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
+  Image,
+  Money,
 } from '@shopify/hydrogen';
-import {ProductDetail} from '~/components/ProductDetail';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {getConfig} from '~/lib/config';
+import {useConfig} from '~/utils/themeContext';
+import {ProductForm} from '~/components/ProductForm';
+import {Suspense} from 'react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const config = getConfig();
@@ -91,138 +95,249 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
 }
 
 export default function Product() {
-  const {product, config} = useLoaderData<typeof loader>();
+  const {product} = useLoaderData<typeof loader>();
+  const config = useConfig();
 
-  // Optimistically selects a variant with given available variant information
-  const selectedVariant = useOptimisticVariant(
-    product.selectedOrFirstAvailableVariant,
-    getAdjacentAndFirstAvailableVariants(product),
-  );
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-24 text-center">
+        <h1 className="text-3xl font-bold mb-6">Product not found</h1>
+        <p className="mb-8">The product you're looking for does not exist.</p>
+        <Link to="/collections" className="bg-primary text-background px-6 py-3 rounded-sm">
+          Back to Collections
+        </Link>
+      </div>
+    );
+  }
 
-  // Sets the search param to the selected variant without navigation
-  // only when no search params are set in the url
-  useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
+  // Shopify analytics
+  const analytics = {
+    products: [
+      {
+        productGid: product.id,
+        variantGid: product.variants.nodes[0]?.id,
+        name: product.title,
+        variantName: product.variants.nodes[0]?.title,
+        brand: product.vendor,
+        price: product.variants.nodes[0]?.price.amount,
+      },
+    ],
+    pageType: 'product',
+  };
 
-  // Get the product options array
-  const productOptions = getProductOptions({
-    ...product,
-    selectedOrFirstAvailableVariant: selectedVariant,
-  });
-
+  const featuredImage = product.featuredImage;
+  const images = product.images.nodes;
+  const selectedVariant = product.variants.nodes[0];
+  
   return (
-    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
-      <ProductDetail 
-        product={product}
-        selectedVariant={selectedVariant}
-        productOptions={productOptions}
-        config={config}
-      />
+    <div className="py-24">
+      <div className="container mx-auto px-4">
+        {/* Breadcrumb */}
+        <div className="mb-8">
+          <nav className="flex" aria-label="Breadcrumb">
+            <ol className="flex items-center space-x-2">
+              <li>
+                <Link to="/" className="text-primary hover:text-primary-600">Home</Link>
+              </li>
+              <li className="flex items-center space-x-2">
+                <span className="text-primary-700">/</span>
+                <Link to="/collections" className="text-primary hover:text-primary-600">
+                  Collections
+                </Link>
+              </li>
+              <li className="flex items-center space-x-2">
+                <span className="text-primary-700">/</span>
+                <span className="text-primary-800" aria-current="page">
+                  {product.title}
+                </span>
+              </li>
+            </ol>
+          </nav>
+        </div>
+
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+          {/* Image Gallery */}
+          <div className="space-y-4">
+            <div className="aspect-square overflow-hidden rounded-sm border border-primary/10">
+              {featuredImage ? (
+                <Image
+                  data={featuredImage}
+                  className="h-full w-full object-cover"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                />
+              ) : (
+                <div className="h-full w-full bg-primary/5 flex items-center justify-center">
+                  <span className="text-primary-700">No image</span>
+                </div>
+              )}
+            </div>
+            
+            {images.length > 1 && (
+              <div className="grid grid-cols-4 gap-4">
+                {images.map((image: any) => (
+                  <div key={image.id} className="aspect-square overflow-hidden rounded-sm border border-primary/10">
+                    <Image
+                      data={image}
+                      className="h-full w-full object-cover"
+                      sizes="(min-width: 1024px) 15vw, 25vw"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Product Info */}
+          <div>
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="text-2xl font-bold text-primary">
+                  <Money data={selectedVariant.price} />
+                </div>
+                
+                {selectedVariant.compareAtPrice && (
+                  <div className="text-lg text-gray-500 line-through">
+                    <Money data={selectedVariant.compareAtPrice} />
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-2 mb-6">
+                <div className={`h-3 w-3 rounded-full ${selectedVariant.availableForSale ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-sm">
+                  {selectedVariant.availableForSale ? 'In stock' : 'Out of stock'}
+                </span>
+              </div>
+              
+              <div className="prose prose-sm max-w-none mb-8">
+                <div dangerouslySetInnerHTML={{__html: product.descriptionHtml}} />
+              </div>
+            </div>
+            
+            {/* Product Form */}
+            <Suspense fallback={<div>Loading...</div>}>
+              <ProductForm product={product} />
+            </Suspense>
+            
+            {/* Championship Guarantee */}
+            <div className="mt-8 bg-primary/10 border border-primary/30 rounded-sm p-4">
+              <h3 className="text-lg font-bold text-primary mb-2">
+                {config.influencerName}'s Guarantee
+              </h3>
+              <p className="text-sm text-text/80">
+                Every product is crafted to championship standards and backed by {config.influencerName}'s 
+                legacy of excellence. Train like a champion with gear approved by 
+                a {config.influencerTitle.toLowerCase()}.
+              </p>
+            </div>
+          </div>
+        </div>
       
-      <Analytics.ProductView
-        data={{
-          products: [
-            {
-              id: product.id,
-              title: product.title,
-              price: selectedVariant?.price.amount || '0',
-              vendor: product.vendor,
-              variantId: selectedVariant?.id || '',
-              variantTitle: selectedVariant?.title || '',
-              quantity: 1,
-            },
-          ],
-        }}
-      />
+        {/* Related Products Section */}
+        {/* This would be added in a future enhancement */}
+      </div>
+      
+      {/* Analytics */}
+      <Analytics.ProductView data={{
+        products: [{
+          id: product.id,
+          title: product.title,
+          vendor: product.vendor,
+          variantId: selectedVariant?.id || '',
+          variantTitle: selectedVariant?.title || '',
+          price: selectedVariant?.price?.amount || '0',
+          quantity: 1
+        }]
+      }} />
     </div>
   );
 }
 
-const PRODUCT_VARIANT_FRAGMENT = `#graphql
-  fragment ProductVariant on ProductVariant {
-    availableForSale
-    compareAtPrice {
-      amount
-      currencyCode
-    }
-    id
-    image {
-      __typename
+const PRODUCT_QUERY = `#graphql
+  query ProductDetails($handle: String!) {
+    product(handle: $handle) {
       id
-      url
-      altText
-      width
-      height
-    }
-    price {
-      amount
-      currencyCode
-    }
-    product {
       title
+      description
+      descriptionHtml
       handle
-    }
-    selectedOptions {
-      name
-      value
-    }
-    sku
-    title
-    unitPrice {
-      amount
-      currencyCode
-    }
-  }
-` as const;
-
-const PRODUCT_FRAGMENT = `#graphql
-  fragment Product on Product {
-    id
-    title
-    vendor
-    handle
-    descriptionHtml
-    description
-    options {
-      name
-      optionValues {
-        name
-      }
-    }
-    images(first: 10) {
-      nodes {
+      vendor
+      featuredImage {
         id
         url
         altText
         width
         height
       }
-    }
-    selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions) {
-      ...ProductVariant
-    }
-    variants(first: 1) {
-      nodes {
-        ...ProductVariant
+      images(first: 5) {
+        nodes {
+          id
+          url
+          altText
+          width
+          height
+        }
+      }
+      options {
+        name
+        values
+      }
+      selectedVariant: variantBySelectedOptions(selectedOptions: []) {
+        id
+        availableForSale
+        selectedOptions {
+          name
+          value
+        }
+        image {
+          id
+          url
+          altText
+          width
+          height
+        }
+        price {
+          amount
+          currencyCode
+        }
+        compareAtPrice {
+          amount
+          currencyCode
+        }
+        sku
+        title
+        unitPrice {
+          amount
+          currencyCode
+        }
+        product {
+          title
+          handle
+        }
+      }
+      variants(first: 10) {
+        nodes {
+          id
+          title
+          availableForSale
+          selectedOptions {
+            name
+            value
+          }
+          price {
+            amount
+            currencyCode
+          }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
+          sku
+        }
       }
     }
-    seo {
-      description
-      title
-    }
   }
-  ${PRODUCT_VARIANT_FRAGMENT}
-` as const;
-
-const PRODUCT_QUERY = `#graphql
-  query Product(
-    $country: CountryCode
-    $handle: String!
-    $language: LanguageCode
-    $selectedOptions: [SelectedOptionInput!]!
-  ) @inContext(country: $country, language: $language) {
-    product(handle: $handle) {
-      ...Product
-    }
-  }
-  ${PRODUCT_FRAGMENT}
-` as const;
+`;

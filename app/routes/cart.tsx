@@ -1,15 +1,7 @@
-import {useLoaderData} from 'react-router';
-import type {LoaderFunctionArgs, ActionFunctionArgs, MetaFunction} from 'react-router';
-import {CartMain} from '~/components/CartMain';
-import {useConfig} from '~/utils/themeContext';
-import {getConfig} from '~/lib/config';
+import {type ActionFunctionArgs} from 'react-router';
 import {CartForm} from '@shopify/hydrogen';
-import {HeadersFunction, data} from '@shopify/remix-oxygen';
-
-export const meta: MetaFunction = () => {
-  const config = getConfig();
-  return [{title: `${config.brandName} | Cart`}];
-};
+import type {HeadersFunction} from '@shopify/remix-oxygen';
+import {data} from '@shopify/remix-oxygen';
 
 export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;
 
@@ -17,7 +9,6 @@ export async function action({request, context}: ActionFunctionArgs) {
   const {cart} = context;
 
   const formData = await request.formData();
-
   const {action, inputs} = CartForm.getFormInput(formData);
 
   if (!action) {
@@ -25,7 +16,7 @@ export async function action({request, context}: ActionFunctionArgs) {
   }
 
   let status = 200;
-  let result: any; // Using any instead of CartQueryDataReturn which is not defined
+  let result: any;
 
   switch (action) {
     case CartForm.ACTIONS.LinesAdd:
@@ -39,29 +30,19 @@ export async function action({request, context}: ActionFunctionArgs) {
       break;
     case CartForm.ACTIONS.DiscountCodesUpdate: {
       const formDiscountCode = inputs.discountCode;
-
-      // User inputted discount code
       const discountCodes = (
         formDiscountCode ? [formDiscountCode] : []
       ) as string[];
-
-      // Combine discount codes already applied on cart
       discountCodes.push(...inputs.discountCodes);
-
       result = await cart.updateDiscountCodes(discountCodes);
       break;
     }
     case CartForm.ACTIONS.GiftCardCodesUpdate: {
       const formGiftCardCode = inputs.giftCardCode;
-
-      // User inputted gift card code
       const giftCardCodes = (
         formGiftCardCode ? [formGiftCardCode] : []
       ) as string[];
-
-      // Combine gift card codes already applied on cart
       giftCardCodes.push(...inputs.giftCardCodes);
-
       result = await cart.updateGiftCardCodes(giftCardCodes);
       break;
     }
@@ -98,19 +79,7 @@ export async function action({request, context}: ActionFunctionArgs) {
   );
 }
 
-export function loader({context}: LoaderFunctionArgs) {
-  return context.cart.get();
-}
-
-export default function Cart() {
-  const config = useConfig();
-  const cart = useLoaderData<typeof loader>();
-
-  return (
-    <div className="container mx-auto px-4 py-24">
-      <h1 className="text-3xl font-bold text-primary mb-10 text-center">Your Cart</h1>
-      
-      <CartMain cart={cart} layout="page" />
-    </div>
-  );
-}
+// Export a blank component since this is just a route for API calls
+export default function CartRoute() {
+  return null;
+} 

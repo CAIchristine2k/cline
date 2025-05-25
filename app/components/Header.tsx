@@ -3,15 +3,21 @@ import { Menu, X, ChevronRight, ShoppingBag, Instagram, Twitter, Youtube, Facebo
 import { Link } from 'react-router';
 import { Logo } from './Logo';
 import { useConfig } from '~/utils/themeContext';
-import { cssVars } from '~/lib/themeConfig';
+import { useCart } from '~/hooks/useCart';
+import { useAside } from './Aside';
 
 export function Header() {
   const config = useConfig();
+  const cart = useCart();
+  const { open } = useAside();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // Get cart count
+  const cartCount = cart?.totalQuantity || 0;
+
   // Build social links from config
-  const socialLinks = Object.entries(config.socialLinks)
+  const socialLinks = Object.entries(config.socialLinks || {})
     .filter(([_, url]) => url) // Only include links that have URLs
     .map(([platform, url]) => ({
       name: platform.charAt(0).toUpperCase() + platform.slice(1),
@@ -54,6 +60,11 @@ export function Header() {
     }
   };
 
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    open('cart');
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
@@ -82,65 +93,48 @@ export function Header() {
                   }
                 }}
                 className="text-white hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-sm"
-                style={{
-                  '--hover-text-color': cssVars.primary
-                } as React.CSSProperties}
               >
                 {item.name}
                 <span 
                   className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"
-                  style={{ backgroundColor: cssVars.primary }}
                 ></span>
               </Link>
             ))}
           </div>
           
-          {/* CTA Button */}
-          <Link 
-            to={config.ctaLink}
-            onClick={(e) => {
-              if (config.ctaLink.startsWith('#')) {
-                e.preventDefault();
-                handleNavClick(config.ctaLink);
-              }
-            }}
-            className="ml-10 bg-primary hover:bg-primary/80 text-black font-bold py-2.5 px-5 rounded-sm transition-all duration-300 flex items-center text-sm uppercase shadow-glow"
-            style={{
-              backgroundColor: cssVars.primary,
-              color: cssVars.background
-            }}
+          {/* Cart Button */}
+          <button
+            onClick={handleCartClick}
+            className="ml-10 bg-primary hover:bg-primary-400 text-black font-bold py-2.5 px-5 rounded-sm transition-all duration-300 flex items-center text-sm uppercase shadow-glow relative"
           >
             <ShoppingBag className="mr-1.5 h-4 w-4" />
-            Shop Now
-          </Link>
+            Cart
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-black text-primary text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
+          </button>
         </nav>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-4">
-          <Link 
-            to={config.ctaLink}
-            onClick={(e) => {
-              if (config.ctaLink.startsWith('#')) {
-                e.preventDefault();
-                handleNavClick(config.ctaLink);
-              }
-            }}
-            className="bg-primary hover:bg-primary/80 text-black p-2 rounded-sm transition-all duration-300 shadow-glow"
-            style={{
-              backgroundColor: cssVars.primary,
-              color: cssVars.background
-            }}
-            aria-label="Shop Now"
+          <button
+            onClick={handleCartClick}
+            className="bg-primary hover:bg-primary-400 text-black p-2 rounded-sm transition-all duration-300 shadow-glow relative"
+            aria-label="Cart"
           >
             <ShoppingBag className="h-5 w-5" />
-          </Link>
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-black text-primary text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
+          </button>
           
           <button
             className="text-white focus:outline-none p-1.5 border border-white/20 rounded-sm hover:border-primary transition-all duration-300"
             onClick={() => setIsOpen(!isOpen)}
-            style={{
-              '--hover-border-color': cssVars.primary
-            } as React.CSSProperties}
             aria-label="Toggle Menu"
           >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -164,9 +158,6 @@ export function Header() {
                     handleNavClick(item.href);
                   }}
                   className="text-white hover:text-primary hover:bg-gray-900/30 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
-                  style={{
-                    '--hover-text-color': cssVars.primary
-                  } as React.CSSProperties}
                 >
                   {item.name}
                   <ChevronRight className="h-4 w-4 text-gray-500" />
@@ -182,11 +173,8 @@ export function Header() {
                   return (
                     <a 
                       key={social.name}
-                      href={social.link}
+                      href={social.link as string}
                       className="text-gray-400 hover:text-primary transition-all duration-300"
-                      style={{
-                        '--hover-text-color': cssVars.primary
-                      } as React.CSSProperties}
                       aria-label={social.name}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -200,6 +188,19 @@ export function Header() {
           </div>
         </div>
       )}
+
+      {/* Add the subtle gold underline animation and shadow-glow effects */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .group:hover span {
+            box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.5);
+          }
+          
+          .shadow-glow {
+            box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.2);
+          }
+        `
+      }} />
     </header>
   );
 }

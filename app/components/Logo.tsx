@@ -1,5 +1,4 @@
 import { useConfig } from '~/utils/themeContext';
-import { cssVars } from '~/lib/themeConfig';
 
 interface LogoProps {
   isScrolled?: boolean;
@@ -9,22 +8,19 @@ export function Logo({ isScrolled = false }: LogoProps) {
   const config = useConfig();
   
   return (
-    <div className="flex items-center py-6 transition-all duration-500">
+    <div className="flex items-center transition-all duration-500">
       <a href="#home" className="flex items-center">
         <img 
           src={config.brandLogo} 
           alt={`${config.brandName} Logo`} 
-          className={`h-14 w-auto transition-all duration-500 ease-in-out filter drop-shadow-glow ${
-            isScrolled ? 'h-10 logo-scrolled' : ''
+          className={`transition-all duration-500 ease-in-out filter drop-shadow-glow ${
+            isScrolled ? 'h-10 w-auto logo-scrolled' : 'h-14 w-auto'
           }`}
         />
         <span 
           className={`ml-3 text-xl font-bold tracking-wider transition-all duration-500 ${
             !isScrolled ? 'text-white' : 'text-primary'
           }`}
-          style={{ 
-            color: !isScrolled ? cssVars.text : cssVars.primary
-          }}
         >
           {config.brandName}
         </span>

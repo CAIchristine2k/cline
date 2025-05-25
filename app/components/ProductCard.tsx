@@ -7,8 +7,6 @@ import type {
   ProductItemFragment,
 } from 'storefrontapi.generated';
 import { useConfig } from '~/utils/themeContext';
-import { cssVars } from '~/lib/themeConfig';
-import { buttonStyles, cardStyles, accentStyles, inlineStyles } from '~/utils/styleUtils';
 
 interface ProductItemExtendedFragment extends ProductItemFragment {
   description?: string;
@@ -27,144 +25,81 @@ interface ProductCardProps {
   label?: string;
 }
 
-export function ProductCard({ product, loading, label }: ProductCardProps) {
+export function ProductCard({ product }: { product: any }) {
   const config = useConfig();
 
-  // Generate mock rating and reviews for display (since Shopify doesn't provide this)
-  const rating = 4.8 + (Math.random() * 0.2);
-  const reviews = 70 + Math.floor(Math.random() * 60);
+  if (!product) return null;
 
-  // Find the first available variant - for add to cart functionality
-  const firstVariant = product.variants?.nodes[0];
-  
+  const { title, handle, featuredImage } = product;
+  const firstVariant = product.variants?.nodes?.[0] || {};
+  const price = firstVariant.price;
+  const compareAtPrice = firstVariant.compareAtPrice;
+
+  // Check if the product is on sale
+  const isOnSale = compareAtPrice && price &&
+    parseFloat(price.amount) < parseFloat(compareAtPrice.amount);
+
   return (
-    <div 
-      className={cardStyles.product}
-      style={inlineStyles.hoverPrimary as React.CSSProperties}
+    <Link
+      to={`/products/${handle}`}
+      prefetch="intent"
+      className="group block"
     >
-      {/* Product image */}
-      <div className="relative h-72 overflow-hidden">
-        {product.featuredImage && (
-          <Image
-            data={product.featuredImage}
-            alt={product.title}
-            className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            loading={loading}
-          />
-        )}
-        
-        {/* Badge/Label if available */}
-        {(label || product.tags?.some(tag => 
-          tag === 'New' || tag === 'Bestseller' || tag === 'Sale'
-        )) && (
-          <div 
-            className={accentStyles.badge}
-            style={inlineStyles.primaryBackgroundWithText}
-          >
-            {label || product.tags?.find(tag => 
-              tag === 'New' || tag === 'Bestseller' || tag === 'Sale'
-            )}
-          </div>
-        )}
-        
-        {/* Quick view overlay */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <Link
-            to={`/products/${product.handle}`}
-            className={`${buttonStyles.primary} transform translate-y-4 group-hover:translate-y-0 uppercase text-sm tracking-wider`}
-            style={inlineStyles.primaryBackgroundWithText}
-          >
-            Quick View
-          </Link>
-        </div>
-      </div>
-      
-      {/* Product info */}
-      <div className="p-5">
-        <h3 
-          className="text-white font-bold text-lg mb-2 group-hover:text-primary transition-colors duration-300"
-          style={inlineStyles.hoverPrimary as React.CSSProperties}
-        >
-          {product.title}
-        </h3>
-        
-        {/* Optional product description */}
-        {product.description && (
-          <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-            {product.description}
-          </p>
-        )}
-        
-        {/* Optional product features from tags */}
-        {product.tags && product.tags.length > 0 && !product.tags.every(tag => 
-          tag === 'New' || tag === 'Bestseller' || tag === 'Sale'
-        ) && (
-          <ul className="space-y-2 mb-4">
-            {product.tags
-              .filter(tag => tag !== 'New' && tag !== 'Bestseller' && tag !== 'Sale')
-              .slice(0, 2)
-              .map((feature, idx) => (
-                <li key={idx} className="flex items-start text-xs text-gray-500">
-                  <div 
-                    className="w-1 h-1 bg-primary rounded-full mr-2 mt-1.5"
-                    style={inlineStyles.primaryBackground}
-                  ></div>
-                  <span>{feature}</span>
-                </li>
-              ))
-            }
-          </ul>
-        )}
-        
-        {/* Rating stars */}
-        <div className="flex items-center mb-3">
-          <div className={`flex ${accentStyles.primaryText}`} style={inlineStyles.primaryText}>
-            {[...Array(Math.floor(rating))].map((_, i) => (
-              <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
-            ))}
-            {rating % 1 >= 0.5 && (
-              <Star className="w-4 h-4 fill-current opacity-50" />
-            )}
-            {[...Array(5 - Math.ceil(rating))].map((_, i) => (
-              <Star key={`empty-${i}`} className="w-4 h-4 stroke-current fill-transparent" />
-            ))}
-          </div>
-          <span className="text-sm text-gray-400 ml-2">({reviews})</span>
-        </div>
-        
-        {/* Price and Add to Cart */}
-        <div className="flex justify-between items-center">
-          {product.priceRange?.minVariantPrice && (
-            <Money 
-              data={product.priceRange.minVariantPrice} 
-              className={`${accentStyles.primaryText} font-bold text-lg`}
-              style={inlineStyles.primaryText}
+      <div className="relative overflow-hidden rounded-sm border border-primary/10 bg-background/30 backdrop-blur-sm transition-all duration-300 group-hover:shadow-glow">
+        <div className="aspect-[4/5] overflow-hidden">
+          {featuredImage ? (
+            <Image
+              data={featuredImage}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             />
-          )}
-          
-          {firstVariant?.availableForSale ? (
-            <AddToCartButton
-              lines={[{
-                merchandiseId: firstVariant.id,
-                quantity: 1,
-              }]}
-              className={`${buttonStyles.subtle} hover:bg-primary hover:text-black`}
-              disabled={!firstVariant.availableForSale}
-            >
-              <ShoppingCart className="w-4 h-4" />
-            </AddToCartButton>
           ) : (
-            <button 
-              disabled
-              className="bg-gray-700 text-gray-400 rounded-sm p-2.5 cursor-not-allowed"
-              aria-label="Out of stock"
-            >
-              <ShoppingCart className="w-4 h-4" />
-            </button>
+            <div className="h-full w-full bg-primary/5 flex items-center justify-center">
+              <span className="text-primary-700">No image</span>
+            </div>
           )}
+
+          {/* Sale badge */}
+          {isOnSale && (
+            <div className="absolute top-2 right-2 bg-primary text-background text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-sm">
+              Sale
+            </div>
+          )}
+
+          {/* Quick shop button on hover */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+            <div className="bg-primary/90 backdrop-blur-sm text-background text-center py-2 px-4 rounded-sm font-medium">
+              Quick Shop
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4">
+          <h3 className="text-lg font-bold text-text group-hover:text-primary transition-colors duration-300 line-clamp-1">
+            {title}
+          </h3>
+
+          <div className="mt-2 flex items-center gap-2">
+            {price && (
+              <div className="font-medium text-primary">
+                <Money data={price} />
+              </div>
+            )}
+
+            {isOnSale && compareAtPrice && (
+              <div className="text-sm text-primary-600 line-through">
+                <Money data={compareAtPrice} />
+              </div>
+            )}
+          </div>
+
+          <div className="mt-2 text-sm">
+            <span className={`${firstVariant.availableForSale ? 'text-green-500' : 'text-red-500'}`}>
+              {firstVariant.availableForSale ? 'In stock' : 'Out of stock'}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

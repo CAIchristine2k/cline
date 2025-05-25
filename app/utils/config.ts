@@ -1,6 +1,12 @@
 // Main configuration file for influencer landing page
 import { setTheme } from "./themeConfig";
 
+// Navigation item type
+export interface NavigationItem {
+  name: string;
+  href: string;
+}
+
 // Influencer and product configuration
 export interface ProductInfo {
   name: string;
@@ -36,6 +42,8 @@ export interface LandingPageConfig {
   heroSubtitle: string;
   ctaText: string;
   ctaLink: string;
+  // Navigation
+  navigation: NavigationItem[];
   // Product Information
   mainProduct: ProductInfo;
   additionalProducts?: ProductInfo[];
@@ -44,14 +52,37 @@ export interface LandingPageConfig {
   twitterHandle?: string;
   youtubeChannel?: string;
   tiktokHandle?: string;
+  // Social Links (processed from social media handles)
+  socialLinks: {
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+    tiktok?: string;
+    facebook?: string;
+    website?: string;
+  };
   // Contact Information
   contactEmail?: string;
+  contactInfo?: {
+    address?: string;
+    phone?: string;
+    email?: string;
+  };
   newsletterEnabled: boolean;
   // Features & Sections
   showLimitedEdition: boolean;
   showCareerHighlights: boolean;
   showTestimonials: boolean;
   showSocialFeed: boolean;
+  // Limited Edition
+  limitedEdition?: {
+    title: string;
+    description: string;
+    productHandle: string;
+    originalPrice: string;
+    salePrice: string;
+    endDate: string; // ISO date string
+  };
   // Products
   products: ProductInfo[];
   // Shopify Data - used to store fetched data
@@ -80,6 +111,15 @@ export const defaultConfig: LandingPageConfig = {
     "Premium boxing equipment and apparel from a 9-time world champion",
   ctaText: "SHOP THE COLLECTION",
   ctaLink: "#shop",
+  
+  // Navigation
+  navigation: [
+    { name: "Home", href: "/" },
+    { name: "Shop", href: "#shop" },
+    { name: "Career", href: "#career" },
+    { name: "Collections", href: "/collections" },
+    { name: "About", href: "/pages/about" }
+  ],
 
   // Product Information
   mainProduct: {
@@ -138,9 +178,22 @@ export const defaultConfig: LandingPageConfig = {
   twitterHandle: "ShaneMosley_",
   youtubeChannel: "@SugarShaneM",
   tiktokHandle: "sugarshanemosley",
+  
+  // Social Links
+  socialLinks: {
+    instagram: "https://instagram.com/sugarshanemosley",
+    twitter: "https://twitter.com/ShaneMosley_",
+    youtube: "https://youtube.com/@SugarShaneM",
+    tiktok: "https://tiktok.com/@sugarshanemosley"
+  },
 
   // Contact Information
   contactEmail: "team@sugarshanemosley.com",
+  contactInfo: {
+    address: "123 Main St, Anytown, USA",
+    phone: "(555) 123-4567",
+    email: "team@sugarshanemosley.com"
+  },
   newsletterEnabled: true,
 
   // Features & Sections
@@ -148,6 +201,16 @@ export const defaultConfig: LandingPageConfig = {
   showCareerHighlights: true,
   showTestimonials: true,
   showSocialFeed: true,
+
+  // Limited Edition
+  limitedEdition: {
+    title: "CHAMPIONSHIP COLLECTION",
+    description: "Exclusive limited edition gloves signed by Shane Mosley. Only 100 pairs available. Each pair includes a certificate of authenticity.",
+    productHandle: "championship-signed-gloves",
+    originalPrice: "$249.99",
+    salePrice: "$199.99",
+    endDate: "2024-12-31T23:59:59", // ISO date string
+  },
 
   // Products
   products: [
@@ -202,7 +265,7 @@ export const defaultConfig: LandingPageConfig = {
       ]
     }
   ],
-
+  
   // Shopify Data - used to store fetched data
   shopifyCollections: [],
   shopifyProducts: [],
@@ -219,6 +282,16 @@ export function initConfig(
 ): LandingPageConfig {
   const config = { ...defaultConfig, ...customConfig };
 
+  // Update social links from handles if not directly provided
+  if (!customConfig.socialLinks) {
+    config.socialLinks = {
+      instagram: config.instagramHandle ? `https://instagram.com/${config.instagramHandle}` : undefined,
+      twitter: config.twitterHandle ? `https://twitter.com/${config.twitterHandle}` : undefined,
+      youtube: config.youtubeChannel ? `https://youtube.com/${config.youtubeChannel}` : undefined,
+      tiktok: config.tiktokHandle ? `https://tiktok.com/@${config.tiktokHandle}` : undefined,
+    };
+  }
+
   // Initialize theme based on config
   setTheme({
     brandName: config.brandName,
@@ -227,20 +300,7 @@ export function initConfig(
     influencerName: config.influencerName,
     influencerTitle: config.influencerTitle,
     influencerImage: config.influencerImage,
-    socialLinks: {
-      instagram: config.instagramHandle
-        ? `https://instagram.com/${config.instagramHandle}`
-        : undefined,
-      twitter: config.twitterHandle
-        ? `https://twitter.com/${config.twitterHandle}`
-        : undefined,
-      youtube: config.youtubeChannel
-        ? `https://youtube.com/${config.youtubeChannel}`
-        : undefined,
-      tiktok: config.tiktokHandle
-        ? `https://tiktok.com/@${config.tiktokHandle}`
-        : undefined,
-    },
+    socialLinks: config.socialLinks,
   });
 
   return config;

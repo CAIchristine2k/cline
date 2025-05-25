@@ -69,15 +69,16 @@ This file handles the theme styling, including:
 - CSS variable generation
 - Dynamic theme application
 
-### 3. `app/utils/styleUtils.ts`
+### 3. Theme Context System
 
-Provides consistent styling utilities across components:
+The template follows a "single source of truth" approach to styling:
 
-- Button styles
-- Section styles
-- Card styles
-- Animation classes
-- Inline style helpers
+- CSS variables are generated from the theme configuration
+- Components use these CSS variables directly via Tailwind CSS classes
+- The `useConfig()` hook provides access to the configuration throughout the app
+- The `ThemeProvider` context makes theme settings available app-wide
+
+This approach avoids hard-coding styles and ensures consistency while maintaining flexibility.
 
 ## How to Customize for a New Influencer
 

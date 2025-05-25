@@ -34,20 +34,7 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
       influencerName: config.influencerName,
       influencerTitle: config.influencerTitle,
       influencerImage: config.influencerImage,
-      socialLinks: {
-        instagram: config.instagramHandle
-          ? `https://instagram.com/${config.instagramHandle}`
-          : undefined,
-        twitter: config.twitterHandle
-          ? `https://twitter.com/${config.twitterHandle}`
-          : undefined,
-        youtube: config.youtubeChannel
-          ? `https://youtube.com/${config.youtubeChannel}`
-          : undefined,
-        tiktok: config.tiktokHandle
-          ? `https://tiktok.com/@${config.tiktokHandle}`
-          : undefined,
-      }
+      socialLinks: config.socialLinks
     };
 
     // Apply the theme

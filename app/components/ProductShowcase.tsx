@@ -42,11 +42,7 @@ export default function ProductShowcase({
           {displayProducts ? (
             // Using Shopify products when available
             displayProducts.map((product: ProductItemFragment, index: number) => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                loading={index < 4 ? 'eager' : 'lazy'}
-              />
+              <ProductCard key={product.id} product={product} />
             ))
           ) : (
             // Fallback to config products when Shopify products aren't available

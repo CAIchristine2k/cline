@@ -8,6 +8,48 @@ alwaysApply: true
 ## Project Overview
 This is a Shopify Hydrogen template, which is a React-based framework for building custom storefronts with Shopify. The project uses TypeScript, React, and GraphQL to interact with Shopify's Storefront API and Customer Account API.
 
+This template is specifically designed as a highly customizable influencer store template that can be adapted for different influencers through a central configuration system without code changes.
+
+# CRITICAL DEVELOPMENT PRINCIPLES - ALWAYS FOLLOW
+
+## DRY (Don't Repeat Yourself) and Single Source of Truth
+
+These principles are MANDATORY for all development in this codebase:
+
+1. **Configuration Single Source of Truth**: 
+   - ALL configuration MUST be defined in `app/utils/config.ts`
+   - NEVER duplicate configuration values across components
+   - ALWAYS access configuration via the `useConfig()` hook
+
+2. **Theme Single Source of Truth**:
+   - ALL theme styling MUST be derived from the theme system in `app/utils/themeConfig.ts`
+   - NEVER create separate style utility files that might get out of sync
+   - NEVER hardcode colors, sizes, or other theme values in components
+   - ALWAYS use CSS variables generated from the theme system
+
+3. **Component Implementation**:
+   - ALWAYS use the `useConfig()` hook from `~/utils/themeContext` to access configuration
+   - ALWAYS use Tailwind classes that reference CSS variables for styling
+   - NEVER create component-specific style utilities that duplicate theme logic
+   - NEVER use inline styles for values that should come from the theme
+   - ALWAYS prefer CSS variables over hardcoded values
+
+4. **CSS Approach**:
+   - ALWAYS use `text-primary`, `bg-primary`, etc. which reference CSS variables
+   - ALWAYS use `shadow-glow`, `animate-pulse`, etc. utility classes from the theme
+   - NEVER create duplicate shadow, animation, or other style effects
+   - ALWAYS implement component-specific styles through CSS variables
+
+5. **Feature Flags**:
+   - ALWAYS use configuration toggles (e.g., `showLimitedEdition`) to control feature visibility
+   - NEVER implement redundant logic for showing/hiding features
+
+Failing to follow these principles will result in:
+- Theme inconsistency
+- Broken customizability
+- Difficulty maintaining the codebase
+- Bugs when configuration changes
+
 ## Key Project Structure
 
 ### Main Directories
@@ -19,7 +61,10 @@ This is a Shopify Hydrogen template, which is a React-based framework for buildi
   - `/routes`: Route files using Remix-style file conventions
   - `/lib`: Utility libraries
   - `/styles`: CSS styles
-  - `/utils`: Utility functions
+  - `/utils`: Utility functions and configuration
+    - `config.ts`: Central configuration file for the entire application
+    - `themeConfig.ts`: Theme styling configuration and CSS variable generation
+    - `themeContext.tsx`: React context for providing theme and config throughout the app
 - `/public`: Static assets
 - `/guides`: Documentation
 
@@ -29,6 +74,129 @@ This is a Shopify Hydrogen template, which is a React-based framework for buildi
 - `customer-accountapi.generated.d.ts`: Generated types for Customer API (only used types)
 - `vite.config.ts`: Vite configuration
 - `tailwind.config.ts`: Tailwind CSS configuration
+
+# Theme System and Configuration
+
+## Single Source of Truth Approach
+
+This template follows a strict "single source of truth" approach to configuration and styling:
+
+1. All configuration is centralized in `app/utils/config.ts`
+2. Theme styles are defined in `app/utils/themeConfig.ts` and controlled by the configuration
+3. Theme context in `app/utils/themeContext.tsx` provides access to configuration throughout the app
+4. CSS variables are generated from the theme configuration
+5. Components use Tailwind CSS classes that leverage these CSS variables
+
+## Configuration Files
+
+### 1. `app/utils/config.ts`
+
+This is the central configuration file for the entire application. It contains:
+
+- Brand and influencer details (`influencerName`, `brandName`, etc.)
+- Visual theme settings (`brandStyle`, `heroBackgroundImage`, etc.)
+- Content text and CTAs (`heroTitle`, `ctaText`, etc.)
+- Product information
+- Social media links
+- Section visibility toggles (`showLimitedEdition`, `showCareerHighlights`, etc.)
+- Contact information
+
+Example:
+```typescript
+export const defaultConfig: LandingPageConfig = {
+  // Brand & Influencer Details
+  influencerName: "Shane Mosley",
+  influencerTitle: "Boxing Legend & 9-Time World Champion",
+  brandName: "SUGAR SHANE",
+  
+  // Visual Theme
+  brandStyle: "luxury", // Options: luxury, sporty, casual, technical, minimalist, vibrant, custom
+  
+  // Navigation
+  navigation: [
+    { name: "Home", href: "/" },
+    { name: "Shop", href: "#shop" },
+    // ...more navigation items
+  ],
+  
+  // Features & Sections
+  showLimitedEdition: true,
+  showCareerHighlights: true,
+  showTestimonials: true,
+  showSocialFeed: true,
+  
+  // ... more configuration options
+};
+```
+
+### 2. `app/utils/themeConfig.ts`
+
+This file handles theme styling:
+
+- Defines color schemes for different brand styles (`luxury`, `sporty`, `casual`, etc.)
+- Generates CSS variables based on the selected theme
+- Provides utility functions for adjusting colors and applying themes
+
+The template includes predefined color schemes for different brand styles, but also supports custom theming.
+
+### 3. `app/utils/themeContext.tsx`
+
+This provides a React context for accessing the theme and configuration throughout the application:
+
+- `useConfig()` - Hook to access configuration
+- `useTheme()` - Hook to access theme settings
+- `useUpdateConfig()` - Hook to update configuration
+
+## DRY Principles and CSS Approach
+
+The template follows these principles:
+
+1. **No Hardcoded Styles**: All colors and styling are derived from the theme system
+2. **CSS Variables**: All styling is managed through CSS variables that are updated when the theme changes
+3. **Tailwind Integration**: Components use Tailwind classes that reference CSS variables
+4. **No Style Duplication**: No separate style files or utility files that duplicate theme information
+
+## Component Style Implementation
+
+Components should be implemented following these guidelines:
+
+1. Use `useConfig()` hook to access configuration
+2. Use Tailwind classes for styling, especially utility classes like:
+   - `bg-primary` (uses --color-primary CSS variable)
+   - `text-primary` (uses --color-primary CSS variable)
+   - `hover:bg-primary-600` (uses color variations)
+
+Example of a properly styled component:
+
+```tsx
+import { useConfig } from '~/utils/themeContext';
+
+export function ExampleComponent() {
+  const config = useConfig();
+  
+  return (
+    <div className="bg-black/40 backdrop-blur-sm border border-primary/30 p-4 rounded-sm">
+      <h2 className="text-2xl font-bold text-white mb-4">
+        {config.sectionTitle}
+      </h2>
+      <p className="text-gray-300">
+        {config.sectionContent}
+      </p>
+      <button className="bg-primary hover:bg-primary-600 text-black font-bold py-2 px-4 rounded-sm mt-4">
+        {config.buttonText}
+      </button>
+    </div>
+  );
+}
+```
+
+## Special CSS Classes
+
+The template includes some special CSS classes for common styling needs:
+
+- `shadow-glow`: Adds a glow effect using the primary color
+- `animate-pulse`, `animate-fadeIn`, etc.: Animation utilities
+- Custom text shadow classes (defined in component-specific styles)
 
 ## GraphQL Schema Generation
 
@@ -67,6 +235,12 @@ This command triggers GraphQL code generation based on the configuration in `.gr
 
 3. Don't manually edit the generated type files as they will be overwritten when codegen runs.
 
+4. When working with components:
+   - Always use the `useConfig()` hook from `~/utils/themeContext` to access configuration
+   - Use Tailwind classes that reference CSS variables for styling
+   - Avoid hardcoding any styles or colors that should come from the theme
+   - Make components respond to configuration changes
+
 ## Routes Structure
 
 The project uses a file-based routing system with Remix-style conventions:
@@ -80,6 +254,8 @@ The project uses a file-based routing system with Remix-style conventions:
 - `Header.tsx` and `Footer.tsx`: Site-wide navigation components
 - `ProductCard.tsx`, `ProductDetail.tsx`, etc.: Product-related components
 - `CartMain.tsx`, `CartSummary.tsx`: Shopping cart components
+- `Hero.tsx`: Main landing page hero section
+- `LimitedEdition.tsx`: Limited edition product section with countdown
 
 # React Router Import Rule for Hydrogen
 

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
-import { defaultConfig, type LandingPageConfig } from '~/lib/config';
+import { defaultConfig, type LandingPageConfig } from '~/utils/config';
 import TimeUnit from './TimeUnit';
-import { buttonStyles, sectionStyles, accentStyles, inlineStyles } from '~/utils/styleUtils';
 
 interface LimitedEditionProps {
   config?: LandingPageConfig;
@@ -63,9 +62,9 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
   ];
 
   return (
-    <section id="limited" className={sectionStyles.padding + " relative"}>
+    <section id="limited" className="py-16 md:py-24 relative">
       {/* Background Image with Overlay */}
-      <div className={`absolute inset-0 ${accentStyles.overlay} z-10`}></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black/90 to-black/70 z-10"></div>
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
@@ -74,19 +73,19 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
         }}
       ></div>
 
-      <div className={`${sectionStyles.container} relative z-20`}>
+      <div className="container mx-auto px-4 relative z-20">
         <div className="max-w-4xl mx-auto text-center">
-          <div className={accentStyles.badge + " inline-block rounded-full text-sm mb-6"} style={inlineStyles.primaryBackgroundWithText}>
+          <div className="inline-block bg-primary text-black text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider mb-6">
             LIMITED TIME OFFER
           </div>
 
-          <h2 className={sectionStyles.heading}>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             {config.limitedEdition.title}
             <br />
-            <span className={accentStyles.primaryText} style={inlineStyles.primaryText}>SIGNED EDITION</span>
+            <span className="text-primary">SIGNED EDITION</span>
           </h2>
 
-          <p className={sectionStyles.subheading + " max-w-xl mx-auto"}>
+          <p className="text-lg md:text-xl opacity-80 mb-8 max-w-xl mx-auto">
             {config.limitedEdition.description}
           </p>
 
@@ -99,7 +98,7 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
             <div className="text-lg md:text-xl font-bold">
               <span className="text-gray-400 line-through">{config.limitedEdition.originalPrice}</span>
-              <span className={accentStyles.primaryText + " ml-3"} style={inlineStyles.primaryText}>
+              <span className="text-primary ml-3">
                 {config.limitedEdition.salePrice}
               </span>
             </div>
@@ -107,8 +106,7 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
 
           <Link 
             to={`/products/${config.limitedEdition.productHandle}`}
-            className={`${buttonStyles.primary} group shadow-glow`}
-            style={inlineStyles.primaryBackgroundWithText}
+            className="bg-primary hover:bg-primary-600 text-black font-bold py-2.5 px-5 rounded-sm transition-all duration-300 inline-flex items-center group shadow-glow"
           >
             SHOP LIMITED EDITION
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
