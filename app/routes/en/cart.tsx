@@ -2,6 +2,7 @@ import {type ActionFunctionArgs, type LoaderFunctionArgs} from 'react-router';
 import {CartForm} from '@shopify/hydrogen';
 import type {HeadersFunction} from '@shopify/remix-oxygen';
 import {data} from '@shopify/remix-oxygen';
+import invariant from 'tiny-invariant';
 
 export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;
 
@@ -101,7 +102,7 @@ export async function action({request, context}: ActionFunctionArgs) {
           break;
         }
         default:
-          throw new Error(`${action} cart action is not defined`);
+          invariant(false, `${action} cart action is not defined`);
       }
     } catch (error) {
       console.error('API route: Error handling cart action:', error);
@@ -115,6 +116,7 @@ export async function action({request, context}: ActionFunctionArgs) {
       }, {status: 500});
     }
 
+    // The Cart ID might change after each mutation, so update it each time
     const cartId = result?.cart?.id;
     const headers = cartId ? cart.setCartId(result.cart.id) : new Headers();
     const {cart: cartResult, errors, warnings} = result;

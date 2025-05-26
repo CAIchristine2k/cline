@@ -19,12 +19,14 @@ export async function action({request, context}: ActionFunctionArgs) {
   const {cart} = context;
 
   const formData = await request.formData();
-  console.log('Cart action received:', Object.fromEntries(formData));
-
+  console.log('======= CART ACTION DEBUG =======');
+  console.log('Raw formData entries:', Object.fromEntries(formData));
+  
   const {action, inputs} = CartForm.getFormInput(formData);
   console.log('Parsed action:', action, 'inputs:', inputs);
 
   if (!action) {
+    console.error('No action provided');
     throw new Error('No action provided');
   }
 
@@ -39,10 +41,14 @@ export async function action({request, context}: ActionFunctionArgs) {
         console.log('Cart addLines result:', result);
         break;
       case CartForm.ACTIONS.LinesUpdate:
+        console.log('Updating lines in cart:', inputs.lines);
         result = await cart.updateLines(inputs.lines);
+        console.log('Cart updateLines result:', result);
         break;
       case CartForm.ACTIONS.LinesRemove:
+        console.log('Removing lines from cart:', inputs.lineIds);
         result = await cart.removeLines(inputs.lineIds);
+        console.log('Cart removeLines result:', result);
         break;
       case CartForm.ACTIONS.DiscountCodesUpdate: {
         const formDiscountCode = inputs.discountCode;
@@ -109,6 +115,7 @@ export async function action({request, context}: ActionFunctionArgs) {
     errors,
     warnings
   });
+  console.log('======= END DEBUG =======');
 
   const redirectTo = formData.get('redirectTo') ?? null;
   if (typeof redirectTo === 'string') {

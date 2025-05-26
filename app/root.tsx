@@ -1,4 +1,4 @@
-import {getShopAnalytics, useNonce} from '@shopify/hydrogen';
+import {getShopAnalytics, useNonce, Analytics} from '@shopify/hydrogen';
 import {
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -22,6 +22,7 @@ import config from '~/lib/config';
 import {ThemeProvider} from '~/utils/themeContext';
 import {CartProvider} from '~/providers/CartProvider';
 import {Aside} from '~/components/Aside';
+import {ToastProvider} from '~/components/Toast';
 
 import appStyles from './styles/app.css?url';
 import favicon from '~/assets/favicon.svg';
@@ -61,9 +62,25 @@ export async function loader(args: LoaderFunctionArgs) {
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
+  // Get shop analytics for Analytics.Provider
+  const {context} = args;
+  const shopAnalytics = getShopAnalytics({
+    storefront: context.storefront,
+    publicStorefrontId: context.env.PUBLIC_STOREFRONT_ID,
+  });
+
   return {
     ...criticalData,
     ...deferredData,
+    shop: shopAnalytics,
+    consent: {
+      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
+      storefrontAccessToken: context.env.PUBLIC_STOREFRONT_API_TOKEN,
+      withPrivacyBanner: true, // Enable privacy banner
+      // Localize the privacy banner
+      country: context.storefront.i18n.country,
+      language: context.storefront.i18n.language,
+    },
   };
 }
 
@@ -171,6 +188,16 @@ export function Layout({children}: {children?: React.ReactNode}) {
     }
   }, []);
 
+  // Handle cases where data might be incomplete (e.g., during cart API calls)
+  const safeData = {
+    cart: data?.cart || null,
+    header: data?.header || null,
+    footer: data?.footer || null,
+    isLoggedIn: data?.isLoggedIn || false,
+    publicStoreDomain: data?.publicStoreDomain || '',
+    layout: data?.layout || null,
+  };
+
   const hasUserConsent = true;
 
   return (
@@ -252,24 +279,32 @@ export function Layout({children}: {children?: React.ReactNode}) {
         />
       </head>
       <body>
-        <ThemeProvider>
-          <Aside.Provider>
-            <CartProvider>
-              <PageLayout 
-                cart={data.cart}
-                header={data.header}
-                footer={data.footer}
-                isLoggedIn={data.isLoggedIn}
-                publicStoreDomain={data.publicStoreDomain}
-                layout={data.layout}
-              >
-                {children}
-              </PageLayout>
-              <ScrollRestoration nonce={nonce} />
-              <Scripts nonce={nonce} />
-            </CartProvider>
-          </Aside.Provider>
-        </ThemeProvider>
+        <Analytics.Provider
+          cart={safeData.cart}
+          shop={data?.shop}
+          consent={data?.consent}
+        >
+          <ToastProvider>
+            <ThemeProvider>
+              <Aside.Provider>
+                <CartProvider>
+                  <PageLayout 
+                    cart={safeData.cart}
+                    header={safeData.header}
+                    footer={safeData.footer}
+                    isLoggedIn={safeData.isLoggedIn}
+                    publicStoreDomain={safeData.publicStoreDomain}
+                    layout={safeData.layout}
+                  >
+                    {children}
+                  </PageLayout>
+                  <ScrollRestoration nonce={nonce} />
+                  <Scripts nonce={nonce} />
+                </CartProvider>
+              </Aside.Provider>
+            </ThemeProvider>
+          </ToastProvider>
+        </Analytics.Provider>
       </body>
     </html>
   );

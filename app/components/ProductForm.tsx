@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useConfig } from '~/utils/themeContext';
 import { AddToCartButton } from './AddToCartButton';
 import { useAside } from './Aside';
-import { Money } from '@shopify/hydrogen';
+import { Money, ShopPayButton } from '@shopify/hydrogen';
 import type { ProductDetailsQuery } from 'storefrontapi.generated';
 import { useCart } from '~/providers/CartProvider';
+import { useLoaderData } from 'react-router';
 
 // Define a safer type using explicit types rather than referencing a potential null type
 interface ProductVariant {
@@ -26,13 +27,16 @@ interface ProductVariant {
 }
 
 export function ProductForm({
-  product
+  product,
+  storeDomain
 }: {
   product: NonNullable<ProductDetailsQuery['product']>;
+  storeDomain?: string;
 }) {
   const config = useConfig();
   const { open } = useAside();
   const { openCart } = useCart();
+  const data = useLoaderData() as any;
 
   // States
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
@@ -131,6 +135,19 @@ export function ProductForm({
     }
   };
 
+  // Format the variant ID to ensure it has the proper Shopify GID prefix
+  const formatVariantId = (id: string) => {
+    if (!id) return '';
+    if (id.startsWith('gid://shopify/ProductVariant/')) return id;
+    
+    // Extract the numeric ID if it's already in a GID format
+    const numericId = id.includes('/')
+      ? id.split('/').pop() || id
+      : id;
+      
+    return `gid://shopify/ProductVariant/${numericId}`;
+  };
+
   // Handle add to cart
   const handleAddToCart = () => {
     setIsAdding(true);
@@ -155,9 +172,7 @@ export function ProductForm({
 
   // Prepare the lines for the cart
   const lines = selectedVariant ? [{
-    merchandiseId: selectedVariant.id.startsWith('gid://') 
-      ? selectedVariant.id 
-      : `gid://shopify/ProductVariant/${selectedVariant.id.replace('gid://shopify/ProductVariant/', '')}`,
+    merchandiseId: formatVariantId(selectedVariant.id),
     quantity
   }] : [];
 
@@ -286,6 +301,7 @@ export function ProductForm({
       <div className="mt-6">
         <AddToCartButton
           lines={lines}
+          selectedVariant={selectedVariant}
           disabled={!isAvailable || isAdding}
           onClick={handleAddToCart}
           className={`w-full py-3 px-6 rounded-sm flex items-center justify-center relative ${isAvailable
@@ -313,6 +329,22 @@ export function ProductForm({
           )}
         </AddToCartButton>
       </div>
+
+      {/* Shop Pay Button - Express Checkout */}
+      {isAvailable && selectedVariant && (
+        <div className="mt-3">
+          <div className="text-center text-sm text-gray-500 mb-2">— or —</div>
+          <ShopPayButton
+            variantIdsAndQuantities={[{
+              id: formatVariantId(selectedVariant.id),
+              quantity: quantity
+            }]}
+            storeDomain={storeDomain}
+            className="w-full"
+            width="100%"
+          />
+        </div>
+      )}
 
       {/* Secure checkout */}
       <div className="mt-4 text-sm text-center flex items-center justify-center text-primary-700">

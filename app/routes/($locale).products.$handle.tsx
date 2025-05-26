@@ -80,7 +80,8 @@ async function loadCriticalData({
 
   return {
     product: data.product,
-    recommendedProducts: data.recommendedProducts?.nodes || []
+    recommendedProducts: data.recommendedProducts?.nodes || [],
+    storeDomain: storefront.getShopifyDomain()
   };
 }
 
@@ -97,7 +98,7 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
 }
 
 export default function Product() {
-  const {product, recommendedProducts} = useLoaderData<typeof loader>();
+  const {product, recommendedProducts, storeDomain} = useLoaderData<typeof loader>();
   const config = useConfig();
 
   if (!product) {
@@ -223,7 +224,7 @@ export default function Product() {
             
             {/* Product Form */}
             <Suspense fallback={<div>Loading...</div>}>
-              <ProductForm product={product} />
+              <ProductForm product={product} storeDomain={storeDomain} />
             </Suspense>
             
             {/* Product meta information */}

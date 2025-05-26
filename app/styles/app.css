@@ -374,3 +374,398 @@ video {
 .text-shadow-lg {
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
+
+/* Enhanced Product Card Styling */
+.product-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  transition: left 0.6s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.product-card:hover::before {
+  left: 100%;
+}
+
+.product-image-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.product-image {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.08);
+}
+
+.product-badge {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.product-badge:hover {
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-action-button {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.product-action-button:hover {
+  transform: scale(1.1) translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.product-rating-star {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.product-rating-star:hover {
+  transform: scale(1.15);
+  filter: brightness(1.2);
+}
+
+.product-price-animate {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-price-animate::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(230, 176, 0, 0.2),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.product-card:hover .product-price-animate::after {
+  left: 100%;
+}
+
+.shimmer-loading {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.product-card-glow {
+  position: relative;
+}
+
+.product-card-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    transparent,
+    rgba(230, 176, 0, 0.3),
+    transparent
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.product-card:hover .product-card-glow::after {
+  opacity: 1;
+}
+
+/* Smooth scale animation for mobile touch */
+@media (hover: none) {
+  .product-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Enhanced accessibility */
+.product-card:focus-within {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Performance optimizations */
+.product-card {
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+}
+
+.product-image {
+  contain: layout style paint;
+}
+
+/* Status badge styles */
+.status-badge {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Prevent hover effects on price elements */
+.price-no-hover,
+.price-no-hover *,
+.price-no-hover div,
+.price-no-hover span {
+  transition: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.price-no-hover:hover,
+.price-no-hover *:hover,
+.price-no-hover div:hover,
+.price-no-hover span:hover {
+  transition: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+/* Enhanced Aside Component Styling */
+/* Force right-side positioning - override any conflicting styles */
+.aside-force-right {
+  left: auto !important;
+  right: 0 !important;
+  transform: translateX(100%) !important;
+}
+
+.aside-force-right.aside-visible {
+  transform: translateX(0) !important;
+}
+
+/* Ultra-aggressive right positioning - nuclear option */
+.right-side-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: unset !important;
+  right: 0 !important;
+  transform: translateX(100%) !important;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.right-side-drawer.open {
+  transform: translateX(0) !important;
+}
+
+.aside-enter {
+  transform: translateX(100%) scale(0.95);
+  opacity: 0;
+}
+
+.aside-enter-active {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.aside-exit {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
+
+.aside-exit-active {
+  transform: translateX(100%) scale(0.95);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+/* Custom scrollbar for aside */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--color-primary-rgb), 0.3) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-rgb), 0.3);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-primary-rgb), 0.5);
+}
+
+/* Backdrop blur enhancement */
+@supports (backdrop-filter: blur(20px)) {
+  .backdrop-blur-xl {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+@supports not (backdrop-filter: blur(20px)) {
+  .backdrop-blur-xl {
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+}
+
+/* Smooth entrance animation for aside content */
+.aside-content-slide-in {
+  animation: slideInFromRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Enhanced close button styling */
+.close-button-enhanced {
+  position: relative;
+  overflow: hidden;
+}
+
+.close-button-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(var(--color-primary-rgb), 0.2) 0%, transparent 70%);
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.close-button-enhanced:hover::before {
+  width: 40px;
+  height: 40px;
+}
+
+/* Subtle glow effect for aside borders - both sides */
+.aside-glow {
+  position: relative;
+}
+
+.aside-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(var(--color-primary-rgb), 0.3) 20%,
+    rgba(var(--color-primary-rgb), 0.6) 50%,
+    rgba(var(--color-primary-rgb), 0.3) 80%,
+    transparent 100%
+  );
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+.aside-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(var(--color-primary-rgb), 0.2) 20%,
+    rgba(var(--color-primary-rgb), 0.4) 50%,
+    rgba(var(--color-primary-rgb), 0.2) 80%,
+    transparent 100%
+  );
+  animation: glowPulse 3s ease-in-out infinite 1.5s;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}

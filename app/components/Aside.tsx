@@ -41,11 +41,59 @@ export function Aside({
   const config = useConfig();
   const expanded = type === activeType;
   const asideRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  
+  // Calculate header height
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const header = document.querySelector('header');
+      if (header) {
+        const newHeight = header.offsetHeight;
+        const scrollY = window.scrollY;
+        if (newHeight !== headerHeight) {
+          setHeaderHeight(newHeight);
+          console.log(`Header height updated: ${newHeight}px (scrollY: ${scrollY}, isScrolled: ${scrollY > 30})`);
+        }
+      }
+    };
+
+    updateHeaderHeight();
+    
+    // Use throttle for scroll event to avoid excessive calculations
+    let ticking = false;
+    const throttledUpdate = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateHeaderHeight();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('resize', updateHeaderHeight);
+    window.addEventListener('scroll', throttledUpdate); // Header height changes on scroll
+    
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight);
+      window.removeEventListener('scroll', throttledUpdate);
+    };
+  }, [headerHeight]);
   
   // For debugging
   useEffect(() => {
     if (expanded && type === 'cart') {
       console.log('Cart aside is now open');
+      // Debug positioning
+      if (asideRef.current) {
+        const rect = asideRef.current.getBoundingClientRect();
+        console.log('Cart position:', {
+          left: rect.left,
+          right: rect.right,
+          width: rect.width,
+          transform: getComputedStyle(asideRef.current).transform
+        });
+      }
     }
   }, [expanded, type]);
 
@@ -97,34 +145,59 @@ export function Aside({
     <div
       aria-modal
       aria-hidden={!expanded}
-      className={`fixed inset-0 z-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 transition-all duration-500 ease-out ${
         expanded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
       role="dialog"
     >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={close}></div>
+      {/* Enhanced Overlay with gradient */}
+      <div 
+        className={`absolute inset-0 bg-gradient-to-r from-black/60 via-black/50 to-black/70 backdrop-blur-md transition-all duration-500 ${
+          expanded ? 'opacity-100' : 'opacity-0'
+        }`} 
+        onClick={close}
+      ></div>
       
-      {/* Aside panel */}
+      {/* NUCLEAR OPTION - MAXIMUM OVERRIDE FOR RIGHT POSITIONING */}
       <aside 
         ref={asideRef}
-        className={`absolute top-0 bottom-0 right-0 w-full max-w-md bg-background shadow-xl transform transition-transform duration-300 h-full flex flex-col ${
-          expanded ? 'translate-x-0' : 'translate-x-full'
-        } ${className}`}
-        style={{zIndex: 100}}
+        className={`aside-glow aside-force-right right-side-drawer ${expanded ? 'aside-visible open' : ''} fixed top-0 bottom-0 w-full max-w-md bg-background/95 backdrop-blur-xl shadow-2xl border-l border-r border-primary/20 transition-all duration-500 ease-out flex flex-col ${className}`}
+        style={{
+          zIndex: 100,
+          height: `calc(100vh - ${headerHeight}px)`,
+          marginTop: `${headerHeight}px`,
+          boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(var(--color-primary-rgb), 0.1)' : 'none',
+          // FORCE RIGHT POSITIONING - maximum override
+          position: 'fixed',
+          top: headerHeight + 'px',
+          bottom: '0',
+          left: 'auto', 
+          right: '0',
+          transform: expanded ? 'translateX(0)' : 'translateX(100%)'
+        }}
       >
-        <header className="flex items-center justify-between p-4 border-b border-primary/10 flex-shrink-0">
-          <h3 className="text-lg font-bold text-primary">{heading}</h3>
+        <header className="flex items-center justify-between p-6 border-b border-primary/20 flex-shrink-0 bg-gradient-to-r from-background/50 to-background backdrop-blur-sm">
+          <h3 className="text-xl font-bold text-primary tracking-wide">{heading}</h3>
           <button 
-            className="w-8 h-8 flex items-center justify-center text-primary hover:text-primary-600 rounded-full hover:bg-primary/5 transition-colors" 
+            className="close-button-enhanced group w-10 h-10 flex items-center justify-center text-primary hover:text-primary-600 rounded-full hover:bg-primary/10 transition-all duration-300 hover:scale-110 hover:rotate-90" 
             onClick={close} 
             aria-label="Close"
           >
-            &times;
+            <svg 
+              className="w-5 h-5 transition-transform duration-300" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </header>
-        <main className="flex-1 overflow-hidden bg-background text-text min-h-0">
-          {children}
+        <main className="flex-1 overflow-hidden bg-gradient-to-b from-background/80 to-background text-text min-h-0 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-primary/5 pointer-events-none"></div>
+          <div className="aside-content-slide-in relative h-full overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+            {children}
+          </div>
         </main>
       </aside>
     </div>

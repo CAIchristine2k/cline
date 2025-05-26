@@ -33,15 +33,21 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
 
   // The useOptimisticCart hook applies pending actions to the cart
   // so the user immediately sees feedback when they modify the cart.
-  // Use null-safe operations to handle potential null carts during hydration
   const cart = useOptimisticCart(originalCart);
 
-  // Cart calculations - use null-safe operations
+  // Log optimistic cart state for debugging
+  console.log('Optimistic cart state:', {
+    isOptimistic: cart?.isOptimistic,
+    totalQuantity: cart?.totalQuantity,
+    linesCount: cart?.lines?.nodes?.length || 0,
+  });
+
+  // Cart calculations
   const linesCount = Boolean(cart?.lines?.nodes?.length || 0);
   const withDiscount =
     cart &&
     Boolean(cart?.discountCodes?.filter((code) => code.applicable)?.length);
-  const cartHasItems = cart?.totalQuantity ? cart.totalQuantity > 0 : false;
+  const cartHasItems = (cart?.totalQuantity || 0) > 0;
 
   // If the cart isn't loaded yet during hydration, show a loading indicator
   if (cart === undefined) {

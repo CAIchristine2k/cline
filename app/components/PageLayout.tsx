@@ -6,6 +6,7 @@ import type {
   HeaderQuery,
 } from 'storefrontapi.generated';
 import {Aside} from '~/components/Aside';
+import {CartAside} from '~/components/CartAside'; 
 import {Footer} from '~/components/Footer';
 import {Header} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
@@ -96,7 +97,8 @@ export function PageLayout({
         </div>
       </Aside>
       
-      <Aside type="cart" heading="CART">
+      {/* USING SPECIALIZED CART ASIDE THAT GUARANTEES RIGHT POSITIONING */}
+      <CartAside heading="CART">
         <Suspense fallback={<div className="p-4 flex items-center justify-center h-full"><div className="w-10 h-10 border-t-2 border-r-2 border-primary rounded-full animate-spin"></div></div>}>
           <Await resolve={cart || Promise.resolve(null)}>
             {(resolvedCart) => {
@@ -107,7 +109,7 @@ export function PageLayout({
             }}
           </Await>
         </Suspense>
-      </Aside>
+      </CartAside>
       
       <Aside type="mobile" heading="MENU">
         <div className="bg-background text-text p-4">

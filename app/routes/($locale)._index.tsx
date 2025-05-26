@@ -1,5 +1,5 @@
 import { useLoaderData, type LoaderFunctionArgs, type MetaFunction } from 'react-router';
-import { getPaginationVariables } from '@shopify/hydrogen';
+import { getPaginationVariables, Analytics } from '@shopify/hydrogen';
 import React from 'react';
 
 // Import configuration and theme system from utils (consistent directory)
@@ -14,7 +14,6 @@ import CareerHighlights from '~/components/CareerHighlights';
 import { SocialFeed } from '~/components/SocialFeed';
 import Testimonials from '~/components/Testimonials';
 import NewsletterSignup from '~/components/NewsletterSignup';
-import { Footer } from '~/components/Footer';
 
 export const meta: MetaFunction = () => {
   return [
@@ -115,6 +114,10 @@ export default function Homepage() {
     }
   }, [collections, updateConfig, config.shopifyCollections]);
 
+  console.log('Products fetched:', products?.length || 0);
+  console.log('First product:', products?.[0]?.title || 'None');
+  console.log('Collections fetched:', collections?.length || 0);
+
   return (
     <div data-theme={config.brandStyle} className="min-h-screen bg-black text-white overflow-x-hidden">
       <main>
@@ -126,7 +129,7 @@ export default function Homepage() {
           <ProductShowcase 
             products={products}
             title="EXCLUSIVE MERCHANDISE"
-            subtitle={`Premium quality products inspired by the legacy of ${config.influencerName}. Elevate your performance with our exclusive collection.`}
+            subtitle={`Premium quality products inspired by the legacy of ${config.influencerName}.`}
           />
         ) : (
           // Fallback message when no products are available
@@ -155,9 +158,10 @@ export default function Homepage() {
         {config.showSocialFeed && <SocialFeed />}
         
         <NewsletterSignup />
-      </main>
 
-      <Footer />
+        {/* Analytics tracking for homepage */}
+        <Analytics.CustomView type="custom_homepage_viewed" data={{}} />
+      </main>
     </div>
   );
 }

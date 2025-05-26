@@ -1,8 +1,10 @@
-import React from 'react';
-import { Star, ShoppingCart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, ShoppingCart, Eye, Heart } from 'lucide-react';
 import { Link } from 'react-router';
 import { Image, Money } from '@shopify/hydrogen';
 import { AddToCartButton } from '~/components/AddToCartButton';
+import { WishlistButton } from '~/components/WishlistButton';
+import { LoadingSpinner } from '~/components/LoadingSpinner';
 import type {
   ProductItemFragment,
 } from 'storefrontapi.generated';
@@ -27,10 +29,19 @@ interface ProductCardProps {
   product: ProductItemExtendedFragment;
   loading?: 'eager' | 'lazy';
   label?: string;
+  showQuickView?: boolean;
+  showWishlist?: boolean;
 }
 
-export function ProductCard({ product, loading = 'lazy' }: ProductCardProps) {
+export function ProductCard({ 
+  product, 
+  loading = 'lazy',
+  showQuickView = true,
+  showWishlist = true,
+}: ProductCardProps) {
   const config = useConfig();
+  const [imageLoading, setImageLoading] = useState(true);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   if (!product) return null;
 
@@ -46,6 +57,11 @@ export function ProductCard({ product, loading = 'lazy' }: ProductCardProps) {
   // Check if the product is on sale
   const isOnSale = compareAtPrice && price &&
     parseFloat(price.amount) < parseFloat(compareAtPrice.amount);
+  
+  // Calculate savings percentage
+  const savingsPercentage = isOnSale && compareAtPrice && price
+    ? Math.round((1 - parseFloat(price.amount) / parseFloat(compareAtPrice.amount)) * 100)
+    : 0;
     
   // Generate mock rating and reviews for display (since Shopify doesn't provide this)
   const rating = 4.8 + (Math.random() * 0.2);
@@ -56,109 +72,226 @@ export function ProductCard({ product, loading = 'lazy' }: ProductCardProps) {
   
   // Get product label based on tags or sale status
   const getProductLabel = () => {
-    if (isOnSale) return "Sale";
-    if (isFeatured) return "Featured";
-    if (tags && tags.includes("new")) return "New";
-    if (tags && tags.includes("bestseller")) return "Bestseller";
+    if (isOnSale) return { text: "Sale", color: "bg-red-500" };
+    if (isFeatured) return { text: "Featured", color: "bg-primary" };
+    if (tags && tags.includes("new")) return { text: "New", color: "bg-green-500" };
+    if (tags && tags.includes("bestseller")) return { text: "Bestseller", color: "bg-purple-500" };
     return null;
   };
   
   const productLabel = getProductLabel();
 
+  // Format the variant ID to ensure it has the proper Shopify GID prefix
+  const formatVariantId = (id: string) => {
+    if (!id) return '';
+    if (id.startsWith('gid://shopify/ProductVariant/')) return id;
+    
+    // Extract the numeric ID if it's already in a GID format
+    const numericId = id.includes('/')
+      ? id.split('/').pop() || id
+      : id;
+      
+    return `gid://shopify/ProductVariant/${numericId}`;
+  };
+
+  // Handle add to cart with loading state
+  const handleAddToCart = () => {
+    setIsAddingToCart(true);
+    setTimeout(() => setIsAddingToCart(false), 2000);
+  };
+
   return (
-    <div className="group relative">
-      <Link
-        to={`/products/${handle}`}
-        prefetch="intent"
-        className="block rounded-sm overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-      >
-        <div className="relative h-72 overflow-hidden">
+    <div className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1 hover:scale-[1.01]">
+      
+      {/* Image Container */}
+      <div className="relative h-80 overflow-hidden">
+        <Link
+          to={`/products/${handle}`}
+          prefetch="intent"
+          className="block w-full h-full"
+          aria-label={`View ${title} details`}
+        >
           {featuredImage ? (
-            <Image
-              data={featuredImage}
-              className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
-              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-              loading={loading}
-            />
+            <div className="relative w-full h-full">
+              {imageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+                  <LoadingSpinner size="lg" color="primary" />
+                </div>
+              )}
+              <Image
+                data={featuredImage}
+                className="w-full h-full object-cover object-center transition-all duration-700 group-hover:scale-105"
+                sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                loading={loading}
+                onLoad={() => setImageLoading(false)}
+                onError={() => setImageLoading(false)}
+              />
+              {/* Subtle overlay on hover */}
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
           ) : (
-            <div className="h-full w-full bg-primary/5 flex items-center justify-center">
-              <span className="text-primary-700">No image</span>
+            <div className="h-full w-full bg-gray-800 flex items-center justify-center">
+              <span className="text-gray-400 text-sm">No image available</span>
             </div>
           )}
+        </Link>
 
-          {/* Product label badge */}
+        {/* Product Labels */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
           {productLabel && (
-            <div className="absolute top-3 right-3 bg-primary text-background text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-sm">
-              {productLabel}
+            <div className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20`}>
+              {productLabel.text}
             </div>
           )}
-
-          {/* Quick shop overlay */}
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div className="bg-primary hover:bg-primary-400 text-background text-center py-2 px-4 rounded-sm font-bold transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 uppercase text-sm tracking-wider">
-              Quick View
+          {savingsPercentage > 0 && (
+            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20">
+              -{savingsPercentage}%
             </div>
-          </div>
+          )}
+          {!isAvailable && (
+            <div className="bg-gray-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/20">
+              Sold Out
+            </div>
+          )}
         </div>
 
-        <div className="p-5">
-          <h3 className="text-white font-bold text-lg mb-2 group-hover:text-primary transition-colors duration-300 line-clamp-1">
-            {title}
-          </h3>
-          
-          {/* Rating stars */}
-          <div className="flex items-center mb-3">
-            <div className="flex text-primary">
-              {[...Array(Math.floor(rating))].map((_, i) => (
-                <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
-              ))}
-              {rating % 1 >= 0.5 && (
-                <Star className="w-4 h-4 fill-current opacity-50" />
-              )}
-              {[...Array(5 - Math.ceil(rating))].map((_, i) => (
-                <Star key={`empty-${i}`} className="w-4 h-4 stroke-current fill-transparent" />
-              ))}
-            </div>
-            <span className="text-sm text-gray-400 ml-2">({reviews})</span>
+        {/* Wishlist Button */}
+        {showWishlist && (
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <WishlistButton
+              productId={product.id}
+              productTitle={title}
+              productImage={featuredImage?.url}
+              productPrice={price?.amount}
+              size="md"
+            />
           </div>
+        )}
 
-          {/* Price */}
-          <div className="flex justify-between items-center">
-            {price && (
-              <div className="font-bold text-primary text-lg">
-                {price.amount && (
-                  <>${parseFloat(price.amount).toFixed(2)} {price.currencyCode}</>
-                )}
-              </div>
-            )}
-
-            {isOnSale && compareAtPrice && (
-              <div className="text-sm text-gray-400 line-through ml-2">
-                {compareAtPrice.amount && (
-                  <>${parseFloat(compareAtPrice.amount).toFixed(2)}</>
-                )}
-              </div>
+        {/* Action buttons - visible on hover */}
+        <div className="absolute bottom-4 right-4 transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0">
+          <div className="flex gap-3">
+            {showQuickView && (
+              <Link
+                to={`/products/${handle}`}
+                className="bg-white/95 hover:bg-white text-gray-900 p-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/20 hover:scale-105"
+                aria-label={`Quick view ${title}`}
+              >
+                <Eye className="w-4 h-4" />
+              </Link>
             )}
             
-            {/* Cart button */}
             {isAvailable && variantId && (
-              <div className="ml-auto" onClick={(e) => e.stopPropagation()}>
+              <div onClick={(e) => e.stopPropagation()}>
                 <AddToCartButton 
                   lines={[{
-                    merchandiseId: variantId.startsWith('gid://') 
-                      ? variantId 
-                      : `gid://shopify/ProductVariant/${variantId.replace('gid://shopify/ProductVariant/', '')}`,
+                    merchandiseId: formatVariantId(variantId),
                     quantity: 1
                   }]}
-                  className="bg-gray-800 hover:bg-primary text-white hover:text-background rounded-sm p-2.5 transition-all duration-300 transform hover:scale-105"
+                  selectedVariant={firstVariant}
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart}
+                  className="bg-primary hover:bg-primary-600 text-black p-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center backdrop-blur-sm border border-primary/30 hover:scale-105"
+                  aria-label={`Add ${title} to cart`}
                 >
-                  <ShoppingCart className="w-4 h-4" />
+                  {isAddingToCart ? (
+                    <LoadingSpinner size="sm" color="white" />
+                  ) : (
+                    <ShoppingCart className="w-4 h-4" />
+                  )}
                 </AddToCartButton>
               </div>
             )}
           </div>
         </div>
-      </Link>
+      </div>
+
+      {/* Product Info */}
+      <div className="p-6 space-y-4">
+        <Link
+          to={`/products/${handle}`}
+          prefetch="intent"
+          className="block group"
+        >
+          <h3 className="text-white font-bold text-lg leading-tight line-clamp-2">
+            {title}
+          </h3>
+        </Link>
+        
+        {/* Rating stars */}
+        <div className="flex items-center gap-3">
+          <div className="flex text-primary" role="img" aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}>
+            {[...Array(Math.floor(rating))].map((_, i) => (
+              <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
+            ))}
+            {rating % 1 >= 0.5 && (
+              <Star className="w-4 h-4 fill-current opacity-50" />
+            )}
+            {[...Array(5 - Math.ceil(rating))].map((_, i) => (
+              <Star key={`empty-${i}`} className="w-4 h-4 stroke-current fill-transparent opacity-30" />
+            ))}
+          </div>
+          <span className="text-sm text-gray-400 font-medium price-no-hover">({reviews})</span>
+        </div>
+
+        {/* Price Section */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {price && (
+              <span className="font-bold text-primary text-xl price-no-hover">
+                <Money data={price} />
+              </span>
+            )}
+
+            {isOnSale && compareAtPrice && (
+              <span className="text-sm text-gray-400 line-through font-medium price-no-hover">
+                <Money data={compareAtPrice} />
+              </span>
+            )}
+          </div>
+
+          {/* Availability Status */}
+          <div className="text-right">
+            {isAvailable ? (
+              <span className="text-green-400 text-sm font-semibold bg-green-400/10 px-2 py-1 rounded-full">
+                In Stock
+              </span>
+            ) : (
+              <span className="text-red-400 text-sm font-semibold bg-red-400/10 px-2 py-1 rounded-full">
+                Sold Out
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Add to Cart (visible on mobile only) */}
+        {isAvailable && variantId && (
+          <div className="md:hidden pt-2">
+            <AddToCartButton 
+              lines={[{
+                merchandiseId: formatVariantId(variantId),
+                quantity: 1
+              }]}
+              selectedVariant={firstVariant}
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+              className="w-full bg-gradient-to-r from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 text-black py-3 px-4 rounded-lg transition-all duration-300 font-bold uppercase tracking-wider text-sm shadow-lg hover:shadow-xl hover:scale-[1.01]"
+            >
+              {isAddingToCart ? (
+                <div className="flex items-center justify-center gap-3">
+                  <LoadingSpinner size="sm" color="white" />
+                  Adding...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-3">
+                  <ShoppingCart className="w-4 h-4" />
+                  Add to Cart
+                </div>
+              )}
+            </AddToCartButton>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

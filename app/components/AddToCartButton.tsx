@@ -1,95 +1,110 @@
-import {type FetcherWithComponents} from 'react-router';
-import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
-import {useConfig} from '~/utils/themeContext';
-import {useCart} from '~/hooks/useCart';
-import {useEffect, useRef} from 'react';
+import {CartForm} from '@shopify/hydrogen';
+import {useCart} from '~/providers/CartProvider';
+import {useEffect, useState} from 'react';
+import type {CartLineInput} from '@shopify/hydrogen/storefront-api-types';
+
+// Flexible type for selectedVariant that matches our actual GraphQL data
+type SelectedVariant = {
+  id: string;
+  availableForSale?: boolean;
+  title?: string;
+  price?: {
+    amount: string;
+    currencyCode: string;
+  };
+  compareAtPrice?: {
+    amount: string;
+    currencyCode: string;
+  } | null;
+  selectedOptions?: Array<{
+    name: string;
+    value: string;
+  }>;
+  [key: string]: any; // Allow additional fields
+};
 
 export function AddToCartButton({
-  analytics,
   children,
   disabled,
   lines,
-  onClick,
+  analytics,
   className,
+  buttonText = 'Add to cart',
+  onClick,
+  selectedVariant,
 }: {
-  analytics?: unknown;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   disabled?: boolean;
-  lines: Array<OptimisticCartLineInput>;
-  onClick?: () => void;
+  lines: CartLineInput[];
+  analytics?: unknown;
   className?: string;
+  buttonText?: string;
+  onClick?: () => void;
+  selectedVariant?: SelectedVariant;
 }) {
-  const config = useConfig();
-  const {refreshCart} = useCart();
-  const defaultClasses = "w-full bg-primary hover:bg-primary-600 text-background font-bold py-4 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none";
-  const prevFetcherStateRef = useRef<string | null>(null);
+  const {openCart} = useCart();
+  const [addedToCart, setAddedToCart] = useState(false);
   
-  // Debug the merchandiseId format
+  const defaultClasses = "w-full bg-primary hover:bg-primary-600 text-background font-bold py-4 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none";
+  
+  // Reset added state after some time
   useEffect(() => {
-    console.log('AddToCartButton lines:', JSON.stringify(lines));
-    if (lines.length > 0) {
-      const merchandiseId = lines[0].merchandiseId;
-      console.log('MerchandiseId format check:', {
-        id: merchandiseId,
-        hasGidPrefix: merchandiseId.startsWith('gid://'),
-        type: typeof merchandiseId
-      });
+    if (addedToCart) {
+      const timeout = setTimeout(() => {
+        setAddedToCart(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
     }
-  }, [lines]);
+  }, [addedToCart]);
 
-  const handleClick = (e: React.MouseEvent) => {
-    console.log('AddToCartButton clicked with lines:', JSON.stringify(lines));
-    console.log('Button event:', e.type, 'preventDefault called:', e.defaultPrevented);
-    
-    // Don't prevent default to allow form submission
-    
-    // Call the onClick prop if provided
+  // Handle successful form submission
+  const handleSuccess = () => {
+    console.log('AddToCartButton form submitted successfully');
     onClick?.();
   };
-
+  
+  // Determine the button text based on the current state
+  let buttonContent = children || buttonText;
+  if (addedToCart) {
+    buttonContent = 'Added to cart!';
+  }
+  
   return (
-    <CartForm route="/en/cart" inputs={{lines}} action={CartForm.ACTIONS.LinesAdd}>
-      {(fetcher: FetcherWithComponents<any>) => {
-        console.log('CartForm fetcher state:', fetcher.state, 'data:', fetcher.data, 'formData:', fetcher.formData);
+    <CartForm
+      route="/cart"
+      action={CartForm.ACTIONS.LinesAdd}
+      inputs={{lines}}
+    >
+      {(fetcher) => {
+        const isSubmitting = fetcher.state === 'submitting';
+        const isSuccess = fetcher.state === 'idle' && fetcher.data && !fetcher.data.errors?.length;
         
-        // Check for state transitions
-        if (prevFetcherStateRef.current !== fetcher.state) {
-          console.log(`CartForm fetcher state changed from ${prevFetcherStateRef.current} to ${fetcher.state}`);
-          prevFetcherStateRef.current = fetcher.state;
-          
-          if (fetcher.state === 'submitting') {
-            console.log('Form is submitting with data:', fetcher.formData ? Object.fromEntries(fetcher.formData) : 'No formData');
-          }
-        }
+        // Debug logging
+        useEffect(() => {
+          console.log('AddToCartButton fetcher state:', fetcher.state, 'data:', fetcher.data);
+        }, [fetcher.state, fetcher.data]);
         
-        // Refresh cart data when the fetcher transitions from submitting to idle with data
-        if (fetcher.state === 'idle' && fetcher.data && fetcher.data.cart) {
-          console.log('Cart form submission successful, refreshing cart. Data:', fetcher.data);
-          // Small timeout to ensure everything is processed
-          setTimeout(() => refreshCart(), 100);
-        } else if (fetcher.state === 'idle' && fetcher.data && !fetcher.data.cart) {
-          console.log('Cart form submission completed but no cart data returned:', fetcher.data);
-          if (fetcher.data.errors) {
-            console.error('Cart errors:', fetcher.data.errors);
+        // Handle successful cart addition
+        useEffect(() => {
+          if (isSuccess && fetcher.data?.cart) {
+            console.log('Cart updated successfully:', fetcher.data.cart);
+            setAddedToCart(true);
+            handleSuccess();
+            setTimeout(() => {
+              openCart();
+            }, 300);
           }
-        }
+        }, [isSuccess, fetcher.data]);
         
         return (
-          <>
-            <input
-              name="analytics"
-              type="hidden"
-              value={JSON.stringify(analytics)}
-            />
-            <button
-              type="submit"
-              onClick={handleClick}
-              disabled={disabled ?? fetcher.state !== 'idle'}
-              className={className || defaultClasses}
-            >
-              {children}
-            </button>
-          </>
+          <button
+            type="submit"
+            disabled={disabled || isSubmitting}
+            className={className || defaultClasses}
+            aria-label={typeof buttonContent === 'string' ? buttonContent : 'Add to cart'}
+          >
+            {isSubmitting ? 'Adding...' : buttonContent}
+          </button>
         );
       }}
     </CartForm>
