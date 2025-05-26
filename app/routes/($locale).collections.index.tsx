@@ -84,7 +84,7 @@ export default function Collections() {
 }
 
 const COLLECTIONS_QUERY = `#graphql
-  query Collections {
+  query AllCollections {
     collections(first: 12) {
       nodes {
         id

@@ -63,22 +63,24 @@ async function loadCriticalData({
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product}] = await Promise.all([
-    storefront.query(PRODUCT_QUERY, {
-      variables: {handle, selectedOptions: getSelectedProductOptions(request)},
-    }),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
+  // Fix: Use a separate query to get the selectedOptions
+  const selectedOptions = getSelectedProductOptions(request);
+  
+  // The GraphQL query doesn't expect selectedOptions in variables
+  const data = await storefront.query(PRODUCT_QUERY, {
+    variables: {handle},
+  });
 
-  if (!product?.id) {
+  if (!data.product?.id) {
     throw new Response(null, {status: 404});
   }
 
   // The API handle might be localized, so redirect to the localized handle
-  redirectIfHandleIsLocalized(request, {handle, data: product});
+  redirectIfHandleIsLocalized(request, {handle, data: data.product});
 
   return {
-    product,
+    product: data.product,
+    recommendedProducts: data.recommendedProducts?.nodes || []
   };
 }
 
@@ -95,7 +97,7 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
 }
 
 export default function Product() {
-  const {product} = useLoaderData<typeof loader>();
+  const {product, recommendedProducts} = useLoaderData<typeof loader>();
   const config = useConfig();
 
   if (!product) {
@@ -127,7 +129,7 @@ export default function Product() {
 
   const featuredImage = product.featuredImage;
   const images = product.images.nodes;
-  const selectedVariant = product.variants.nodes[0];
+  const selectedVariant = product.selectedVariant ?? product.variants.nodes[0];
   
   return (
     <div className="py-24">
@@ -190,37 +192,64 @@ export default function Product() {
 
           {/* Product Info */}
           <div>
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
+            {product.vendor && (
+              <div className="text-primary-700 mb-2">{product.vendor}</div>
+            )}
+            
+            <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <div className="text-2xl font-bold text-primary">
+                <Money data={selectedVariant.price} />
+              </div>
               
-              <div className="flex items-center gap-4 mb-4">
-                <div className="text-2xl font-bold text-primary">
-                  <Money data={selectedVariant.price} />
+              {selectedVariant.compareAtPrice && (
+                <div className="text-lg text-red-500 line-through">
+                  <Money data={selectedVariant.compareAtPrice} />
                 </div>
-                
-                {selectedVariant.compareAtPrice && (
-                  <div className="text-lg text-gray-500 line-through">
-                    <Money data={selectedVariant.compareAtPrice} />
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-2 mb-6">
-                <div className={`h-3 w-3 rounded-full ${selectedVariant.availableForSale ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span className="text-sm">
-                  {selectedVariant.availableForSale ? 'In stock' : 'Out of stock'}
-                </span>
-              </div>
-              
-              <div className="prose prose-sm max-w-none mb-8">
-                <div dangerouslySetInnerHTML={{__html: product.descriptionHtml}} />
-              </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2 mb-6">
+              <div className={`h-3 w-3 rounded-full ${selectedVariant.availableForSale ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className="text-sm">
+                {selectedVariant.availableForSale ? 'In stock' : 'Out of stock'}
+              </span>
+            </div>
+            
+            <div className="prose prose-sm max-w-none mb-8">
+              <div dangerouslySetInnerHTML={{__html: product.descriptionHtml}} />
             </div>
             
             {/* Product Form */}
             <Suspense fallback={<div>Loading...</div>}>
               <ProductForm product={product} />
             </Suspense>
+            
+            {/* Product meta information */}
+            {(product.tags?.length > 0 || product.productType) && (
+              <div className="border-t border-primary/10 mt-8 pt-6 text-sm">
+                {product.productType && (
+                  <div className="flex mb-2">
+                    <span className="w-32 font-medium">Product Type:</span>
+                    <span>{product.productType}</span>
+                  </div>
+                )}
+                
+                {product.tags && product.tags.length > 0 && (
+                  <div className="flex">
+                    <span className="w-32 font-medium">Tags:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {product.tags.map((tag: string) => (
+                        <span key={tag} className="bg-primary/10 px-2 py-1 rounded-sm text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             
             {/* Championship Guarantee */}
             <div className="mt-8 bg-primary/10 border border-primary/30 rounded-sm p-4">
@@ -237,7 +266,38 @@ export default function Product() {
         </div>
       
         {/* Related Products Section */}
-        {/* This would be added in a future enhancement */}
+        {recommendedProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold mb-6 text-primary">You Might Also Like</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {recommendedProducts.map((relatedProduct: any) => (
+                <Link
+                  key={relatedProduct.id}
+                  to={`/products/${relatedProduct.handle}`}
+                  className="group"
+                >
+                  <div className="border border-primary/10 rounded-sm overflow-hidden bg-background mb-3">
+                    {relatedProduct.featuredImage && (
+                      <Image
+                        data={relatedProduct.featuredImage}
+                        className="w-full h-auto object-cover aspect-square group-hover:scale-105 transition-transform duration-300"
+                        sizes="(min-width: 768px) 25vw, 50vw"
+                      />
+                    )}
+                  </div>
+                  <h3 className="font-medium text-primary group-hover:text-primary-600">
+                    {relatedProduct.title}
+                  </h3>
+                  {relatedProduct.variants?.nodes[0] && (
+                    <div className="mt-1 text-primary-700">
+                      <Money data={relatedProduct.variants.nodes[0].price} />
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Analytics */}
@@ -265,6 +325,8 @@ const PRODUCT_QUERY = `#graphql
       descriptionHtml
       handle
       vendor
+      tags
+      productType
       featuredImage {
         id
         url
@@ -336,6 +398,57 @@ const PRODUCT_QUERY = `#graphql
             currencyCode
           }
           sku
+        }
+      }
+      seo {
+        title
+        description
+      }
+      metafields(identifiers: [{namespace: "custom", key: "related_products"}]) {
+        key
+        value
+      }
+    }
+    
+    # Fetch recommended products - top selling products from the same collection
+    recommendedProducts: products(first: 4, sortKey: BEST_SELLING) {
+      nodes {
+        id
+        title
+        handle
+        description
+        descriptionHtml
+        vendor
+        featuredImage {
+          id
+          url
+          altText
+          width
+          height
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+          maxVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: 1) {
+          nodes {
+            id
+            availableForSale
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
+          }
         }
       }
     }

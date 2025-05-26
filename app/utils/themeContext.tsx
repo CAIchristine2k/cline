@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle } from './themeConfig';
-import { defaultConfig, initConfig, type LandingPageConfig } from './config';
+import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle } from '~/lib/themeConfig';
+import { defaultConfig, initConfig, type LandingPageConfig } from '~/lib/config';
 
 interface ThemeContextType {
   theme: ThemeConfig;

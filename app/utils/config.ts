@@ -1,5 +1,5 @@
 // Main configuration file for influencer landing page
-import { setTheme } from "./themeConfig";
+import { setTheme } from "~/lib/themeConfig";
 
 // Navigation item type
 export interface NavigationItem {
@@ -15,7 +15,16 @@ export interface ProductInfo {
   image: string;
   features?: string[];
   label?: string;
-  handle?: string; // Add handle for linking to Shopify products
+  handle?: string; // Shopify product handle
+}
+
+// Shopify-specific collection configuration
+export interface ShopifyCollection {
+  handle: string;
+  title: string;
+  description?: string;
+  featured?: boolean;
+  id?: string;
 }
 
 export interface LandingPageConfig {
@@ -85,9 +94,43 @@ export interface LandingPageConfig {
   };
   // Products
   products: ProductInfo[];
-  // Shopify Data - used to store fetched data
-  shopifyCollections?: any[];
-  shopifyProducts?: any[];
+  // Career Highlights
+  careerHighlights: {
+    year: string;
+    title: string;
+    description: string;
+    image: string;
+  }[];
+  
+  // Shopify Configuration
+  shopify: {
+    // Default collections to feature on the homepage and collection pages
+    featuredCollections: ShopifyCollection[];
+    // Default products to feature on the homepage
+    featuredProducts: string[]; // Array of product handles
+    // Collection to use for the main shop section
+    mainCollectionHandle: string;
+    // Collection for limited edition products
+    limitedEditionCollectionHandle?: string;
+    // Default sorting for collection pages
+    defaultSorting: 'manual' | 'best-selling' | 'newest' | 'price-low-high' | 'price-high-low' | 'title-ascending' | 'title-descending';
+    // Number of products to show per page in collection grids
+    productsPerPage: number;
+    // Enable customer accounts
+    enableCustomerAccounts: boolean;
+  };
+  
+  // Dynamically loaded Shopify collections (added during runtime)
+  shopifyCollections?: ShopifyCollection[];
+  
+  // Testimonials
+  testimonials?: {
+    name: string;
+    role?: string;
+    content: string;
+    image?: string;
+    rating?: number;
+  }[];
 }
 
 // Shane Mosley specific configuration
@@ -97,28 +140,28 @@ export const defaultConfig: LandingPageConfig = {
   influencerTitle: "Boxing Legend & 9-Time World Champion",
   influencerBio:
     "Known as 'Sugar' Shane Mosley, one of boxing's most decorated champions with titles in three weight divisions and a legacy of spectacular performances against the sport's greatest names.",
-  influencerImage: "https://images.unsplash.com/photo-1516150486159-4f71b8189d7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwxfHxib3hpbmclMjBjaGFtcGlvbiUyMHRyYWluaW5nfGVufDB8MHx8fDE3NDc4NjQ1Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+  influencerImage: "/images/influencer.jpeg",
   brandName: "SUGAR SHANE",
   brandLogo: "/images/logo.png",
 
   // Visual Theme - Boxing champions typically go with luxury styling
   brandStyle: "luxury",
-  heroBackgroundImage: "https://images.unsplash.com/photo-1516150486159-4f71b8189d7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwxfHxib3hpbmclMjBjaGFtcGlvbiUyMHRyYWluaW5nfGVufDB8MHx8fDE3NDc4NjQ1Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+  heroBackgroundImage: "/images/hero-background.jpg",
+  heroVideoUrl: "/videos/boxing-hero.mp4",
 
   // Content
   heroTitle: "CHAMPIONSHIP LEGACY",
   heroSubtitle:
     "Premium boxing equipment and apparel from a 9-time world champion",
   ctaText: "SHOP THE COLLECTION",
-  ctaLink: "#shop",
+  ctaLink: "/collections",
   
   // Navigation
   navigation: [
     { name: "Home", href: "/" },
-    { name: "Shop", href: "#shop" },
-    { name: "Career", href: "#career" },
-    { name: "Collections", href: "/collections" },
-    { name: "About", href: "/pages/about" }
+    { name: "Shop", href: "/collections" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "#contact" },
   ],
 
   // Product Information
@@ -127,6 +170,7 @@ export const defaultConfig: LandingPageConfig = {
     description: "Professional-grade boxing gloves designed by Shane Mosley. Ideal for training and competition.",
     price: "$149.99",
     image: "/images/product-1.png",
+    handle: "champion-gloves",
     features: [
       "Premium leather construction",
       "Perfect weight distribution",
@@ -140,6 +184,7 @@ export const defaultConfig: LandingPageConfig = {
       description: "Comfortable and stylish hoodie featuring the Sugar Shane logo. Perfect for pre and post workout.",
       price: "$89.99",
       image: "/images/product-2.png",
+      handle: "sugar-shane-hoodie",
       features: [
         "Premium cotton blend",
         "Embroidered logo",
@@ -152,6 +197,7 @@ export const defaultConfig: LandingPageConfig = {
       description: "Complete training program featuring Shane's signature techniques and workout routines.",
       price: "$49.99",
       image: "/images/product-3.png",
+      handle: "training-dvd-set",
       features: [
         "Over 10 hours of content",
         "Beginner to advanced techniques",
@@ -164,6 +210,7 @@ export const defaultConfig: LandingPageConfig = {
       description: "Professional hand wraps used by Shane throughout his championship career.",
       price: "$24.99",
       image: "/images/product-4.png",
+      handle: "pro-hand-wraps",
       features: [
         "Perfect length and elasticity",
         "Secure thumb loop",
@@ -219,6 +266,7 @@ export const defaultConfig: LandingPageConfig = {
       description: "Professional-grade boxing gloves designed by Shane Mosley. Ideal for training and competition.",
       price: "$149.99",
       image: "/images/product-1.png",
+      handle: "champion-gloves",
       label: "Bestseller",
       features: [
         "Premium leather construction",
@@ -232,6 +280,7 @@ export const defaultConfig: LandingPageConfig = {
       description: "Comfortable and stylish hoodie featuring the Sugar Shane logo. Perfect for pre and post workout.",
       price: "$89.99",
       image: "/images/product-2.png",
+      handle: "sugar-shane-hoodie",
       label: "New",
       features: [
         "Premium cotton blend",
@@ -245,6 +294,7 @@ export const defaultConfig: LandingPageConfig = {
       description: "Complete training program featuring Shane's signature techniques and workout routines.",
       price: "$49.99",
       image: "/images/product-3.png",
+      handle: "training-dvd-set",
       features: [
         "Over 10 hours of content",
         "Beginner to advanced techniques",
@@ -257,6 +307,7 @@ export const defaultConfig: LandingPageConfig = {
       description: "Professional hand wraps used by Shane throughout his championship career.",
       price: "$24.99",
       image: "/images/product-4.png",
+      handle: "pro-hand-wraps",
       features: [
         "Perfect length and elasticity",
         "Secure thumb loop",
@@ -266,9 +317,95 @@ export const defaultConfig: LandingPageConfig = {
     }
   ],
   
-  // Shopify Data - used to store fetched data
-  shopifyCollections: [],
-  shopifyProducts: [],
+  // Career Highlights
+  careerHighlights: [
+    {
+      year: "2000",
+      title: "WBC Welterweight Champion",
+      description: "Defeated Oscar De La Hoya to capture the WBC welterweight title in a stunning upset victory.",
+      image: "/images/product-1.png"
+    },
+    {
+      year: "2001", 
+      title: "Unified Welterweight Champion",
+      description: "Added the WBA and IBF welterweight titles to become the undisputed champion.",
+      image: "/images/product-2.png"
+    },
+    {
+      year: "2003",
+      title: "Light Middleweight Champion", 
+      description: "Moved up in weight to capture the WBA and WBC light middleweight titles.",
+      image: "/images/product-3.png"
+    },
+    {
+      title: "Professional Debut",
+      year: "1993",
+      description: "Made professional boxing debut, winning by TKO in the first round.",
+      image: "/images/product-4.png"
+    }
+  ],
+  
+  // Shopify Configuration
+  shopify: {
+    featuredCollections: [
+      {
+        handle: "boxing-gloves",
+        title: "Boxing Gloves",
+        featured: true
+      },
+      {
+        handle: "training-equipment",
+        title: "Training Equipment",
+        featured: true
+      },
+      {
+        handle: "apparel",
+        title: "Apparel",
+        featured: true
+      },
+      {
+        handle: "accessories",
+        title: "Accessories",
+        featured: false
+      }
+    ],
+    featuredProducts: [
+      "champion-gloves",
+      "sugar-shane-hoodie",
+      "pro-hand-wraps",
+      "training-dvd-set"
+    ],
+    mainCollectionHandle: "featured",
+    limitedEditionCollectionHandle: "limited-edition",
+    defaultSorting: "manual",
+    productsPerPage: 12,
+    enableCustomerAccounts: true
+  },
+  
+  // Testimonials
+  testimonials: [
+    {
+      name: "John Doe",
+      role: "Customer",
+      content: "I absolutely love the products! Shane Mosley's boxing gloves are the best I've ever used. They fit perfectly and provide the support I need for training.",
+      image: "/images/testimonial-1.jpg",
+      rating: 5
+    },
+    {
+      name: "Jane Smith",
+      role: "Customer",
+      content: "The Sugar Shane Hoodie is incredibly comfortable and stylish. It's perfect for pre and post workout.",
+      image: "/images/testimonial-2.jpg",
+      rating: 4
+    },
+    {
+      name: "Bob Johnson",
+      role: "Customer",
+      content: "The Training DVD Set has been a game-changer for my boxing training. Shane's techniques and routines have improved my skills significantly.",
+      image: "/images/testimonial-3.jpg",
+      rating: 5
+    }
+  ]
 };
 
 /**

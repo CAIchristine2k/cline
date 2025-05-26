@@ -68,7 +68,7 @@ export default function LimitedEdition({ config = defaultConfig }: LimitedEditio
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1485618609651-5a8bd6efc777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwyfHxib3hpbmclMjBnbG92ZXMlMjBmaWdodGVyfGVufDB8MHx8fDE3NDc4NjQ1NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080')`,
+          backgroundImage: `url('/images/limited-edition.jpg')`,
           backgroundAttachment: 'fixed',
         }}
       ></div>

@@ -1,10 +1,6 @@
 import React from 'react';
 import { Instagram, Twitter, Facebook, Youtube, Music, ExternalLink } from 'lucide-react';
-import { defaultConfig, type LandingPageConfig } from '~/lib/config';
-
-interface SocialFeedProps {
-  config?: LandingPageConfig;
-}
+import { useConfig } from '~/utils/themeContext';
 
 type Platform = 'instagram' | 'twitter' | 'facebook' | 'youtube' | 'tiktok';
 
@@ -17,7 +13,9 @@ interface SocialPost {
   date: string;
 }
 
-export default function SocialFeed({ config = defaultConfig }: SocialFeedProps) {
+export function SocialFeed() {
+  const config = useConfig();
+  
   // Skip rendering if social feed section is disabled in config
   if (!config.showSocialFeed) {
     return null;
@@ -30,7 +28,7 @@ export default function SocialFeed({ config = defaultConfig }: SocialFeedProps) 
       id: 1,
       platform: 'instagram',
       content: `Training the next generation of champions. The legacy continues! #${config.influencerName.replace(' ', '')} #Boxing`,
-      image: 'https://images.unsplash.com/photo-1517438322307-e67111335449?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwzfHxib3hpbmclMjBob29kaWUlMjBzcG9ydHN3ZWFyfGVufDB8MHx8fDE3NDc4NjQ1NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      image: '/images/product-1.png',
       likes: 15423,
       date: '2d ago'
     },
@@ -38,7 +36,7 @@ export default function SocialFeed({ config = defaultConfig }: SocialFeedProps) 
       id: 2,
       platform: 'twitter',
       content: `Just announced! New limited edition gloves dropping next week. Stay tuned for early access! #${config.brandName}Collection`,
-      image: 'https://images.unsplash.com/photo-1622599518895-be813cc42628?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwxfHxwcmVtaXVtJTIwYm94aW5nJTIwZ2xvdmVzfGVufDB8MHx8fDE3NDc4NjQ1NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      image: '/images/product-2.png',
       likes: 8742,
       date: '5d ago'
     },
@@ -54,7 +52,7 @@ export default function SocialFeed({ config = defaultConfig }: SocialFeedProps) 
       id: 4,
       platform: 'youtube',
       content: 'Honored to be featured in this month\'s Boxing Legacy magazine. Check out the full interview at the link in bio.',
-      image: 'https://images.unsplash.com/photo-1652169916747-17834febef96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwzfHxhdGhsZXRpYyUyMG1hbiUyMGJveGluZ3xlbnwwfDB8fHwxNzQ3ODY0NTk1fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      image: '/images/product-3.png',
       likes: 5621,
       date: '2w ago'
     }

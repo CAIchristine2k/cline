@@ -16,19 +16,42 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
   return (
     <div 
       aria-labelledby="cart-summary" 
-      className={`border-t border-primary/10 pt-6 ${layout === 'page' ? 'max-w-md ml-auto' : ''}`}
+      className={`${layout === 'page' ? 'max-w-md ml-auto' : ''}`}
     >
-      <h4 className="text-lg font-bold text-primary mb-4">Totals</h4>
-      <dl className="flex justify-between mb-4">
-        <dt className="text-primary-800">Subtotal</dt>
-        <dd className="font-medium text-primary">
-          {cart.cost?.subtotalAmount?.amount ? (
-            <Money data={cart.cost?.subtotalAmount} />
-          ) : (
-            '-'
-          )}
-        </dd>
+      <h4 className="text-lg font-bold text-primary mb-4">Order Summary</h4>
+      <dl className="space-y-2">
+        <div className="flex justify-between">
+          <dt className="text-primary-800">Subtotal</dt>
+          <dd className="font-medium text-primary">
+            {cart.cost?.subtotalAmount?.amount ? (
+              <Money data={cart.cost?.subtotalAmount} />
+            ) : (
+              '-'
+            )}
+          </dd>
+        </div>
+        
+        {cart.cost?.totalTaxAmount?.amount ? (
+          <div className="flex justify-between">
+            <dt className="text-primary-800">Tax (estimated)</dt>
+            <dd className="font-medium text-primary">
+              <Money data={cart.cost.totalTaxAmount} />
+            </dd>
+          </div>
+        ) : null}
+        
+        <div className="flex justify-between pt-2 mt-2 border-t border-primary/10 font-bold">
+          <dt className="text-primary">Total</dt>
+          <dd className="text-primary">
+            {cart.cost?.totalAmount?.amount ? (
+              <Money data={cart.cost?.totalAmount} />
+            ) : (
+              '-'
+            )}
+          </dd>
+        </div>
       </dl>
+      
       <CartDiscounts discountCodes={cart.discountCodes} />
       <CartGiftCard giftCardCodes={cart.appliedGiftCards} />
       <CartCheckoutActions checkoutUrl={cart.checkoutUrl} />
@@ -46,10 +69,15 @@ function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
       <a 
         href={checkoutUrl} 
         target="_self"
-        className="block w-full bg-primary text-background text-center py-4 px-6 rounded-sm hover:bg-primary-600 transition-colors font-bold"
+        className="block w-full bg-primary text-background text-center py-3 px-6 rounded-sm hover:bg-primary-600 transition-colors font-bold shadow-glow"
       >
         Continue to Checkout &rarr;
       </a>
+      <div className="mt-4 flex items-center justify-center">
+        <p className="text-xs text-primary-700 text-center">
+          Secure checkout powered by Shopify
+        </p>
+      </div>
     </div>
   );
 }
@@ -66,7 +94,7 @@ function CartDiscounts({
       ?.map(({code}) => code) || [];
 
   return (
-    <div className="mb-4">
+    <div className="mt-6 mb-4">
       {/* Have existing discount, display it with a remove option */}
       <dl hidden={!codes.length} className="flex justify-between mb-2">
         <div>
@@ -87,7 +115,7 @@ function CartDiscounts({
             type="text" 
             name="discountCode" 
             placeholder="Discount code" 
-            className="flex-grow border border-primary/20 rounded-l-sm px-3 py-2 focus:outline-none focus:border-primary/50"
+            className="flex-grow bg-background border border-primary/20 rounded-l-sm px-3 py-2 text-text focus:outline-none focus:border-primary/50"
           />
           <button 
             type="submit" 
@@ -175,7 +203,7 @@ function CartGiftCard({
             name="giftCardCode"
             placeholder="Gift card code"
             ref={giftCardCodeInput}
-            className="flex-grow border border-primary/20 rounded-l-sm px-3 py-2 focus:outline-none focus:border-primary/50"
+            className="flex-grow bg-background border border-primary/20 rounded-l-sm px-3 py-2 text-text focus:outline-none focus:border-primary/50"
           />
           <button 
             type="submit"

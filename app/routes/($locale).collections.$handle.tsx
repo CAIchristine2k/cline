@@ -12,14 +12,19 @@ import {ProductCard} from '~/components/ProductCard';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const config = getConfig();
-  return [{title: `${config.brandName} | ${data?.collection.title ?? ''} Collection`}];
+  return [{title: `${config.brandName} | ${data?.collection?.title || ''} Collection`}];
 };
 
 export function loader({params, context}: LoaderFunctionArgs) {
   const {handle} = params;
+  
+  if (!handle) {
+    throw new Response('Collection handle is required', { status: 400 });
+  }
+  
   return context.storefront.query(COLLECTION_QUERY, {
     variables: {
-      handle,
+      handle: handle,
     },
   });
 }

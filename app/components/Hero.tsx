@@ -11,6 +11,16 @@ export function Hero() {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.8;
+      
+      // Try to play the video - handle autoplay restrictions
+      const playPromise = videoRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log('Auto-play was prevented by browser:', error);
+          // We'll show the poster image as fallback
+        });
+      }
     }
   }, []);
 
@@ -25,6 +35,7 @@ export function Hero() {
             muted
             loop
             playsInline
+            poster={config.heroBackgroundImage}
             className="w-full h-full object-cover"
           >
             <source src={config.heroVideoUrl} type="video/mp4" />
@@ -131,6 +142,10 @@ export function Hero() {
           
           .shadow-glow {
             box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.25);
+          }
+          
+          video {
+            filter: brightness(0.9) contrast(1.1);
           }
         `
       }} />

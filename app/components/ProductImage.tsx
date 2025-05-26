@@ -1,10 +1,18 @@
-import type {ProductVariantFragment} from 'storefrontapi.generated';
 import {Image} from '@shopify/hydrogen';
+
+// Use a more specific type that matches what we expect for an image
+interface ProductImage {
+  id: string;
+  url: string;
+  altText?: string | null;
+  width?: number | null;
+  height?: number | null;
+}
 
 export function ProductImage({
   image,
 }: {
-  image: ProductVariantFragment['image'];
+  image: ProductImage | null;
 }) {
   if (!image) {
     return <div className="product-image" />;

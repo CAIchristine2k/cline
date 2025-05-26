@@ -1,5 +1,4 @@
 import { useConfig } from '~/utils/themeContext';
-import { cssVars } from '~/lib/themeConfig';
 
 export function FooterLogo() {
   const config = useConfig();
@@ -13,9 +12,6 @@ export function FooterLogo() {
             src={config.brandLogo || "/images/footer-logo.png"}
             alt={`${config.brandName} Logo`}
             className="h-32 w-auto relative filter drop-shadow-glow"
-            style={{
-              filter: `drop-shadow(0 0 8px ${cssVars.primary}30)`
-            }}
           />
         </div>
       </a>

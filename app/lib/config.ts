@@ -76,6 +76,9 @@ export interface LandingPageConfig {
   // Shopify Store Configuration
   shopDomain: string;
   shopifyCollections?: any[]; // Shopify collections from API
+  shopify: {
+    featuredProducts: string[]; // Array of product handles that are featured
+  };
   
   // Products with Shopify integration
   products: ProductInfo[];
@@ -114,13 +117,13 @@ export const defaultConfig: LandingPageConfig = {
   influencerName: "Shane Mosley",
   influencerTitle: "Boxing Legend & 9-Time World Champion",
   influencerBio: "Known as 'Sugar' Shane Mosley, one of boxing's most decorated champions with titles in three weight divisions and a legacy of spectacular performances against the sport's greatest names.",
-  influencerImage: "https://images.unsplash.com/photo-1516150486159-4f71b8189d7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwxfHxib3hpbmclMjBjaGFtcGlvbiUyMHRyYWluaW5nfGVufDB8MHx8fDE3NDc4NjQ1Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+  influencerImage: "/images/influencer.jpeg",
   brandName: "SUGAR SHANE",
   brandLogo: "/images/logo.png",
 
   // Visual Theme
   brandStyle: "luxury",
-  heroBackgroundImage: "https://images.unsplash.com/photo-1516150486159-4f71b8189d7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDMwMTF8MHwxfHNlYXJjaHwxfHxib3hpbmclMjBjaGFtcGlvbiUyMHRyYWluaW5nfGVufDB8MHx8fDE3NDc4NjQ1Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+  heroBackgroundImage: "/images/hero-background.jpg",
   heroVideoUrl: "/videos/boxing-hero.mp4",
 
   // Content
@@ -178,6 +181,9 @@ export const defaultConfig: LandingPageConfig = {
 
   // Shopify Store Configuration
   shopDomain: "sugar-shane.myshopify.com",
+  shopify: {
+    featuredProducts: ["champion-gloves", "sugar-shane-hoodie"]
+  },
 
   // Products
   products: [
@@ -236,6 +242,12 @@ export const defaultConfig: LandingPageConfig = {
       title: "Light Middleweight Champion", 
       description: "Moved up in weight to capture the WBA and WBC light middleweight titles.",
       image: "/images/career-3.jpg"
+    },
+    {
+      title: "Professional Debut",
+      year: "1993",
+      description: "Made professional boxing debut, winning by TKO in the first round.",
+      image: "/images/career-highlight.jpeg"
     }
   ],
 
@@ -271,6 +283,13 @@ export const defaultConfig: LandingPageConfig = {
     salePrice: "$199.99"
   }
 };
+
+/**
+ * Initialize configuration with default values and any custom overrides
+ */
+export function initConfig(overrides: Partial<LandingPageConfig> = {}): LandingPageConfig {
+  return { ...defaultConfig, ...overrides };
+}
 
 /**
  * Get the current configuration - can be extended to support multiple influencers

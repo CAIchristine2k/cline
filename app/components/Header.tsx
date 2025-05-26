@@ -3,18 +3,18 @@ import { Menu, X, ChevronRight, ShoppingBag, Instagram, Twitter, Youtube, Facebo
 import { Link } from 'react-router';
 import { Logo } from './Logo';
 import { useConfig } from '~/utils/themeContext';
-import { useCart } from '~/hooks/useCart';
+import { useCart } from '~/providers/CartProvider';
 import { useAside } from './Aside';
 
 export function Header() {
   const config = useConfig();
-  const cart = useCart();
+  const { totalQuantity, openCart } = useCart();
   const { open } = useAside();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Get cart count
-  const cartCount = cart?.totalQuantity || 0;
+  const cartCount = totalQuantity || 0;
 
   // Build social links from config
   const socialLinks = Object.entries(config.socialLinks || {})
@@ -62,7 +62,8 @@ export function Header() {
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    open('cart');
+    // Use the openCart method from CartProvider
+    openCart();
   };
 
   return (

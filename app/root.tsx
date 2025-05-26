@@ -17,8 +17,8 @@ import {
 import {PageLayout} from '~/components/PageLayout';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import {useEffect} from 'react';
-import {initializeTheme} from '~/utils/themeConfig';
-import config from '~/utils/config';
+import {initializeTheme} from '~/lib/themeConfig';
+import config from '~/lib/config';
 import {ThemeProvider} from '~/utils/themeContext';
 import {CartProvider} from '~/providers/CartProvider';
 import {Aside} from '~/components/Aside';
@@ -37,25 +37,12 @@ export const links: LinksFunction = () => {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    // Google Fonts for theme compatibility
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.googleapis.com',
-    },
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.gstatic.com',
-      crossOrigin: 'anonymous',
-    },
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap',
-    },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
   ];
 };
 
-export const meta: MetaFunction<typeof loader> = ({data}) => {
+// Define meta tags statically to ensure consistency between server and client rendering
+export const meta: MetaFunction = () => {
   return [
     {title: `${config.brandName} - ${config.influencerTitle} | Official Store`},
     {name: 'description', content: `${config.influencerBio.substring(0, 160)}...`},
@@ -100,11 +87,10 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
  * fetched and rendered later, improving the initial page load performance.
  */
 function loadDeferredData({context}: LoaderFunctionArgs) {
-  const {storefront, customerAccount, cart, env} = context;
+  const {storefront, customerAccount, cart, env} = context || {};
 
   // defer the footer query (below the fold)
-  const footer = storefront
-    .query(FOOTER_QUERY, {
+  const footer = storefront?.query(FOOTER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
         footerMenuHandle: 'footer', // Adjust to your footer menu handle
@@ -114,11 +100,10 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
       // Log query errors, but don't throw them so the page can still render
       console.error(error);
       return null;
-    });
+    }) || Promise.resolve(null);
 
   // defer the header query (above the fold, but not critical)
-  const header = storefront
-    .query(HEADER_QUERY, {
+  const header = storefront?.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
         headerMenuHandle: 'main-menu', // Adjust to your header menu handle
@@ -127,14 +112,20 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     .catch((error) => {
       console.error(error);
       return null;
-    });
+    }) || Promise.resolve(null);
 
+  // Safely access cart - it might not be available during POST actions
+  const cartData = cart ? cart.get() : Promise.resolve(null);
+  
+  // Log the cart data for debugging purposes
+  console.log('Loading cart data:', cartData);
+  
   return {
     footer,
     header,
-    cart: cart.get(),
-    isLoggedIn: customerAccount.isLoggedIn(),
-    publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
+    cart: cartData,
+    isLoggedIn: customerAccount?.isLoggedIn() || Promise.resolve(false),
+    publicStoreDomain: env?.PUBLIC_STORE_DOMAIN || '',
   };
 }
 
@@ -189,6 +180,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
+        {/* Keep CSS variables consistent between server and client */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -221,9 +213,9 @@ export function Layout({children}: {children?: React.ReactNode}) {
                 --color-primary-800: #554616;
                 --color-primary-900: #2B230B;
                 
-                /* Typography */
-                --font-primary: 'Inter', system-ui, sans-serif;
-                --font-secondary: 'Montserrat', system-ui, sans-serif;
+                /* Typography - use system fonts instead of Google Fonts */
+                --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+                --font-secondary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
                 
                 /* Spacing scale */
                 --spacing-xs: 0.25rem;
@@ -261,14 +253,23 @@ export function Layout({children}: {children?: React.ReactNode}) {
       </head>
       <body>
         <ThemeProvider>
-          <CartProvider>
-            <Aside.Provider>
-              <PageLayout {...data}>{children}</PageLayout>
-            </Aside.Provider>
-          </CartProvider>
+          <Aside.Provider>
+            <CartProvider>
+              <PageLayout 
+                cart={data.cart}
+                header={data.header}
+                footer={data.footer}
+                isLoggedIn={data.isLoggedIn}
+                publicStoreDomain={data.publicStoreDomain}
+                layout={data.layout}
+              >
+                {children}
+              </PageLayout>
+              <ScrollRestoration nonce={nonce} />
+              <Scripts nonce={nonce} />
+            </CartProvider>
+          </Aside.Provider>
         </ThemeProvider>
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
       </body>
     </html>
   );

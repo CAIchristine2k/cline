@@ -60,66 +60,53 @@ export function PageLayout({
                   type="search"
                   className="w-full p-3 bg-gray-800 border border-primary/20 rounded-sm text-text placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                <button
-                  onClick={() => {
-                    window.location.href = inputRef?.current?.value
-                      ? `/search?q=${inputRef.current.value}`
-                      : `/search`;
-                  }}
-                  className="mt-2 bg-primary hover:bg-primary-600 text-background font-bold py-2 px-4 rounded-sm transition-colors duration-300"
-                >
-                  Search
-                </button>
               </div>
             )}
           </SearchFormPredictive>
           <SearchResultsPredictive>
-            {({items, total, term, state, closeSearch}) => (
-              <div>
-                {state === 'loading' && <p>Loading...</p>}
-                {items && (
-                  <div>
-                    <SearchResultsPredictive.Products
-                      products={items.products}
-                      closeSearch={closeSearch}
-                      term={term}
-                    />
-                    <SearchResultsPredictive.Collections
-                      collections={items.collections}
-                      closeSearch={closeSearch}
-                      term={term}
-                    />
-                    <SearchResultsPredictive.Pages
-                      pages={items.pages}
-                      closeSearch={closeSearch}
-                      term={term}
-                    />
-                    <SearchResultsPredictive.Articles
-                      articles={items.articles}
-                      closeSearch={closeSearch}
-                      term={term}
-                    />
-                  </div>
-                )}
-                {!total && term.current && (
-                  <SearchResultsPredictive.Empty term={term} />
-                )}
-              </div>
-            )}
+            {({term, items, closeSearch, total}) => {
+              return (
+                <div className="predictive-search">
+                  {items && total > 0 && (
+                    <div className="grid grid-cols-12 gap-4 mt-4">
+                      <SearchResultsPredictive.Products
+                        products={items.products || []}
+                        closeSearch={closeSearch}
+                        term={term}
+                      />
+                      <SearchResultsPredictive.Pages
+                        pages={items.pages || []}
+                        closeSearch={closeSearch}
+                        term={term}
+                      />
+                      <SearchResultsPredictive.Articles
+                        articles={items.articles || []}
+                        closeSearch={closeSearch}
+                        term={term}
+                      />
+                    </div>
+                  )}
+                  {total === 0 && term.current && (
+                    <SearchResultsPredictive.Empty term={term} />
+                  )}
+                </div>
+              );
+            }}
           </SearchResultsPredictive>
         </div>
       </Aside>
       
       <Aside type="cart" heading="CART">
-        {cart && (
-          <Suspense fallback={<p className="p-4 text-center">Loading cart...</p>}>
-            <Await resolve={cart}>
-              {(resolvedCart) => {
-                return <CartMain cart={resolvedCart} layout="aside" />;
-              }}
-            </Await>
-          </Suspense>
-        )}
+        <Suspense fallback={<div className="p-4 flex items-center justify-center h-full"><div className="w-10 h-10 border-t-2 border-r-2 border-primary rounded-full animate-spin"></div></div>}>
+          <Await resolve={cart || Promise.resolve(null)}>
+            {(resolvedCart) => {
+              console.log('Cart resolved in PageLayout:', resolvedCart);
+              // Ensure we have a valid cart object or null
+              const cartData = resolvedCart || null;
+              return <CartMain cart={cartData} layout="aside" />;
+            }}
+          </Await>
+        </Suspense>
       </Aside>
       
       <Aside type="mobile" heading="MENU">

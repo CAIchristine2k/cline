@@ -44,6 +44,12 @@ These principles are MANDATORY for all development in this codebase:
    - ALWAYS use configuration toggles (e.g., `showLimitedEdition`) to control feature visibility
    - NEVER implement redundant logic for showing/hiding features
 
+6. **Media Assets**:
+   - ALWAYS store image and video assets in the `/public` directory
+   - Use relative paths (e.g., `/images/logo.svg`) in the configuration
+   - For SVG assets, prefer inline SVG when the asset benefits from theme color variables
+   - For background videos, ensure they have a fallback image defined in the config
+
 Failing to follow these principles will result in:
 - Theme inconsistency
 - Broken customizability
@@ -65,7 +71,11 @@ Failing to follow these principles will result in:
     - `config.ts`: Central configuration file for the entire application
     - `themeConfig.ts`: Theme styling configuration and CSS variable generation
     - `themeContext.tsx`: React context for providing theme and config throughout the app
+  - `/providers`: React context providers
+    - `CartProvider.tsx`: Manages cart state and functionality
 - `/public`: Static assets
+  - `/images`: Image assets for the site (logo, product images, etc.)
+  - `/videos`: Video assets for hero backgrounds or product demonstrations
 - `/guides`: Documentation
 
 ### Key Configuration Files
@@ -100,6 +110,7 @@ This is the central configuration file for the entire application. It contains:
 - Social media links
 - Section visibility toggles (`showLimitedEdition`, `showCareerHighlights`, etc.)
 - Contact information
+- Shopify configuration (`featuredProducts`, `featuredCollections`, etc.)
 
 Example:
 ```typescript
@@ -124,6 +135,16 @@ export const defaultConfig: LandingPageConfig = {
   showCareerHighlights: true,
   showTestimonials: true,
   showSocialFeed: true,
+  
+  // Shopify Configuration
+  shopify: {
+    featuredProducts: ["product-handle-1", "product-handle-2"],
+    featuredCollections: [],
+    mainCollectionHandle: "all",
+    defaultSorting: "manual",
+    productsPerPage: 12,
+    enableCustomerAccounts: true,
+  },
   
   // ... more configuration options
 };
@@ -185,6 +206,144 @@ export function ExampleComponent() {
       <button className="bg-primary hover:bg-primary-600 text-black font-bold py-2 px-4 rounded-sm mt-4">
         {config.buttonText}
       </button>
+    </div>
+  );
+}
+```
+
+## Product Display Components
+
+The template includes several components for displaying products:
+
+1. **ProductCard.tsx**: Used in grids and product listings
+2. **ProductItem.tsx**: Alternative product card used in specific contexts
+3. **ProductShowcase.tsx**: Displays a grid of products with heading and CTA
+
+These components follow a consistent design language and must:
+
+1. Use the central theme system for styling
+2. Display badges (Sale, New, Featured) based on product tags and configuration
+3. Include consistent rating stars
+4. Properly format prices and show sale prices when available
+5. Include "Add to Cart" functionality using the AddToCartButton component
+
+Example usage of ProductShowcase:
+
+```tsx
+import { ProductShowcase } from '~/components/ProductShowcase';
+
+// In your component:
+<ProductShowcase
+  products={products}
+  title="EXCLUSIVE MERCHANDISE"
+  subtitle={`Premium quality products inspired by the legacy of ${config.influencerName}.`}
+/>
+```
+
+## Cart Functionality
+
+The cart system uses several key components:
+
+1. **CartProvider.tsx**: Manages cart state and provides cart functionality
+2. **CartMain.tsx**: Main cart component for displaying cart items
+3. **CartLineItem.tsx**: Individual cart line items
+4. **CartSummary.tsx**: Displays cart totals and checkout button
+5. **AddToCartButton.tsx**: Button for adding items to cart
+6. **Aside.tsx**: Slide-in panel for cart display
+
+The cart provider integrates with the Aside component for displaying the cart drawer.
+To add an item to the cart, use the AddToCartButton component:
+
+```tsx
+import { AddToCartButton } from '~/components/AddToCartButton';
+
+// In your component:
+<AddToCartButton 
+  lines={[{merchandiseId: variantId, quantity: 1}]}
+  className="bg-primary text-background py-2 px-4 rounded-sm"
+>
+  Add to Cart
+</AddToCartButton>
+```
+
+## Image and Media Implementation
+
+For proper image and video handling in the template:
+
+1. **File Organization**:
+   - Store all images in the `/public/images/` directory
+   - Store all videos in the `/public/videos/` directory
+   - Use SVG images for logos and icons when possible (allows theme color application)
+
+2. **Config References**:
+   - All image and video paths should be defined in the config file
+   - Use absolute paths relative to the public directory (e.g., `/images/logo.svg`)
+   - For hero sections with video, always provide an image fallback
+
+3. **Video Handling**:
+   - Add proper controls and accessibility for video elements
+   - Implement playback optimizations (lazy loading, preload="metadata")
+   - For autoplay videos, handle autoplay restrictions gracefully with fallbacks
+
+4. **SVG Best Practices**:
+   - For theme-sensitive SVGs, use currentColor for fill/stroke to inherit theme colors
+   - For complex SVGs, use the img tag with SVG files from the public directory
+   - For simple icons that change color with theme, consider inline SVG
+
+Example component with proper image/video handling:
+
+```tsx
+import { useConfig } from '~/utils/themeContext';
+import { useRef, useEffect } from 'react';
+
+export function HeroSection() {
+  const config = useConfig();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    // Handle autoplay restrictions
+    if (videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Video autoplay was prevented, fallback to poster image is shown
+        });
+      }
+    }
+  }, []);
+  
+  return (
+    <div className="relative h-screen overflow-hidden">
+      {config.heroVideoUrl ? (
+        <video
+          ref={videoRef}
+          poster={config.heroBackgroundImage}
+          className="absolute inset-0 w-full h-full object-cover"
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        >
+          <source src={config.heroVideoUrl} type="video/mp4" />
+          {/* Fallback to image if video fails */}
+        </video>
+      ) : (
+        <img 
+          src={config.heroBackgroundImage} 
+          alt={config.heroTitle}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      
+      <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+        <div className="text-white max-w-2xl">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">{config.heroTitle}</h1>
+          <p className="text-xl mb-8">{config.heroSubtitle}</p>
+          <button className="bg-primary hover:bg-primary-600 text-black font-bold py-3 px-8 rounded-sm">
+            {config.heroCta}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -252,10 +411,12 @@ The project uses a file-based routing system with Remix-style conventions:
 ## Key Components
 - `PageLayout.tsx`: Main layout component
 - `Header.tsx` and `Footer.tsx`: Site-wide navigation components
-- `ProductCard.tsx`, `ProductDetail.tsx`, etc.: Product-related components
+- `ProductCard.tsx`, `ProductDetail.tsx`: Product display components
+- `ProductShowcase.tsx`: Product grid display for featured products
 - `CartMain.tsx`, `CartSummary.tsx`: Shopping cart components
 - `Hero.tsx`: Main landing page hero section
 - `LimitedEdition.tsx`: Limited edition product section with countdown
+- `Aside.tsx`: Slide-in panel for cart, search, and mobile menu
 
 # React Router Import Rule for Hydrogen
 

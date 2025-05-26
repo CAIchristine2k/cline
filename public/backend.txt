@@ -1,0 +1,580 @@
+import { components } from '@/types/api';
+import request from '@/utils/request';
+
+/**
+ * 登录
+ */
+export const signin = async (
+    data: components['schemas']['ParamsUserSignin']
+) => {
+    const response = await request.post<
+        components['schemas']['Response_SchemaUserTokens_']
+    >(`/api/v1/user/authorize/signin`, data);
+    return response.data;
+};
+/**
+ * 注册
+ */
+export const signup = async (
+    data: components['schemas']['ParamsUserSignup']
+) => {
+    const response = await request.post<
+        components['schemas']['Response_SchemaUserTokens_']
+    >(`/api/v1/user/authorize/signup`, data);
+    return response.data;
+};
+/**
+ * 获取用户信息
+ */
+export const getUserProfile = async () => {
+    const response = await request.get<
+        components['schemas']['Response_SchemaUserOpen_']
+    >(`/api/v1/user/profile`);
+    return response.data;
+};
+
+
+
+import axios from 'axios';
+import { Message } from '@arco-design/web-vue';
+import { useStore } from '@/stores';
+import settings from '@/constants/settings';
+
+const request = axios.create({
+    baseURL: settings.api.baseUrl,
+    timeout: 10000,
+});
+
+request.interceptors.request.use(
+    (config) => {
+        const token = useStore().auth?.access_token;
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        config.headers['X-Application-Token'] = settings.api.applicationToken;
+        config.headers['X-MCP-Key'] = settings.api.applicationMcpKey;
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+request.interceptors.response.use(
+    (response) => {
+        const res = response.data;
+
+        if (res.code === '200') {
+            return response;
+        }
+
+        if (res.code === '1003') {
+            window.location.href = '/signin';
+            return Promise.reject(new Error('Login required'));
+        }
+
+        if (res.code === '9202' || res.code === '4000') {
+            return response;
+        }
+
+        Message.error(res.text || 'Request failed');
+        return Promise.reject(new Error(res.text || 'Request failed'));
+    },
+    (error) => {
+        Message.error(error.message || 'Request failed');
+        return Promise.reject(error);
+    }
+);
+
+export default request;
+
+
+import OSS from 'ali-oss';
+import { v4 as uuidv4 } from 'uuid';
+import { getUploadImage } from '@/api';
+
+const STATIC_DOMAIN = 'https://oss.xavvi.com';
+const fileTypeMap = {
+    image: '/aipod/images',
+    video: '/aipod/video',
+} as const;
+
+type FileType = keyof typeof fileTypeMap;
+
+const Upload = async (file: File, fileType: FileType): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const data = await getUploadImage({});
+            let options = {
+                ...data.data,
+                bucket: 'xavvi',
+                secure: true,
+                region: 'ap-southeast-1',
+            };
+            const client = new OSS({
+                accessKeyId: options.access_key_id,
+                accessKeySecret: options.access_key_secret,
+                stsToken: options.security_token,
+                bucket: options.bucket,
+                secure: options.secure,
+                region: options.region,
+                endpoint: 'oss-accelerate.aliyuncs.com',
+                refreshSTSToken: async () => {
+                    return {
+                        accessKeyId: data.data.access_key_id,
+                        accessKeySecret: data.data.access_key_secret,
+                        stsToken: data.data.security_token,
+                    };
+                },
+                refreshSTSTokenInterval: 3600 * 1000,
+            });
+            let pa = file.name.split('.');
+            let path =
+                fileTypeMap[fileType] +
+                '/' +
+                uuidv4() +
+                '.' +
+                pa[pa.length - 1];
+
+            if (fileType === 'video') {
+                const result = await client.multipartUpload(
+                    path,
+                    new Blob([file]),
+                    {
+                        parallel: 4,
+                        partSize: 1024 * 1024,
+                    }
+                );
+                resolve(STATIC_DOMAIN + result.name);
+            } else if (fileType === 'image') {
+                const result = await client.put(path, new Blob([file]));
+                resolve(STATIC_DOMAIN + '/' + result.name);
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+export default Upload;
+
+
+export default {
+    /*
+     * 应用配置
+     */
+    app: {
+        title: 'Xavvi Shop',
+        description: 'Xavvi Shop',
+        logo: 'https://www.xavvi.com/xavvi%20logo%20n%20slogan%20tr.svg',
+    },
+    api: {
+        baseUrl: 'https://api.xavvi.com',
+        applicationToken: 'd35c6dx0a4db4087b9e12593af57e0z1',
+        applicationMcpKey: '0j23HDs95FG63deg8sT8452fDV52j',
+    },
+    static: {
+        baseUrl: 'https://oss.xavvi.com/',
+    }
+}
+
+
+/**
+ * 上传图片
+ */
+export const getUploadImage = async (data: any) => {
+    const response = await request.post<any>(`/api/v1/base/oss/temp`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
+};
+
+/**
+ * 图生图
+ */
+export const getImage2Image = async (data: any) => {
+    const response = await request.post<any>(`/api/v1/pic/image2image`, data);
+    return response.data;
+};
+
+/**
+ * 生成图片结果查询
+ */
+export const getPicResult = async (data: any) => {
+    const response = await request.post<any>(`/api/v1/pic/result`, data);
+    return response.data;
+};
+
+/**
+ * 多图生成视频
+ */
+export const getMultiImageVideo = async (data: any) => {
+    const response = await request.post<any>(
+        `/api/v1/video/multi-image2video`,
+        data
+    );
+    return response.data;
+};
+
+/**
+ * 单图特效视频
+ */
+export const getOneImageEffectsVideo = async (data: any) => {
+    const response = await request.post<any>(
+        `/api/v1/video/effects/one-image2video`,
+        data
+    );
+    return response.data;
+};
+
+/**
+ * 多图特效视频
+ */
+export const getMultiImageEffectsVideo = async (data: any) => {
+    const response = await request.post<any>(
+        `/api/v1/video/effects/multi-image2video`,
+        data
+    );
+    return response.data;
+};
+
+/**
+ * 多图视频结果查询
+ */
+export const getVideoResult = async (data: any) => {
+    const response = await request.post<any>(`/api/v1/video/result`, data);
+    return response.data;
+};
+
+/**
+ * 特效视频结果查询
+ */
+export const getEffectsVideoResult = async (data: any) => {
+    const response = await request.post<any>(
+        `/api/v1/video/effects/result`,
+        data
+    );
+    return response.data;
+};
+
+/**
+ * 粉丝互动视频列表查询
+ */
+export const getVideoList = async (data: any) => {
+    const response = await request.post<any>(`/api/v1/video/list`, data);
+    return response.data;
+};
+
+
+{
+  "api": {
+    "baseUrl": "/v1",
+    "requestMethod": "POST",
+    "responseFormat": {
+      "code": "string",
+      "msg": "string",
+      "data": "object"
+    },
+    "headers": {
+      "language": "en-us"
+    },
+    "endpoints": {
+      "account": {
+        "sign": {
+          "url": "/account/sign",
+          "request": {
+            "nickname": "string",
+            "email": "string",
+            "password": "string",
+            "confirm_password": "string",
+            "account_country": "number"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {},
+            "success": true
+          }
+        },
+        "login": {
+          "url": "/account/login",
+          "request": {
+            "email": "string",
+            "password": "string"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {
+              "token": "string",
+              "uid": "string",
+              "avatar": "string",
+              "nickname": "string",
+              "email": "string"
+            },
+            "success": true
+          }
+        },
+        "logout": {
+          "url": "/account/logout",
+          "request": {},
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {},
+            "success": true
+          }
+        },
+        "forget": {
+          "url": "/account/forget",
+          "request": {
+            "email": "string"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {},
+            "success": true
+          }
+        },
+        "psd": {
+          "url": "/account/psd",
+          "request": {
+            "password": "string",
+            "confirm_password": "string"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {},
+            "success": true
+          }
+        }
+      },
+      "video": {
+        "multiImageVideo": {
+          "url": "/video/multi-image2video",
+          "request": {
+            "imgs": ["string"],
+            "prompt": "string",
+            "negative_prompt": "string"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {
+              "task_id": "string"
+            },
+            "success": true
+          }
+        },
+        "videoResult": {
+          "url": "/video/result",
+          "request": {
+            "task_id": "string"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {
+              "task_status": "number",
+              "task_result": "string",
+              "task_msg": "string"
+            },
+            "success": true
+          }
+        },
+        "list": {
+          "url": "/video/list",
+          "request": {
+            "video_type": "number",
+            "page": "number",
+            "pageSize": "number"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {
+              "total": "number",
+              "page": "number",
+              "pageSize": "number",
+              "list": [
+                {
+                  "task_type": "number",
+                  "parameters": "string",
+                  "task_status": "number",
+                  "task_msg": "string",
+                  "video_id": "string",
+                  "oss_result": "string",
+                  "create_time": "number"
+                }
+              ]
+            },
+            "success": true
+          }
+        }
+      },
+      "product": {
+        "list": {
+          "url": "/product/list",
+          "request": {
+            "product_name": "string",
+            "category_id": "number",
+            "page": "number",
+            "pageSize": "number"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {
+              "total": "number",
+              "page": "number",
+              "pageSize": "number",
+              "list": [
+                {
+                  "product_id": "number",
+                  "product_name": "string",
+                  "product_img": "string",
+                  "category_id": "number",
+                  "min_price_amount": "number",
+                  "max_price_amount": "number"
+                }
+              ]
+            },
+            "success": true
+          }
+        },
+        "detail": {
+          "url": "/product/detail",
+          "request": {
+            "product_id": "number"
+          },
+          "response": {
+            "code": "200",
+            "msg": "success",
+            "data": {
+              "product_id": "number",
+              "name": "string",
+              "category_id": "number",
+              "brand_id": "number",
+              "materials": [
+                {
+                  "id": "number",
+                  "url": "string"
+                }
+              ],
+              "attributes": [
+                {
+                  "id": "number",
+                  "name": "string",
+                  "values": [
+                    {
+                      "id": "number",
+                      "name": "string",
+                      "is_custom": "number"
+                    }
+                  ]
+                }
+              ],
+              "skus": [
+                {
+                  "id": "number",
+                  "price": "number",
+                  "quantity": "number",
+                  "seller_sku": "string",
+                  "product_identifier": "string",
+                  "product_identifier_type": "string",
+                  "properties": [
+                    {
+                      "id": "number",
+                      "name": "string",
+                      "value_id": "number",
+                      "value_name": "string"
+                    }
+                  ]
+                }
+              ],
+              "description": "string",
+              "spec": [
+                {
+                  "id": "number",
+                  "name": "string",
+                  "is_custom": "number",
+                  "values": [
+                    {
+                      "id": "number",
+                      "name": "string",
+                      "is_custom": "number",
+                      "image_id": "number",
+                      "image_url": "string"
+                    }
+                  ]
+                }
+              ],
+              "sizechart": {
+                "data": "number",
+                "type": "number"
+              },
+              "video": {
+                "id": "number",
+                "url": "string"
+              },
+              "manufacturer_id": "number",
+              "responsible_person_id": "number",
+              "safety": "string",
+              "weight_unit": "string",
+              "weight": "number",
+              "dimensions": {
+                "length": "number",
+                "width": "number",
+                "height": "number"
+              },
+              "single": {
+                "product_identifier": "string",
+                "product_identifier_type": "string",
+                "price": "number",
+                "quantity": "number",
+                "seller_sku": "string"
+              },
+              "sku_mappings": "object",
+              "spec_mappings": "object",
+              "category": {
+                "category_one": "number",
+                "category_two": "number",
+                "category_three": "number"
+              },
+              "min_price_amount": "number",
+              "max_price_amount": "number"
+            },
+            "success": true
+          }
+        }
+      }
+    },
+    "errorCodes": {
+      "200": "成功",
+      "201": "账户不存在",
+      "202": "账户已禁用",
+      "203": "密码错误",
+      "204": "邮箱已被绑定",
+      "205": "商品不存在",
+      "206": "视频不存在",
+      "207": "订单不存在",
+      "400": "请求无效",
+      "401": "缺少参数",
+      "402": "密码不一致",
+      "403": "用户未登录",
+      "404": "参数错误",
+      "405": "参数无效",
+      "500": "系统错误",
+      "501": "查询数据异常",
+      "502": "解析数据异常",
+      "503": "添加数据失败",
+      "504": "数据不存在",
+      "505": "更新数据失败",
+      "506": "无权限"
+    }
+  }
+} 

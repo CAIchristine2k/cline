@@ -1,5 +1,5 @@
 // Theme configuration system for Hydrogen - matches Vue template's theming
-import type { LandingPageConfig } from './config';
+import type {LandingPageConfig} from './config';
 
 export interface ThemeColors {
   primary: string;
@@ -9,7 +9,14 @@ export interface ThemeColors {
   text: string;
 }
 
-export type BrandStyle = "luxury" | "sporty" | "casual" | "technical" | "minimalist" | "vibrant" | "custom";
+export type BrandStyle =
+  | 'luxury'
+  | 'sporty'
+  | 'casual'
+  | 'technical'
+  | 'minimalist'
+  | 'vibrant'
+  | 'custom';
 
 export interface ThemeConfig {
   colors: ThemeColors;
@@ -29,82 +36,86 @@ export interface ThemeConfig {
   };
 }
 
-// Predefined color schemes that match Vue template
-export const colorSchemes: Record<Exclude<BrandStyle, "custom">, ThemeColors> = {
+// Predefined color schemes
+export const colorSchemes: Record<
+  Exclude<BrandStyle, 'custom'>,
+  ThemeColors
+> = {
   luxury: {
-    primary: "#D4AF37", // Gold
-    secondary: "#1F1F1F", // Dark gray
-    accent: "#FFFFFF", // White
-    background: "#000000", // Black
-    text: "#FFFFFF", // White
+    primary: '#D4AF37', // Gold
+    secondary: '#1F1F1F', // Dark gray
+    accent: '#FFFFFF', // White
+    background: '#000000', // Black
+    text: '#FFFFFF', // White
   },
   sporty: {
-    primary: "#FF4C29", // Energetic red
-    secondary: "#082032", // Navy blue
-    accent: "#00A8CC", // Bright blue
-    background: "#2C394B", // Dark blue-gray
-    text: "#FFFFFF", // White
+    primary: '#FF4C29', // Energetic red
+    secondary: '#082032', // Navy blue
+    accent: '#00A8CC', // Bright blue
+    background: '#2C394B', // Dark blue-gray
+    text: '#FFFFFF', // White
   },
   casual: {
-    primary: "#A5BECC", // Soft blue
-    secondary: "#F2F2F2", // Light gray
-    accent: "#DF7861", // Coral
-    background: "#FFFFFF", // White
-    text: "#333333", // Dark gray
+    primary: '#A5BECC', // Soft blue
+    secondary: '#F2F2F2', // Light gray
+    accent: '#DF7861', // Coral
+    background: '#FFFFFF', // White
+    text: '#333333', // Dark gray
   },
   technical: {
-    primary: "#00D1FF", // Bright cyan
-    secondary: "#1E1E1E", // Very dark gray
-    accent: "#FF008C", // Bright pink
-    background: "#121212", // Almost black
-    text: "#FFFFFF", // White
+    primary: '#00D1FF', // Bright cyan
+    secondary: '#1E1E1E', // Very dark gray
+    accent: '#FF008C', // Bright pink
+    background: '#121212', // Almost black
+    text: '#FFFFFF', // White
   },
   minimalist: {
-    primary: "#F5F5F5", // Off-white
-    secondary: "#E0E0E0", // Light gray
-    accent: "#333333", // Dark gray
-    background: "#FFFFFF", // White
-    text: "#121212", // Near black
+    primary: '#F5F5F5', // Off-white
+    secondary: '#E0E0E0', // Light gray
+    accent: '#333333', // Dark gray
+    background: '#FFFFFF', // White
+    text: '#121212', // Near black
   },
   vibrant: {
-    primary: "#FF6B6B", // Coral red
-    secondary: "#4ECDC4", // Turquoise
-    accent: "#FFE66D", // Yellow
-    background: "#292F36", // Dark blue-gray
-    text: "#F7FFF7", // Off-white
+    primary: '#FF6B6B', // Coral red
+    secondary: '#4ECDC4', // Turquoise
+    accent: '#FFE66D', // Yellow
+    background: '#292F36', // Dark blue-gray
+    text: '#F7FFF7', // Off-white
   },
 };
 
 // Default theme configuration
 const defaultTheme: ThemeConfig = {
   colors: colorSchemes.luxury,
-  brandName: "BRAND",
-  brandStyle: "luxury",
-  brandLogo: "/logo.svg",
-  influencerName: "Influencer Name",
-  influencerTitle: "Professional Title",
-  influencerImage: "/influencer.jpg",
+  brandName: 'BRAND',
+  brandStyle: 'luxury',
+  brandLogo: '/logo.svg',
+  influencerName: 'Influencer Name',
+  influencerTitle: 'Professional Title',
+  influencerImage: '/influencer.jpeg',
   socialLinks: {
-    instagram: "https://instagram.com/",
-    twitter: "https://twitter.com/",
-    youtube: "https://youtube.com/",
+    instagram: 'https://instagram.com/',
+    twitter: 'https://twitter.com/',
+    youtube: 'https://youtube.com/',
   },
 };
 
 // Current theme state
-let currentTheme: ThemeConfig = { ...defaultTheme };
+let currentTheme: ThemeConfig = {...defaultTheme};
 
 // Helper functions to customize theme
 export function setTheme(newTheme: Partial<ThemeConfig>): void {
-  currentTheme = { ...currentTheme, ...newTheme };
+  currentTheme = {...currentTheme, ...newTheme};
 
   // If brandStyle is provided and not 'custom', update colors to match the style
   if (
     newTheme.brandStyle &&
-    newTheme.brandStyle !== "custom" &&
+    newTheme.brandStyle !== 'custom' &&
     newTheme.brandStyle in colorSchemes
   ) {
-    currentTheme.colors = colorSchemes[newTheme.brandStyle as Exclude<BrandStyle, "custom">];
+    currentTheme.colors =
+      colorSchemes[newTheme.brandStyle as Exclude<BrandStyle, 'custom'>];
   }
 
   // Update CSS variables to apply theme colors (client-side only)
@@ -115,14 +126,15 @@ export function setTheme(newTheme: Partial<ThemeConfig>): void {
 
 // Set only the color theme
 export function setColorTheme(style: BrandStyle | ThemeColors): void {
-  if (typeof style === "string") {
-    if (style !== "custom" && style in colorSchemes) {
-      currentTheme.colors = colorSchemes[style as Exclude<BrandStyle, "custom">];
+  if (typeof style === 'string') {
+    if (style !== 'custom' && style in colorSchemes) {
+      currentTheme.colors =
+        colorSchemes[style as Exclude<BrandStyle, 'custom'>];
       currentTheme.brandStyle = style;
     }
-  } else if (typeof style === "object") {
-    currentTheme.colors = { ...currentTheme.colors, ...style };
-    currentTheme.brandStyle = "custom";
+  } else if (typeof style === 'object') {
+    currentTheme.colors = {...currentTheme.colors, ...style};
+    currentTheme.brandStyle = 'custom';
   }
 
   if (typeof document !== 'undefined') {
@@ -130,89 +142,102 @@ export function setColorTheme(style: BrandStyle | ThemeColors): void {
   }
 }
 
-// Helper function to convert hex to RGB
-function hexToRgb(hex: string): string {
-  // Remove # if present
-  hex = hex.replace('#', '');
-  
-  // Convert to RGB
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  
-  return `${r}, ${g}, ${b}`;
-}
-
 // Update CSS custom properties (variables) based on theme colors
 function updateCssVariables(colors: ThemeColors): void {
   const root = document.documentElement;
 
   // Set main colors as CSS variables
-  root.style.setProperty("--color-primary", colors.primary);
-  root.style.setProperty("--color-secondary", colors.secondary);
-  root.style.setProperty("--color-accent", colors.accent);
-  root.style.setProperty("--color-background", colors.background);
-  root.style.setProperty("--color-text", colors.text);
-  
-  // Set RGB versions for shadows and opacity effects
-  root.style.setProperty("--color-primary-rgb", hexToRgb(colors.primary));
-  root.style.setProperty("--color-secondary-rgb", hexToRgb(colors.secondary));
+  root.style.setProperty('--color-primary', colors.primary);
+  root.style.setProperty('--color-secondary', colors.secondary);
+  root.style.setProperty('--color-accent', colors.accent);
+  root.style.setProperty('--color-background', colors.background);
+  root.style.setProperty('--color-text', colors.text);
 
-  // Set additional variables for Tailwind CSS with shades
-  const primaryShades = generateColorShades(colors.primary);
-  const secondaryShades = generateColorShades(colors.secondary);
+  // Set additional variables for Tailwind CSS
+  root.style.setProperty(
+    '--color-primary-50',
+    adjustColorBrightness(colors.primary, 0.85),
+  );
+  root.style.setProperty(
+    '--color-primary-100',
+    adjustColorBrightness(colors.primary, 0.7),
+  );
+  root.style.setProperty(
+    '--color-primary-200',
+    adjustColorBrightness(colors.primary, 0.55),
+  );
+  root.style.setProperty(
+    '--color-primary-300',
+    adjustColorBrightness(colors.primary, 0.4),
+  );
+  root.style.setProperty(
+    '--color-primary-400',
+    adjustColorBrightness(colors.primary, 0.2),
+  );
+  root.style.setProperty('--color-primary-500', colors.primary);
+  root.style.setProperty(
+    '--color-primary-600',
+    adjustColorBrightness(colors.primary, -0.2),
+  );
+  root.style.setProperty(
+    '--color-primary-700',
+    adjustColorBrightness(colors.primary, -0.4),
+  );
+  root.style.setProperty(
+    '--color-primary-800',
+    adjustColorBrightness(colors.primary, -0.6),
+  );
+  root.style.setProperty(
+    '--color-primary-900',
+    adjustColorBrightness(colors.primary, -0.8),
+  );
 
-  // Primary color shades
-  Object.entries(primaryShades).forEach(([shade, color]) => {
-    root.style.setProperty(`--color-primary-${shade}`, color);
-    
-    // Add RGB versions of each shade
-    root.style.setProperty(`--color-primary-${shade}-rgb`, hexToRgb(color));
-  });
-
-  // Secondary color shades
-  Object.entries(secondaryShades).forEach(([shade, color]) => {
-    root.style.setProperty(`--color-secondary-${shade}`, color);
-    
-    // Add RGB versions of each shade
-    root.style.setProperty(`--color-secondary-${shade}-rgb`, hexToRgb(color));
-  });
-
-  // Set gold color variables (for luxury theme compatibility)
-  if (colors.primary === "#D4AF37") {
-    root.style.setProperty("--color-gold-500", colors.primary);
-    root.style.setProperty("--color-gold-400", "#E5C158");
-    root.style.setProperty("--color-gold-600", "#BF9B2F");
-    
-    // RGB versions
-    root.style.setProperty("--color-gold-500-rgb", hexToRgb(colors.primary));
-    root.style.setProperty("--color-gold-400-rgb", hexToRgb("#E5C158"));
-    root.style.setProperty("--color-gold-600-rgb", hexToRgb("#BF9B2F"));
-  }
-}
-
-// Generate color shades for a base color
-function generateColorShades(baseColor: string): Record<string, string> {
-  const shades: Record<string, string> = {};
-  const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
-  const factors = [0.85, 0.7, 0.55, 0.4, 0.2, 0, -0.2, -0.4, -0.6, -0.8];
-
-  steps.forEach((step, index) => {
-    shades[step.toString()] = adjustColorBrightness(baseColor, factors[index]);
-  });
-
-  return shades;
+  // Do the same for secondary colors
+  root.style.setProperty(
+    '--color-secondary-50',
+    adjustColorBrightness(colors.secondary, 0.85),
+  );
+  root.style.setProperty(
+    '--color-secondary-100',
+    adjustColorBrightness(colors.secondary, 0.7),
+  );
+  root.style.setProperty(
+    '--color-secondary-200',
+    adjustColorBrightness(colors.secondary, 0.55),
+  );
+  root.style.setProperty(
+    '--color-secondary-300',
+    adjustColorBrightness(colors.secondary, 0.4),
+  );
+  root.style.setProperty(
+    '--color-secondary-400',
+    adjustColorBrightness(colors.secondary, 0.2),
+  );
+  root.style.setProperty('--color-secondary-500', colors.secondary);
+  root.style.setProperty(
+    '--color-secondary-600',
+    adjustColorBrightness(colors.secondary, -0.2),
+  );
+  root.style.setProperty(
+    '--color-secondary-700',
+    adjustColorBrightness(colors.secondary, -0.4),
+  );
+  root.style.setProperty(
+    '--color-secondary-800',
+    adjustColorBrightness(colors.secondary, -0.6),
+  );
+  root.style.setProperty(
+    '--color-secondary-900',
+    adjustColorBrightness(colors.secondary, -0.8),
+  );
 }
 
 // Helper function to adjust color brightness
 function adjustColorBrightness(hex: string, factor: number): string {
-  // Remove # if present
-  hex = hex.replace('#', '');
-  
   // Convert hex to RGB
-  let r = parseInt(hex.substring(0, 2), 16);
-  let g = parseInt(hex.substring(2, 4), 16);
-  let b = parseInt(hex.substring(4, 6), 16);
+  let r = parseInt(hex.substring(1, 3), 16);
+  let g = parseInt(hex.substring(3, 5), 16);
+  let b = parseInt(hex.substring(5, 7), 16);
 
   // Adjust brightness
   r = Math.min(255, Math.max(0, Math.round(r + factor * 255)));
@@ -220,8 +245,67 @@ function adjustColorBrightness(hex: string, factor: number): string {
   b = Math.min(255, Math.max(0, Math.round(b + factor * 255)));
 
   // Convert back to hex
-  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+  return `#${r.toString(16).padStart(2, '0')}${g
+    .toString(16)
+    .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
+
+// Helper function to convert hex to RGB
+export function hexToRgb(hex: string): string {
+  // Remove # if present
+  hex = hex.replace('#', '');
+
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  return `${r}, ${g}, ${b}`;
+}
+
+// CSS variables for easy access in components - with safety checks
+export const cssVars = {
+  get primary() {
+    if (typeof document === 'undefined') return currentTheme.colors.primary;
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-primary')
+        .trim() || currentTheme.colors.primary
+    );
+  },
+  get secondary() {
+    if (typeof document === 'undefined') return currentTheme.colors.secondary;
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-secondary')
+        .trim() || currentTheme.colors.secondary
+    );
+  },
+  get accent() {
+    if (typeof document === 'undefined') return currentTheme.colors.accent;
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-accent')
+        .trim() || currentTheme.colors.accent
+    );
+  },
+  get background() {
+    if (typeof document === 'undefined') return currentTheme.colors.background;
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-background')
+        .trim() || currentTheme.colors.background
+    );
+  },
+  get text() {
+    if (typeof document === 'undefined') return currentTheme.colors.text;
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-text')
+        .trim() || currentTheme.colors.text
+    );
+  },
+};
 
 // Initialize theme from config
 export function initThemeFromConfig(config: LandingPageConfig): void {
@@ -240,6 +324,17 @@ export function initThemeFromConfig(config: LandingPageConfig): void {
 export function initializeTheme(): void {
   if (typeof document !== 'undefined') {
     updateCssVariables(currentTheme.colors);
+
+    // Set RGB versions for shadows and opacity
+    const root = document.documentElement;
+    root.style.setProperty(
+      '--color-primary-rgb',
+      hexToRgb(currentTheme.colors.primary),
+    );
+    root.style.setProperty(
+      '--color-secondary-rgb',
+      hexToRgb(currentTheme.colors.secondary),
+    );
   }
 }
 
@@ -252,19 +347,5 @@ export function getTheme(): ThemeConfig {
 export function getThemeColors(): ThemeColors {
   return currentTheme.colors;
 }
-
-// CSS variable names for easy reference
-export const cssVars = {
-  primary: 'var(--color-primary)',
-  secondary: 'var(--color-secondary)', 
-  accent: 'var(--color-accent)',
-  background: 'var(--color-background)',
-  text: 'var(--color-text)',
-  gold: {
-    400: 'var(--color-gold-400)',
-    500: 'var(--color-gold-500)',
-    600: 'var(--color-gold-600)',
-  }
-} as const;
 
 export default currentTheme;
