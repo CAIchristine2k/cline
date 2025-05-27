@@ -330,7 +330,7 @@ export default function ProductCustomizer() {
     setIsUploading(true);
     
     try {
-      // Upload to Cloudinary first
+      // Upload to Cloudinary
       const uploadResult = await uploadFileToCloudinary(file, {
         folder: 'user-uploads'
       });
@@ -338,7 +338,7 @@ export default function ProductCustomizer() {
       if (uploadResult.success && uploadResult.url) {
         const newImage = {
           id: `image-${Date.now()}`,
-          src: uploadResult.url, // Use Cloudinary URL instead of data URL
+          src: uploadResult.url,
           name: file.name
         };
         
@@ -667,21 +667,12 @@ export default function ProductCustomizer() {
     // User is logged in, proceed with AI generation
     setIsAIGenerating(true);
     
-    try {
+        try {
       // Use the first uploaded image as the user image
-      const userImageUrl = uploadedImages[0].src;
+      const firstImage = uploadedImages[0];
       
-      // Convert image URL to base64 for the API
-      const response = await fetch(userImageUrl);
-      const blob = await response.blob();
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          resolve(result.split(',')[1]); // Remove data:image/jpeg;base64, prefix
-        };
-        reader.readAsDataURL(blob);
-      });
+      // Send the Cloudinary URL to the server - server will fetch and convert to base64
+      const userImageUrl = firstImage.src;
 
       // Make the API call to generate AI content
       const aiResponse = await fetch('/api/ai-media-generation', {
@@ -689,13 +680,13 @@ export default function ProductCustomizer() {
         headers: {
           'Content-Type': 'application/json',
         },
-                 body: JSON.stringify({
-           userImage: base64,
-           influencerImage: config.aiMediaGeneration?.influencerReferenceImage,
-           pose: 'training', // Default pose
-           productImage: params.productHandle, // Use current product handle
-         }),
-       });
+        body: JSON.stringify({
+          userImageUrl: userImageUrl, // Send URL instead of base64
+          influencerImage: config.aiMediaGeneration?.influencerReferenceImage,
+          pose: 'training', // Default pose
+          productImage: params.productHandle, // Use current product handle
+        }),
+      });
 
        const aiResult = await aiResponse.json() as AIGenerationResponse;
       

@@ -69,7 +69,8 @@ async function generateKlingToken(): Promise<string> {
 
 // Make the request body interface more flexible
 interface AIGenerationRequest {
-  userImage: string;
+  userImage?: string; // Legacy: base64 data
+  userImageUrl?: string; // New: Cloudinary URL to fetch
   influencerImage?: string;
   pose?: string;
   productImage?: string;
@@ -139,10 +140,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
     // Parse request body with the new parameters
     const body = await request.json() as AIGenerationRequest;
-    const { userImage, influencerImage, pose, productImage } = body;
+    const { userImage, userImageUrl, influencerImage, pose, productImage } = body;
 
-    if (!userImage) {
-      return new Response(JSON.stringify({ message: 'User image is required' }), { 
+    if (!userImage && !userImageUrl) {
+      return new Response(JSON.stringify({ message: 'User image or image URL is required' }), { 
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -160,12 +161,47 @@ export async function action({ request, context }: ActionFunctionArgs) {
     // Generate JWT token for KlingAI
     const token = await generateKlingToken();
 
+    // Get the user image as base64
+    let userImageBase64: string;
+    
+    if (userImage) {
+      // Use provided base64 data (legacy)
+      userImageBase64 = userImage;
+    } else if (userImageUrl) {
+      // Fetch from Cloudinary and convert to base64 (new approach)
+      try {
+        const imageResponse = await fetch(userImageUrl);
+        if (!imageResponse.ok) {
+          throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+        }
+        
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
+        userImageBase64 = base64;
+      } catch (error) {
+        console.error('Failed to fetch user image:', error);
+        return new Response(JSON.stringify({ 
+          message: 'Failed to fetch user image from URL' 
+        }), { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    } else {
+      return new Response(JSON.stringify({ 
+        message: 'No user image provided' 
+      }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // Prepare the request to KlingAI
     // For virtual try-on, we'll use the product image as the cloth_image
     // For poses, we could use different reference images based on the pose
     const klingRequest: Record<string, any> = {
       model_name: 'kolors-virtual-try-on-v1',
-      human_image: userImage,
+      human_image: userImageBase64,
     };
 
     // Handle different pose types and virtual try-on
