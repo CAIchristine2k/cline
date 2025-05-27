@@ -154,7 +154,8 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-24">
+      {/* Add padding-top to account for fixed header */}
+      <div className="cart-page-container container mx-auto px-4" style={{ paddingTop: 'calc(var(--header-height-desktop) + 2rem)', paddingBottom: '2rem' }}>
         <h1 className="text-3xl font-bold text-primary mb-8 text-center">
           {cartEmpty ? 'Your Cart is Empty' : 'Your Cart'}
         </h1>

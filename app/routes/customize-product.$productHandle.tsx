@@ -92,6 +92,8 @@ interface LoaderData {
   product: Product;
   customVariant: ProductVariant;
   isOutOfStock: boolean;
+  isLoggedIn: boolean;
+  customer?: any;
 }
 
 // Loader function to fetch product data
@@ -121,27 +123,60 @@ export async function loader({ params, context }: LoaderFunctionArgs) {
     throw new Response('This product does not support customization', { status: 404 });
   }
 
+  // Check authentication status
+  let isLoggedIn = false;
+  let customer = null;
+  
+  try {
+    isLoggedIn = await context.customerAccount.isLoggedIn();
+    if (isLoggedIn) {
+      // Get customer data if logged in
+      const { data } = await context.customerAccount.query(`
+        query CustomerInfo {
+          customer {
+            id
+            firstName
+            lastName
+            email
+          }
+        }
+      `);
+      customer = data?.customer;
+    }
+  } catch (error) {
+    console.log('Auth check failed:', error);
+    // Continue without auth - will show login prompt when needed
+  }
+
   return new Response(JSON.stringify({ 
     product,
     customVariant,
-    isOutOfStock: !customVariant.availableForSale
+    isOutOfStock: !customVariant.availableForSale,
+    isLoggedIn,
+    customer
   }), { 
     headers: { 'Content-Type': 'application/json' }
   });
 }
 
 export default function ProductCustomizer() {
-  const { product, customVariant, isOutOfStock } = useLoaderData<LoaderData>();
+  const { product, customVariant, isOutOfStock, isLoggedIn, customer } = useLoaderData<LoaderData>();
   const config = useConfig();
   const params = useParams();
   
-  // Debug customVariant
-  console.log('CustomVariant details:', {
-    id: customVariant.id,
-    title: customVariant.title,
-    availableForSale: customVariant.availableForSale,
-    price: customVariant.price,
-    isOutOfStock
+  // Debug customVariant and auth
+  console.log('ProductCustomizer loaded:', {
+    customVariant: {
+      id: customVariant.id,
+      title: customVariant.title,
+      availableForSale: customVariant.availableForSale,
+      price: customVariant.price,
+      isOutOfStock
+    },
+    auth: {
+      isLoggedIn,
+      customer: customer ? { id: customer.id, firstName: customer.firstName, email: customer.email } : null
+    }
   });
   const stageRef = useRef<StageType | null>(null);
   const transformerRef = useRef<TransformerType | null>(null);
@@ -293,7 +328,11 @@ export default function ProductCustomizer() {
           name: file.name
         };
         
+        // Add to uploaded images gallery
         setUploadedImages(prev => [...prev, newImage]);
+        
+        // Automatically add the uploaded image to the canvas in the center
+        addImageToCanvas(uploadResult.url);
       } else {
         console.error('Failed to upload image:', uploadResult.error);
         alert('Failed to upload image. Please try again.');
@@ -317,12 +356,19 @@ export default function ProductCustomizer() {
         ? maxDim / img.width 
         : maxDim / img.height;
       
-      // Add image to center of stage
+      // Calculate scaled image dimensions
+      const scaledWidth = img.width * scale;
+      const scaledHeight = img.height * scale;
+      
+      // Position image so its center is at the center of the stage
+      const centerX = stageSize.width / 2;
+      const centerY = stageSize.height / 2;
+      
       const newElement: CustomElement = {
         id: `canvas-image-${Date.now()}`,
         type: 'image',
-        x: stageSize.width / 2,
-        y: stageSize.height / 2,
+        x: centerX - (scaledWidth / 2),
+        y: centerY - (scaledHeight / 2),
         width: img.width,
         height: img.height,
         scaleX: scale,
@@ -591,10 +637,30 @@ export default function ProductCustomizer() {
     }
   };
 
-  const generateWithAI = () => {
-    // This would trigger the AI generation flow
-    // For now just show the auth prompt
-    setShowAIPrompt(true);
+  const generateWithAI = async () => {
+    // Check if user is logged in first
+    if (!isLoggedIn) {
+      setShowAIPrompt(true);
+      return;
+    }
+
+    // User is logged in, proceed with AI generation
+    setIsAIGenerating(true);
+    
+    try {
+      // TODO: Implement actual AI generation logic here
+      // For now, show a success message
+      alert(`Welcome ${customer?.firstName || 'User'}! AI generation feature coming soon!`);
+      
+      // This is where you would integrate with your AI generation API
+      // const response = await fetch('/api/ai-generation', { ... });
+      
+    } catch (error) {
+      console.error('AI generation failed:', error);
+      alert('AI generation failed. Please try again.');
+    } finally {
+      setIsAIGenerating(false);
+    }
   };
 
   // Handle click outside elements to deselect
@@ -684,13 +750,11 @@ export default function ProductCustomizer() {
                 ← Back to Editor
               </button>
             </div>
-            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-6 shadow-md">
-              <AuthPrompt
-                title="Sign In Required for AI Generation"
-                message={`Sign in to generate AI customized products with ${config.influencerName}.`}
-                returnUrl={`/customize-product/${params.productHandle}`}
-              />
-            </div>
+            <AuthPrompt
+              title="Sign In Required for AI Generation"
+              message={`Sign in to generate AI customized products with ${config.influencerName}.`}
+              returnUrl={`/customize-product/${params.productHandle}`}
+            />
           </div>
         </div>
       </section>
@@ -710,36 +774,74 @@ export default function ProductCustomizer() {
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
             Customize Your {product.title}
           </h1>
-          <p className="text-gray-300 max-w-2xl mx-auto mb-6">
+          <p className="text-gray-300 max-w-2xl mx-auto mb-4">
             Add your photos, text, and designs to create a unique custom product.
           </p>
+          
+          {/* Authentication Status */}
+          {isLoggedIn && customer && (
+            <div className="bg-green-600/20 border border-green-600/30 rounded-lg px-4 py-2 mx-auto mb-6 max-w-md">
+              <p className="text-green-400 text-sm text-center">
+                ✅ Logged in as <strong>{customer.firstName || customer.email}</strong> - AI features available!
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Sidebar - Tools */}
+          {/* Simplified Sidebar */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Media Tools Panel */}
+            {/* Quick Add Section */}
             <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-4 shadow-md">
-              <h3 className="text-lg font-bold text-white mb-4">Add Media</h3>
-              
-              {/* Upload Button */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {/* Upload Button - More prominent */}
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="bg-primary hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-3 px-3 rounded-lg transition-colors flex flex-col items-center justify-center h-20"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mb-1 animate-spin" />
+                      <span className="text-xs">Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 mb-1" />
+                      <span className="text-xs">Add Photo</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Text Button */}
+                <button 
+                  onClick={() => setShowTextControls(true)}
+                  className="bg-secondary hover:bg-secondary/60 text-white border border-primary/20 py-3 px-3 rounded-lg transition-colors flex flex-col items-center justify-center h-20"
+                >
+                  <Type className="w-5 h-5 mb-1" />
+                  <span className="text-xs">Add Text</span>
+                </button>
+              </div>
+
+              {/* AI Generation */}
               <button 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="w-full mb-3 bg-secondary hover:bg-secondary/60 disabled:opacity-50 disabled:cursor-not-allowed text-white border border-primary/20 py-2 px-4 rounded-md transition-colors flex items-center justify-center"
+                onClick={generateWithAI}
+                disabled={isAIGenerating}
+                className="w-full bg-gradient-to-r from-purple-600 to-primary hover:from-purple-700 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
               >
-                {isUploading ? (
+                {isAIGenerating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Uploading...
+                    Generating...
                   </>
                 ) : (
                   <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Image
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {isLoggedIn ? `Generate with AI ✨` : `Login for AI Generation✨`}
                   </>
                 )}
               </button>
+              
               <input
                 ref={fileInputRef}
                 type="file"
@@ -748,242 +850,270 @@ export default function ProductCustomizer() {
                 className="hidden"
               />
 
-              {/* Text Button */}
-              <button 
-                onClick={() => setShowTextControls(true)}
-                className="w-full mb-3 bg-secondary hover:bg-secondary/60 text-white border border-primary/20 py-2 px-4 rounded-md transition-colors flex items-center justify-center"
-              >
-                <Type className="w-4 h-4 mr-2" />
-                Add Text
-              </button>
-
-              {/* AI Generation - Requires Auth */}
-              <button 
-                onClick={generateWithAI}
-                className="w-full mb-3 bg-primary hover:bg-primary-600 text-background font-bold py-2 px-4 rounded-md transition-colors flex items-center justify-center"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate with AI
-              </button>
-              
-              {/* Show Text Controls when active */}
+              {/* Simple Text Controls */}
               {showTextControls && (
-                <div className="mt-4 p-3 bg-secondary/60 rounded-md border border-primary/10">
+                <div className="mt-4 p-4 bg-white/5 rounded-lg border border-primary/10">
                   <input
                     type="text"
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}
-                    placeholder="Enter your text..."
-                    className="w-full mb-2 px-3 py-2 bg-secondary/80 border border-primary/20 rounded-md text-white placeholder:text-gray-400"
+                    placeholder="Type your text here..."
+                    className="w-full mb-3 px-3 py-2 bg-secondary/80 border border-primary/20 rounded-lg text-white placeholder:text-gray-400"
                   />
                   
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    <div>
-                      <label className="text-xs text-gray-300 block mb-1">Font</label>
-                      <select
-                        value={selectedFont}
-                        onChange={(e) => setSelectedFont(e.target.value)}
-                        className="w-full px-2 py-1 bg-secondary/80 border border-primary/20 rounded-md text-white text-sm"
-                      >
-                        <option value="Arial">Arial</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Impact">Impact</option>
-                        <option value="Comic Sans MS">Comic Sans</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-300 block mb-1">Size</label>
-                      <input
-                        type="number"
-                        value={fontSize}
-                        onChange={(e) => setFontSize(Number(e.target.value))}
-                        min="8"
-                        max="72"
-                        className="w-full px-2 py-1 bg-secondary/80 border border-primary/20 rounded-md text-white text-sm"
-                      />
-                    </div>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    <select
+                      value={selectedFont}
+                      onChange={(e) => setSelectedFont(e.target.value)}
+                      className="px-2 py-1 bg-secondary/80 border border-primary/20 rounded text-white text-sm"
+                    >
+                      <option value="Arial">Arial</option>
+                      <option value="Impact">Bold</option>
+                      <option value="Times New Roman">Serif</option>
+                      <option value="Comic Sans MS">Fun</option>
+                    </select>
+                    
+                    <input
+                      type="range"
+                      value={fontSize}
+                      onChange={(e) => setFontSize(Number(e.target.value))}
+                      min="12"
+                      max="48"
+                      className="col-span-2"
+                      title={`Size: ${fontSize}px`}
+                    />
                   </div>
                   
-                  <div className="mb-3">
-                    <label className="text-xs text-gray-300 block mb-1">Color</label>
-                    <div className="flex space-x-2">
-                      {['#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'].map(color => (
-                        <div 
-                          key={color}
-                          onClick={() => setSelectedColor(color)}
-                          className={`w-6 h-6 rounded-full cursor-pointer ${selectedColor === color ? 'ring-2 ring-primary' : ''}`}
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                      <input
-                        type="color"
-                        value={selectedColor}
-                        onChange={(e) => setSelectedColor(e.target.value)}
-                        className="w-6 h-6 rounded-full"
+                  <div className="flex space-x-2 mb-3">
+                    {['#ffffff', '#000000', '#ff0000', '#0066ff', '#ffff00'].map(color => (
+                      <button 
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`w-8 h-8 rounded-full border-2 ${selectedColor === color ? 'border-primary scale-110' : 'border-white/20'}`}
+                        style={{ backgroundColor: color }}
                       />
-                    </div>
+                    ))}
+                    <input
+                      type="color"
+                      value={selectedColor}
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                      className="w-8 h-8 rounded-full"
+                    />
                   </div>
                   
                   <div className="flex space-x-2">
                     <button
                       onClick={addTextToCanvas}
-                      className="flex-1 bg-primary hover:bg-primary-600 text-background font-bold py-1 px-3 rounded-md text-sm"
+                      className="flex-1 bg-primary hover:bg-primary-600 text-background font-bold py-2 px-3 rounded-lg"
                     >
-                      Add
+                      Add Text
                     </button>
                     <button
                       onClick={() => setShowTextControls(false)}
-                      className="flex-1 bg-secondary hover:bg-secondary/80 text-white border border-primary/10 py-1 px-3 rounded-md text-sm"
+                      className="px-3 py-2 text-gray-400 hover:text-white"
                     >
-                      Cancel
+                      ✕
                     </button>
                   </div>
                 </div>
               )}
               
-              {/* Uploaded Images Gallery */}
+              {/* Your Photos */}
               {uploadedImages.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="text-sm font-bold text-white mb-2">Your Images</h4>
-                  <div className="grid grid-cols-3 gap-2">
+                  <h4 className="text-sm text-white mb-3">📷 Your Photos</h4>
+                  <div className="grid grid-cols-4 gap-2">
                     {uploadedImages.map((img) => (
-                      <div 
+                      <button 
                         key={img.id}
                         onClick={() => addImageToCanvas(img.src)}
-                        className="relative rounded overflow-hidden h-16 border border-primary/20 cursor-pointer hover:border-primary/50 transition-all"
+                        className="relative rounded-lg overflow-hidden h-16 border-2 border-primary/20 hover:border-primary transition-all hover:scale-105"
+                        title="Click to add to design"
                       >
                         <img 
                           src={img.src} 
                           alt={img.name}
                           className="w-full h-full object-cover"
                         />
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
               )}
             </div>
             
-            {/* Element Controls Panel */}
-            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-4 shadow-md">
-              <h3 className="text-lg font-bold text-white mb-4">Element Controls</h3>
-              
-              {selectedId ? (
-                <div className="space-y-3">
-                  {/* Layer Controls */}
-                                      <div className="mb-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs text-gray-300">Layer Position</label>
-                        <span className="text-xs text-primary font-semibold">
-                          {elements.find(el => el.id === selectedId)?.zIndex !== undefined ? (elements.find(el => el.id === selectedId)!.zIndex + 1) : 0} of {elements.length}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={bringForward}
-                          disabled={elements.length === 0 || !selectedId || (elements.length > 0 && elements.find(el => el.id === selectedId)?.zIndex === Math.max(...elements.map(el => el.zIndex)))}
-                          className="bg-secondary hover:bg-secondary/60 disabled:opacity-50 disabled:cursor-not-allowed text-white border border-primary/20 py-2 px-3 rounded-md transition-colors flex items-center justify-center text-sm"
-                        >
-                          ↑ Forward
-                        </button>
-                        <button
-                          onClick={sendBackward}
-                          disabled={elements.length === 0 || !selectedId || (elements.length > 0 && elements.find(el => el.id === selectedId)?.zIndex === Math.min(...elements.map(el => el.zIndex)))}
-                          className="bg-secondary hover:bg-secondary/60 disabled:opacity-50 disabled:cursor-not-allowed text-white border border-primary/20 py-2 px-3 rounded-md transition-colors flex items-center justify-center text-sm"
-                        >
-                          ↓ Backward
-                        </button>
-                      </div>
-                    </div>
-                  
-                  <button
-                    onClick={deleteSelectedElement}
-                    className="w-full bg-red-600/70 hover:bg-red-600/90 text-white py-2 px-4 rounded-md transition-colors flex items-center justify-center"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Element
-                  </button>
-                  
-                  {/* Aspect Ratio Lock */}
-                  <div className="mb-3">
-                    <label className="flex items-center justify-between text-xs text-gray-300">
-                      <span>Aspect Ratio Lock</span>
-                      <button
-                        onClick={() => setKeepAspectRatio(!keepAspectRatio)}
-                        className={`text-xs px-2 py-1 rounded ${keepAspectRatio ? 'bg-primary text-background' : 'bg-secondary/60 text-white border border-primary/20'}`}
-                      >
-                        {keepAspectRatio ? '🔒 Locked' : '🔓 Unlocked'}
-                      </button>
-                    </label>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {keepAspectRatio 
-                        ? 'Maintain width-to-height ratio when resizing' 
-                        : 'Freely adjust width and height independently'}
-                    </p>
-                  </div>
-
-                  {/* Opacity control */}
-                  <div>
-                    <label className="text-xs text-gray-300 block mb-1">Opacity</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.05"
-                      value={elements.find(el => el.id === selectedId)?.opacity || 1}
-                      onChange={(e) => {
-                        const opacity = parseFloat(e.target.value);
-                        handleTransform(selectedId, { opacity });
-                      }}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-400 text-sm italic">Select an element to edit its properties</p>
-              )}
-            </div>
-            
-            {/* Saved Designs Panel */}
-            {savedDesigns.length > 0 && (
+            {/* Quick Controls - Only show when something is selected */}
+            {selectedId && (
               <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-4 shadow-md">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-white">Saved Designs</h3>
+                <h3 className="text-white font-bold mb-3 flex items-center">
+                  🎯 Selected Item
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-2 mb-3">
                   <button
-                    onClick={() => setShowSavedDesigns(!showSavedDesigns)}
-                    className="text-primary hover:text-primary-600 text-sm"
+                    onClick={bringForward}
+                    disabled={elements.length === 0 || !selectedId || (elements.length > 0 && elements.find(el => el.id === selectedId)?.zIndex === Math.max(...elements.map(el => el.zIndex)))}
+                    className="bg-secondary hover:bg-secondary/60 disabled:opacity-30 disabled:cursor-not-allowed text-white py-2 px-3 rounded-lg transition-colors text-sm"
+                    title="Bring to front"
                   >
-                    {showSavedDesigns ? 'Hide' : 'Show'} ({savedDesigns.length})
+                    📤 Front
+                  </button>
+                  <button
+                    onClick={sendBackward}
+                    disabled={elements.length === 0 || !selectedId || (elements.length > 0 && elements.find(el => el.id === selectedId)?.zIndex === Math.min(...elements.map(el => el.zIndex)))}
+                    className="bg-secondary hover:bg-secondary/60 disabled:opacity-30 disabled:cursor-not-allowed text-white py-2 px-3 rounded-lg transition-colors text-sm"
+                    title="Send to back"
+                  >
+                    📥 Back
+                  </button>
+                </div>
+
+                {/* Transparency Slider */}
+                <div className="mb-3">
+                  <label className="text-xs text-gray-300 block mb-2">✨ Transparency</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={elements.find(el => el.id === selectedId)?.opacity || 1}
+                    onChange={(e) => {
+                      const opacity = parseFloat(e.target.value);
+                      handleTransform(selectedId, { opacity });
+                    }}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Resize Lock */}
+                <div className="mb-3">
+                  <button
+                    onClick={() => setKeepAspectRatio(!keepAspectRatio)}
+                    className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                      keepAspectRatio 
+                        ? 'bg-primary text-background' 
+                        : 'bg-secondary/60 text-white border border-primary/20'
+                    }`}
+                  >
+                    {keepAspectRatio ? '🔒 Keep Shape' : '🔓 Free Resize'}
                   </button>
                 </div>
                 
+                <button
+                  onClick={deleteSelectedElement}
+                  className="w-full bg-red-600/80 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center font-medium"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            )}
+
+            {/* Simple Actions */}
+            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-4 shadow-md">
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button
+                  onClick={undo}
+                  disabled={history.length <= 1}
+                  className="bg-secondary hover:bg-secondary/60 disabled:opacity-30 disabled:cursor-not-allowed text-white py-2 px-3 rounded-lg transition-colors flex items-center justify-center text-sm"
+                  title="Undo last action"
+                >
+                  ↶ Undo
+                </button>
+                
+                <button
+                  onClick={clearCanvas}
+                  disabled={elements.length === 0}
+                  className="bg-secondary hover:bg-secondary/60 disabled:opacity-30 disabled:cursor-not-allowed text-white py-2 px-3 rounded-lg transition-colors flex items-center justify-center text-sm"
+                  title="Start over"
+                >
+                  🗑️ Clear
+                </button>
+              </div>
+              
+              {/* Simplified Save & Cart */}
+              {!finalDesignImage ? (
+                <button
+                  onClick={captureDesignForCart}
+                  disabled={elements.length === 0 || isCapturingDesign}
+                  className="w-full bg-primary hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+                >
+                  {isCapturingDesign ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Getting Ready...
+                    </>
+                  ) : (
+                    <>
+                      🛒 Add to Cart
+                    </>
+                  )}
+                </button>
+              ) : (
+                <AddToCartButton
+                  lines={[{
+                    merchandiseId: customVariant.id,
+                    quantity: 1,
+                    attributes: [
+                      {
+                        key: 'Custom Design',
+                        value: 'Yes'
+                      },
+                      {
+                        key: 'Design Elements',
+                        value: `${elements.length} elements`
+                      }
+                    ]
+                  }]}
+                  selectedVariant={customVariant}
+                  disabled={isOutOfStock}
+                  className={`w-full font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center ${
+                    isOutOfStock 
+                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                >
+                  🛒 Add Custom Design
+                </AddToCartButton>
+              )}
+
+              {/* Auto-save indicator */}
+              {autoSaveEnabled && (elements.length > 0 || uploadedImages.length > 0) && (
+                <div className="mt-2 text-center">
+                  <span className="text-green-400 text-xs">
+                    💾 Auto-saved
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Saved Designs - Collapsed by default */}
+            {savedDesigns.length > 0 && (
+              <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-4 shadow-md">
+                <button
+                  onClick={() => setShowSavedDesigns(!showSavedDesigns)}
+                  className="w-full flex items-center justify-between text-white font-bold mb-2"
+                >
+                  <span>💾 My Designs ({savedDesigns.length})</span>
+                  <span>{showSavedDesigns ? '−' : '+'}</span>
+                </button>
+                
                 {showSavedDesigns && (
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {savedDesigns.map((design) => (
-                      <div key={design.id} className="flex items-center justify-between bg-secondary/60 rounded-md p-2 border border-primary/10">
-                        <div className="flex-1">
-                          <div className="text-white text-xs font-medium">
-                            {new Date(design.lastModified).toLocaleDateString()}
-                          </div>
-                          <div className="text-gray-300 text-xs">
-                            {design.elements.length} elements
-                          </div>
-                        </div>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {savedDesigns.map((design, index) => (
+                      <div key={design.id} className="flex items-center justify-between bg-secondary/60 rounded-lg p-2">
+                        <span className="text-white text-sm">Design {index + 1}</span>
                         <div className="flex space-x-1">
                           <button
                             onClick={() => loadDesignFromStorage(design.id)}
                             className="bg-primary hover:bg-primary-600 text-background text-xs py-1 px-2 rounded"
-                            title="Load design"
                           >
                             Load
                           </button>
                           <button
                             onClick={() => deleteDesign(design.id)}
-                            className="bg-red-600/70 hover:bg-red-600/90 text-white text-xs py-1 px-2 rounded"
-                            title="Delete design"
+                            className="bg-red-600/70 hover:bg-red-600 text-white text-xs py-1 px-2 rounded"
                           >
-                            ×
+                            ✕
                           </button>
                         </div>
                       </div>
@@ -992,104 +1122,6 @@ export default function ProductCustomizer() {
                 )}
               </div>
             )}
-
-            {/* Design Actions Panel */}
-            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-4 shadow-md">
-              <h3 className="text-lg font-bold text-white mb-4">Actions</h3>
-              
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <button
-                  onClick={undo}
-                  disabled={history.length <= 1}
-                  className="bg-secondary hover:bg-secondary/60 disabled:opacity-50 disabled:cursor-not-allowed text-white border border-primary/20 py-2 px-3 rounded-md transition-colors flex items-center justify-center"
-                >
-                  <Undo className="w-4 h-4 mr-2" />
-                  Undo
-                </button>
-                
-                <button
-                  onClick={clearCanvas}
-                  disabled={elements.length === 0}
-                  className="bg-secondary hover:bg-secondary/60 disabled:opacity-50 disabled:cursor-not-allowed text-white border border-primary/20 py-2 px-3 rounded-md transition-colors flex items-center justify-center"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Clear All
-                </button>
-              </div>
-              
-              <button
-                onClick={saveCurrentDesignLocally}
-                disabled={elements.length === 0 && uploadedImages.length === 0}
-                className="w-full bg-secondary hover:bg-secondary/60 disabled:opacity-50 disabled:cursor-not-allowed text-white border border-primary/20 py-2 px-3 rounded-md transition-colors flex items-center justify-center text-sm mb-2"
-              >
-                <Save className="w-4 h-4 mr-1" />
-                Save Design
-              </button>
-              
-              {/* Auto-save indicator */}
-              {autoSaveEnabled && (elements.length > 0 || uploadedImages.length > 0) && (
-                <div className="mb-2 text-center">
-                  <span className="text-green-400 text-xs">
-                    ✓ Auto-saving locally every 15s
-                  </span>
-                </div>
-              )}
-              
-              {/* Add to Cart Section */}
-              <div className="bg-primary/10 border border-primary/30 rounded-md p-3">
-                <h4 className="text-primary font-semibold text-sm mb-2">Ready to Order?</h4>
-                <p className="text-gray-300 text-xs mb-3">
-                  Add your custom design to cart and proceed to checkout.
-                </p>
-                
-                {!finalDesignImage ? (
-                  <button
-                    onClick={captureDesignForCart}
-                    disabled={elements.length === 0 || isCapturingDesign}
-                    className="w-full bg-primary hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-2 px-4 rounded-md transition-colors flex items-center justify-center mb-2"
-                  >
-                    {isCapturingDesign ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Preparing...
-                      </>
-                    ) : (
-                      <>
-                        <Image className="w-4 h-4 mr-2" />
-                        Prepare for Cart
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <AddToCartButton
-                    lines={[{
-                      merchandiseId: customVariant.id,
-                      quantity: 1,
-                      attributes: [
-                        {
-                          key: 'Custom Design',
-                          value: 'Yes'
-                        },
-                        {
-                          key: 'Design Elements',
-                          value: `${elements.length} elements`
-                        }
-                      ]
-                    }]}
-                    selectedVariant={customVariant}
-                    disabled={isOutOfStock}
-                    className={`w-full font-bold py-2 px-4 rounded-md transition-colors flex items-center justify-center ${
-                      isOutOfStock 
-                        ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-                        : 'bg-primary hover:bg-primary-600 text-background'
-                    }`}
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    {isOutOfStock ? 'Out of Stock' : 'Add Custom Design to Cart'}
-                  </AddToCartButton>
-                )}
-              </div>
-            </div>
           </div>
           
           {/* Canvas Area */}
@@ -1131,31 +1163,16 @@ export default function ProductCustomizer() {
                   </div>
                 )}
                 
-                <div className="space-y-3">
-                  <div className="bg-green-600/20 border border-green-600/30 rounded-md p-3">
-                    <div className="flex items-center mb-2">
-                      <Save className="w-4 h-4 text-green-400 mr-2" />
-                      <p className="text-green-400 text-sm font-semibold">Auto-Save Active</p>
-                    </div>
-                    <p className="text-green-300 text-xs">
-                      Your work is automatically saved locally every 15 seconds. You can close this page and return later to continue your design.
+                {elements.length === 0 && uploadedImages.length === 0 && (
+                  <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-center">
+                    <div className="text-2xl mb-2">🎨</div>
+                    <h3 className="text-white font-bold mb-2">Start Creating!</h3>
+                    <p className="text-gray-300 text-sm">
+                      Add photos and text to create your custom design. 
+                      Click and drag to move things around!
                     </p>
                   </div>
-                  
-                                      <div className="bg-secondary/60 rounded-md p-3 border border-primary/10">
-                    <p className="text-white text-sm font-semibold">Instructions:</p>
-                    <ul className="text-gray-300 text-xs mt-1 space-y-1 list-disc pl-4">
-                      <li>Upload your images or add text using the tools on the left</li>
-                      <li>Images are automatically saved to the cloud for persistence</li>
-                      <li>Your design progress is auto-saved locally every 15 seconds</li>
-                      <li>Click on elements to select them, then resize or rotate them</li>
-                      <li>The product image appears on top - your designs show through transparent areas</li>
-                      <li>Use "Forward/Backward" buttons to layer multiple elements</li>
-                      <li>Use "Save Design" to manually save your current progress</li>
-                      <li>When ready, click "Prepare for Cart" then "Add to Cart" to order!</li>
-                    </ul>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

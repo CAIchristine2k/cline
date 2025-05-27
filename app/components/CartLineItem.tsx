@@ -6,8 +6,8 @@ import type { CartLayout } from './CartMain';
 import { Trash2, Plus, Minus } from 'lucide-react';
 
 /**
- * Renders a line in the cart with quantity, title, price, and options.
- * Allows for removal and quantity updates.
+ * Modern cart line item with clean design and proper theme integration.
+ * Features glass morphism effects and improved button visibility.
  */
 export function CartLineItem({
   line,
@@ -18,88 +18,112 @@ export function CartLineItem({
 }) {
   const config = useConfig();
   const { id, merchandise, quantity } = line;
-  const { product, title, image, selectedOptions } = merchandise;
+  
+  // Add safety checks for merchandise and product data
+  if (!merchandise || !merchandise.product) {
+    console.warn('CartLineItem: merchandise or product data is missing', { line, merchandise });
+    return null;
+  }
 
-  const isGiftCard = merchandise.product.handle === 'gift-card';
+  const { product, title, image, selectedOptions } = merchandise;
+  const isGiftCard = product.handle === 'gift-card';
   const lineItemUrl = `/products/${product.handle}`;
 
   return (
-    <li key={id} className="py-4">
-      <div className="flex items-start gap-4">
-        {/* Image */}
-        <div className="relative aspect-square w-20 overflow-hidden rounded-sm border border-primary/10 flex-shrink-0">
-          <Link to={lineItemUrl} prefetch="intent">
-            {image ? (
-              <Image
-                data={image}
-                className="h-full w-full object-cover transition-transform hover:scale-105"
-                alt={title}
-                sizes={layout === 'page' ? '96px' : '64px'}
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-primary/5">
-                {title}
-              </div>
-            )}
+    <div className="cart-line-item group">
+      <div className="flex items-start gap-3">
+        {/* Product Image - Slightly smaller for more text space */}
+        <div className="relative flex-shrink-0">
+          <Link to={lineItemUrl} prefetch="intent" className="block">
+            <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 group-hover:border-primary/30">
+              {image ? (
+                <Image
+                  data={image}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  alt={title || product.title || 'Product image'}
+                  sizes="64px"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-white/40 text-xs font-medium">
+                  No Image
+                </div>
+              )}
+            </div>
           </Link>
+          
+          {/* Optimistic state indicator */}
+          {line.isOptimistic && (
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+          )}
         </div>
 
-        {/* Details */}
-        <div className="flex-grow">
-          <div className="flex flex-col">
+        {/* Product Details - Expanded space */}
+        <div className="flex-grow min-w-0">
+          <div className="space-y-1">
+            {/* Product Title */}
             <Link
               to={lineItemUrl}
               prefetch="intent"
-              className="text-primary font-medium hover:text-primary-600 transition-colors"
+              className="block group/title"
             >
-              {product.title}
+              <h3 className="font-semibold text-white text-sm leading-tight group-hover/title:text-primary transition-colors duration-200 line-clamp-2">
+                {product.title || 'Untitled Product'}
+              </h3>
             </Link>
 
-            {/* Variant title if it's not "Default Title" */}
-            {title !== "Default Title" && (
-              <p className="text-sm text-primary-700">{title}</p>
+            {/* Variant Details */}
+            {title && title !== "Default Title" && (
+              <p className="text-white/60 text-xs font-medium">{title}</p>
             )}
 
-            {/* Display selected options */}
-            {selectedOptions.length > 0 && selectedOptions[0].value !== 'Default Title' && (
-              <ul className="mt-1 space-y-1 text-xs text-primary-700">
+            {/* Selected Options */}
+            {selectedOptions && selectedOptions.length > 0 && selectedOptions[0]?.value !== 'Default Title' && (
+              <div className="flex flex-wrap gap-1">
                 {selectedOptions.map((option) => (
-                  <li key={option.name}>
-                    {option.name}: {option.value}
-                  </li>
+                  <span
+                    key={option.name}
+                    className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/70 text-xs font-medium"
+                  >
+                    {option.value}
+                  </span>
                 ))}
-              </ul>
+              </div>
             )}
 
             {/* Price */}
-            <div className="mt-1 flex items-center gap-2">
-              <Money data={merchandise.price} className="text-primary-800" />
+            <div className="flex items-baseline gap-2">
+              {merchandise.price ? (
+                <Money 
+                  data={merchandise.price} 
+                  className="text-white font-bold text-sm" 
+                />
+              ) : (
+                <span className="text-white font-bold text-sm">Price unavailable</span>
+              )}
               {merchandise.compareAtPrice && (
                 <Money
                   data={merchandise.compareAtPrice}
-                  className="line-through text-red-500 text-sm"
+                  className="text-white/40 line-through text-xs"
                 />
               )}
-            </div>
-
-            {/* Quantity and Remove Actions */}
-            <div className="mt-2 flex items-center gap-2">
-              <CartLineQuantityAdjust line={line} />
-              <CartLineRemoveButton lineId={id} disabled={!!line.isOptimistic} />
             </div>
           </div>
         </div>
       </div>
-    </li>
+
+      {/* Actions Row - Compact */}
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+        <CartLineQuantityAdjust line={line} />
+        <CartLineRemoveButton lineId={id} disabled={!!line.isOptimistic} />
+      </div>
+    </div>
   );
 }
 
 /**
- * Quantity adjustment form that changes the item's quantity.
+ * Modern quantity adjustment controls with better visibility and design.
  */
 function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimistic?: boolean } }) {
-  const config = useConfig();
-
   if (!line || typeof line?.quantity === 'undefined') return null;
 
   const { id: lineId, quantity } = line;
@@ -107,8 +131,8 @@ function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimis
   const nextQuantity = Number((quantity + 1).toFixed(0));
 
   return (
-    <div className="flex items-center border border-primary/20 rounded-sm bg-white">
-      {/* Decrease quantity */}
+    <div className="flex items-center gap-1">
+      {/* Decrease button */}
       <CartForm
         route="/cart"
         action={CartForm.ACTIONS.LinesUpdate}
@@ -119,18 +143,18 @@ function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimis
           name="decrease-quantity"
           aria-label="Decrease quantity"
           disabled={quantity <= 1 || !!line.isOptimistic}
-          className="w-8 h-8 flex items-center justify-center disabled:opacity-50 text-primary/80 hover:text-primary hover:bg-primary/5 disabled:hover:bg-transparent transition-colors"
+          className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-200 hover:bg-white/20 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 disabled:hover:border-white/20"
         >
-          <Minus className="w-4 h-4" />
+          <Minus className="w-4 h-4 text-white" />
         </button>
       </CartForm>
 
-      {/* Current quantity */}
-      <div className="px-3 py-1 text-center min-w-[2.5rem] text-sm font-medium text-primary">
-        {quantity}
+      {/* Quantity display */}
+      <div className="min-w-[3rem] px-3 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-center">
+        <span className="text-white font-semibold text-sm">{quantity}</span>
       </div>
 
-      {/* Increase quantity */}
+      {/* Increase button */}
       <CartForm
         route="/cart"
         action={CartForm.ACTIONS.LinesUpdate}
@@ -141,9 +165,9 @@ function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimis
           name="increase-quantity"
           aria-label="Increase quantity"
           disabled={!!line.isOptimistic}
-          className="w-8 h-8 flex items-center justify-center text-primary/80 hover:text-primary hover:bg-primary/5 transition-colors"
+          className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-200 hover:bg-white/20 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 disabled:hover:border-white/20"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 text-white" />
         </button>
       </CartForm>
     </div>
@@ -151,7 +175,7 @@ function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimis
 }
 
 /**
- * Cart line remove button that removes a line from the cart.
+ * Modern remove button with improved design and hover effects.
  */
 function CartLineRemoveButton({ lineId, disabled = false }: { lineId: string; disabled?: boolean }) {
   return (
@@ -162,11 +186,11 @@ function CartLineRemoveButton({ lineId, disabled = false }: { lineId: string; di
     >
       <button
         type="submit"
-        className="ml-3 flex h-8 w-8 items-center justify-center rounded hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="group/remove w-8 h-8 rounded-lg bg-red-500/10 backdrop-blur-sm border border-red-500/20 flex items-center justify-center transition-all duration-200 hover:bg-red-500/20 hover:border-red-500/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-red-500/10 disabled:hover:border-red-500/20"
         disabled={disabled}
         aria-label="Remove from cart"
       >
-        <Trash2 className="h-4 w-4 text-red-500" />
+        <Trash2 className="w-4 h-4 text-red-400 group-hover/remove:text-red-300 transition-colors duration-200" />
       </button>
     </CartForm>
   );

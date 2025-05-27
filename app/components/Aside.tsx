@@ -49,11 +49,7 @@ export function Aside({
       const header = document.querySelector('header');
       if (header) {
         const newHeight = header.offsetHeight;
-        const scrollY = window.scrollY;
-        if (newHeight !== headerHeight) {
-          setHeaderHeight(newHeight);
-          console.log(`Header height updated: ${newHeight}px (scrollY: ${scrollY}, isScrolled: ${scrollY > 30})`);
-        }
+        setHeaderHeight(newHeight);
       }
     };
 
@@ -78,24 +74,7 @@ export function Aside({
       window.removeEventListener('resize', updateHeaderHeight);
       window.removeEventListener('scroll', throttledUpdate);
     };
-  }, [headerHeight]);
-  
-  // For debugging
-  useEffect(() => {
-    if (expanded && type === 'cart') {
-      console.log('Cart aside is now open');
-      // Debug positioning
-      if (asideRef.current) {
-        const rect = asideRef.current.getBoundingClientRect();
-        console.log('Cart position:', {
-          left: rect.left,
-          right: rect.right,
-          width: rect.width,
-          transform: getComputedStyle(asideRef.current).transform
-        });
-      }
-    }
-  }, [expanded, type]);
+  }, []);
 
   // Handle clicking outside
   useEffect(() => {
@@ -158,26 +137,22 @@ export function Aside({
         onClick={close}
       ></div>
       
-      {/* NUCLEAR OPTION - MAXIMUM OVERRIDE FOR RIGHT POSITIONING */}
+      {/* Cart/Aside Container with proper header clearance */}
       <aside 
         ref={asideRef}
-        className={`cart-aside-container aside-glow aside-force-right right-side-drawer ${expanded ? 'aside-visible open' : ''} fixed top-0 bottom-0 bg-background/95 backdrop-blur-xl shadow-2xl border-l border-r border-primary/20 transition-all duration-500 ease-out flex flex-col ${className}`}
+        className={`cart-aside-container aside-glow ${expanded ? 'aside-visible open' : ''} fixed right-0 bg-background/95 backdrop-blur-xl shadow-2xl border-l border-primary/20 transition-all duration-500 ease-out flex flex-col ${className}`}
         style={{
           zIndex: 100,
-          height: `calc(100vh - ${headerHeight}px)`,
-          marginTop: `${headerHeight}px`,
-          boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(var(--color-primary-rgb), 0.1)' : 'none',
-          // FORCE RIGHT POSITIONING - maximum override with responsive width
-          position: 'fixed',
-          top: headerHeight + 'px',
-          bottom: '0',
+          height: 'calc(100% - var(--header-height-desktop))',
+          top: 'var(--header-height-desktop)',
+          bottom: 0,
           left: 'auto', 
-          right: '0',
-          // Responsive width constraints - use CSS variables
+          right: 0,
           width: 'var(--cart-width-desktop)',
           minWidth: 'var(--cart-min-width)',
           maxWidth: 'var(--cart-max-width-desktop)',
-          transform: expanded ? 'translateX(0)' : 'translateX(100%)'
+          transform: expanded ? 'translateX(0)' : 'translateX(100%)',
+          boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(var(--color-primary-rgb), 0.1)' : 'none',
         }}
       >
         <header className="flex items-center justify-between p-6 border-b border-primary/20 flex-shrink-0 bg-gradient-to-r from-background/50 to-background backdrop-blur-sm">
@@ -213,11 +188,6 @@ const AsideContext = createContext<AsideContextValue | null>(null);
 Aside.Provider = function AsideProvider({children}: {children: ReactNode}) {
   const [type, setType] = useState<AsideType>('closed');
   const isOpen = type !== 'closed';
-  
-  // Enhanced debugging
-  useEffect(() => {
-    console.log('Aside type changed to:', type);
-  }, [type]);
 
   return (
     <AsideContext.Provider

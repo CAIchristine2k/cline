@@ -16,71 +16,86 @@ export type CartMainProps = {
 
 /**
  * The main cart component that displays the cart items and summary.
- * It is used by both the /cart route and the cart aside dialog.
+ * Modern, clean design with fixed height layout and glass morphism effects.
  */
 export function CartMain({layout, cart: originalCart}: CartMainProps) {
   const config = useConfig();
   const {close} = useAside();
 
-  // Enhanced debugging logs
-  console.log('CartMain rendered with:', {
-    layout,
-    originalCart,
-    hasLines: (originalCart?.lines?.nodes?.length || 0) > 0,
-    totalQuantity: originalCart?.totalQuantity,
-    checkoutUrl: originalCart?.checkoutUrl,
-  });
-
   // The useOptimisticCart hook applies pending actions to the cart
-  // so the user immediately sees feedback when they modify the cart.
   const cart = useOptimisticCart(originalCart);
 
-  // Log optimistic cart state for debugging
-  console.log('Optimistic cart state:', {
-    isOptimistic: cart?.isOptimistic,
-    totalQuantity: cart?.totalQuantity,
-    linesCount: cart?.lines?.nodes?.length || 0,
-  });
+  // Debug the cart structure
+  console.log('CartMain - Original cart:', originalCart);
+  console.log('CartMain - Optimistic cart:', cart);
+  
+  if (cart?.lines?.nodes && cart.lines.nodes.length > 0) {
+    console.log('CartMain - First line item structure:', cart.lines.nodes[0]);
+    console.log('CartMain - First line merchandise:', cart.lines.nodes[0]?.merchandise);
+    console.log('CartMain - First line product:', cart.lines.nodes[0]?.merchandise?.product);
+  }
 
   // Cart calculations
-  const linesCount = Boolean(cart?.lines?.nodes?.length || 0);
-  const withDiscount =
-    cart &&
-    Boolean(cart?.discountCodes?.filter((code) => code.applicable)?.length);
   const cartHasItems = (cart?.totalQuantity || 0) > 0;
 
-  // If the cart isn't loaded yet during hydration, show a loading indicator
+  // Loading state with modern spinner
   if (cart === undefined) {
     return (
-      <div className="fixed inset-0 bg-background h-full flex items-center justify-center">
-        <div className="w-8 h-8 border-t-2 border-r-2 border-primary rounded-full animate-spin"></div>
+      <div className="cart-container flex items-center justify-center">
+        <div className="relative">
+          <div className="w-8 h-8 border-2 border-primary/30 rounded-full"></div>
+          <div className="absolute top-0 left-0 w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`cart-container ${layout === 'page' ? 'p-6' : 'p-4'} bg-background h-full flex flex-col`}
-    >
+    <div className="cart-container">
       <CartEmpty hidden={cartHasItems} layout={layout} />
 
       {cartHasItems && (
-        <div className="flex flex-col h-full max-h-full overflow-hidden">
-          {/* Cart Items Area with Fixed Height and Scroll */}
-          <div
-            aria-labelledby="cart-lines"
-            className="cart-items-container flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent"
-          >
-            <ul className="divide-y divide-primary/10 space-y-0">
-              {(cart?.lines?.nodes ?? []).map((line) => (
-                <CartLineItem key={line.id} line={line} layout={layout} />
-              ))}
-            </ul>
+        <div className="flex flex-col h-full">
+          {/* Header - Minimal padding for maximum content space */}
+          <div className="flex-shrink-0 p-3 pb-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white">Cart</h2>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 text-xs text-white/70">
+                  <span>{cart?.totalQuantity || 0}</span>
+                  <span>{(cart?.totalQuantity || 0) === 1 ? 'item' : 'items'}</span>
+                </div>
+                {layout === 'aside' && (
+                  <button 
+                    className="w-6 h-6 flex items-center justify-center text-white/70 hover:text-white rounded-sm hover:bg-white/10 transition-all duration-200" 
+                    onClick={close}
+                    aria-label="Close cart"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Cart Items - Maximized scrollable area */}
+          <div className="cart-items-container">
+            <div className="pt-4 px-2 pb-2">
+              <div className="space-y-2">
+                {(cart?.lines?.nodes ?? []).map((line) => (
+                  <CartLineItem key={line.id} line={line} layout={layout} />
+                ))}
+              </div>
+            </div>
           </div>
           
-          {/* Cart Summary - Fixed at Bottom */}
-          <div className="cart-summary-container flex-shrink-0 pt-4 border-t border-primary/10 bg-background/95 backdrop-blur-sm">
-            <CartSummary cart={cart} layout={layout} />
+          {/* Cart Summary - Compact bottom */}
+          <div className="cart-summary-container">
+            <div className="border-t border-white/10 bg-black/40 backdrop-blur-xl">
+              <CartSummary cart={cart} layout={layout} />
+            </div>
           </div>
         </div>
       )}
@@ -100,29 +115,30 @@ function CartEmpty({
 
   if (hidden) return null;
 
-  console.log('CartEmpty is rendering - should be visible now');
-
   return (
-    <div 
-      className={`flex flex-col items-center justify-center h-full py-8 px-4 text-center bg-white text-black ${
-        layout === 'aside' ? 'min-h-[300px] max-h-full' : 'min-h-[400px]'
-      }`}
-    >
-      <ShoppingBag className="w-16 h-16 text-gray-500 mb-6" />
-      <h3 className="text-xl font-bold text-black mb-3">
+    <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+      <div className="relative mb-8">
+        <div className="w-20 h-20 rounded-full bg-white/5 backdrop-blur-sm border flex items-center justify-center">
+          <ShoppingBag className="w-10 h-10 text-white/40" />
+        </div>
+        <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-primary/20 to-primary/5 blur-sm -z-10"></div>
+      </div>
+      
+      <h3 className="text-2xl font-bold text-white mb-3">
         Your cart is empty
       </h3>
-      <p className="text-gray-700 mb-8 max-w-md text-sm leading-relaxed">
-        Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
-        started!
+      <p className="text-white/60 mb-8 max-w-sm text-sm leading-relaxed">
+        Discover amazing products and start building your collection today.
       </p>
+      
       <Link
         to="/collections"
         onClick={close}
         prefetch="viewport"
-        className="inline-block bg-black text-white px-6 py-3 rounded-sm hover:bg-gray-800 transition-colors font-bold"
+        className="inline-flex items-center gap-2 bg-primary hover:bg-primary-600 text-black font-bold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
       >
-        Browse Products →
+        <ShoppingBag className="w-4 h-4" />
+        Start Shopping
       </Link>
     </div>
   );

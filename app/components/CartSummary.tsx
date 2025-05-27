@@ -16,13 +16,13 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
   return (
     <div 
       aria-labelledby="cart-summary" 
-      className={`${layout === 'page' ? 'max-w-md ml-auto' : ''}`}
+      className={`p-6 ${layout === 'page' ? 'max-w-md ml-auto' : ''}`}
     >
-      <h4 className="text-lg font-bold text-primary mb-4">Order Summary</h4>
-      <dl className="space-y-2">
-        <div className="flex justify-between">
-          <dt className="text-primary-800">Subtotal</dt>
-          <dd className="font-medium text-primary">
+      <h4 className="text-lg font-bold text-white mb-6">Order Summary</h4>
+      <dl className="space-y-4">
+        <div className="flex justify-between items-center">
+          <dt className="text-white/70 font-medium">Subtotal</dt>
+          <dd className="font-bold text-white">
             {cart.cost?.subtotalAmount?.amount ? (
               <Money data={cart.cost?.subtotalAmount} />
             ) : (
@@ -32,17 +32,17 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
         </div>
         
         {cart.cost?.totalTaxAmount?.amount ? (
-          <div className="flex justify-between">
-            <dt className="text-primary-800">Tax (estimated)</dt>
-            <dd className="font-medium text-primary">
+          <div className="flex justify-between items-center">
+            <dt className="text-white/70 font-medium">Tax (estimated)</dt>
+            <dd className="font-bold text-white">
               <Money data={cart.cost.totalTaxAmount} />
             </dd>
           </div>
         ) : null}
         
-        <div className="flex justify-between pt-2 mt-2 border-t border-primary/10 font-bold">
-          <dt className="text-primary">Total</dt>
-          <dd className="text-primary">
+        <div className="flex justify-between items-center pt-4 mt-4 border-t border-white/10">
+          <dt className="text-white font-bold text-lg">Total</dt>
+          <dd className="text-primary font-bold text-xl">
             {cart.cost?.totalAmount?.amount ? (
               <Money data={cart.cost?.totalAmount} />
             ) : (
@@ -51,9 +51,9 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
           </dd>
         </div>
       </dl>
-      
+{/*       
       <CartDiscounts discountCodes={cart.discountCodes} />
-      <CartGiftCard giftCardCodes={cart.appliedGiftCards} />
+      <CartGiftCard giftCardCodes={cart.appliedGiftCards} /> */}
       <CartCheckoutActions checkoutUrl={cart.checkoutUrl} />
     </div>
   );
@@ -65,16 +65,16 @@ function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
   if (!checkoutUrl) return null;
 
   return (
-    <div className="mt-6">
+    <div className="mt-8">
       <a 
         href={checkoutUrl} 
         target="_self"
-        className="block w-full bg-primary text-background text-center py-3 px-6 rounded-sm hover:bg-primary-600 transition-colors font-bold shadow-glow"
+        className="block w-full bg-primary hover:bg-primary-600 text-black text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
       >
-        Continue to Checkout &rarr;
+        Continue to Checkout →
       </a>
       <div className="mt-4 flex items-center justify-center">
-        <p className="text-xs text-primary-700 text-center">
+        <p className="text-xs text-white/50 text-center">
           Secure checkout powered by Shopify
         </p>
       </div>
@@ -94,15 +94,17 @@ function CartDiscounts({
       ?.map(({code}) => code) || [];
 
   return (
-    <div className="mt-6 mb-4">
+    <div className="mt-8 mb-6">
       {/* Have existing discount, display it with a remove option */}
-      <dl hidden={!codes.length} className="flex justify-between mb-2">
+      <dl hidden={!codes.length} className="mb-4">
         <div>
-          <dt className="text-primary-800">Discount(s)</dt>
+          <dt className="text-white/70 font-medium mb-2">Applied Discount(s)</dt>
           <UpdateDiscountForm>
-            <div className="flex items-center mt-1">
-              <code className="text-sm bg-primary/10 px-2 py-1 rounded">{codes?.join(', ')}</code>
-              <button className="ml-2 text-sm text-red-500 hover:underline">Remove</button>
+            <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <code className="text-sm text-green-400 font-mono">{codes?.join(', ')}</code>
+              <button className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium">
+                Remove
+              </button>
             </div>
           </UpdateDiscountForm>
         </div>
@@ -110,19 +112,25 @@ function CartDiscounts({
 
       {/* Show an input to apply a discount */}
       <UpdateDiscountForm discountCodes={codes}>
-        <div className="flex mt-4">
-          <input 
-            type="text" 
-            name="discountCode" 
-            placeholder="Discount code" 
-            className="flex-grow bg-background border border-primary/20 rounded-l-sm px-3 py-2 text-text focus:outline-none focus:border-primary/50"
-          />
-          <button 
-            type="submit" 
-            className="bg-primary-700 text-background px-4 py-2 rounded-r-sm hover:bg-primary-600 transition-colors"
-          >
-            Apply
-          </button>
+        <div className="space-y-2">
+          <label htmlFor="discountCode" className="block text-white/70 font-medium text-sm">
+            Discount Code
+          </label>
+          <div className="flex gap-2">
+            <input 
+              id="discountCode"
+              type="text" 
+              name="discountCode" 
+              placeholder="Enter code" 
+              className="flex-grow bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all duration-200"
+            />
+            <button 
+              type="submit" 
+              className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-primary/40 text-white px-6 py-3 rounded-lg transition-all duration-200 font-medium"
+            >
+              Apply
+            </button>
+          </div>
         </div>
       </UpdateDiscountForm>
     </div>
@@ -173,17 +181,17 @@ function CartGiftCard({
   }
 
   return (
-    <div className="mb-4">
+    <div className="mb-6">
       {/* Have existing gift card applied, display it with a remove option */}
-      <dl hidden={!codes.length} className="flex justify-between mb-2">
+      <dl hidden={!codes.length} className="mb-4">
         <div>
-          <dt className="text-primary-800">Applied Gift Card(s)</dt>
+          <dt className="text-white/70 font-medium mb-2">Applied Gift Card(s)</dt>
           <UpdateGiftCardForm>
-            <div className="flex items-center mt-1">
-              <code className="text-sm bg-primary/10 px-2 py-1 rounded">{codes?.join(', ')}</code>
+            <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <code className="text-sm text-primary font-mono">{codes?.join(', ')}</code>
               <button 
                 onSubmit={() => removeAppliedCode}
-                className="ml-2 text-sm text-red-500 hover:underline"
+                className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium"
               >
                 Remove
               </button>
@@ -197,20 +205,26 @@ function CartGiftCard({
         giftCardCodes={appliedGiftCardCodes.current}
         saveAppliedCode={saveAppliedCode}
       >
-        <div className="flex mt-4">
-          <input
-            type="text"
-            name="giftCardCode"
-            placeholder="Gift card code"
-            ref={giftCardCodeInput}
-            className="flex-grow bg-background border border-primary/20 rounded-l-sm px-3 py-2 text-text focus:outline-none focus:border-primary/50"
-          />
-          <button 
-            type="submit"
-            className="bg-primary-700 text-background px-4 py-2 rounded-r-sm hover:bg-primary-600 transition-colors"
-          >
-            Apply
-          </button>
+        <div className="space-y-2">
+          <label htmlFor="giftCardCode" className="block text-white/70 font-medium text-sm">
+            Gift Card
+          </label>
+          <div className="flex gap-2">
+            <input 
+              id="giftCardCode"
+              ref={giftCardCodeInput}
+              type="text" 
+              name="giftCardCode" 
+              placeholder="Enter gift card code" 
+              className="flex-grow bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all duration-200"
+            />
+            <button 
+              type="submit" 
+              className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-primary/40 text-white px-6 py-3 rounded-lg transition-all duration-200 font-medium"
+            >
+              Apply
+            </button>
+          </div>
         </div>
       </UpdateGiftCardForm>
     </div>
