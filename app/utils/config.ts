@@ -101,42 +101,67 @@ export interface LandingPageConfig {
   showTestimonials: boolean;
   showSocialFeed: boolean;
   showAIMediaGeneration: boolean;
+  
+  // Customizable Products
+  customizableProducts?: {
+    title?: string;
+    subtitle?: string;
+    badgeText?: string;
+    showcaseTitle?: string;
+    showcaseTitleHighlight?: string;
+    showcaseDescription?: string;
+    features?: string[];
+    ctaText?: string;
+    ctaLink?: string;
+    showcaseImage?: string;
+    showcaseImageAlt?: string;
+    viewAllText?: string;
+    viewAllLink?: string;
+  };
+  
+  // Testimonials
+  testimonials?: Array<{
+    name: string;
+    role?: string;
+    content: string;
+    image?: string;
+    rating?: number;
+  }>;
+  
   // Layout & UI Configuration
-  layout?: {
-    // Cart configuration
+  layout: {
     cart: {
       width: {
-        mobile: string;      // e.g., "100vw"
-        tablet: string;      // e.g., "85vw"
-        desktop: string;     // e.g., "420px"
+        mobile: string;
+        tablet: string;
+        desktop: string;
       };
       maxWidth: {
-        mobile: string;      // e.g., "100vw"
-        tablet: string;      // e.g., "380px"
-        desktop: string;     // e.g., "420px"
+        mobile: string;
+        tablet: string;
+        desktop: string;
       };
-      minWidth: string;      // e.g., "320px"
-      itemsAreaMaxHeight: string; // e.g., "calc(100vh - 350px)"
-      itemsAreaMinHeight: string; // e.g., "200px"
-      summaryMinHeight: string;   // e.g., "150px"
+      minWidth: string;
+      itemsAreaMaxHeight: string;
+      itemsAreaMinHeight: string;
+      summaryMinHeight: string;
     };
-    // Header configuration
     header: {
       height: {
-        mobile: string;      // e.g., "60px"
-        desktop: string;     // e.g., "80px"
+        mobile: string;
+        desktop: string;
       };
-      blur: boolean;         // Enable backdrop blur
+      blur: boolean;
     };
-    // Spacing configuration
     spacing: {
-      containerPadding: string; // e.g., "1rem"
-      sectionSpacing: string;   // e.g., "4rem"
-      cardSpacing: string;      // e.g., "1.5rem"
+      containerPadding: string;
+      sectionSpacing: string;
+      cardSpacing: string;
     };
   };
+  
   // AI Media Generation
-  aiMediaGeneration?: {
+  aiMediaGeneration: {
     title: string;
     subtitle: string;
     description: string;
@@ -163,8 +188,9 @@ export interface LandingPageConfig {
     limitReachedTitle: string;
     limitReachedMessage: string;
   };
+  
   // Limited Edition
-  limitedEdition?: {
+  limitedEdition: {
     title: string;
     description: string;
     productHandle: string;
@@ -172,45 +198,39 @@ export interface LandingPageConfig {
     salePrice: string;
     endDate: string; // ISO date string
   };
-  // Products
-  products: ProductInfo[];
+  
   // Career Highlights
-  careerHighlights: {
+  careerHighlights: Array<{
     year: string;
     title: string;
     description: string;
-    image: string;
-  }[];
+    image?: string;
+  }>;
   
   // Shopify Configuration
   shopify: {
-    // Default collections to feature on the homepage and collection pages
-    featuredCollections: ShopifyCollection[];
-    // Default products to feature on the homepage
-    featuredProducts: string[]; // Array of product handles
-    // Collection to use for the main shop section
+    featuredCollections: Array<{
+      handle: string;
+      title: string;
+      featured: boolean;
+    }>;
+    featuredProducts: string[];
     mainCollectionHandle: string;
-    // Collection for limited edition products
-    limitedEditionCollectionHandle?: string;
-    // Default sorting for collection pages
-    defaultSorting: 'manual' | 'best-selling' | 'newest' | 'price-low-high' | 'price-high-low' | 'title-ascending' | 'title-descending';
-    // Number of products to show per page in collection grids
+    limitedEditionCollectionHandle: string;
+    defaultSorting: string;
     productsPerPage: number;
-    // Enable customer accounts
     enableCustomerAccounts: boolean;
   };
   
-  // Dynamically loaded Shopify collections (added during runtime)
-  shopifyCollections?: ShopifyCollection[];
+  // Products
+  products: ProductInfo[];
   
-  // Testimonials
-  testimonials?: {
-    name: string;
-    role?: string;
-    content: string;
-    image?: string;
-    rating?: number;
-  }[];
+  // Dynamically loaded Shopify collections (added during runtime)
+  shopifyCollections?: Array<{
+    handle: string;
+    title: string;
+    featured: boolean;
+  }>;
 }
 
 // Shane Mosley specific configuration
@@ -331,6 +351,27 @@ export const defaultConfig: LandingPageConfig = {
   showTestimonials: true,
   showSocialFeed: true,
   showAIMediaGeneration: true,
+
+  // Customizable Products
+  customizableProducts: {
+    title: "Customize Your Own",
+    subtitle: "Create one-of-a-kind products featuring your own photos, text, and designs.",
+    badgeText: "Personalization",
+    showcaseTitle: "Create Custom Products",
+    showcaseTitleHighlight: "Your Way",
+    showcaseDescription: "Upload your photos, add text, and personalize our products with our easy-to-use design tool.",
+    features: [
+      "Upload your own photos",
+      "Add custom text and styling",
+      "Choose colors and designs"
+    ],
+    ctaText: "Start Designing",
+    ctaLink: "/customize-products",
+    showcaseImage: "/images/customization-preview.jpg",
+    showcaseImageAlt: "Product customization preview",
+    viewAllText: "View All Customizable Products",
+    viewAllLink: "/customize-products"
+  },
 
   // Layout & UI Configuration
   layout: {

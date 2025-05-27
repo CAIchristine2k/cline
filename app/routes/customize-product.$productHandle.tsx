@@ -9,6 +9,7 @@ import { ClientOnly } from '~/components/ClientOnly';
 import { EnhancedProductDesigner, type ProductDesignerProps } from '~/components/EnhancedProductDesigner';
 import { uploadCanvasToCloudinary, uploadFileToCloudinary, saveDesignToCloudinary } from '~/utils/cloudinaryUpload';
 import { AddToCartButton } from '~/components/AddToCartButton';
+import { ToastContainer, useToast } from '~/components/Toast';
 import { 
   saveDesignToStorage, 
   updateDesignInStorage, 
@@ -23,6 +24,550 @@ import {
 type StageType = Konva.Stage;
 type TransformerType = Konva.Transformer;
 type NodeType = Konva.Node;
+
+// AI Generation Modal Component  
+interface AIGenerationModalProps {
+  showAIModal: boolean;
+  setShowAIModal: (show: boolean) => void;
+  aiGenerationType: 'fan-together' | 'image-edit' | 'logo-design';
+  setAiGenerationType: (type: 'fan-together' | 'image-edit' | 'logo-design') => void;
+  aiPrompt: string;
+  setAiPrompt: (prompt: string) => void;
+  aiNegativePrompt: string;
+  setAiNegativePrompt: (prompt: string) => void;
+  aiReferenceImage: string | null;
+  setAiReferenceImage: (image: string | null) => void;
+  aiUserImage: string | null;
+  setAiUserImage: (image: string | null) => void;
+  aiImageReference: 'subject' | 'face';
+  setAiImageReference: (ref: 'subject' | 'face') => void;
+  aiAspectRatio: string;
+  setAiAspectRatio: (ratio: string) => void;
+  aiNumberOfImages: number;
+  setAiNumberOfImages: (num: number) => void;
+  uploadedImages: { id: string, src: string, name: string }[];
+  handleAIGeneration: () => void;
+}
+
+const AIGenerationModal: React.FC<AIGenerationModalProps> = ({
+  showAIModal,
+  setShowAIModal,
+  aiGenerationType,
+  setAiGenerationType,
+  aiPrompt,
+  setAiPrompt,
+  aiNegativePrompt,
+  setAiNegativePrompt,
+  aiReferenceImage,
+  setAiReferenceImage,
+  aiUserImage,
+  setAiUserImage,
+  aiImageReference,
+  setAiImageReference,
+  aiAspectRatio,
+  setAiAspectRatio,
+  aiNumberOfImages,
+  setAiNumberOfImages,
+  uploadedImages,
+  handleAIGeneration,
+}) => {
+  // Upload functions for AI modal
+  const handleUserImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    try {
+      const uploadResult = await uploadFileToCloudinary(file, {
+        folder: 'ai-user-images'
+      });
+      
+      if (uploadResult.success && uploadResult.url) {
+        setAiUserImage(uploadResult.url);
+      }
+    } catch (error) {
+      console.error('Error uploading user image:', error);
+    } finally {
+      e.target.value = ''; // Reset input
+    }
+  };
+
+  const handleTargetImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    try {
+      const uploadResult = await uploadFileToCloudinary(file, {
+        folder: 'ai-target-images'
+      });
+      
+      if (uploadResult.success && uploadResult.url) {
+        setAiReferenceImage(uploadResult.url);
+      }
+    } catch (error) {
+      console.error('Error uploading target image:', error);
+    } finally {
+      e.target.value = ''; // Reset input
+    }
+  };
+
+  if (!showAIModal) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-secondary/95 backdrop-blur-md border border-primary/30 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <Sparkles className="w-6 h-6 mr-2 text-primary" />
+              AI Generation Studio
+            </h2>
+            <button
+              onClick={() => setShowAIModal(false)}
+              className="text-gray-400 hover:text-white text-xl font-bold w-8 h-8 flex items-center justify-center"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Generation Type Selection */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-white mb-3">Print Design Type</h3>
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                onClick={() => setAiGenerationType('fan-together')}
+                className={`p-4 rounded-lg border transition-all ${
+                  aiGenerationType === 'fan-together'
+                    ? 'bg-primary/20 border-primary text-primary'
+                    : 'bg-secondary/40 border-primary/20 text-white hover:border-primary/40'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">🤝</div>
+                  <div className="text-left">
+                    <div className="font-semibold">Fan Together</div>
+                    <div className="text-xs opacity-80">Upload your photo + someone/pet to be together in generated image</div>
+                  </div>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setAiGenerationType('image-edit')}
+                className={`p-4 rounded-lg border transition-all ${
+                  aiGenerationType === 'image-edit'
+                    ? 'bg-primary/20 border-primary text-primary'
+                    : 'bg-secondary/40 border-primary/20 text-white hover:border-primary/40'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">✨</div>
+                  <div className="text-left">
+                    <div className="font-semibold">Image Edit</div>
+                    <div className="text-xs opacity-80">Upload photo and modify/edit it based on prompt (theme, background, etc.)</div>
+                  </div>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setAiGenerationType('logo-design')}
+                className={`p-4 rounded-lg border transition-all ${
+                  aiGenerationType === 'logo-design'
+                    ? 'bg-primary/20 border-primary text-primary'
+                    : 'bg-secondary/40 border-primary/20 text-white hover:border-primary/40'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">🎨</div>
+                  <div className="text-left">
+                    <div className="font-semibold">Logo & Design</div>
+                    <div className="text-xs opacity-80">Generate logos, designs, artwork from text prompts (optional reference)</div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Prompt Input */}
+          <div className="mb-6">
+            <label className="block text-white font-semibold mb-2">
+              Prompt <span className="text-red-400">*</span>
+            </label>
+                          <textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder={
+                  aiGenerationType === 'fan-together'
+                    ? "Describe the scene where you want to be together (e.g., 'at a concert', 'playing in the park', 'training at the gym')..."
+                    : aiGenerationType === 'image-edit'
+                    ? "Describe how you want to modify the image (e.g., 'change background to beach', 'add sunset lighting', 'make it vintage style')..."
+                    : "Describe the logo or design you want to create (e.g., 'modern logo with bold text', 'artistic pattern', 'sports team emblem')..."
+                }
+                className="w-full h-24 px-4 py-3 bg-secondary/80 border border-primary/20 rounded-lg text-white placeholder:text-gray-400 resize-none"
+                maxLength={2500}
+              />
+            <div className="text-xs text-gray-400 mt-1">
+              {aiPrompt.length}/2500 characters
+            </div>
+          </div>
+
+          {/* Negative Prompt (for logo-design) */}
+          {aiGenerationType === 'logo-design' && (
+            <div className="mb-6">
+              <label className="block text-white font-semibold mb-2">
+                Negative Prompt (Optional)
+              </label>
+              <textarea
+                value={aiNegativePrompt}
+                onChange={(e) => setAiNegativePrompt(e.target.value)}
+                placeholder="Describe what you don't want in the design (e.g., 'no text', 'no dark colors', 'not too complex')..."
+                className="w-full h-20 px-4 py-3 bg-secondary/80 border border-primary/20 rounded-lg text-white placeholder:text-gray-400 resize-none"
+                maxLength={2500}
+              />
+              <div className="text-xs text-gray-400 mt-1">
+                {aiNegativePrompt.length}/2500 characters
+              </div>
+            </div>
+          )}
+
+          {/* Image Upload Section */}
+          {aiGenerationType === 'fan-together' ? (
+            <div className="mb-6 space-y-6">
+              {/* Your Photo */}
+              <div>
+                <label className="block text-white font-semibold mb-3">
+                  Your Photo <span className="text-red-400">*</span>
+                </label>
+                
+                {/* Upload Options */}
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Upload new photo */}
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUserImageUpload}
+                      className="hidden"
+                      id="ai-user-upload"
+                    />
+                    <label
+                      htmlFor="ai-user-upload"
+                      className="block w-full p-4 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer hover:border-primary/50 transition-colors text-center"
+                    >
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-primary" />
+                      <div className="text-white text-sm">Upload New Photo</div>
+                      <div className="text-gray-400 text-xs">JPG, PNG up to 10MB</div>
+                    </label>
+                  </div>
+
+                  {/* Choose from existing photos */}
+                  {uploadedImages.length > 0 && (
+                    <div>
+                      <div className="text-white text-sm mb-2">Or choose from your uploaded photos:</div>
+                      <div className="grid grid-cols-4 gap-2">
+                        {uploadedImages.map((img) => (
+                          <button
+                            key={img.id}
+                            onClick={() => setAiUserImage(img.src)}
+                            className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                              aiUserImage === img.src
+                                ? 'border-primary ring-2 ring-primary/50'
+                                : 'border-primary/20 hover:border-primary/50'
+                            }`}
+                          >
+                            <img 
+                              src={img.src} 
+                              alt={img.name}
+                              className="w-full h-full object-cover"
+                            />
+                            {aiUserImage === img.src && (
+                              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                                  <span className="text-background text-xs">✓</span>
+                                </div>
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Selected user image preview */}
+                  {aiUserImage && (
+                    <div className="relative p-4 bg-green-600/20 border border-green-600/30 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={aiUserImage}
+                            alt="Your photo"
+                            className="w-12 h-12 object-cover rounded-lg"
+                          />
+                          <div>
+                            <div className="text-green-400 text-sm font-semibold">✅ Your photo selected</div>
+                            <div className="text-green-300 text-xs">Ready for generation</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setAiUserImage(null)}
+                          className="w-6 h-6 bg-red-600 text-white rounded-full text-xs hover:bg-red-700"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Target Person/Pet Photo */}
+              <div>
+                <label className="block text-white font-semibold mb-3">
+                  Target Person/Pet Photo <span className="text-red-400">*</span>
+                </label>
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Upload target photo */}
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleTargetImageUpload}
+                      className="hidden"
+                      id="ai-target-upload"
+                    />
+                    <label
+                      htmlFor="ai-target-upload"
+                      className="block w-full p-4 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer hover:border-primary/50 transition-colors text-center"
+                    >
+                      <Cloud className="w-8 h-8 mx-auto mb-2 text-primary" />
+                      <div className="text-white text-sm">Upload Target Photo</div>
+                      <div className="text-gray-400 text-xs">Person/pet you want to be with</div>
+                    </label>
+                  </div>
+
+                  {/* Target image preview */}
+                  {aiReferenceImage && (
+                    <div className="relative p-4 bg-green-600/20 border border-green-600/30 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={aiReferenceImage}
+                            alt="Target"
+                            className="w-12 h-12 object-cover rounded-lg"
+                          />
+                          <div>
+                            <div className="text-green-400 text-sm font-semibold">✅ Target photo uploaded</div>
+                            <div className="text-green-300 text-xs">Ready for generation</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setAiReferenceImage(null)}
+                          className="w-6 h-6 bg-red-600 text-white rounded-full text-xs hover:bg-red-700"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Other generation types */
+            <div className="mb-6">
+              <label className="block text-white font-semibold mb-3">
+                {aiGenerationType === 'image-edit'
+                  ? 'Base Image to Edit'
+                  : 'Reference Image (Optional)'
+                }
+                {aiGenerationType === 'image-edit' && !aiReferenceImage && (
+                  <span className="text-red-400"> - Required</span>
+                )}
+              </label>
+              
+              <div className="grid grid-cols-1 gap-4">
+                {/* Upload new image */}
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleTargetImageUpload}
+                    className="hidden"
+                    id="ai-reference-upload"
+                  />
+                  <label
+                    htmlFor="ai-reference-upload"
+                    className="block w-full p-4 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer hover:border-primary/50 transition-colors text-center"
+                  >
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-primary" />
+                    <div className="text-white text-sm">Upload New Image</div>
+                    <div className="text-gray-400 text-xs">JPG, PNG up to 10MB</div>
+                  </label>
+                </div>
+
+                {/* Choose from existing photos */}
+                {uploadedImages.length > 0 && (
+                  <div>
+                    <div className="text-white text-sm mb-2">Or choose from your uploaded photos:</div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {uploadedImages.map((img) => (
+                        <button
+                          key={img.id}
+                          onClick={() => setAiReferenceImage(img.src)}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                            aiReferenceImage === img.src
+                              ? 'border-primary ring-2 ring-primary/50'
+                              : 'border-primary/20 hover:border-primary/50'
+                          }`}
+                        >
+                          <img 
+                            src={img.src} 
+                            alt={img.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {aiReferenceImage === img.src && (
+                            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                              <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                                <span className="text-background text-xs">✓</span>
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Selected image preview */}
+                {aiReferenceImage && (
+                  <div className="relative p-4 bg-green-600/20 border border-green-600/30 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={aiReferenceImage}
+                          alt="Reference"
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
+                        <div>
+                          <div className="text-green-400 text-sm font-semibold">✅ Image selected</div>
+                          <div className="text-green-300 text-xs">Ready for generation</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setAiReferenceImage(null)}
+                        className="w-6 h-6 bg-red-600 text-white rounded-full text-xs hover:bg-red-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Generation Settings */}
+          <div className="mb-6">
+            {/* Fan Together Settings */}
+            {aiGenerationType === 'fan-together' && aiReferenceImage && (
+              <div className="mb-6">
+                <label className="block text-white font-semibold mb-2">
+                  Reference Type
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setAiImageReference('subject')}
+                    className={`p-3 rounded-lg border transition-all ${
+                      aiImageReference === 'subject'
+                        ? 'bg-primary/20 border-primary text-primary'
+                        : 'bg-secondary/40 border-primary/20 text-white hover:border-primary/40'
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">Full Character</div>
+                    <div className="text-xs opacity-80">Use overall appearance and style</div>
+                  </button>
+                  <button
+                    onClick={() => setAiImageReference('face')}
+                    className={`p-3 rounded-lg border transition-all ${
+                      aiImageReference === 'face'
+                        ? 'bg-primary/20 border-primary text-primary'
+                        : 'bg-secondary/40 border-primary/20 text-white hover:border-primary/40'
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">Face Only</div>
+                    <div className="text-xs opacity-80">Use facial features only</div>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Common Settings */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Aspect Ratio */}
+              <div>
+                <label className="block text-white font-semibold mb-2">Aspect Ratio</label>
+                <select
+                  value={aiAspectRatio}
+                  onChange={(e) => setAiAspectRatio(e.target.value)}
+                  className="w-full px-4 py-3 bg-secondary/80 border border-primary/20 rounded-lg text-white"
+                >
+                  <option value="1:1">Square (1:1)</option>
+                  <option value="16:9">Landscape (16:9)</option>
+                  <option value="9:16">Portrait (9:16)</option>
+                  <option value="4:3">Standard (4:3)</option>
+                  <option value="3:4">Photo (3:4)</option>
+                </select>
+              </div>
+
+              {/* Number of Images */}
+              <div>
+                <label className="block text-white font-semibold mb-2">
+                  Images: {aiNumberOfImages}
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="4"
+                  value={aiNumberOfImages}
+                  onChange={(e) => setAiNumberOfImages(Number(e.target.value))}
+                  className="w-full mt-3"
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>1</span>
+                  <span>2</span>
+                  <span>3</span>
+                  <span>4</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setShowAIModal(false)}
+              className="flex-1 bg-secondary hover:bg-secondary/80 text-white border border-primary/20 py-3 px-6 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAIGeneration}
+              disabled={
+                !aiPrompt.trim() || 
+                (aiGenerationType === 'fan-together' && (!aiUserImage || !aiReferenceImage)) ||
+                (aiGenerationType === 'image-edit' && !aiReferenceImage)
+              }
+              className="flex-1 bg-primary hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-background font-bold py-3 px-6 rounded-lg transition-colors"
+            >
+              Generate Print Design
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface CustomElement {
   id: string;
@@ -61,6 +606,7 @@ interface AIStatusResponse {
   taskId: string;
   status: string;
   resultUrl?: string;
+  resultUrls?: string[]; // For multiple images
   error?: string;
   message?: string;
 }
@@ -177,6 +723,7 @@ export default function ProductCustomizer() {
   const { product, customVariant, isOutOfStock, isLoggedIn, customer } = useLoaderData<LoaderData>();
   const config = useConfig();
   const params = useParams();
+  const { toasts, removeToast, showSuccess, showError, showWarning, showInfo } = useToast();
   
   // Debug customVariant and auth
   console.log('ProductCustomizer loaded:', {
@@ -202,7 +749,16 @@ export default function ProductCustomizer() {
   const [stageSize, setStageSize] = useState({ width: 500, height: 500 });
   const [backgroundImage, setBackgroundImage] = useState<HTMLImageElement | null>(null);
   const [showAIPrompt, setShowAIPrompt] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
   const [isAIGenerating, setIsAIGenerating] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiNegativePrompt, setAiNegativePrompt] = useState('');
+  const [aiGenerationType, setAiGenerationType] = useState<'fan-together' | 'image-edit' | 'logo-design'>('fan-together');
+  const [aiReferenceImage, setAiReferenceImage] = useState<string | null>(null);
+  const [aiUserImage, setAiUserImage] = useState<string | null>(null);
+  const [aiImageReference, setAiImageReference] = useState<'subject' | 'face'>('subject');
+  const [aiAspectRatio, setAiAspectRatio] = useState('1:1');
+  const [aiNumberOfImages, setAiNumberOfImages] = useState(1);
   const [showTextControls, setShowTextControls] = useState(false);
   const [textInput, setTextInput] = useState('');
   const [selectedColor, setSelectedColor] = useState('#ffffff');
@@ -349,11 +905,11 @@ export default function ProductCustomizer() {
         addImageToCanvas(uploadResult.url);
       } else {
         console.error('Failed to upload image:', uploadResult.error);
-        alert('Failed to upload image. Please try again.');
+        showError('Failed to upload image. Please try again.');
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
+      showError('Failed to upload image. Please try again.');
     } finally {
       setIsUploading(false);
       e.target.value = ''; // Reset input
@@ -555,7 +1111,7 @@ export default function ProductCustomizer() {
       // Set up error handler for capture failures
       (window as any).handleDesignCaptureError = (error: any) => {
         console.error('Design capture failed:', error);
-        alert('Failed to capture design. This may be due to image loading issues. Please try refreshing the page and re-uploading your images.');
+        showError('Failed to capture design. This may be due to image loading issues. Please try refreshing the page and re-uploading your images.');
         setIsCapturingDesign(false);
       };
 
@@ -651,28 +1207,76 @@ export default function ProductCustomizer() {
     }
   };
 
-  const generateWithAI = async () => {
-    // Check if user is logged in first
-    if (!isLoggedIn) {
-      setShowAIPrompt(true);
-      return;
-    }
-
-    // Check if user has uploaded an image to work with
-    if (uploadedImages.length === 0) {
-      alert('Please upload a photo first to generate AI content with it.');
-      return;
-    }
-
-    // User is logged in, proceed with AI generation
-    setIsAIGenerating(true);
+  const generateWithAI = () => {
+    // TESTING: Skip authentication check for now
+    console.log('🧪 TESTING MODE: Skipping authentication check');
     
-        try {
-      // Use the first uploaded image as the user image
-      const firstImage = uploadedImages[0];
-      
-      // Send the Cloudinary URL to the server - server will fetch and convert to base64
-      const userImageUrl = firstImage.src;
+    // TODO: Re-enable for production
+    // if (!isLoggedIn) {
+    //   setShowAIPrompt(true);
+    //   return;
+    // }
+
+    // Open the AI generation modal
+    setShowAIModal(true);
+  };
+
+  const handleAIGeneration = async () => {
+    if (!aiPrompt.trim()) {
+      showError('Please enter a prompt for AI generation.');
+      return;
+    }
+
+    // Check if required images are provided
+    if (aiGenerationType === 'fan-together') {
+      if (!aiUserImage) {
+        showError('Please select or upload your photo first.');
+        return;
+      }
+      if (!aiReferenceImage) {
+        showError('Please upload the target person/pet photo.');
+        return;
+      }
+    } else if (aiGenerationType === 'image-edit' && !aiReferenceImage) {
+      showError('Please select or upload a base image to edit.');
+      return;
+    }
+
+    setIsAIGenerating(true);
+    setShowAIModal(false);
+    
+    try {
+      let requestBody: any = {
+        generationType: aiGenerationType,
+        prompt: aiPrompt,
+        negativePrompt: aiNegativePrompt || undefined,
+        aspectRatio: aiAspectRatio,
+        numberOfImages: aiNumberOfImages,
+      };
+
+      if (aiGenerationType === 'fan-together') {
+        // For fan together, we need user image and target image
+        if (aiUserImage) {
+          requestBody.userImageUrl = aiUserImage;
+        }
+        
+        // Target person/pet image
+        if (aiReferenceImage) {
+          requestBody.referenceImageUrl = aiReferenceImage;
+          requestBody.imageReference = aiImageReference;
+        }
+      } else if (aiGenerationType === 'image-edit') {
+        // For image editing, use the selected image as base
+        if (aiReferenceImage) {
+          requestBody.baseImageUrl = aiReferenceImage;
+        }
+      } else {
+        // For logo design, include reference image if provided
+        if (aiReferenceImage) {
+          requestBody.referenceImageUrl = aiReferenceImage;
+          requestBody.imageReference = aiImageReference;
+        }
+      }
 
       // Make the API call to generate AI content
       const aiResponse = await fetch('/api/ai-media-generation', {
@@ -680,15 +1284,10 @@ export default function ProductCustomizer() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userImageUrl: userImageUrl, // Send URL instead of base64
-          influencerImage: config.aiMediaGeneration?.influencerReferenceImage,
-          pose: 'training', // Default pose
-          productImage: params.productHandle, // Use current product handle
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-       const aiResult = await aiResponse.json() as AIGenerationResponse;
+      const aiResult = await aiResponse.json() as AIGenerationResponse;
       
       if (!aiResponse.ok) {
         throw new Error(aiResult.message || 'Failed to create AI generation task');
@@ -700,52 +1299,63 @@ export default function ProductCustomizer() {
         let attempts = 0;
         
         const poll = async (): Promise<void> => {
-                     try {
-             const statusResponse = await fetch(`/api/ai-media-generation/${taskId}`);
-             const statusResult = await statusResponse.json() as AIStatusResponse;
-             
-             if (!statusResponse.ok) {
-               throw new Error(statusResult.message || 'Failed to check status');
-             }
-
-             if (statusResult.status === 'succeed' && statusResult.resultUrl) {
-               // Add the AI-generated image to the canvas
-               addImageToCanvas(statusResult.resultUrl);
-               alert(`AI generation complete! The generated image has been added to your design.`);
-               setIsAIGenerating(false);
-               return;
-             } else if (statusResult.status === 'failed') {
-               throw new Error(statusResult.error || 'AI generation failed');
-             } else if (statusResult.status === 'processing' || statusResult.status === 'submitted') {
-              attempts++;
-              if (attempts < maxAttempts) {
-                setTimeout(poll, 5000); // Check every 5 seconds
-              } else {
-                throw new Error('AI generation timed out. Please try again.');
-              }
+          try {
+            const statusResponse = await fetch(`/api/ai-media-generation/${taskId}`);
+            const statusResult = await statusResponse.json() as AIStatusResponse;
+            
+            if (!statusResponse.ok) {
+              throw new Error(statusResult.message || 'Failed to check status');
             }
-          } catch (error) {
-            console.error('Polling failed:', error);
-            alert(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            setIsAIGenerating(false);
-          }
+
+            if (statusResult.status === 'succeed' && (statusResult.resultUrl || statusResult.resultUrls)) {
+              // Handle multiple images if available
+              if (statusResult.resultUrls && statusResult.resultUrls.length > 1) {
+                // Add all generated images to the canvas
+                statusResult.resultUrls.forEach((url, index) => {
+                  setTimeout(() => addImageToCanvas(url), index * 500); // Stagger the additions
+                });
+                showSuccess(`Print design complete! ${statusResult.resultUrls.length} images have been added to your design.`);
+              } else {
+                // Single image
+                addImageToCanvas(statusResult.resultUrl!);
+                showSuccess(`Print design complete! The generated image has been added to your design.`);
+              }
+              setIsAIGenerating(false);
+              return;
+            } else if (statusResult.status === 'failed') {
+              throw new Error(statusResult.error || 'AI generation failed');
+            } else if (statusResult.status === 'processing' || statusResult.status === 'submitted') {
+             attempts++;
+             if (attempts < maxAttempts) {
+               setTimeout(poll, 5000); // Check every 5 seconds
+             } else {
+               throw new Error('AI generation timed out. Please try again.');
+             }
+           }
+         } catch (error) {
+           console.error('Polling failed:', error);
+           showError(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+           setIsAIGenerating(false);
+         }
         };
 
         poll();
       };
 
-             // Show progress message
-       alert(`AI generation started! This usually takes 1-3 minutes. The generated image will be automatically added to your design when ready.`);
-       
-       // Start polling
-       pollForResult(aiResult.taskId);
+      // Show progress message
+      showInfo(`Print design generation started! This usually takes 1-3 minutes. The generated image will be automatically added to your design when ready.`);
+      
+      // Start polling
+      pollForResult(aiResult.taskId);
       
     } catch (error) {
       console.error('AI generation failed:', error);
-      alert(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showError(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsAIGenerating(false);
     }
   };
+
+
 
   // Handle click outside elements to deselect
   const checkDeselect = (e: any) => {
@@ -845,8 +1455,37 @@ export default function ProductCustomizer() {
     );
   }
 
+
+
   return (
     <div className="pt-30 pb-10 bg-secondary/80 backdrop-blur-sm min-h-screen">
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      
+      {/* AI Generation Modal */}
+      <AIGenerationModal 
+        showAIModal={showAIModal}
+        setShowAIModal={setShowAIModal}
+        aiGenerationType={aiGenerationType}
+        setAiGenerationType={setAiGenerationType}
+        aiPrompt={aiPrompt}
+        setAiPrompt={setAiPrompt}
+        aiNegativePrompt={aiNegativePrompt}
+        setAiNegativePrompt={setAiNegativePrompt}
+        aiReferenceImage={aiReferenceImage}
+        setAiReferenceImage={setAiReferenceImage}
+        aiUserImage={aiUserImage}
+        setAiUserImage={setAiUserImage}
+        aiImageReference={aiImageReference}
+        setAiImageReference={setAiImageReference}
+        aiAspectRatio={aiAspectRatio}
+        setAiAspectRatio={setAiAspectRatio}
+        aiNumberOfImages={aiNumberOfImages}
+        setAiNumberOfImages={setAiNumberOfImages}
+        uploadedImages={uploadedImages}
+        handleAIGeneration={handleAIGeneration}
+      />
+      
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <a 
@@ -910,7 +1549,7 @@ export default function ProductCustomizer() {
               {/* AI Generation */}
               <button 
                 onClick={generateWithAI}
-                disabled={isAIGenerating || (isLoggedIn && uploadedImages.length === 0)}
+                disabled={isAIGenerating}
                 className="w-full bg-gradient-to-r from-purple-600 to-primary hover:from-purple-700 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
               >
                 {isAIGenerating ? (
@@ -921,7 +1560,7 @@ export default function ProductCustomizer() {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    {isLoggedIn ? (uploadedImages.length > 0 ? `Transform Photo with AI ✨` : `Upload Photo First`) : `Login for AI Generation✨`}
+                    AI Generation Studio ✨
                   </>
                 )}
               </button>

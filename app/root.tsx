@@ -22,7 +22,6 @@ import config from '~/utils/config';
 import {ThemeProvider} from '~/utils/themeContext';
 import {CartProvider} from '~/providers/CartProvider';
 import {Aside} from '~/components/Aside';
-import {ToastProvider} from '~/components/Toast';
 
 import appStyles from './styles/app.css?url';
 import favicon from '~/assets/favicon.svg';
@@ -284,26 +283,24 @@ export function Layout({children}: {children?: React.ReactNode}) {
           shop={data?.shop}
           consent={data?.consent}
         >
-          <ToastProvider>
-            <ThemeProvider>
-              <Aside.Provider>
-                <CartProvider>
-                  <PageLayout 
-                    cart={safeData.cart}
-                    header={safeData.header}
-                    footer={safeData.footer}
-                    isLoggedIn={safeData.isLoggedIn}
-                    publicStoreDomain={safeData.publicStoreDomain}
-                    layout={safeData.layout}
-                  >
-                    {children}
-                  </PageLayout>
-                  <ScrollRestoration nonce={nonce} />
-                  <Scripts nonce={nonce} />
-                </CartProvider>
-              </Aside.Provider>
-            </ThemeProvider>
-          </ToastProvider>
+          <ThemeProvider>
+            <Aside.Provider>
+              <CartProvider>
+                <PageLayout 
+                  cart={safeData.cart}
+                  header={safeData.header}
+                  footer={safeData.footer}
+                  isLoggedIn={safeData.isLoggedIn}
+                  publicStoreDomain={safeData.publicStoreDomain}
+                  layout={safeData.layout}
+                >
+                  {children}
+                </PageLayout>
+                <ScrollRestoration nonce={nonce} />
+                <Scripts nonce={nonce} />
+              </CartProvider>
+            </Aside.Provider>
+          </ThemeProvider>
         </Analytics.Provider>
       </body>
     </html>

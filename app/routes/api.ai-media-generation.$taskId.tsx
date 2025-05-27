@@ -1,10 +1,6 @@
 import type { LoaderFunctionArgs } from 'react-router';
 
-// Environment variables for KlingAI API
-const env = process.env as any;
-const KLING_ACCESS_KEY = env.KLING_ACCESS_KEY as string | undefined;
-const KLING_SECRET_KEY = env.KLING_SECRET_KEY as string | undefined;
-const KLING_API_BASE = 'https://api.klingai.com';
+const KLING_API_BASE = 'https://api-singapore.klingai.com';
 
 interface KlingAITaskResponse {
   code: number;
@@ -32,8 +28,8 @@ function base64URLEncode(str: ArrayBuffer): string {
 }
 
 // Generate JWT token using Web Crypto API (compatible with Cloudflare Workers)
-async function generateKlingToken(): Promise<string> {
-  if (!KLING_ACCESS_KEY || !KLING_SECRET_KEY) {
+async function generateKlingToken(accessKey: string, secretKey: string): Promise<string> {
+  if (!accessKey || !secretKey) {
     throw new Error('KlingAI API credentials not configured');
   }
 
@@ -43,7 +39,7 @@ async function generateKlingToken(): Promise<string> {
   };
 
   const payload = {
-    iss: KLING_ACCESS_KEY,
+    iss: accessKey,
     exp: Math.floor(Date.now() / 1000) + 1800, // 30 minutes from now
     nbf: Math.floor(Date.now() / 1000) - 5     // 5 seconds ago
   };
@@ -56,7 +52,7 @@ async function generateKlingToken(): Promise<string> {
   const data = `${encodedHeader}.${encodedPayload}`;
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(KLING_SECRET_KEY),
+    new TextEncoder().encode(secretKey),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
@@ -65,10 +61,23 @@ async function generateKlingToken(): Promise<string> {
   const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
   const encodedSignature = base64URLEncode(signature);
   
-  return `${data}.${encodedSignature}`;
+  const token = `${data}.${encodedSignature}`;
+  
+  // Log JWT token details for verification
+  console.log('🔐 JWT TOKEN VERIFICATION DETAILS:');
+  console.log('✅ Complete JWT Token:', token);
+  console.log('✅ Token Parts:');
+  console.log('   Header:', encodedHeader);
+  console.log('   Payload:', encodedPayload);
+  console.log('   Signature:', encodedSignature);
+  console.log('✅ Decoded Payload:', payload);
+  console.log('✅ Token Length:', token.length);
+  console.log('✅ Generation Timestamp:', new Date().toISOString());
+  
+  return token;
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, context }: LoaderFunctionArgs) {
   const taskId = params.taskId;
 
   if (!taskId) {
@@ -77,6 +86,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
       headers: { 'Content-Type': 'application/json' }
     });
   }
+
+  // Get environment variables from context
+  const KLING_ACCESS_KEY = context.env.KLING_ACCESS_KEY as string | undefined;
+  const KLING_SECRET_KEY = context.env.KLING_SECRET_KEY as string | undefined;
 
   if (!KLING_ACCESS_KEY || !KLING_SECRET_KEY) {
     return new Response(JSON.stringify({ 
@@ -89,10 +102,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   try {
     // Generate JWT token for KlingAI
-    const token = await generateKlingToken();
+    const token = await generateKlingToken(KLING_ACCESS_KEY, KLING_SECRET_KEY);
 
-    // Make request to KlingAI to check task status
-    const response = await fetch(`${KLING_API_BASE}/v1/images/kolors-virtual-try-on/${taskId}`, {
+    // Try both endpoints (virtual try-on first, then image generation)
+    let response: Response;
+    let klingResult: KlingAITaskResponse;
+
+    // First try virtual try-on endpoint
+    response = await fetch(`${KLING_API_BASE}/v1/images/kolors-virtual-try-on/${taskId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -100,7 +117,20 @@ export async function loader({ params }: LoaderFunctionArgs) {
       }
     });
 
-    const klingResult = await response.json() as KlingAITaskResponse;
+    klingResult = await response.json() as KlingAITaskResponse;
+
+    // If virtual try-on fails (404 or task not found), try image generation endpoint
+    if (!response.ok || klingResult.code !== 0) {
+      response = await fetch(`${KLING_API_BASE}/v1/images/generations/${taskId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      klingResult = await response.json() as KlingAITaskResponse;
+    }
 
     if (!response.ok || klingResult.code !== 0) {
       console.error('KlingAI API error:', klingResult);
@@ -131,9 +161,16 @@ export async function loader({ params }: LoaderFunctionArgs) {
       updatedAt: taskData.updated_at
     };
 
-    // Add result URL if task is completed successfully
-    if (taskData.task_status === 'succeed' && taskData.task_result?.images?.[0]) {
-      responseData.resultUrl = taskData.task_result.images[0].url;
+    // Add result URL(s) if task is completed successfully
+    if (taskData.task_status === 'succeed' && taskData.task_result?.images) {
+      if (taskData.task_result.images.length === 1) {
+        // Single image - return as resultUrl for backward compatibility
+        responseData.resultUrl = taskData.task_result.images[0].url;
+      } else {
+        // Multiple images - return as array
+        responseData.resultUrls = taskData.task_result.images.map(img => img.url);
+        responseData.resultUrl = taskData.task_result.images[0].url; // Also set first image as primary
+      }
     }
 
     // Add error message if task failed
