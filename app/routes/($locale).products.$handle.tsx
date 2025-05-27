@@ -11,7 +11,7 @@ import {
   Money,
 } from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 import {useConfig} from '~/utils/themeContext';
 import {ProductForm} from '~/components/ProductForm';
 import {Suspense} from 'react';
@@ -132,6 +132,13 @@ export default function Product() {
   const images = product.images.nodes;
   const selectedVariant = product.selectedVariant ?? product.variants.nodes[0];
   
+  // Check if this product has a custom variant
+  const customVariant = product.variants.nodes.find(
+    (variant: any) => variant?.title?.toLowerCase?.() === 'custom'
+  );
+  const hasCustomVariant = Boolean(customVariant);
+  const isCustomVariantOutOfStock = customVariant && !customVariant.availableForSale;
+  
   return (
     <div className="py-24">
       <div className="container mx-auto px-4">
@@ -226,6 +233,41 @@ export default function Product() {
             <Suspense fallback={<div>Loading...</div>}>
               <ProductForm product={product} storeDomain={storeDomain} />
             </Suspense>
+            
+            {/* Customize Button */}
+            {hasCustomVariant && (
+              <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-sm">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-blue-400 mb-2 flex items-center">
+                      🎨 Make It Your Own
+                    </h3>
+                    <p className="text-sm text-blue-300 mb-4">
+                      Customize this product with your own images, text, and designs to create something truly unique!
+                    </p>
+                    
+                    {isCustomVariantOutOfStock ? (
+                      <div className="bg-red-600/20 border border-red-600/30 rounded-md p-3">
+                        <p className="text-red-400 text-sm font-semibold">
+                          ⚠️ Custom variants are currently out of stock
+                        </p>
+                        <p className="text-red-300 text-xs mt-1">
+                          Please check back later or contact us for availability.
+                        </p>
+                      </div>
+                    ) : (
+                      <Link
+                        to={`/customize-product/${product.handle}`}
+                        className="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-md transition-colors"
+                      >
+                        <span className="mr-2">🎨</span>
+                        Start Customizing
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Product meta information */}
             {(product.tags?.length > 0 || product.productType) && (

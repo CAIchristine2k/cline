@@ -4,7 +4,7 @@ import {getPaginationVariables, Image} from '@shopify/hydrogen';
 import type {CollectionFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {ArrowLeft} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 
 export const meta: MetaFunction = () => {
   const config = getConfig();

@@ -1,7 +1,7 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Link, useLoaderData, type MetaFunction} from 'react-router';
 import {type Shop} from '@shopify/hydrogen/storefront-api-types';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 import {ArrowLeft, FileText} from 'lucide-react';
 
 type SelectedPolicies = keyof Pick<

@@ -4,7 +4,7 @@ import {Image, getPaginationVariables} from '@shopify/hydrogen';
 import type {ArticleItemFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 import {ArrowLeft, Calendar, User} from 'lucide-react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {

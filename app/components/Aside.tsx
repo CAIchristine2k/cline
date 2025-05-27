@@ -161,18 +161,22 @@ export function Aside({
       {/* NUCLEAR OPTION - MAXIMUM OVERRIDE FOR RIGHT POSITIONING */}
       <aside 
         ref={asideRef}
-        className={`aside-glow aside-force-right right-side-drawer ${expanded ? 'aside-visible open' : ''} fixed top-0 bottom-0 w-full max-w-md bg-background/95 backdrop-blur-xl shadow-2xl border-l border-r border-primary/20 transition-all duration-500 ease-out flex flex-col ${className}`}
+        className={`cart-aside-container aside-glow aside-force-right right-side-drawer ${expanded ? 'aside-visible open' : ''} fixed top-0 bottom-0 bg-background/95 backdrop-blur-xl shadow-2xl border-l border-r border-primary/20 transition-all duration-500 ease-out flex flex-col ${className}`}
         style={{
           zIndex: 100,
           height: `calc(100vh - ${headerHeight}px)`,
           marginTop: `${headerHeight}px`,
           boxShadow: expanded ? '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(var(--color-primary-rgb), 0.1)' : 'none',
-          // FORCE RIGHT POSITIONING - maximum override
+          // FORCE RIGHT POSITIONING - maximum override with responsive width
           position: 'fixed',
           top: headerHeight + 'px',
           bottom: '0',
           left: 'auto', 
           right: '0',
+          // Responsive width constraints - use CSS variables
+          width: 'var(--cart-width-desktop)',
+          minWidth: 'var(--cart-min-width)',
+          maxWidth: 'var(--cart-max-width-desktop)',
           transform: expanded ? 'translateX(0)' : 'translateX(100%)'
         }}
       >

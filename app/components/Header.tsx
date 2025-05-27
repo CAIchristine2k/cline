@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronRight, ShoppingBag, Instagram, Twitter, Youtube, Facebook, Music } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { Logo } from './Logo';
 import { useConfig } from '~/utils/themeContext';
 import { useCart } from '~/providers/CartProvider';
 import { useAside } from './Aside';
+// Import removed - we'll handle navigation directly
 
 export function Header() {
   const config = useConfig();
@@ -12,6 +13,7 @@ export function Header() {
   const { open } = useAside();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
 
   // Get cart count
   const cartCount = totalQuantity || 0;
@@ -52,12 +54,29 @@ export function Header() {
 
   const handleNavClick = (link: string) => {
     setIsOpen(false);
+    // Handle hash links with smooth scrolling
     if (link.startsWith('#')) {
-      const element = document.querySelector(link);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+      // If we're on homepage, scroll to section
+      if (location.pathname === '/') {
+        const id = link.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          const header = document.querySelector('header');
+          const headerHeight = header ? header.offsetHeight : 80;
+          const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - headerHeight - 20;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      } else {
+        // If not on homepage, redirect to homepage with hash
+        window.location.href = `/${link}`;
       }
     }
+    // For regular links, React Router will handle them naturally
   };
 
   const handleCartClick = (e: React.MouseEvent) => {
@@ -155,8 +174,11 @@ export function Header() {
                   onClick={(e) => {
                     if (item.href.startsWith('#')) {
                       e.preventDefault();
+                      handleNavClick(item.href);
+                    } else {
+                      // For regular links, just close the mobile menu
+                      setIsOpen(false);
                     }
-                    handleNavClick(item.href);
                   }}
                   className="text-white hover:text-primary hover:bg-gray-900/30 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
                 >

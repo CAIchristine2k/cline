@@ -1,5 +1,6 @@
 import React from 'react';
 import { Instagram, Twitter, Facebook, Youtube, Mail, MapPin, Phone, Music } from 'lucide-react';
+import { Link } from 'react-router';
 import { FooterLogo } from './FooterLogo';
 import { useConfig } from '~/utils/themeContext';
 
@@ -53,6 +54,43 @@ export function Footer() {
 
   const policies = ['Privacy Policy', 'Terms of Service', 'Sitemap'];
 
+  // Map the quick links to appropriate routes
+  const getQuickLinkRoute = (link: string) => {
+    switch(link) {
+      case 'Shop All': return '/collections/all';
+      case 'Boxing Equipment': return '/collections/equipment';
+      case 'Apparel': return '/collections/apparel';
+      case 'Limited Editions': return '/collections/limited-editions';
+      case `About ${config.influencerName.split(' ')[0]}`: return '/about';
+      case 'Career Highlights': return '/about#highlights';
+      case 'Training Tips': return '/blogs/training';
+      default: return '/';
+    }
+  };
+
+  // Map the support links to appropriate routes  
+  const getSupportLinkRoute = (link: string) => {
+    switch(link) {
+      case 'Contact Us': return '/pages/contact';
+      case 'FAQs': return '/pages/faqs';
+      case 'Shipping & Returns': return '/pages/shipping-returns';
+      case 'Size Guide': return '/pages/size-guide';
+      case 'Privacy Policy': return '/pages/privacy-policy';
+      case 'Terms of Service': return '/pages/terms-of-service';
+      default: return '/';
+    }
+  };
+  
+  // Map the policy links to appropriate routes
+  const getPolicyRoute = (policy: string) => {
+    switch(policy) {
+      case 'Privacy Policy': return '/pages/privacy-policy';
+      case 'Terms of Service': return '/pages/terms-of-service';
+      case 'Sitemap': return '/sitemap.xml';
+      default: return '/';
+    }
+  };
+
   return (
     <footer className="bg-gray-950 pt-20 pb-10">
       <div className="container mx-auto px-4">
@@ -60,7 +98,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand Column */}
           <div>
-            <FooterLogo />
+            <Link to="/">
+              <FooterLogo />
+            </Link>
             <p className="text-gray-400 mt-6 mb-8 leading-relaxed text-sm text-center">
               The official brand of {config.influencerBio || `boxing legend ${config.influencerName}`}. 
               Exclusive merchandise, training resources, and premium content for champions.
@@ -95,15 +135,15 @@ export function Footer() {
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <a
-                    href={`#${link.toLowerCase().replace(/\s+/g, '-')}`}
+                  <Link
+                    to={getQuickLinkRoute(link)}
                     className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
                   >
                     <span 
                       className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
                     ></span>
                     {link}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -118,15 +158,15 @@ export function Footer() {
             <ul className="space-y-3">
               {supportLinks.map((link, index) => (
                 <li key={index}>
-                  <a
-                    href={`#${link.toLowerCase().replace(/\s+/g, '-')}`}
+                  <Link
+                    to={getSupportLinkRoute(link)}
                     className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
                   >
                     <span 
                       className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
                     ></span>
                     {link}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -163,13 +203,13 @@ export function Footer() {
 
             <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2">
               {policies.map((policy, index) => (
-                <a
+                <Link
                   key={index}
-                  href={`#${policy.toLowerCase().replace(/\s+/g, '-')}`}
+                  to={getPolicyRoute(policy)}
                   className="text-gray-500 hover:text-primary text-sm transition-all duration-300"
                 >
                   {policy}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

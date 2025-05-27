@@ -1,27 +1,30 @@
 import React, { useState } from 'react';
 import { Mail, ChevronRight, Check, Trophy } from 'lucide-react';
-import { defaultConfig, type LandingPageConfig } from '~/lib/config';
+import { useConfig } from '~/utils/themeContext';
+import type { LandingPageConfig } from '~/utils/config';
 
 interface NewsletterSignupProps {
   config?: LandingPageConfig;
 }
 
-export default function NewsletterSignup({ config = defaultConfig }: NewsletterSignupProps) {
+export default function NewsletterSignup({ config }: NewsletterSignupProps) {
+  const configFromContext = useConfig();
+  const effectiveConfig = config || configFromContext;
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [interests, setInterests] = useState<string[]>(['products']);
 
   // Skip rendering if newsletter is disabled in config
-  if (!config.newsletterEnabled) {
+  if (!effectiveConfig.newsletterEnabled) {
     return null;
   }
 
   const benefits = [
     'Early access to limited-edition boxing gear',
-    `Exclusive training tips from ${config.influencerName}`,
+    `Exclusive training tips from ${effectiveConfig.influencerName}`,
     '10% off your first purchase',
-    `Invites to virtual Q&A sessions with ${config.influencerName.split(' ')[0]}`
+    `Invites to virtual Q&A sessions with ${effectiveConfig.influencerName.split(' ')[0]}`
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -53,7 +56,7 @@ export default function NewsletterSignup({ config = defaultConfig }: NewsletterS
   };
 
   return (
-    <section id="contact" className="py-20 bg-black">
+    <section id="newsletter" className="py-20 bg-black">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto bg-gradient-to-r from-gray-900 to-black rounded-2xl p-8 md:p-12 shadow-xl border border-gray-800 relative overflow-hidden">
           {/* Boxing glove decorative element */}
@@ -73,11 +76,11 @@ export default function NewsletterSignup({ config = defaultConfig }: NewsletterS
               </div>
               
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                JOIN <span className="text-primary">{config.brandName}</span> EXCLUSIVE COMMUNITY
+                JOIN <span className="text-primary">{effectiveConfig.brandName}</span> EXCLUSIVE COMMUNITY
               </h2>
               
               <p className="text-gray-300 mb-6 leading-relaxed">
-                Get ringside access to {config.influencerName}'s world with early product releases, training tips from a {config.influencerTitle.toLowerCase()}, and exclusive content you won't find anywhere else.
+                Get ringside access to {effectiveConfig.influencerName}'s world with early product releases, training tips from a {effectiveConfig.influencerTitle.toLowerCase()}, and exclusive content you won't find anywhere else.
               </p>
               
               <ul className="space-y-3">
@@ -168,7 +171,7 @@ export default function NewsletterSignup({ config = defaultConfig }: NewsletterS
                     </h3>
                     
                     <p className="text-gray-300">
-                      You've successfully joined {config.influencerName}'s exclusive community. 
+                      You've successfully joined {effectiveConfig.influencerName}'s exclusive community. 
                       Check your inbox soon for your 10% discount code!
                     </p>
                   </div>

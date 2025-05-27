@@ -1,6 +1,6 @@
 import type {CustomerFragment} from 'customer-accountapi.generated';
 import type {CustomerUpdateInput} from '@shopify/hydrogen/customer-account-api-types';
-import {CUSTOMER_UPDATE_MUTATION} from '~/graphql/customer-account/CustomerUpdateMutation';
+import {CUSTOMER_UPDATE} from '~/graphql/customer-account/CustomerUpdateMutation';
 import {
   data,
   type ActionFunctionArgs,
@@ -14,6 +14,7 @@ import {
   type MetaFunction,
 } from 'react-router';
 import {User, Save, AlertCircle, CheckCircle} from 'lucide-react';
+import {useConfig} from '~/utils/themeContext';
 
 export type ActionResponse = {
   error: string | null;
@@ -21,7 +22,8 @@ export type ActionResponse = {
 };
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Sugar Shane | Profile'}];
+  const config = useConfig();
+  return [{title: `${config.brandName} | Profile`}];
 };
 
 export async function loader({context}: LoaderFunctionArgs) {
@@ -53,7 +55,7 @@ export async function action({request, context}: ActionFunctionArgs) {
 
     // update customer and possibly password
     const {data, errors} = await customerAccount.mutate(
-      CUSTOMER_UPDATE_MUTATION,
+      CUSTOMER_UPDATE,
       {
         variables: {
           customer,
@@ -65,13 +67,24 @@ export async function action({request, context}: ActionFunctionArgs) {
       throw new Error(errors[0].message);
     }
 
-    if (!data?.customerUpdate?.customer) {
-      throw new Error('Customer profile update failed.');
+    if (data?.customerUpdate?.userErrors?.length) {
+      throw new Error(data.customerUpdate.userErrors[0].message);
     }
+
+    // Refetch customer data after update
+    const { data: customerData } = await customerAccount.query(
+      `query GetUpdatedCustomer {
+        customer {
+          id
+          firstName
+          lastName
+        }
+      }`
+    );
 
     return {
       error: null,
-      customer: data?.customerUpdate?.customer,
+      customer: customerData?.customer,
     };
   } catch (error: any) {
     return data(
@@ -88,6 +101,7 @@ export default function AccountProfile() {
   const {state} = useNavigation();
   const action = useActionData<ActionResponse>();
   const customer = action?.customer ?? account?.customer;
+  const config = useConfig();
 
   return (
     <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-sm p-8">
@@ -177,7 +191,7 @@ export default function AccountProfile() {
       {/* Championship Note */}
       <div className="mt-8 p-4 bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 border border-gold-500/30 rounded-sm">
         <p className="text-gray-300 text-sm leading-relaxed">
-          Keep your profile updated to ensure you receive the latest news about Sugar Shane's championship collection and exclusive offers.
+          Keep your profile updated to ensure you receive the latest news about {config.brandName}'s championship collection and exclusive offers.
         </p>
       </div>
     </div>

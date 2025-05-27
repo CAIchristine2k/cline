@@ -69,11 +69,16 @@ export function AddToCartButton({
     buttonContent = 'Added to cart!';
   }
   
+  // Enhance lines with selectedVariant for optimistic cart
+  const enhancedLines = selectedVariant 
+    ? lines.map(line => ({ ...line, selectedVariant }))
+    : lines;
+
   return (
     <CartForm
       route="/cart"
       action={CartForm.ACTIONS.LinesAdd}
-      inputs={{lines}}
+      inputs={{ lines: enhancedLines }}
     >
       {(fetcher) => {
         const isSubmitting = fetcher.state === 'submitting';

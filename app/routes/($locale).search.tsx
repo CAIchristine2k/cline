@@ -13,7 +13,7 @@ import {
 } from '~/lib/search';
 import {Link} from 'react-router';
 import {ArrowLeft, Search, TrendingUp} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 import type {RegularSearchQuery} from 'storefrontapi.generated';
 
 export const meta: MetaFunction = () => {

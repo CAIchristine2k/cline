@@ -60,23 +60,26 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
 
   return (
     <div
-      className={`${layout === 'page' ? 'p-6' : 'p-4'} bg-background h-full flex flex-col min-h-full`}
+      className={`cart-container ${layout === 'page' ? 'p-6' : 'p-4'} bg-background h-full flex flex-col`}
     >
       <CartEmpty hidden={cartHasItems} layout={layout} />
 
       {cartHasItems && (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full max-h-full overflow-hidden">
+          {/* Cart Items Area with Fixed Height and Scroll */}
           <div
             aria-labelledby="cart-lines"
-            className="flex-grow overflow-auto pb-4"
+            className="cart-items-container flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent"
           >
-            <ul className="divide-y divide-primary/10">
+            <ul className="divide-y divide-primary/10 space-y-0">
               {(cart?.lines?.nodes ?? []).map((line) => (
                 <CartLineItem key={line.id} line={line} layout={layout} />
               ))}
             </ul>
           </div>
-          <div className="mt-auto pt-4 border-t border-primary/10">
+          
+          {/* Cart Summary - Fixed at Bottom */}
+          <div className="cart-summary-container flex-shrink-0 pt-4 border-t border-primary/10 bg-background/95 backdrop-blur-sm">
             <CartSummary cart={cart} layout={layout} />
           </div>
         </div>
@@ -100,12 +103,16 @@ function CartEmpty({
   console.log('CartEmpty is rendering - should be visible now');
 
   return (
-    <div className="flex flex-col items-center justify-center h-full py-16 px-4 text-center bg-white text-black min-h-[400px]">
+    <div 
+      className={`flex flex-col items-center justify-center h-full py-8 px-4 text-center bg-white text-black ${
+        layout === 'aside' ? 'min-h-[300px] max-h-full' : 'min-h-[400px]'
+      }`}
+    >
       <ShoppingBag className="w-16 h-16 text-gray-500 mb-6" />
       <h3 className="text-xl font-bold text-black mb-3">
         Your cart is empty
       </h3>
-      <p className="text-gray-700 mb-8 max-w-md">
+      <p className="text-gray-700 mb-8 max-w-md text-sm leading-relaxed">
         Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
         started!
       </p>

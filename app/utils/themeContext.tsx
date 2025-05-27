@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle } from '~/lib/themeConfig';
-import { defaultConfig, initConfig, type LandingPageConfig } from '~/lib/config';
+import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle, initThemeFromConfig } from '~/lib/themeConfig';
+import { defaultConfig, initConfig, type LandingPageConfig } from '~/utils/config';
 
 interface ThemeContextType {
   theme: ThemeConfig;
@@ -27,18 +27,8 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
 
   // Apply theme whenever config changes
   useEffect(() => {
-    const configuredTheme: Partial<ThemeConfig> = {
-      brandName: config.brandName,
-      brandStyle: config.brandStyle,
-      brandLogo: config.brandLogo,
-      influencerName: config.influencerName,
-      influencerTitle: config.influencerTitle,
-      influencerImage: config.influencerImage,
-      socialLinks: config.socialLinks
-    };
-
-    // Apply the theme
-    setGlobalTheme(configuredTheme);
+    // Initialize theme from config (includes layout variables)
+    initThemeFromConfig(config);
     setThemeState(getTheme());
   }, [config]);
 

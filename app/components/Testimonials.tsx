@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import { defaultConfig, type LandingPageConfig } from '~/lib/config';
+import { useConfig } from '~/utils/themeContext';
 
-interface TestimonialsProps {
-  config?: LandingPageConfig;
-}
-
-export default function Testimonials({ config = defaultConfig }: TestimonialsProps) {
+export default function Testimonials() {
+  const config = useConfig();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -16,14 +13,14 @@ export default function Testimonials({ config = defaultConfig }: TestimonialsPro
   }
 
   const handlePrev = (): void => {
-    if (isAnimating || config.testimonials.length === 0) return;
+    if (isAnimating || !config.testimonials || config.testimonials.length === 0) return;
     setIsAnimating(true);
     setCurrentIndex(currentIndex === 0 ? config.testimonials.length - 1 : currentIndex - 1);
     setTimeout(() => setIsAnimating(false), 500);
   };
 
   const handleNext = (): void => {
-    if (isAnimating || config.testimonials.length === 0) return;
+    if (isAnimating || !config.testimonials || config.testimonials.length === 0) return;
     setIsAnimating(true);
     setCurrentIndex(currentIndex === config.testimonials.length - 1 ? 0 : currentIndex + 1);
     setTimeout(() => setIsAnimating(false), 500);
@@ -37,11 +34,11 @@ export default function Testimonials({ config = defaultConfig }: TestimonialsPro
   };
 
   useEffect(() => {
-    if (config.testimonials.length > 1) {
+    if (config.testimonials && config.testimonials.length > 1) {
       const interval = setInterval(handleNext, 8000);
       return () => clearInterval(interval);
     }
-  }, [currentIndex, config.testimonials.length]);
+  }, [currentIndex, config.testimonials?.length]);
 
   const currentTestimonial = config.testimonials[currentIndex];
 

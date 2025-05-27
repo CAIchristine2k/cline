@@ -7,7 +7,8 @@ import {HeadersFunction, data} from '@shopify/remix-oxygen';
 import {Link} from 'react-router';
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Your Cart | Shane Mosley Official Store'}];
+  const config = useConfig();
+  return [{title: `Your Cart | ${config.brandName} Official Store`}];
 };
 
 export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;

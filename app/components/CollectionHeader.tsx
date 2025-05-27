@@ -1,6 +1,6 @@
 import React from 'react';
 import {Grid, Filter} from 'lucide-react';
-import type {LandingPageConfig} from '~/lib/config';
+import type {LandingPageConfig} from '~/utils/config';
 
 interface CollectionHeaderProps {
   collection: {

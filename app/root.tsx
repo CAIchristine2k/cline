@@ -18,7 +18,7 @@ import {PageLayout} from '~/components/PageLayout';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import {useEffect} from 'react';
 import {initializeTheme} from '~/lib/themeConfig';
-import config from '~/lib/config';
+import config from '~/utils/config';
 import {ThemeProvider} from '~/utils/themeContext';
 import {CartProvider} from '~/providers/CartProvider';
 import {Aside} from '~/components/Aside';
@@ -47,7 +47,7 @@ export const meta: MetaFunction = () => {
   return [
     {title: `${config.brandName} - ${config.influencerTitle} | Official Store`},
     {name: 'description', content: `${config.influencerBio.substring(0, 160)}...`},
-    {name: 'keywords', content: `${config.influencerName}, ${config.brandName}, boxing equipment, merchandise, champion gear`},
+            {name: 'keywords', content: `${config.influencerName}, ${config.brandName}, ${config.industry || 'sports'} equipment, merchandise, champion gear`},
     {property: 'og:title', content: `${config.brandName} - Official Store`},
     {property: 'og:description', content: config.heroSubtitle},
     {property: 'og:image', content: config.brandLogo},

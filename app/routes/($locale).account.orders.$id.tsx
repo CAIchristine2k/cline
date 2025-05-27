@@ -86,7 +86,7 @@ const CUSTOMER_ORDER_QUERY = `#graphql
     }
   }
 `;
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 import {Link} from 'react-router';
 import {ArrowLeft, Package, Truck, CreditCard, MapPin, ExternalLink} from 'lucide-react';
 

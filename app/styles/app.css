@@ -10,6 +10,23 @@
   --color-light: #fff;
   color-scheme: dark;
   
+  /* Layout Configuration - Configurable via theme */
+  --cart-width-mobile: 100vw;
+  --cart-width-tablet: min(85vw, 380px);
+  --cart-width-desktop: min(90vw, 420px);
+  --cart-max-width-mobile: 100vw;
+  --cart-max-width-tablet: 380px;
+  --cart-max-width-desktop: 420px;
+  --cart-min-width: 320px;
+  --cart-items-max-height: calc(100vh - 350px);
+  --cart-items-min-height: 200px;
+  --cart-summary-min-height: 150px;
+  --header-height-mobile: 60px;
+  --header-height-desktop: 80px;
+  --container-padding: 1rem;
+  --section-spacing: 4rem;
+  --card-spacing: 1.5rem;
+  
   /* Product theme colors - matches Vue implementation exactly */
   --color-primary-50: #FFF9E5;
   --color-primary-100: #FFF0BF;
@@ -103,7 +120,7 @@
   }
 }
 
-/* Theme override for different influencers - matches Vue implementation */
+/* Theme override for specific influencer configurations */
 [data-theme="shane-mosley"] {
   --color-primary-500: #E6B000;
   --color-primary-600: #CC9900;
@@ -557,6 +574,21 @@ video {
   contain: layout style paint;
 }
 
+/* Central theming utility classes */
+.container-padding {
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+.section-spacing-y {
+  padding-top: var(--section-spacing);
+  padding-bottom: var(--section-spacing);
+}
+
+.card-spacing {
+  gap: var(--card-spacing);
+}
+
 /* Status badge styles */
 .status-badge {
   backdrop-filter: blur(8px);
@@ -767,5 +799,80 @@ video {
   }
   50% {
     opacity: 1;
+  }
+}
+
+/* Cart-specific improvements for consistent sizing */
+.cart-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cart-items-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: var(--container-padding);
+  min-height: var(--cart-items-min-height);
+  max-height: var(--cart-items-max-height);
+}
+
+.cart-summary-container {
+  flex-shrink: 0;
+  background: rgba(var(--color-background-rgb, 0, 0, 0), 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(var(--color-primary-rgb), 0.1);
+  padding-top: var(--container-padding);
+  min-height: var(--cart-summary-min-height);
+}
+
+.cart-line-item {
+  padding: var(--container-padding) 0;
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.1);
+}
+
+.cart-line-item:last-child {
+  border-bottom: none;
+}
+
+/* Enhanced scrollbar for cart */
+.cart-items-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cart-items-container::-webkit-scrollbar-track {
+  background: rgba(var(--color-primary-rgb), 0.05);
+  border-radius: 3px;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-rgb), 0.3);
+  border-radius: 3px;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-primary-rgb), 0.5);
+}
+
+/* Responsive cart width constraints using CSS variables */
+@media (max-width: 480px) {
+  .cart-aside-container {
+    width: var(--cart-width-mobile) !important;
+    max-width: var(--cart-max-width-mobile) !important;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .cart-aside-container {
+    width: var(--cart-width-tablet) !important;
+    max-width: var(--cart-max-width-tablet) !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .cart-aside-container {
+    width: var(--cart-width-desktop) !important;
+    max-width: var(--cart-max-width-desktop) !important;
   }
 }

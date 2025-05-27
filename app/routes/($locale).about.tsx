@@ -1,6 +1,6 @@
 import {useConfig} from '~/utils/themeContext';
-import {type MetaFunction} from 'react-router';
-import {getConfig} from '~/lib/config';
+import {type MetaFunction, Link} from 'react-router';
+import {getConfig} from '~/utils/config';
 
 export const meta: MetaFunction = () => {
   const config = getConfig();
@@ -104,12 +104,12 @@ export default function About() {
           <p className="text-text/80 max-w-2xl mx-auto mb-8">
             Browse our exclusive collection of premium products designed with the champion's touch.
           </p>
-          <a 
-            href="/collections" 
+          <Link 
+            to="/collections/all" 
             className="inline-block bg-primary hover:bg-primary-600 text-background font-bold py-3 px-8 rounded-sm transition-colors"
           >
             Shop the Collection
-          </a>
+          </Link>
         </div>
       </div>
     </div>

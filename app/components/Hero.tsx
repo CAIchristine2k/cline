@@ -25,7 +25,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-10">
       {/* Video/Image Background with Overlay - follows Vue template structure */}
       <div className="absolute inset-0 z-0">
         {config.heroVideoUrl ? (

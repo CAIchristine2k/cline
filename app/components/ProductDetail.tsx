@@ -4,7 +4,7 @@ import { Image, Money, type MappedProductOptions } from '@shopify/hydrogen';
 import { ProductForm } from './ProductForm';
 import { Link, useLocation } from 'react-router';
 import type { ProductDetailsQuery } from 'storefrontapi.generated';
-import type { LandingPageConfig } from '~/lib/config';
+import type { LandingPageConfig } from '~/utils/config';
 import { useConfig } from '~/utils/themeContext';
 
 interface ProductVariant {

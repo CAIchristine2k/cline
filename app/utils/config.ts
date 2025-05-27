@@ -27,6 +27,22 @@ export interface ShopifyCollection {
   id?: string;
 }
 
+// Add the pose options interface
+interface AIGenerationPose {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string; // Lucide icon name
+}
+
+interface AIGenerationProduct {
+  id: string;
+  name: string;
+  description: string;
+  imagePath: string;
+  price: string;
+}
+
 export interface LandingPageConfig {
   // Brand & Influencer Details
   influencerName: string;
@@ -35,6 +51,7 @@ export interface LandingPageConfig {
   influencerImage: string;
   brandName: string;
   brandLogo: string;
+  industry?: string;
   // Visual Theme
   brandStyle:
   | "luxury"
@@ -83,6 +100,69 @@ export interface LandingPageConfig {
   showCareerHighlights: boolean;
   showTestimonials: boolean;
   showSocialFeed: boolean;
+  showAIMediaGeneration: boolean;
+  // Layout & UI Configuration
+  layout?: {
+    // Cart configuration
+    cart: {
+      width: {
+        mobile: string;      // e.g., "100vw"
+        tablet: string;      // e.g., "85vw"
+        desktop: string;     // e.g., "420px"
+      };
+      maxWidth: {
+        mobile: string;      // e.g., "100vw"
+        tablet: string;      // e.g., "380px"
+        desktop: string;     // e.g., "420px"
+      };
+      minWidth: string;      // e.g., "320px"
+      itemsAreaMaxHeight: string; // e.g., "calc(100vh - 350px)"
+      itemsAreaMinHeight: string; // e.g., "200px"
+      summaryMinHeight: string;   // e.g., "150px"
+    };
+    // Header configuration
+    header: {
+      height: {
+        mobile: string;      // e.g., "60px"
+        desktop: string;     // e.g., "80px"
+      };
+      blur: boolean;         // Enable backdrop blur
+    };
+    // Spacing configuration
+    spacing: {
+      containerPadding: string; // e.g., "1rem"
+      sectionSpacing: string;   // e.g., "4rem"
+      cardSpacing: string;      // e.g., "1.5rem"
+    };
+  };
+  // AI Media Generation
+  aiMediaGeneration?: {
+    title: string;
+    subtitle: string;
+    description: string;
+    buttonText: string;
+    influencerReferenceImage: string; // Image of influencer for AI generation
+    placeholderText: string;
+    successMessage: string;
+    errorMessage: string;
+    processingMessage: string;
+    shareText?: string; // Optional text for sharing generated content
+    maxFileSize: number; // in MB
+    allowedFormats: string[];
+    features: string[];
+    // Pose options
+    poseOptions: AIGenerationPose[];
+    // Product try-on options
+    productOptions: AIGenerationProduct[];
+    // Authentication and limits
+    requiresAuth: boolean; // Require user authentication
+    usageLimit: number; // Maximum generations per user per month
+    resetPeriod: 'monthly' | 'weekly' | 'daily'; // How often limits reset
+    loginPromptTitle: string;
+    loginPromptMessage: string;
+    limitReachedTitle: string;
+    limitReachedMessage: string;
+  };
   // Limited Edition
   limitedEdition?: {
     title: string;
@@ -143,6 +223,7 @@ export const defaultConfig: LandingPageConfig = {
   influencerImage: "/images/influencer.jpeg",
   brandName: "SUGAR SHANE",
   brandLogo: "/images/logo.png",
+  industry: "boxing",
 
   // Visual Theme - Boxing champions typically go with luxury styling
   brandStyle: "luxury",
@@ -154,14 +235,15 @@ export const defaultConfig: LandingPageConfig = {
   heroSubtitle:
     "Premium boxing equipment and apparel from a 9-time world champion",
   ctaText: "SHOP THE COLLECTION",
-  ctaLink: "/collections",
+  ctaLink: "/collections/all",
   
   // Navigation
   navigation: [
     { name: "Home", href: "/" },
-    { name: "Shop", href: "/collections" },
+    { name: "Shop", href: "/collections/all" },
     { name: "About", href: "/about" },
-    { name: "Contact", href: "#contact" },
+    { name: "Career", href: "#career" },
+    { name: "Contact", href: "#newsletter" },
   ],
 
   // Product Information
@@ -248,6 +330,127 @@ export const defaultConfig: LandingPageConfig = {
   showCareerHighlights: true,
   showTestimonials: true,
   showSocialFeed: true,
+  showAIMediaGeneration: true,
+
+  // Layout & UI Configuration
+  layout: {
+    cart: {
+      width: {
+        mobile: "100vw",
+        tablet: "min(85vw, 380px)",
+        desktop: "min(90vw, 420px)"
+      },
+      maxWidth: {
+        mobile: "100vw",
+        tablet: "380px",
+        desktop: "420px"
+      },
+      minWidth: "320px",
+      itemsAreaMaxHeight: "calc(100vh - 350px)",
+      itemsAreaMinHeight: "200px",
+      summaryMinHeight: "150px"
+    },
+    header: {
+      height: {
+        mobile: "60px",
+        desktop: "80px"
+      },
+      blur: true
+    },
+    spacing: {
+      containerPadding: "1rem",
+      sectionSpacing: "4rem",
+      cardSpacing: "1.5rem"
+    }
+  },
+
+  // AI Media Generation
+  aiMediaGeneration: {
+    title: "TRAIN WITH THE CHAMP",
+    subtitle: "AI-Powered Fan Experience",
+    description: "Upload your photo and see yourself training alongside Sugar Shane Mosley using cutting-edge AI technology. Create your own championship moment!",
+    buttonText: "Generate My Training Photo",
+    influencerReferenceImage: "/images/influencer.jpeg",
+    placeholderText: "Upload your photo to get started",
+    successMessage: "Your training photo is ready! Check it out below.",
+    errorMessage: "Something went wrong generating your photo. Please try again.",
+    processingMessage: "Creating your championship moment... This may take a few minutes.",
+    shareText: "Check out my AI-generated training photo with Sugar Shane Mosley! 🥊✨",
+    maxFileSize: 10,
+    allowedFormats: ["jpg", "jpeg", "png"],
+    features: [
+      "High-quality AI generation",
+      "Instant training scenarios",
+      "Shareable results",
+      "Multiple poses available"
+    ],
+    // Pose options
+    poseOptions: [
+      {
+        id: "training",
+        name: "Training Session",
+        description: "Train with the champion",
+        icon: "dumbbell"
+      },
+      {
+        id: "hugging",
+        name: "Meet & Greet",
+        description: "Photo with Sugar Shane Mosley",
+        icon: "users"
+      },
+      {
+        id: "heart",
+        name: "Fan Love",
+        description: "Show your support with a heart gesture",
+        icon: "heart"
+      },
+      {
+        id: "try-on",
+        name: "Virtual Try-On",
+        description: "Try on official merchandise",
+        icon: "shirt"
+      }
+    ],
+    // Product try-on options
+    productOptions: [
+      {
+        id: "product-1",
+        name: "Championship Tee",
+        description: "Official championship t-shirt",
+        imagePath: "/images/product-1.png",
+        price: "$39.99"
+      },
+      {
+        id: "product-2",
+        name: "Training Hoodie",
+        description: "Premium training hoodie",
+        imagePath: "/images/product-2.png",
+        price: "$59.99"
+      },
+      {
+        id: "product-3",
+        name: "Elite Jersey",
+        description: "Elite fighter jersey",
+        imagePath: "/images/product-3.png",
+        price: "$79.99"
+      },
+      {
+        id: "product-4",
+        name: "Limited Cap",
+        description: "Limited edition cap",
+        imagePath: "/images/product-4.png",
+        price: "$34.99"
+      }
+    ],
+    // Authentication and limits
+    requiresAuth: true,
+    usageLimit: 10,
+    resetPeriod: 'monthly',
+    loginPromptTitle: "Authentication Required",
+    loginPromptMessage: "Please log in to generate more photos.",
+    limitReachedTitle: "Usage Limit Reached",
+    limitReachedMessage: "You've reached the maximum number of photos you can generate this month."
+  },
 
   // Limited Edition
   limitedEdition: {
@@ -385,24 +588,24 @@ export const defaultConfig: LandingPageConfig = {
   // Testimonials
   testimonials: [
     {
-      name: "John Doe",
-      role: "Customer",
-      content: "I absolutely love the products! Shane Mosley's boxing gloves are the best I've ever used. They fit perfectly and provide the support I need for training.",
-      image: "/images/testimonial-1.jpg",
+      name: "Marcus Rodriguez",
+      role: "Amateur Boxer",
+      content: "Training with Shane's techniques has completely transformed my boxing game. The AI photo feature is incredible - seeing myself train alongside the champ is pure motivation!",
+      image: "/images/testimonial-2.jpeg",
       rating: 5
     },
     {
-      name: "Jane Smith",
-      role: "Customer",
-      content: "The Sugar Shane Hoodie is incredibly comfortable and stylish. It's perfect for pre and post workout.",
-      image: "/images/testimonial-2.jpg",
-      rating: 4
+      name: "Sarah Johnson",
+      role: "Fitness Enthusiast",
+      content: "The Sugar Shane gear is top quality, and the AI training photos are such a unique experience. It's like having a personal session with a legend!",
+      image: "/images/testimonial-3.jpeg", 
+      rating: 5
     },
     {
-      name: "Bob Johnson",
-      role: "Customer",
-      content: "The Training DVD Set has been a game-changer for my boxing training. Shane's techniques and routines have improved my skills significantly.",
-      image: "/images/testimonial-3.jpg",
+      name: "Tony Martinez",
+      role: "Boxing Coach",
+      content: "My students love generating AI photos with Shane. It's become a huge motivation tool in our gym. The quality is incredible and it brings real excitement to training.",
+      image: "/images/social-feed-1.jpeg",
       rating: 5
     }
   ]
@@ -441,6 +644,15 @@ export function initConfig(
   });
 
   return config;
+}
+
+/**
+ * Get the current configuration - can be extended to support multiple influencers
+ */
+export function getConfig(influencerId?: string): LandingPageConfig {
+  // For now, return default Shane Mosley config
+  // Later this can be extended to support multiple influencers
+  return defaultConfig;
 }
 
 // Export the configuration

@@ -2,7 +2,7 @@ import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {useLoaderData, type MetaFunction, Link} from 'react-router';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {ArrowLeft, FileText} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const config = getConfig();

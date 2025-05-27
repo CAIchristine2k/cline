@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
-import { defaultConfig, type LandingPageConfig } from '~/utils/config';
+import { useConfig } from '~/utils/themeContext';
 import TimeUnit from './TimeUnit';
-
-interface LimitedEditionProps {
-  config?: LandingPageConfig;
-}
 
 interface TimeLeft {
   days: number;
@@ -15,7 +11,8 @@ interface TimeLeft {
   seconds: number;
 }
 
-export default function LimitedEdition({ config = defaultConfig }: LimitedEditionProps) {
+export default function LimitedEdition() {
+  const config = useConfig();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // Skip rendering if limited edition section is disabled in config

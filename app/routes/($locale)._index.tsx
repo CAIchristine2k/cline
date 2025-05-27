@@ -1,6 +1,7 @@
 import { useLoaderData, type LoaderFunctionArgs, type MetaFunction } from 'react-router';
 import { getPaginationVariables, Analytics } from '@shopify/hydrogen';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router';
 
 // Import configuration and theme system from utils (consistent directory)
 import config, { defaultConfig } from '~/utils/config';
@@ -12,6 +13,8 @@ import { ProductShowcase } from '~/components/ProductShowcase';
 import LimitedEdition from '~/components/LimitedEdition';
 import CareerHighlights from '~/components/CareerHighlights';
 import { SocialFeed } from '~/components/SocialFeed';
+import { AIMediaGeneration } from '~/components/AIMediaGeneration';
+import { CustomizableProductGrid } from '~/components/CustomizableProductGrid';
 import Testimonials from '~/components/Testimonials';
 import NewsletterSignup from '~/components/NewsletterSignup';
 
@@ -27,149 +30,131 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
-  const paginationVariables = getPaginationVariables(request, {
-    pageBy: 8,
+// Define loader function to fetch all products
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const searchParams = new URL(request.url).searchParams;
+  const variables = getPaginationVariables(request, { pageBy: 10 });
+  
+  // Get all products with more variants
+  const { products } = await context.storefront.query(PRODUCTS_QUERY, {
+    variables,
   });
-
-  // Handle pagination variables properly
-  const queryVariables = 'first' in paginationVariables 
-    ? { first: paginationVariables.first, after: paginationVariables.endCursor }
-    : { first: 8, after: null };
-
-  // Fetch products from Shopify for the ProductShowcase component
-  let products = null;
-  let featuredCollection = null;
-  let collections: any[] = [];
-
-  try {
-    // Fetch featured products
-    const productsResponse = await context.storefront.query(PRODUCTS_QUERY, {
-      variables: { ...queryVariables, sortKey: 'BEST_SELLING' },
-    });
-    products = productsResponse.products?.nodes;
-    
-    // Debug: Log products info
-    console.log('Products fetched:', products ? products.length : 0);
-    if (products && products.length > 0) {
-      console.log('First product:', products[0].title);
-    } else {
-      console.log('No products found in Shopify store');
-    }
-    
-    // Fetch all collections
-    const collectionsResponse = await context.storefront.query(FEATURED_COLLECTIONS_QUERY, {
-      variables: { first: 10 },
-    });
-    collections = collectionsResponse.collections?.nodes || [];
-    console.log('Collections fetched:', collections.length);
-    
-    // Try to find featured collection by handle first
-    featuredCollection = collections.find((collection: any) => 
-      collection.handle === 'featured' || 
-      collection.handle === 'homepage' || 
-      collection.title.toLowerCase().includes('featured')
-    );
-    
-    // If no featured collection found, use the first collection
-    if (!featuredCollection && collections.length > 0) {
-      featuredCollection = collections[0];
-    }
-  } catch (error) {
-    console.error('Error fetching products or collections:', error);
-  }
+  
+  // Get collections
+  const { collections } = await context.storefront.query(COLLECTIONS_QUERY);
+  
+  // Get featured collection
+  const featuredCollection = collections?.nodes.find(
+    (collection: any) => collection.handle === 'frontpage'
+  );
 
   return {
-    products,
+    products: products.nodes,
     featuredCollection,
-    collections,
-    // Return the Shopify data but do not modify the config here
-    // The config will be handled by the ThemeProvider context
+    collections: collections.nodes,
   };
 }
 
-export default function Homepage() {
-  const { products, featuredCollection, collections } = useLoaderData<typeof loader>();
-  
-  // Use the centralized configuration from context
-  const { config } = useTheme();
-  const updateConfig = useUpdateConfig();
-  
-  // Update config with Shopify data if available - but maintain single source of truth
-  // by using the context system
-  React.useEffect(() => {
-    if (collections && collections.length > 0) {
-      // Only update if collections have changed to prevent infinite loop
-      const hasShopifyCollections = config.shopifyCollections && config.shopifyCollections.length > 0;
-      
-      // Check if we already have these collections (by comparing first collection ID)
-      const firstNewId = collections[0]?.id;
-      const firstCurrentId = config.shopifyCollections?.[0]?.id;
-      
-      if (!hasShopifyCollections || firstNewId !== firstCurrentId) {
-        updateConfig({ 
-          shopifyCollections: collections 
-        });
-      }
-    }
-  }, [collections, updateConfig, config.shopifyCollections]);
+export default function Home() {
+  const { products, featuredCollection } = useLoaderData<typeof loader>();
+  const [debugLog, setDebugLog] = useState<string[]>([]);
+  const appConfig = useConfig();
 
-  console.log('Products fetched:', products?.length || 0);
-  console.log('First product:', products?.[0]?.title || 'None');
-  console.log('Collections fetched:', collections?.length || 0);
+  useEffect(() => {
+    // Debug logging for products
+    console.log('Index: Total products loaded:', products?.length || 0);
+    
+    // Log each product's variants
+    products?.forEach((product: any, i: number) => {
+      console.log(`Product ${i + 1}: ${product.title}`);
+      
+      // Log variants
+      const variants = product.variants?.nodes || [];
+      console.log('  Variants:', variants.length);
+      variants.forEach((variant: any, j: number) => {
+        console.log(`    Variant ${j + 1}: ${variant.title}`);
+      });
+
+      // Check for custom variants
+      const hasCustomVariant = variants.some(
+        (variant: any) => variant?.title?.toLowerCase() === 'custom'
+      );
+      
+      if (hasCustomVariant) {
+        console.log('  ✓ HAS CUSTOM VARIANT');
+      } else {
+        console.log('  ✗ NO CUSTOM VARIANT');
+      }
+    });
+
+    // Count products with custom variants
+    const customizableCount = products?.filter((product: any) => 
+      product.variants?.nodes?.some(
+        (variant: any) => variant?.title?.toLowerCase() === 'custom'
+      )
+    ).length || 0;
+
+    console.log('Products with custom variants:', customizableCount);
+    
+    // Update debug info
+    setDebugLog([
+      `Total products: ${products?.length || 0}`,
+      `Products with custom variants: ${customizableCount}`
+    ]);
+  }, [products]);
 
   return (
-    <div data-theme={config.brandStyle} className="min-h-screen bg-black text-white overflow-x-hidden">
-      <main>
-        {/* Each component uses the shared config from context */}
-        <Hero />
-        
-        {/* Pass Shopify products to the ProductShowcase component */}
-        {products && products.length > 0 ? (
-          <ProductShowcase 
-            products={products}
-            title="EXCLUSIVE MERCHANDISE"
-            subtitle={`Premium quality products inspired by the legacy of ${config.influencerName}.`}
-          />
-        ) : (
-          // Fallback message when no products are available
-          <section id="shop" className="py-24 bg-gradient-to-b from-black via-gray-900/95 to-black">
-            <div className="container mx-auto px-4 text-center">
-              <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
-                Coming Soon
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-5">
-                <span className="text-primary">EXCLUSIVE</span> MERCHANDISE
-              </h2>
-              <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed mb-8">
-                Our collection is being crafted. Please check back soon for our premium products.
-              </p>
-            </div>
-          </section>
-        )}
-        
-        {/* Conditional sections based on config */}
-        {config.showLimitedEdition && <LimitedEdition />}
-        
-        {config.showCareerHighlights && <CareerHighlights />}
-        
-        {config.showTestimonials && <Testimonials />}
-        
-        {config.showSocialFeed && <SocialFeed />}
-        
-        <NewsletterSignup />
+    <main>
+      <Hero />
+      
+      {/* Debug info (only in development) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 left-4 bg-black/80 text-white p-2 text-xs z-50 rounded border border-primary">
+          <div className="font-bold mb-1">Debug Info:</div>
+          {debugLog.map((log, i) => (
+            <div key={i}>{log}</div>
+          ))}
+        </div>
+      )}
 
-        {/* Analytics tracking for homepage */}
-        <Analytics.CustomView type="custom_homepage_viewed" data={{}} />
-      </main>
-    </div>
+      {/* Product showcase section */}
+      <ProductShowcase
+        products={products}
+        title="EXCLUSIVE MERCHANDISE"
+      />
+      
+      {/* Customizable Products Section */}
+      <CustomizableProductGrid 
+        products={products} 
+        title="CUSTOMIZE YOUR OWN"
+        subtitle={`Create one-of-a-kind products featuring your own photos, text, and designs with ${appConfig.influencerName}.`}
+      />
+      
+      {/* Limited Edition section */}
+      {appConfig.showLimitedEdition && <LimitedEdition />}
+      
+      {/* Career Highlights section */}
+      {appConfig.showCareerHighlights && <CareerHighlights />}
+      
+      {/* Testimonials section */}
+      {appConfig.showTestimonials && <Testimonials />}
+      
+      {/* Social Feed section */}
+      {appConfig.showSocialFeed && <SocialFeed />}
+      
+      {/* AI Media Generation section */}
+      {appConfig.showAIMediaGeneration && <AIMediaGeneration />}
+      
+      {/* Newsletter signup section */}
+      <NewsletterSignup />
+    </main>
   );
 }
 
-// Updated Shopify GraphQL query for products
+// GraphQL query to fetch all products
 const PRODUCTS_QUERY = `#graphql
-  query Products($first: Int, $last: Int, $startCursor: String, $endCursor: String, $sortKey: ProductSortKeys) {
-    products(first: $first, last: $last, before: $startCursor, after: $endCursor, sortKey: $sortKey) {
+  query products($first: Int, $last: Int, $startCursor: String, $endCursor: String) {
+    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
       nodes {
         id
         title
@@ -193,9 +178,10 @@ const PRODUCTS_QUERY = `#graphql
             currencyCode
           }
         }
-        variants(first: 1) {
+        variants(first: 25) {
           nodes {
             id
+            title
             availableForSale
             price {
               amount
@@ -209,30 +195,37 @@ const PRODUCTS_QUERY = `#graphql
               name
               value
             }
+            image {
+              url
+              altText
+              width
+              height
+            }
+          }
+        }
+        images(first: 1) {
+          nodes {
+            url
+            altText
+            width
+            height
           }
         }
       }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
     }
   }
-` as const;
+`;
 
-// Shopify GraphQL query for collections
-const FEATURED_COLLECTIONS_QUERY = `#graphql
-  query FeaturedCollections($first: Int, $handle: String) {
-    collections(first: $first, query: $handle) {
+// GraphQL query to fetch all collections
+const COLLECTIONS_QUERY = `#graphql
+  query collections {
+    collections(first: 10) {
       nodes {
         id
         title
         handle
         description
         image {
-          id
           url
           altText
           width
@@ -241,4 +234,4 @@ const FEATURED_COLLECTIONS_QUERY = `#graphql
       }
     }
   }
-` as const;
+`;

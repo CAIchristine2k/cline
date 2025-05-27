@@ -106,6 +106,14 @@ export type CustomerFragment = Pick<
       >
     >;
   };
+  metafields: Array<
+    CustomerAccountAPI.Maybe<
+      Pick<
+        CustomerAccountAPI.Metafield,
+        'id' | 'namespace' | 'key' | 'value' | 'type'
+      >
+    >
+  >;
 };
 
 export type AddressFragment = Pick<
@@ -169,6 +177,14 @@ export type CustomerDetailsQuery = {
         >
       >;
     };
+    metafields: Array<
+      CustomerAccountAPI.Maybe<
+        Pick<
+          CustomerAccountAPI.Metafield,
+          'id' | 'namespace' | 'key' | 'value' | 'type'
+        >
+      >
+    >;
   };
 };
 
@@ -450,27 +466,39 @@ export type CustomerUpdateMutationVariables = CustomerAccountAPI.Exact<{
 
 export type CustomerUpdateMutation = {
   customerUpdate?: CustomerAccountAPI.Maybe<{
+    userErrors: Array<
+      Pick<CustomerAccountAPI.UserErrorsCustomerUserErrors, 'field' | 'message'>
+    >;
+  }>;
+};
+
+export type CustomerMetafieldUpdateMutationVariables =
+  CustomerAccountAPI.Exact<{
+    customer: CustomerAccountAPI.CustomerUpdateInput;
+  }>;
+
+export type CustomerMetafieldUpdateMutation = {
+  customerUpdate?: CustomerAccountAPI.Maybe<{
     customer?: CustomerAccountAPI.Maybe<
-      Pick<CustomerAccountAPI.Customer, 'firstName' | 'lastName'> & {
-        emailAddress?: CustomerAccountAPI.Maybe<
-          Pick<CustomerAccountAPI.CustomerEmailAddress, 'emailAddress'>
-        >;
-        phoneNumber?: CustomerAccountAPI.Maybe<
-          Pick<CustomerAccountAPI.CustomerPhoneNumber, 'phoneNumber'>
+      Pick<CustomerAccountAPI.Customer, 'id'> & {
+        metafields: Array<
+          CustomerAccountAPI.Maybe<
+            Pick<
+              CustomerAccountAPI.Metafield,
+              'id' | 'namespace' | 'key' | 'value' | 'type'
+            >
+          >
         >;
       }
     >;
     userErrors: Array<
-      Pick<
-        CustomerAccountAPI.UserErrorsCustomerUserErrors,
-        'code' | 'field' | 'message'
-      >
+      Pick<CustomerAccountAPI.UserErrorsCustomerUserErrors, 'field' | 'message'>
     >;
   }>;
 };
 
 interface GeneratedQueryTypes {
-  '#graphql\n  query CustomerDetails {\n    customer {\n      ...Customer\n    }\n  }\n  #graphql\n  fragment Customer on Customer {\n    id\n    firstName\n    lastName\n    defaultAddress {\n      ...Address\n    }\n    addresses(first: 6) {\n      nodes {\n        ...Address\n      }\n    }\n  }\n  fragment Address on CustomerAddress {\n    id\n    formatted\n    firstName\n    lastName\n    company\n    address1\n    address2\n    territoryCode\n    zoneCode\n    city\n    zip\n    phoneNumber\n  }\n\n': {
+  '#graphql\n  query CustomerDetails {\n    customer {\n      ...Customer\n    }\n  }\n  #graphql\n  fragment Customer on Customer {\n    id\n    firstName\n    lastName\n    defaultAddress {\n      ...Address\n    }\n    addresses(first: 6) {\n      nodes {\n        ...Address\n      }\n    }\n    metafields(identifiers: [\n      {namespace: "ai_generation", key: "monthly_usage"}\n      {namespace: "ai_generation", key: "last_reset"}\n    ]) {\n      id\n      namespace\n      key\n      value\n      type\n    }\n  }\n  fragment Address on CustomerAddress {\n    id\n    formatted\n    firstName\n    lastName\n    company\n    address1\n    address2\n    territoryCode\n    zoneCode\n    city\n    zip\n    phoneNumber\n  }\n\n': {
     return: CustomerDetailsQuery;
     variables: CustomerDetailsQueryVariables;
   };
@@ -497,9 +525,13 @@ interface GeneratedMutationTypes {
     return: CustomerAddressCreateMutation;
     variables: CustomerAddressCreateMutationVariables;
   };
-  '#graphql\n  # https://shopify.dev/docs/api/customer/latest/mutations/customerUpdate\n  mutation customerUpdate(\n    $customer: CustomerUpdateInput!\n  ){\n    customerUpdate(input: $customer) {\n      customer {\n        firstName\n        lastName\n        emailAddress {\n          emailAddress\n        }\n        phoneNumber {\n          phoneNumber\n        }\n      }\n      userErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
+  '#graphql\n  # https://shopify.dev/docs/api/customer/latest/mutations/customerUpdate\n  mutation customerUpdate($customer: CustomerUpdateInput!) {\n    customerUpdate(input: $customer) {\n      userErrors {\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerUpdateMutation;
     variables: CustomerUpdateMutationVariables;
+  };
+  '#graphql\n  mutation customerMetafieldUpdate($customer: CustomerUpdateInput!) {\n    customerUpdate(input: $customer) {\n      customer {\n        id\n        metafields(identifiers: [\n          {namespace: "ai_generation", key: "monthly_usage"}\n          {namespace: "ai_generation", key: "last_reset"}\n        ]) {\n          id\n          namespace\n          key\n          value\n          type\n        }\n      }\n      userErrors {\n        field\n        message\n      }\n    }\n  }\n': {
+    return: CustomerMetafieldUpdateMutation;
+    variables: CustomerMetafieldUpdateMutationVariables;
   };
 }
 

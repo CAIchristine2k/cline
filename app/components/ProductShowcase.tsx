@@ -15,10 +15,14 @@ interface ProductShowcaseProps {
 export function ProductShowcase({ 
   products, 
   title = "EXCLUSIVE MERCHANDISE", 
-  subtitle = "Premium quality products inspired by the legacy of Sugar Shane Mosley. Elevate your performance with our exclusive collection.", 
+  subtitle, 
   loading = 'lazy' 
 }: ProductShowcaseProps) {
   const config = useConfig();
+  
+  // Generate default subtitle from config if not provided
+  const defaultSubtitle = `Premium quality products inspired by the legacy of ${config.influencerName}. Elevate your performance with our exclusive collection.`;
+  const effectiveSubtitle = subtitle || defaultSubtitle;
 
   return (
     <section id="shop" className="py-24 bg-gradient-to-b from-black via-gray-900/95 to-black relative overflow-hidden">
@@ -35,7 +39,7 @@ export function ProductShowcase({
             <span className="text-primary">{title.split(' ')[0]}</span> {title.split(' ').slice(1).join(' ')}
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            {subtitle}
+            {effectiveSubtitle}
           </p>
         </div>
         
@@ -51,7 +55,7 @@ export function ProductShowcase({
         
         <div className="mt-16 text-center">
           <Link 
-            to="/collections"
+            to="/collections/all"
             prefetch="intent" 
             className="group inline-flex items-center justify-center bg-transparent hover:bg-primary text-primary hover:text-background border-2 border-primary font-bold py-3.5 px-10 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >

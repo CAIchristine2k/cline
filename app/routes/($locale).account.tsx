@@ -4,7 +4,7 @@ import {
 import {Form, NavLink, Outlet, useLoaderData, Link, type MetaFunction} from 'react-router';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 import {ArrowLeft, User, Package, MapPin, LogOut} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 
 export const meta: MetaFunction = () => {
   const config = getConfig();

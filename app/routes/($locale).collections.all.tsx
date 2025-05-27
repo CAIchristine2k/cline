@@ -5,7 +5,7 @@ import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {ProductItem} from '~/components/ProductItem';
 import {Link} from 'react-router';
 import {ArrowLeft} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 
 export const meta: MetaFunction<typeof loader> = () => {
   const config = getConfig();
@@ -70,7 +70,7 @@ export default function Collection() {
         <div className="mb-8">
           <Link 
             to="/"
-            className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
+            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
@@ -79,14 +79,14 @@ export default function Collection() {
 
         {/* Page Header */}
         <div className="text-center mb-16">
-          <div className="inline-block px-4 py-1 bg-gold-500/20 text-gold-500 text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
+          <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
             All Products
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="text-gold-500">CHAMPIONSHIP</span> COLLECTION
+            <span className="text-primary">CHAMPIONSHIP</span> COLLECTION
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Explore our complete collection of premium boxing equipment and exclusive merchandise inspired by {config.influencerName}'s legendary career.
+            Explore our complete collection of premium {config.industry || 'sports'} equipment and exclusive merchandise inspired by {config.influencerName}'s legendary career.
           </p>
         </div>
 
@@ -107,8 +107,8 @@ export default function Collection() {
         </div>
 
         {/* Championship Banner */}
-        <div className="bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 border border-gold-500/30 rounded-sm p-8 text-center">
-          <h3 className="text-2xl font-bold text-gold-500 mb-4">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/30 rounded-sm p-8 text-center">
+          <h3 className="text-2xl font-bold text-primary mb-4">
             Train Like a Champion
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
@@ -116,7 +116,7 @@ export default function Collection() {
           </p>
           <Link 
             to="/"
-            className="inline-flex items-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
+            className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >
             Explore {config.influencerName}'s Story
           </Link>

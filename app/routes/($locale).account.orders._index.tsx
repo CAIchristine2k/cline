@@ -11,7 +11,7 @@ import type {
 } from 'customer-accountapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {Package, Calendar, CreditCard, Truck, Eye, ShoppingBag} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 
 // Temporary placeholder query
 const CUSTOMER_ORDERS_QUERY = `#graphql
@@ -115,7 +115,7 @@ function EmptyOrders() {
           No orders yet
         </h3>
         <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
-          You haven't placed any orders yet. Start building your championship collection with {config.influencerName}'s premium boxing gear.
+                      You haven't placed any orders yet. Start building your championship collection with {config.influencerName}'s premium gear.
         </p>
       </div>
       

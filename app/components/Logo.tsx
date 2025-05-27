@@ -1,4 +1,5 @@
 import { useConfig } from '~/utils/themeContext';
+import { Link } from 'react-router';
 
 interface LogoProps {
   isScrolled?: boolean;
@@ -9,7 +10,7 @@ export function Logo({ isScrolled = false }: LogoProps) {
   
   return (
     <div className="flex items-center transition-all duration-500">
-      <a href="#home" className="flex items-center">
+      <Link to="/" className="flex items-center">
         <img 
           src={config.brandLogo} 
           alt={`${config.brandName} Logo`} 
@@ -24,7 +25,7 @@ export function Logo({ isScrolled = false }: LogoProps) {
         >
           {config.brandName}
         </span>
-      </a>
+      </Link>
     </div>
   );
 }

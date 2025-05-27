@@ -12,6 +12,7 @@ import { useConfig } from '~/utils/themeContext';
 
 interface VariantNode {
   id: string;
+  title: string;
   availableForSale: boolean;
   price?: any;
   compareAtPrice?: any;
@@ -31,6 +32,7 @@ interface ProductCardProps {
   label?: string;
   showQuickView?: boolean;
   showWishlist?: boolean;
+  customizable?: boolean;
 }
 
 export function ProductCard({ 
@@ -38,6 +40,7 @@ export function ProductCard({
   loading = 'lazy',
   showQuickView = true,
   showWishlist = true,
+  customizable = false,
 }: ProductCardProps) {
   const config = useConfig();
   const [imageLoading, setImageLoading] = useState(true);
@@ -100,6 +103,24 @@ export function ProductCard({
     setTimeout(() => setIsAddingToCart(false), 2000);
   };
 
+  // Check if this product has a "custom" variant option - safely check title exists
+  const hasCustomVariant = product?.variants?.nodes?.some(
+    (variant) => variant?.title?.toLowerCase?.() === 'custom'
+  );
+  
+  // Get the custom variant specifically
+  const customVariant = product?.variants?.nodes?.find(
+    (variant) => variant?.title?.toLowerCase?.() === 'custom'
+  );
+  
+  // Check if custom variant is out of stock
+  const isCustomVariantOutOfStock = customVariant && !customVariant.availableForSale;
+
+  // If customizable flag is true, only show products with custom variants
+  if (customizable && !hasCustomVariant) {
+    return null;
+  }
+
   return (
     <div className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1 hover:scale-[1.01]">
       
@@ -148,6 +169,16 @@ export function ProductCard({
               -{savingsPercentage}%
             </div>
           )}
+          {hasCustomVariant && !isCustomVariantOutOfStock && (
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20">
+              Customizable
+            </div>
+          )}
+          {isCustomVariantOutOfStock && (
+            <div className="bg-red-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/20">
+              Custom Out of Stock
+            </div>
+          )}
           {!isAvailable && (
             <div className="bg-gray-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/20">
               Sold Out
@@ -178,6 +209,18 @@ export function ProductCard({
                 aria-label={`Quick view ${title}`}
               >
                 <Eye className="w-4 h-4" />
+              </Link>
+            )}
+            
+            {hasCustomVariant && !isCustomVariantOutOfStock && (
+              <Link
+                to={`/customize-product/${handle}`}
+                className="bg-blue-500/95 hover:bg-blue-500 text-white p-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl backdrop-blur-sm border border-blue-400/30 hover:scale-105"
+                aria-label={`Customize ${title}`}
+              >
+                <div className="w-4 h-4 flex items-center justify-center">
+                  🎨
+                </div>
               </Link>
             )}
             

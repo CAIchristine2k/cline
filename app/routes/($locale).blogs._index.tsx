@@ -3,7 +3,7 @@ import {Link, useLoaderData, type MetaFunction} from 'react-router';
 import {getPaginationVariables} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {ArrowLeft, BookOpen, Calendar} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 
 export const meta: MetaFunction = () => {
   const config = getConfig();

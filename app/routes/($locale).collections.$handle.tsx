@@ -6,7 +6,7 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {ProductItem} from '~/components/ProductItem';
 import {CollectionHeader} from '~/components/CollectionHeader';
 import {ArrowLeft} from 'lucide-react';
-import {getConfig} from '~/lib/config';
+import {getConfig} from '~/utils/config';
 import {useConfig} from '~/utils/themeContext';
 import {ProductCard} from '~/components/ProductCard';
 

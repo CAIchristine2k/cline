@@ -22,6 +22,7 @@ import {
   CREATE_ADDRESS_MUTATION,
 } from '~/graphql/customer-account/CustomerAddressMutations';
 import {MapPin, Plus, Save, Trash2, AlertCircle, CheckCircle} from 'lucide-react';
+import {useConfig} from '~/utils/themeContext';
 
 export type ActionResponse = {
   addressId?: string | null;
@@ -33,7 +34,8 @@ export type ActionResponse = {
 };
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Sugar Shane | Addresses'}];
+  const config = useConfig();
+  return [{title: `${config.brandName} | Addresses`}];
 };
 
 export async function loader({context}: LoaderFunctionArgs) {

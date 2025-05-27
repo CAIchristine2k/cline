@@ -1,5 +1,5 @@
 // Theme configuration system for Hydrogen - matches Vue template's theming
-import type {LandingPageConfig} from './config';
+import type {LandingPageConfig} from '~/utils/config';
 
 export interface ThemeColors {
   primary: string;
@@ -318,6 +318,45 @@ export function initThemeFromConfig(config: LandingPageConfig): void {
     influencerImage: config.influencerImage,
     socialLinks: config.socialLinks,
   });
+  
+  // Update layout CSS variables if layout config is provided
+  if (config.layout && typeof document !== 'undefined') {
+    updateLayoutVariables(config.layout);
+  }
+}
+
+// Update layout CSS variables from config
+function updateLayoutVariables(layout: LandingPageConfig['layout']): void {
+  if (!layout || typeof document === 'undefined') return;
+  
+  const root = document.documentElement;
+  
+  // Cart variables
+  if (layout.cart) {
+    root.style.setProperty('--cart-width-mobile', layout.cart.width.mobile);
+    root.style.setProperty('--cart-width-tablet', layout.cart.width.tablet);
+    root.style.setProperty('--cart-width-desktop', layout.cart.width.desktop);
+    root.style.setProperty('--cart-max-width-mobile', layout.cart.maxWidth.mobile);
+    root.style.setProperty('--cart-max-width-tablet', layout.cart.maxWidth.tablet);
+    root.style.setProperty('--cart-max-width-desktop', layout.cart.maxWidth.desktop);
+    root.style.setProperty('--cart-min-width', layout.cart.minWidth);
+    root.style.setProperty('--cart-items-max-height', layout.cart.itemsAreaMaxHeight);
+    root.style.setProperty('--cart-items-min-height', layout.cart.itemsAreaMinHeight);
+    root.style.setProperty('--cart-summary-min-height', layout.cart.summaryMinHeight);
+  }
+  
+  // Header variables
+  if (layout.header) {
+    root.style.setProperty('--header-height-mobile', layout.header.height.mobile);
+    root.style.setProperty('--header-height-desktop', layout.header.height.desktop);
+  }
+  
+  // Spacing variables
+  if (layout.spacing) {
+    root.style.setProperty('--container-padding', layout.spacing.containerPadding);
+    root.style.setProperty('--section-spacing', layout.spacing.sectionSpacing);
+    root.style.setProperty('--card-spacing', layout.spacing.cardSpacing);
+  }
 }
 
 // Initialize theme on app startup

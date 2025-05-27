@@ -1,11 +1,12 @@
 import { useConfig } from '~/utils/themeContext';
+import { Link } from 'react-router';
 
 export function FooterLogo() {
   const config = useConfig();
   
   return (
     <div className="flex items-center justify-center py-2">
-      <a href="#home" className="flex items-center">
+      <div className="flex items-center">
         <div className="relative">
           <div className="absolute -inset-1"></div>
           <img 
@@ -14,14 +15,9 @@ export function FooterLogo() {
             className="h-32 w-auto relative filter drop-shadow-glow"
           />
         </div>
-      </a>
+      </div>
     </div>
   );
 }
 
-// Add styles to your global CSS
-const styles = `
-.drop-shadow-glow {
-  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
-}
-`;
+// The drop-shadow-glow class is already defined in app.css using CSS variables

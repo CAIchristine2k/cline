@@ -1,9 +1,11 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {useLoaderData, Link, type MetaFunction} from 'react-router';
 import {ArrowLeft, FileText, Shield} from 'lucide-react';
+import {useConfig} from '~/utils/themeContext';
 
 export const meta: MetaFunction = () => {
-  return [{title: `Sugar Shane | Policies`}];
+  const config = useConfig();
+  return [{title: `${config.brandName} | Policies`}];
 };
 
 export async function loader({context}: LoaderFunctionArgs) {
@@ -19,6 +21,7 @@ export async function loader({context}: LoaderFunctionArgs) {
 
 export default function Policies() {
   const {policies} = useLoaderData<typeof loader>();
+  const config = useConfig();
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -88,7 +91,7 @@ export default function Policies() {
             </h3>
           </div>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Just like Sugar Shane protected himself in the ring, we protect your rights as a customer. Our policies ensure fair, transparent, and championship-quality service.
+            Just like {config.influencerName} protected himself in the ring, we protect your rights as a customer. Our policies ensure fair, transparent, and championship-quality service.
           </p>
           <Link 
             to="/collections/all"
