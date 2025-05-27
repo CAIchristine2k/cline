@@ -51,6 +51,20 @@ interface CustomizationData {
   backgroundImage: string;
 }
 
+interface AIGenerationResponse {
+  taskId: string;
+  status: string;
+  message?: string;
+}
+
+interface AIStatusResponse {
+  taskId: string;
+  status: string;
+  resultUrl?: string;
+  error?: string;
+  message?: string;
+}
+
 interface ProductVariant {
   id: string;
   title: string;
@@ -644,21 +658,100 @@ export default function ProductCustomizer() {
       return;
     }
 
+    // Check if user has uploaded an image to work with
+    if (uploadedImages.length === 0) {
+      alert('Please upload a photo first to generate AI content with it.');
+      return;
+    }
+
     // User is logged in, proceed with AI generation
     setIsAIGenerating(true);
     
     try {
-      // TODO: Implement actual AI generation logic here
-      // For now, show a success message
-      alert(`Welcome ${customer?.firstName || 'User'}! AI generation feature coming soon!`);
+      // Use the first uploaded image as the user image
+      const userImageUrl = uploadedImages[0].src;
       
-      // This is where you would integrate with your AI generation API
-      // const response = await fetch('/api/ai-generation', { ... });
+      // Convert image URL to base64 for the API
+      const response = await fetch(userImageUrl);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]); // Remove data:image/jpeg;base64, prefix
+        };
+        reader.readAsDataURL(blob);
+      });
+
+      // Make the API call to generate AI content
+      const aiResponse = await fetch('/api/ai-media-generation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+                 body: JSON.stringify({
+           userImage: base64,
+           influencerImage: config.aiMediaGeneration?.influencerReferenceImage,
+           pose: 'training', // Default pose
+           productImage: params.productHandle, // Use current product handle
+         }),
+       });
+
+       const aiResult = await aiResponse.json() as AIGenerationResponse;
+      
+      if (!aiResponse.ok) {
+        throw new Error(aiResult.message || 'Failed to create AI generation task');
+      }
+
+      // Start polling for the result
+      const pollForResult = async (taskId: string) => {
+        const maxAttempts = 60; // 5 minutes max
+        let attempts = 0;
+        
+        const poll = async (): Promise<void> => {
+                     try {
+             const statusResponse = await fetch(`/api/ai-media-generation/${taskId}`);
+             const statusResult = await statusResponse.json() as AIStatusResponse;
+             
+             if (!statusResponse.ok) {
+               throw new Error(statusResult.message || 'Failed to check status');
+             }
+
+             if (statusResult.status === 'succeed' && statusResult.resultUrl) {
+               // Add the AI-generated image to the canvas
+               addImageToCanvas(statusResult.resultUrl);
+               alert(`AI generation complete! The generated image has been added to your design.`);
+               setIsAIGenerating(false);
+               return;
+             } else if (statusResult.status === 'failed') {
+               throw new Error(statusResult.error || 'AI generation failed');
+             } else if (statusResult.status === 'processing' || statusResult.status === 'submitted') {
+              attempts++;
+              if (attempts < maxAttempts) {
+                setTimeout(poll, 5000); // Check every 5 seconds
+              } else {
+                throw new Error('AI generation timed out. Please try again.');
+              }
+            }
+          } catch (error) {
+            console.error('Polling failed:', error);
+            alert(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            setIsAIGenerating(false);
+          }
+        };
+
+        poll();
+      };
+
+             // Show progress message
+       alert(`AI generation started! This usually takes 1-3 minutes. The generated image will be automatically added to your design when ready.`);
+       
+       // Start polling
+       pollForResult(aiResult.taskId);
       
     } catch (error) {
       console.error('AI generation failed:', error);
-      alert('AI generation failed. Please try again.');
-    } finally {
+      alert(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsAIGenerating(false);
     }
   };
@@ -826,7 +919,7 @@ export default function ProductCustomizer() {
               {/* AI Generation */}
               <button 
                 onClick={generateWithAI}
-                disabled={isAIGenerating}
+                disabled={isAIGenerating || (isLoggedIn && uploadedImages.length === 0)}
                 className="w-full bg-gradient-to-r from-purple-600 to-primary hover:from-purple-700 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
               >
                 {isAIGenerating ? (
@@ -837,7 +930,7 @@ export default function ProductCustomizer() {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    {isLoggedIn ? `Generate with AI ✨` : `Login for AI Generation✨`}
+                    {isLoggedIn ? (uploadedImages.length > 0 ? `Transform Photo with AI ✨` : `Upload Photo First`) : `Login for AI Generation✨`}
                   </>
                 )}
               </button>
