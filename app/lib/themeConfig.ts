@@ -330,7 +330,6 @@ function updateLayoutVariables(layout: LandingPageConfig['layout']): void {
   if (!layout || typeof document === 'undefined') return;
   
   const root = document.documentElement;
-  
   // Cart variables
   if (layout.cart) {
     root.style.setProperty('--cart-width-mobile', layout.cart.width.mobile);
