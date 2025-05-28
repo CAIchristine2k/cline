@@ -1,7 +1,7 @@
 import {type ActionFunctionArgs, type LoaderFunctionArgs} from 'react-router';
 import {CartForm} from '@shopify/hydrogen';
-import type {HeadersFunction} from '@shopify/remix-oxygen';
-import {data} from '@shopify/remix-oxygen';
+import type {HeadersFunction} from 'react-router';
+import {data} from 'react-router';
 import invariant from 'tiny-invariant';
 
 export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;

@@ -10,7 +10,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -106,7 +106,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 export default {
   async fetch(
@@ -332,7 +332,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -496,7 +496,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -630,7 +630,7 @@ import {
   isRouteErrorResponse,
   useLocation,
 } from 'react-router';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 
 export async function loader({context}: LoaderFunctionArgs) {
   const {data} = await context.customerAccount.query<{
@@ -697,7 +697,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -869,7 +869,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -976,7 +976,7 @@ import {
   isRouteErrorResponse,
   useLocation,
 } from 'react-router';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 
 export async function loader({context}: LoaderFunctionArgs) {
   if (!(await context.customerAccount.isLoggedIn())) {
@@ -1173,7 +1173,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -1337,7 +1337,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -1471,7 +1471,7 @@ import {
   isRouteErrorResponse,
   useLocation,
 } from 'react-router';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 
 export async function loader({context}: LoaderFunctionArgs) {
   const {data} = await context.customerAccount.query<{
@@ -1538,7 +1538,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -1710,7 +1710,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -1817,7 +1817,7 @@ import {
   isRouteErrorResponse,
   useLocation,
 } from 'react-router';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 
 export async function loader({context}: LoaderFunctionArgs) {
   if (!(await context.customerAccount.isLoggedIn())) {
@@ -1895,7 +1895,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -2059,7 +2059,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -2193,7 +2193,7 @@ import {
   isRouteErrorResponse,
   useLocation,
 } from 'react-router';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 
 export async function loader({context}: LoaderFunctionArgs) {
   const {data} = await context.customerAccount.query<{
@@ -2260,7 +2260,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -2432,7 +2432,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 // In server.ts
 export default {
@@ -2539,7 +2539,7 @@ import {
   isRouteErrorResponse,
   useLocation,
 } from 'react-router';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 
 export async function loader({context}: LoaderFunctionArgs) {
   if (!(await context.customerAccount.isLoggedIn())) {

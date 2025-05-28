@@ -5,5 +5,11 @@ node_modules
 /public/build
 /.mf
 .env
+.env.backup
+.dev.vars
 .shopify
 .react-router
+.wrangler
+
+# Local Netlify folder
+.netlify

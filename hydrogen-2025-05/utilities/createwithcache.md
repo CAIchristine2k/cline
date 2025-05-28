@@ -28,7 +28,7 @@ Creates utility functions to store data in cache with stale-while-revalidate sup
 import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {createWithCache, CacheLong} from '@shopify/hydrogen';
 // Use another `createRequestHandler` if deploying off oxygen
-import {createRequestHandler} from '@shopify/remix-oxygen';
+import {createRequestHandler} from 'react-router';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -148,7 +148,7 @@ export default {
 import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {createWithCache, CacheLong} from '@shopify/hydrogen';
 // Use another `createRequestHandler` if deploying off oxygen
-import {createRequestHandler} from '@shopify/remix-oxygen';
+import {createRequestHandler} from 'react-router';
 
 export default {
   async fetch(

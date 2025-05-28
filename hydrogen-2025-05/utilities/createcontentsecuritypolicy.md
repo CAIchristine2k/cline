@@ -53,7 +53,7 @@ export default async function handleRequest(
 ```
 
 ```tsx
-import type {EntryContext} from '@shopify/remix-oxygen';
+import type {EntryContext} from 'react-router';
 import {ServerRouter} from 'react-router';
 import {isbot} from 'isbot';
 import {renderToReadableStream} from 'react-dom/server';

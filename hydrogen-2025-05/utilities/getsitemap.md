@@ -28,7 +28,7 @@ export async function loader({request, params, context: {storefront}}) {
 ```
 
 ```ts
-import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import type {LoaderFunctionArgs} from 'react-router';
 import {getSitemap} from '@shopify/hydrogen';
 
 export async function loader({

@@ -9,7 +9,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   getStorefrontHeaders,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -52,7 +52,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   getStorefrontHeaders,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 export default {
   async fetch(request: Request, env: Env, executionContext: ExecutionContext) {

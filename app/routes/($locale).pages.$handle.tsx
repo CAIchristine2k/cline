@@ -1,4 +1,4 @@
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 import {useLoaderData, type MetaFunction, Link} from 'react-router';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {ArrowLeft, FileText} from 'lucide-react';

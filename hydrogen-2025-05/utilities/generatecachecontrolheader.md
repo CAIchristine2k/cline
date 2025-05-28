@@ -5,7 +5,7 @@ This utility function accepts a `CachingStrategy` object and returns a string wi
 Learn more about [data fetching in Hydrogen](https://shopify.dev/docs/custom-storefronts/hydrogen/data-fetching/fetch-data).
 
 ```js
-import {data} from '@shopify/remix-oxygen';
+import {data} from 'react-router';
 import {generateCacheControlHeader, CacheShort} from '@shopify/hydrogen';
 
 export async function loader() {
@@ -22,7 +22,7 @@ export async function loader() {
 ```
 
 ```ts
-import {data} from '@shopify/remix-oxygen';
+import {data} from 'react-router';
 import {generateCacheControlHeader, CacheShort} from '@shopify/hydrogen';
 
 export async function loader() {

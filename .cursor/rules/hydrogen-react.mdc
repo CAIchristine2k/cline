@@ -3,182 +3,270 @@ description:
 globs: 
 alwaysApply: true
 ---
-# Shopify Hydrogen Template - FULLY CONFIGURABLE INFLUENCER STORE
+# Shopify Hydrogen Template
 
 ## Project Overview
-This is a Shopify Hydrogen template, a React-based framework for building custom storefronts with Shopify. The project uses TypeScript, React, and GraphQL to interact with Shopify's Storefront API and Customer Account API.
+This is a Shopify Hydrogen template built with React, TypeScript, and GraphQL for creating custom influencer storefronts with Shopify. The template provides a **foundation with intelligent defaults** while maintaining **complete customizability** of every UI component.
 
-**🎯 VERIFIED STATUS: 100% CONFIGURABLE FOR ANY INFLUENCER**
+**🎯 ARCHITECTURE: CENTRAL FOUNDATION + UNLIMITED CUSTOMIZATION**
 
-This template is **FULLY RELIANT on central theming** and has been **COMPREHENSIVELY AUDITED** to ensure complete customizability for any influencer without code modifications.
+## Customization Architecture
 
-## ✅ CUSTOMIZATION VERIFICATION - COMPLETE + LAYOUT SYSTEM ✅
+### Two-Tier Customization System ✅
 
-### Single Source of Truth ✅
-- **All components use `useConfig()` hook** from `~/utils/themeContext`
-- **All styling uses CSS variables** generated from theme configuration  
-- **Zero hardcoded colors, brand names, or influencer-specific content** in components
-- **All content text, images, and links** come from configuration
-- **All navigation, social links, and contact information** configurable
-- **🆕 All layout sizing and spacing** configurable via central config
+**The template provides flexible customization at multiple levels:**
 
-### Complete Component Coverage ✅
-**Every UI component follows the DRY principle:**
+1. **🚀 RAPID CONFIGURATION** - Central config for quick brand transformation
+   - `app/utils/config.ts` - Theme colors, content, layout basics
+   - `app/lib/themeConfig.ts` - CSS variables and color schemes  
+   - Perfect for: Quick rebranding, content swaps, basic styling
 
-| Component | useConfig ✅ | CSS Variables ✅ | Configurable Content ✅ | Layout Variables ✅ |
-|-----------|-------------|-----------------|------------------------|--------------------|
-| Hero | ✅ | ✅ | ✅ | ✅ |
-| Header | ✅ | ✅ | ✅ | ✅ |
-| Footer | ✅ | ✅ | ✅ | ✅ |
-| ProductCard | ✅ | ✅ | ✅ | ✅ |
-| ProductShowcase | ✅ | ✅ | ✅ | ✅ |
-| CartMain | ✅ | ✅ | ✅ | ✅ |
-| Aside | ✅ | ✅ | ✅ | ✅ |
-| SearchBar | ✅ | ✅ | ✅ | ✅ |
-| Testimonials | ✅ | ✅ | ✅ | ✅ |
-| LimitedEdition | ✅ | ✅ | ✅ | ✅ |
-| CareerHighlights | ✅ | ✅ | ✅ | ✅ |
-| SocialFeed | ✅ | ✅ | ✅ | ✅ |
-| NewsletterSignup | ✅ | ✅ | ✅ | ✅ |
-| AIMediaGeneration | ✅ | ✅ | ✅ | ✅ |
-| AuthPrompt | ✅ | ✅ | ✅ | ✅ |
-| ProductDesigner | ✅ | ✅ | ✅ | ✅ |
-| FooterLogo | ✅ | ✅ | ✅ | ✅ |
-| All Route Components | ✅ | ✅ | ✅ | ✅ |
+2. **🎨 COMPLETE CUSTOMIZATION** - Full component editing
+   - **ALL React components in `/app/components/`** are fully editable
+   - **ALL route files in `/app/routes/`** can be modified  
+   - **ALL styling, layouts, animations, and interactions** can be customized
+   - Perfect for: Unique designs, custom features, brand-specific experiences
 
-### 🆕 Layout Configuration System ✅
-**Responsive layout now fully configurable:**
+### Central Config PURPOSE: Smart Defaults, Not Limitations
 
-- **Cart Sizing**: Mobile, tablet, desktop widths and constraints
-- **Header Heights**: Configurable mobile and desktop header sizes  
-- **Spacing System**: Container padding, section spacing, card spacing
-- **CSS Variables**: All layout values use configurable CSS variables
-- **Real-time Updates**: Layout changes apply instantly when config updates
+The central configuration system exists to **accelerate development**, not restrict it:
 
-## CUSTOMIZATION TIME: ~1 HOUR TOTAL
+- **Provides intelligent defaults** for common influencer store patterns
+- **Offers preset color schemes** for instant brand transformation  
+- **Includes reusable content patterns** (testimonials, career highlights, etc.)
+- **Enables rapid prototyping** and A/B testing of different themes
+- **Maintains consistency** across similar influencer stores
 
-To customize for **ANY** influencer:
+**BUT: Any component can be completely customized beyond the config system.**
 
-1. **Update `app/utils/config.ts`** ← Only file that needs changes (including layout)
-2. **Replace images in `/public/images/`** ← Asset swapping
-3. **Replace videos in `/public/videos/`** ← Optional media update
-4. **Configure Shopify products** ← Backend product setup
-5. **Set up KlingAI API keys** ← AI generation credentials (optional)
+## Complete Component Customization ✅
 
-**Result: Complete brand transformation with zero code changes**
+### UI Components (ALL FULLY EDITABLE)
 
-# 🤖 AI MEDIA GENERATION - PRODUCTION READY ✅
+Every component in `/app/components/` can be completely modified:
 
-## Overview
-**FULLY IMPLEMENTED AI-POWERED FAN EXPERIENCE with Authentication & Usage Limits**
+| Component | Config Integration | Full Customization Possible |
+|-----------|-------------------|---------------------------|
+| **Hero.tsx** | Uses config colors/content | ✅ Edit layout, animations, interactions |
+| **Header.tsx** | Uses config navigation | ✅ Custom navigation patterns, menus |
+| **Footer.tsx** | Uses config links | ✅ Custom footer designs, sections |
+| **ProductCard.tsx** | Uses config themes | ✅ Custom card layouts, hover effects |
+| **ProductShowcase.tsx** | Uses config content | ✅ Custom grid layouts, filtering |
+| **CartMain.tsx** | Uses config sizing | ✅ Custom cart UX, checkout flows |
+| **AIMediaGeneration.tsx** | Uses config settings | ✅ Custom AI interfaces, workflows |
+| **SearchBar.tsx** | Uses config styling | ✅ Custom search experiences |
+| **Testimonials.tsx** | Uses config data | ✅ Custom testimonial layouts |
+| **SocialFeed.tsx** | Uses config accounts | ✅ Custom social integrations |
+| **NewsletterSignup.tsx** | Uses config styling | ✅ Custom signup experiences |
+| **LimitedEdition.tsx** | Uses config products | ✅ Custom countdown timers, promo layouts |
+| **CareerHighlights.tsx** | Uses config data | ✅ Custom timeline designs |
+| **ProductDesigner.tsx** | Uses config themes | ✅ Custom design tools, interfaces |
 
-The AI Media Generation feature allows authenticated users to upload photos and generate AI-powered content showing them interacting with the influencer using KlingAI's advanced image generation technology.
+### Route Components (ALL FULLY EDITABLE)
 
-### Key Features ✅
-- **🔐 Authentication Required**: Seamless Shopify Customer Account integration
-- **📊 Usage Limits**: Configurable monthly limits (default: 10 generations/month)
-- **💰 Cost Control**: Server-side API key protection and usage tracking
-- **🎨 High Quality**: KlingAI virtual try-on technology
-- **📱 Mobile Responsive**: Works perfectly on all devices
-- **⚡ Real-time Updates**: Live progress tracking with polling
-- **💾 Download & Share**: Direct download and social sharing features
+Every route in `/app/routes/` can be completely modified:
 
-### Implementation Status ✅
-- ✅ **Frontend Component**: `AIMediaGeneration.tsx` - Fully responsive UI
-- ✅ **Authentication Flow**: `AuthPrompt.tsx` - Shopify Customer Account API
-- ✅ **API Routes**: Secure server-side KlingAI integration
-- ✅ **Usage Tracking**: Customer metafields for limits (configurable)
-- ✅ **Error Handling**: Comprehensive error states and validation
-- ✅ **Configuration**: 100% configurable via central config system
+- **Home page** (`($locale)._index.tsx`) - Complete layout customization
+- **Product pages** (`($locale).products.$handle.tsx`) - Custom product experiences  
+- **Collection pages** (`($locale).collections.$handle.tsx`) - Custom browsing UX
+- **Account pages** (`($locale).account._index.tsx`) - Custom user dashboards
+- **Cart page** (`($locale).cart.tsx`) - Custom checkout experiences
+- **API routes** (`api.*`) - Custom backend logic, integrations
 
-### API Implementation ✅
-1. **`/api/ai-media-generation`** - Main generation endpoint with auth checks
-2. **`/api/ai-media-generation/$taskId`** - Task status polling endpoint  
-3. **`/api/ai-media-generation/auth`** - Authentication status checker
+## Styling Architecture
 
-### Configuration Example
-```typescript
-aiMediaGeneration: {
-  title: "TRAIN WITH THE CHAMP",
-  subtitle: "AI-Powered Fan Experience", 
-  description: "Upload your photo and see yourself training alongside [Influencer] using cutting-edge AI technology!",
-  requiresAuth: true,
-  usageLimit: 10, // per month
-  resetPeriod: 'monthly',
-  loginPromptTitle: "Sign In Required",
-  loginPromptMessage: "Create an account to generate AI photos with [Influencer].",
-  // ... all other settings configurable
+### CSS System: Flexible Foundation
+
+**Three levels of styling control:**
+
+1. **CSS Variables** (from central config)
+   ```css
+   --color-primary: #E6B000;  /* Set by config.brandStyle */
+   --cart-width-mobile: 100vw; /* Set by config.layout */
+   ```
+
+2. **Tailwind Classes** (referencing CSS variables)
+   ```tsx
+   className="bg-primary text-black hover:bg-primary-600"
+   ```
+
+3. **Custom CSS** (unlimited styling)
+   ```tsx
+   // Inline styles, CSS modules, styled-components, etc.
+   // Any styling approach works
+   ```
+
+### Theme Integration Pattern
+
+Components typically follow this pattern (but can deviate completely):
+
+```tsx
+import { useConfig } from '~/utils/themeContext';
+
+export function MyComponent() {
+  const config = useConfig(); // Get config for defaults
+  
+  return (
+    <div className="custom-layout"> {/* Custom layouts */}
+      <h1 className="text-primary"> {/* Uses config colors */}
+        {config.customText || "Custom Default"} {/* Uses config content */}
+      </h1>
+      
+      {/* Completely custom sections */}
+      <div className="my-unique-feature">
+        <CustomAnimation />
+        <ComplexInteraction />
+      </div>
+    </div>
+  );
 }
 ```
 
-### Setup Requirements
-- **KlingAI API Credentials**: `KLING_ACCESS_KEY` and `KLING_SECRET_KEY` in `.env`
-- **Shopify Customer Accounts**: Already configured and working
-- **File Upload Limits**: 10MB max, jpg/jpeg/png formats
-- **Usage Tracking**: Via Shopify customer metafields
+## Development Workflow
 
-# 🛒 Cart System - FULLY FUNCTIONAL WITH RESPONSIVE SIZING ✅
+### Rebranding:
+1. Update `app/utils/config.ts` - Brand colors, content, basic layout
+2. Replace images in `/public/images/`
+3. Configure Shopify products/collections
+4. Test across devices
 
-## Cart Functionality Status: 100% OPERATIONAL ✅
+### Design:
+1. Start with config foundation (optional)
+2. Edit specific components in `/app/components/`
+3. Customize routes in `/app/routes/`
+4. Add custom CSS/animations  
+5. Implement unique features
+6. Test and optimize
 
-**All cart functionality verified working:**
-- ✅ Add items to cart with immediate UI feedback
-- ✅ Update quantities with +/- buttons
-- ✅ Remove items with trash icon
-- ✅ Cart persistence across navigation and refresh
-- ✅ Optimistic updates for smooth UX
-- ✅ **🆕 Responsive cart sizing** with configurable breakpoints
-- ✅ **🆕 Fixed height constraints** to prevent expansion issues
-- ✅ **🆕 Proper overflow scrolling** with custom scrollbars
-- ✅ Proper error handling and debug logging
-- ✅ TypeScript type safety
+### Store:
+1. Use template as React/Hydrogen foundation
+2. Replace/rebuild components as needed
+3. Implement custom features and integrations
+4. Create unique user experiences
+5. Optimize for target audience
 
-## Key Cart Components (ALL WORKING)
+## Key Features & Infrastructure
 
-1. **CartProvider.tsx**: Manages cart state and provides cart functionality
-2. **CartMain.tsx**: Main cart component using CSS variables for sizing ✅
-3. **CartLineItem.tsx**: Individual cart line items with working +/- and remove buttons
-4. **CartSummary.tsx**: Displays cart totals and checkout button
-5. **AddToCartButton.tsx**: Button for adding items to cart (FULLY OPERATIONAL)
-6. **Aside.tsx**: Slide-in panel using configurable responsive widths ✅
+### 🛒 E-commerce Foundation
+- **Complete cart system** with add/remove/update functionality
+- **Shopify Storefront API** integration with GraphQL
+- **Customer authentication** with account management
+- **Product management** with variants, inventory, pricing
+- **Responsive design** with mobile-first approach
 
-## 🆕 Cart Sizing Configuration ✅
+### 🤖 AI Media Generation
+- **KlingAI integration** for AI photo generation
+- **Authentication required** with usage limits  
+- **Server-side API protection** with secure key management
+- **File upload handling** with size/format validation
+- **Real-time progress tracking** with status polling
 
-Cart sizing is now **fully configurable** via central config:
+### 🔐 Authentication System
+- **Shopify Customer Account API** integration
+- **OAuth-based login/registration**
+- **Profile management** and order history
+- **Route protection** for premium features
+- **Usage tracking** via customer metafields
+
+### 📱 Performance & UX
+- **React Router v7** for modern routing
+- **TypeScript** for type safety
+- **Vite** for fast development and builds
+- **Responsive design** with Tailwind CSS
+- **SEO optimization** with meta tags and structured data
+
+## Technical Architecture
+
+### Core Technologies
+- **React 18** with modern hooks and patterns
+- **TypeScript** for type safety and developer experience
+- **Shopify Hydrogen** for e-commerce optimization
+- **GraphQL** for efficient data fetching
+- **Tailwind CSS** for utility-first styling
+- **Vite** for build tooling and development
+
+### Project Structure
+
+```
+/app
+├── components/          # UI components (ALL CUSTOMIZABLE)
+│   ├── Hero.tsx        # Landing page hero section
+│   ├── Header.tsx      # Site navigation
+│   ├── ProductCard.tsx # Product display cards
+│   ├── CartMain.tsx    # Shopping cart interface
+│   └── ...            # All other UI components
+├── routes/             # Route handlers (ALL CUSTOMIZABLE)  
+│   ├── ($locale)._index.tsx    # Home page
+│   ├── ($locale).products.tsx  # Product pages
+│   ├── api.*.tsx               # API endpoints
+│   └── ...                     # All other routes
+├── utils/              # Configuration and utilities
+│   ├── config.ts       # Central configuration (FOUNDATION)
+│   └── themeContext.tsx # Theme system integration
+├── lib/                # Core libraries
+│   └── themeConfig.ts  # CSS variable management
+├── styles/             # Global styles and CSS variables
+│   └── app.css         # Main stylesheet with CSS variables
+└── providers/          # React context providers
+    └── CartProvider.tsx # Cart state management
+```
+
+### Configuration System
+
+**Central config provides foundation - not limitations:**
 
 ```typescript
-layout: {
-  cart: {
-    width: {
-      mobile: "100vw",
-      tablet: "min(85vw, 380px)",
-      desktop: "min(90vw, 420px)"
-    },
-    maxWidth: {
-      mobile: "100vw",
-      tablet: "380px", 
-      desktop: "420px"
-    },
-    minWidth: "320px",
-    itemsAreaMaxHeight: "calc(100vh - 350px)",
-    itemsAreaMinHeight: "200px",
-    summaryMinHeight: "150px"
-  }
+// app/utils/config.ts
+export interface LandingPageConfig {
+  // Brand basics (used by components as defaults)
+  influencerName: string;
+  brandName: string;
+  brandStyle: "luxury" | "sporty" | "casual" | "technical" | "minimalist" | "vibrant";
+  
+  // Content (can be overridden in components)
+  heroTitle: string;
+  heroSubtitle: string;
+  navigation: NavigationItem[];
+  
+  // Styling foundation (can be extended)
+  layout: {
+    cart: { width: {...}, spacing: {...} };
+    header: { height: {...} };
+    spacing: { containerPadding: string };
+  };
+  
+  // Feature flags (components can ignore)
+  showAIMediaGeneration: boolean;
+  showTestimonials: boolean;
+  // ... all other configuration options
 }
 ```
 
-## Testing Infrastructure - COMPREHENSIVE
+## Development Guidelines
 
-### Test Pages Available:
-1. **Main Store**: `http://localhost:3000` - Real product testing
-2. **Cart Test Page**: `http://localhost:3000/shopify-test` - Comprehensive testing interface
-3. **Cart Page**: `http://localhost:3000/cart` - Direct cart functionality testing
+### When Using Central Config ✅
+- **Leverage for rapid development** and consistent patterns
+- **Use `useConfig()` hook** to access configuration values
+- **Follow CSS variable patterns** for consistent theming
+- **Respect feature flags** for conditional rendering
 
-**The cart system is production-ready and follows all Hydrogen best practices.**
+### Beyond Config ✅
+- **Edit components directly** for unique requirements
+- **Add custom CSS/animations** as needed
+- **Implement new features** not covered by config
+- **Create unique user experiences** for specific influencers
+- **Modify layouts, interactions, and workflows** freely
 
-# HYDROGEN DOCUMENTATION REFERENCE
+### Best Practices for Both Approaches
+- **Keep TypeScript strict** for reliability
+- **Test across devices** and screen sizes
+- **Maintain performance** with optimized images and code
+- **Follow accessibility guidelines** for inclusive design
+- **Use Git branches** for experimental features
+- **Document custom modifications** for future reference
 
-## Latest Documentation Location
+## Hydrogen Documentation Reference
+
 The most up-to-date Hydrogen documentation, examples, and demos are located in:
 **`./hydrogen-2025-05/`**
 
@@ -197,551 +285,58 @@ ALWAYS reference this directory for:
 - Troubleshooting guides
 - Best practice implementations
 
-# CRITICAL DEVELOPMENT PRINCIPLES - MANDATORY
+## React Router Import Rules
 
-## DRY (Don't Repeat Yourself) and Single Source of Truth
-
-These principles are **MANDATORY** and have been **VERIFIED as 100% implemented**:
-
-1. **Configuration Single Source of Truth**: 
-   - ALL configuration MUST be defined in `app/utils/config.ts`
-   - NEVER duplicate configuration values across components
-   - ALWAYS access configuration via the `useConfig()` hook
-
-2. **Theme Single Source of Truth**:
-   - ALL theme styling MUST be derived from the theme system in `app/lib/themeConfig.ts`
-   - NEVER create separate style utility files that might get out of sync
-   - NEVER hardcode colors, sizes, or other theme values in components
-   - ALWAYS use CSS variables generated from the theme system
-
-3. **🆕 Layout Single Source of Truth**:
-   - ALL layout sizing MUST use CSS variables from the central config
-   - NEVER hardcode cart sizes, header heights, or spacing values
-   - ALWAYS use the layout configuration system for responsive design
-   - ALWAYS test layout changes across all breakpoints
-
-4. **Component Implementation**:
-   - ALWAYS use the `useConfig()` hook from `~/utils/themeContext` to access configuration
-   - ALWAYS use Tailwind classes that reference CSS variables for styling
-   - NEVER create component-specific style utilities that duplicate theme logic
-   - NEVER use inline styles for values that should come from the theme
-   - ALWAYS prefer CSS variables over hardcoded values
-
-5. **CSS Approach**:
-   - ALWAYS use `text-primary`, `bg-primary`, etc. which reference CSS variables
-   - ALWAYS use `shadow-glow`, `animate-pulse`, etc. utility classes from the theme
-   - NEVER create duplicate shadow, animation, or other style effects
-   - ALWAYS implement component-specific styles through CSS variables
-   - **🆕 Use layout utility classes**: `.container-padding`, `.section-spacing-y`, `.card-spacing`
-
-6. **Feature Flags**:
-   - ALWAYS use configuration toggles (e.g., `showAIMediaGeneration`) to control feature visibility
-   - NEVER implement redundant logic for showing/hiding features
-
-7. **Authentication & API Security**:
-   - ALWAYS keep API credentials server-side only
-   - NEVER expose sensitive API keys to the client
-   - ALWAYS check authentication before expensive operations
-   - ALWAYS implement usage limits for costly features
-
-8. **Media Assets**:
-   - ALWAYS store image and video assets in the `/public` directory
-   - Use relative paths (e.g., `/images/logo.svg`) in the configuration
-   - For SVG assets, prefer inline SVG when the asset benefits from theme color variables
-   - For background videos, ensure they have a fallback image defined in the config
-
-**Failing to follow these principles will break the customizability that has been verified and tested.**
-
-## Key Project Structure
-
-### Main Directories
-- `/app`: Main application code
-  - `/components`: React components for the storefront (ALL CONFIGURABLE)
-    - `AIMediaGeneration.tsx`: AI photo generation with authentication ✅
-    - `AuthPrompt.tsx`: Authentication prompts for protected features ✅
-    - `CartMain.tsx`: **🆕 Uses CSS variables for responsive sizing** ✅
-    - `Aside.tsx`: **🆕 Configurable responsive cart panel** ✅
-    - `ProductDesigner.tsx`: **🆕 Uses theme colors instead of hardcoded** ✅
-    - `FooterLogo.tsx`: **🆕 Uses CSS variables for glow effects** ✅
-  - `/graphql`: GraphQL queries and schema references
-    - `/customer-account`: Customer API query files with metafields support
-    - `/graphql-schema`: Complete API schema reference files (for developer reference)
-  - `/routes`: Route files using React Router conventions (ALL CONFIGURABLE)
-    - `/api.ai-media-generation.tsx`: Main AI generation API endpoint ✅
-    - `/api.ai-media-generation.$taskId.tsx`: Task status polling API ✅
-    - `/api.ai-media-generation.auth.tsx`: Authentication status API ✅
-  - `/lib`: Utility libraries
-    - `themeConfig.ts`: **🆕 Enhanced with layout variable updates** ✅
-  - `/styles`: CSS styles with CSS variables
-    - `app.css`: **🆕 Enhanced with layout CSS variables and utility classes** ✅
-  - `/utils`: Utility functions and configuration
-    - `config.ts`: **🆕 Enhanced with layout configuration interface** ✅
-    - `themeConfig.ts`: Theme styling configuration and CSS variable generation
-    - `themeContext.tsx`: **🆕 Calls initThemeFromConfig for complete setup** ✅
-  - `/providers`: React context providers
-    - `CartProvider.tsx`: Manages cart state and functionality (FULLY WORKING)
-- `/public`: Static assets
-  - `/images`: Image assets for the site (logo, product images, etc.)
-  - `/videos`: Video assets for hero backgrounds or product demonstrations
-- `/guides`: Documentation
-- `/hydrogen-2025-05`: Latest Hydrogen documentation, examples, and demos
-- `env.d.ts`: TypeScript environment variable definitions ✅
-
-### Key Technical Notes
-- **JWT Implementation**: Uses Web Crypto API instead of jsonwebtoken for Cloudflare Workers compatibility
-- **AI API Integration**: Server-side KlingAI API calls with proper JWT authentication
-- **Authentication Flow**: Shopify Customer Account API integration with route protection
-- **🆕 Layout System**: CSS variables automatically updated from configuration
-- **🆕 Responsive Design**: All sizing uses configurable breakpoints
-
-### Key Configuration Files
-- `.graphqlrc.ts`: GraphQL configuration for code generation
-- `storefrontapi.generated.d.ts`: Generated types for Storefront API (only used types)
-- `customer-accountapi.generated.d.ts`: Generated types for Customer API (only used types)
-- `vite.config.ts`: Vite configuration
-- `tailwind.config.ts`: Tailwind CSS configuration
-- `env.d.ts`: Environment variable type definitions (includes KlingAI API keys)
-
-# Theme System and Configuration - 100% VERIFIED + LAYOUT SYSTEM ✅
-
-## Template Transformation Examples
-
-### Theme Changes (Instant Visual Transformation)
-- **Luxury (Gold)**: `brandStyle: "luxury"` → Gold/black theme
-- **Sporty (Red)**: `brandStyle: "sporty"` → Red/navy theme  
-- **Casual (Green)**: `brandStyle: "casual"` → Green/light theme
-- **Technical (Cyan)**: `brandStyle: "technical"` → Cyan/dark theme
-- **Minimalist (Gray)**: `brandStyle: "minimalist"` → Clean gray theme
-- **Vibrant (Purple)**: `brandStyle: "vibrant"` → Purple/colorful theme
-
-### Content Transformation
-- **All text content** updates automatically
-- **Navigation menus** adapt to new structure
-- **Social links** change platforms as needed
-- **Meta tags** update for SEO
-- **Career highlights** show different achievements
-- **Product categories** reflect new industry
-- **AI generation prompts** adapt to influencer type
-
-### 🆕 Layout Transformation
-- **Cart sizing** adapts to different breakpoints
-- **Header heights** adjust for mobile/desktop
-- **Spacing systems** scale consistently
-- **Responsive behavior** configurable per device type
-
-## Configuration Files
-
-### 1. `app/utils/config.ts` - CENTRAL CONFIGURATION
-
-This is the **ONLY FILE** that needs to be modified for new influencer customization:
-
-- Brand and influencer details (`influencerName`, `brandName`, `industry`, etc.)
-- Visual theme settings (`brandStyle`, `heroBackgroundImage`, etc.)
-- Content text and CTAs (`heroTitle`, `ctaText`, etc.)
-- Product information
-- Social media links
-- Section visibility toggles (`showLimitedEdition`, `showAIMediaGeneration`, etc.)
-- AI generation settings (`requiresAuth`, `usageLimit`, `loginPromptMessage`, etc.)
-- Contact information
-- Shopify configuration (`featuredProducts`, `featuredCollections`, etc.)
-- **🆕 Layout configuration** (`cart`, `header`, `spacing` settings)
-
-Example configuration that transforms entire template:
-```typescript
-export const defaultConfig: LandingPageConfig = {
-  // Brand & Influencer Details
-  influencerName: "Sarah Johnson", // ← Changes ALL references
-  influencerTitle: "Fitness Coach & Wellness Expert", // ← Updates ALL titles
-  brandName: "FIT WITH SARAH", // ← Updates ALL brand references
-  industry: "fitness", // ← Makes content industry-agnostic
-  
-  // Visual Theme - Instant transformation
-  brandStyle: "sporty", // ← Changes ENTIRE color scheme
-  
-  // 🆕 Layout Configuration - Controls all sizing
-  layout: {
-    cart: {
-      width: {
-        mobile: "100vw",
-        tablet: "min(85vw, 380px)",
-        desktop: "min(90vw, 420px)"
-      },
-      maxWidth: {
-        mobile: "100vw",
-        tablet: "380px",
-        desktop: "420px"
-      },
-      minWidth: "320px",
-      itemsAreaMaxHeight: "calc(100vh - 350px)",
-      itemsAreaMinHeight: "200px",
-      summaryMinHeight: "150px"
-    },
-    header: {
-      height: {
-        mobile: "60px",
-        desktop: "80px"
-      },
-      blur: true
-    },
-    spacing: {
-      containerPadding: "1rem",
-      sectionSpacing: "4rem",
-      cardSpacing: "1.5rem"
-    }
-  },
-  
-  // Navigation - Completely customizable
-  navigation: [
-    { name: "Home", href: "/" },
-    { name: "Programs", href: "/collections/all" },
-    { name: "Nutrition", href: "#nutrition" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "#contact" }
-  ],
-  
-  // Features & Sections - Toggle any feature
-  showLimitedEdition: true,
-  showCareerHighlights: true,
-  showTestimonials: true,
-  showSocialFeed: true,
-  showAIMediaGeneration: true, // ← AI photo generation
-  
-  // AI Media Generation
-  aiMediaGeneration: {
-    title: "TRAIN WITH SARAH",
-    subtitle: "AI-Powered Fitness Experience",
-    description: "Upload your photo and see yourself training with Sarah!",
-    requiresAuth: true, // ← Requires user login
-    usageLimit: 10, // ← 10 generations per month
-    resetPeriod: 'monthly',
-    loginPromptTitle: "Sign In Required",
-    loginPromptMessage: "Create an account to generate AI training photos with Sarah.",
-    limitReachedTitle: "Monthly Limit Reached",
-    limitReachedMessage: "You've used all 10 photo generations this month. Limit resets next month!",
-    // ... all other settings configurable
-  },
-  
-  // Social Links - Any platform combination
-  socialLinks: {
-    instagram: "fitwithsarah",
-    youtube: "@FitWithSarah", 
-    tiktok: "@fitwithsarah"
-  },
-  
-  // Career highlights - Any achievement type
-  careerHighlights: [
-    {
-      year: "2020",
-      title: "NASM Certified",
-      description: "Became certified personal trainer"
-    }
-  ],
-  
-  // Shopify Configuration - Any product type
-  shopify: {
-    featuredProducts: ["protein-powder", "workout-plan", "resistance-bands"],
-    enableCustomerAccounts: true, // ← Required for AI generation auth
-    // ... other settings
-  }
-};
-```
-
-### 2. `app/lib/themeConfig.ts` - 🆕 Enhanced Theme System
-
-This file handles theme styling automatically based on `brandStyle` and **now includes layout variables**:
-
-- Defines color schemes for different brand styles (`luxury`, `sporty`, `casual`, etc.)
-- Generates CSS variables based on the selected theme
-- **🆕 Updates layout CSS variables** from configuration
-- **🆕 `initThemeFromConfig()`** function applies both colors AND layout
-- **🆕 `updateLayoutVariables()`** function for dynamic layout updates
-- Provides utility functions for adjusting colors and applying themes
-
-**NO MANUAL CHANGES NEEDED** - automatically adapts based on configuration.
-
-### 3. `app/utils/themeContext.tsx` - 🆕 Enhanced Context
-
-This provides React context for accessing configuration throughout the application:
-
-- `useConfig()` - Hook to access configuration (USED BY ALL COMPONENTS)
-- `useTheme()` - Hook to access theme settings
-- `useUpdateConfig()` - Hook to update configuration
-- **🆕 Calls `initThemeFromConfig()`** to apply both theme colors AND layout variables
-
-### 4. `app/styles/app.css` - 🆕 Enhanced CSS Variables
-
-Enhanced with comprehensive CSS variables system:
-
-```css
-:root {
-  /* Layout Configuration - Configurable via theme */
-  --cart-width-mobile: 100vw;
-  --cart-width-tablet: min(85vw, 380px);
-  --cart-width-desktop: min(90vw, 420px);
-  --cart-max-width-mobile: 100vw;
-  --cart-max-width-tablet: 380px;
-  --cart-max-width-desktop: 420px;
-  --cart-min-width: 320px;
-  --cart-items-max-height: calc(100vh - 350px);
-  --cart-items-min-height: 200px;
-  --cart-summary-min-height: 150px;
-  --header-height-mobile: 60px;
-  --header-height-desktop: 80px;
-  --container-padding: 1rem;
-  --section-spacing: 4rem;
-  --card-spacing: 1.5rem;
-  
-  /* Product theme colors */
-  --color-primary: #E6B000;
-  /* ... other theme colors */
-}
-
-/* 🆕 Central theming utility classes */
-.container-padding {
-  padding-left: var(--container-padding);
-  padding-right: var(--container-padding);
-}
-
-.section-spacing-y {
-  padding-top: var(--section-spacing);
-  padding-bottom: var(--section-spacing);
-}
-
-.card-spacing {
-  gap: var(--card-spacing);
-}
-```
-
-## Component Style Implementation - VERIFIED PATTERN
-
-**ALL components follow this verified pattern:**
-
-```tsx
-import { useConfig } from '~/utils/themeContext';
-
-export function ExampleComponent() {
-  const config = useConfig(); // ← ALWAYS use this hook
-  
-  return (
-    <div className="cart-container bg-black/40 backdrop-blur-sm border border-primary/30 p-4 rounded-sm">
-      <h2 className="text-2xl font-bold text-white mb-4">
-        {config.sectionTitle} {/* ← ALWAYS use config values */}
-      </h2>
-      <p className="text-gray-300">
-        {config.sectionContent}
-      </p>
-      <button className="bg-primary hover:bg-primary-600 text-black font-bold py-2 px-4 rounded-sm mt-4">
-        {config.buttonText} {/* ← ALWAYS configurable text */}
-      </button>
-    </div>
-  );
-}
-```
-
-Key principles VERIFIED in ALL components:
-1. Use `useConfig()` hook to access configuration
-2. Use Tailwind classes that reference CSS variables:
-   - `bg-primary` (uses --color-primary CSS variable)
-   - `text-primary` (uses --color-primary CSS variable)
-   - `hover:bg-primary-600` (uses color variations)
-3. **🆕 Use CSS classes that reference layout variables**: `cart-container`, `cart-items-container`, etc.
-4. ALL text content comes from configuration
-5. NO hardcoded values anywhere
-
-# 🔐 Customer Account System - FULLY INTEGRATED ✅
-
-## Overview
-**Complete Shopify Customer Account API integration for authentication and user management**
-
-### Features ✅
-- ✅ **Customer Registration**: Seamless account creation
-- ✅ **Customer Login**: OAuth-based authentication
-- ✅ **Profile Management**: Update customer information
-- ✅ **Order History**: View past purchases
-- ✅ **Account Protection**: Secure route protection
-- ✅ **AI Feature Gating**: Authentication required for AI generation
-
-### Key Components
-1. **Customer Account Routes**: Login, profile, orders, addresses
-2. **Authentication Guards**: Protect expensive features like AI generation
-3. **GraphQL Integration**: Customer data queries and mutations
-4. **Usage Tracking**: Metafields for AI generation limits (implemented)
-
-### Authentication Flow
-```tsx
-// Check if user is logged in
-const isLoggedIn = await context.customerAccount.isLoggedIn();
-
-// Get customer data with metafields
-const { data } = await context.customerAccount.query(CUSTOMER_DETAILS_QUERY);
-
-// Redirect to login if needed
-return context.customerAccount.login({ uiLocales: 'EN' });
-```
-
-# Product Display Components - FULLY CONFIGURABLE
-
-The template includes several components for displaying products (ALL configurable):
-
-1. **ProductCard.tsx**: Used in grids and product listings
-2. **ProductItem.tsx**: Alternative product card used in specific contexts
-3. **ProductShowcase.tsx**: Displays a grid of products with heading and CTA
-
-These components follow a consistent design language and:
-
-1. Use the central theme system for styling
-2. Display badges (Sale, New, Featured) based on product tags and configuration
-3. Include consistent rating stars
-4. Properly format prices and show sale prices when available
-5. Include "Add to Cart" functionality using the AddToCartButton component
-
-Example usage of ProductShowcase (automatically adapts to configuration):
-
-```tsx
-import { ProductShowcase } from '~/components/ProductShowcase';
-
-// In your component - subtitle automatically generated from config:
-<ProductShowcase
-  products={products}
-  title="EXCLUSIVE MERCHANDISE"
-  // subtitle automatically uses: config.influencerName in description
-/>
-```
-
-# React Router Import Rule for Hydrogen
-
-## Overview
-
-This Hydrogen project is based on React Router, not Remix. When working with documentation or code examples, you should always use imports from the appropriate React Router packages instead of Remix packages.
-
-## Import Replacements
-
-When you see imports from Remix packages, replace them with their equivalent React Router v7 packages. Here are the common replacements:
-
-| Remix v2 Package | React Router v7 Package |
-|------------------|-------------------------|
-| `@remix-run/react` | `react-router` |
-| `@remix-run/dev` | `@react-router/dev` |
-| `@remix-run/architect` | `@react-router/architect` |
-| `@remix-run/cloudflare` | `@react-router/cloudflare` |
-| `@remix-run/express` | `@react-router/express` |
-| `@remix-run/fs-routes` | `@react-router/fs-routes` |
-| `@remix-run/node` | `@react-router/node` |
-| `@remix-run/route-config` | `@react-router/dev` |
-| `@remix-run/routes-option-adapter` | `@react-router/remix-routes-option-adapter` |
-| `@remix-run/serve` | `@react-router/serve` |
-| `@remix-run/server-runtime` | `react-router` |
-| `@remix-run/testing` | `react-router` |
-
-**NEVER USE 'react-router-dom' imports!**
-
-## Common Import Examples
-
-```js
-// INCORRECT (Remix style)
-import { useLoaderData, Link, Form, useActionData, useNavigation, useSubmit } from '@remix-run/react';
-
-// CORRECT (React Router style)
-import { useLoaderData, Link, Form, useActionData, useNavigation, useSubmit } from 'react-router';
-```
-
-# GraphQL Schema Generation
-
-The project is configured to generate two sets of type definitions:
-
-1. **Used Types Only**:
-   - `storefrontapi.generated.d.ts`: Contains types from the Storefront API that are actually used in the application
-   - `customer-accountapi.generated.d.ts`: Contains types from the Customer API that are actually used in the application
-
-2. **Full Schema Reference**:
-   - `graphql-schema/storefront-schema.generated.ts`: Complete schema types for Storefront API
-   - `graphql-schema/customer-schema.generated.ts`: Complete schema types for Customer API
-
-## How to Regenerate Schema Types
-
-To regenerate both used type definitions and full schema references:
-
-```bash
-npm run codegen
-# or
-yarn codegen
-```
-
-This command triggers GraphQL code generation based on the configuration in `.graphqlrc.ts`.
-
-# Environment Variables & TypeScript
-
-## Environment Variable Configuration ✅
-
-The project includes proper TypeScript definitions for environment variables in `env.d.ts`:
+This project uses **React Router v7**, not Remix. Always use React Router imports:
 
 ```typescript
-declare namespace NodeJS {
-  interface ProcessEnv {
-    NODE_ENV: 'development' | 'production';
-    KLING_ACCESS_KEY?: string;        // AI generation API key
-    KLING_SECRET_KEY?: string;        // AI generation API secret
-    // ... other Shopify and app variables
-  }
-}
+// ✅ CORRECT
+import { useLoaderData, Link, Form } from 'react-router';
+
+// ❌ INCORRECT  
+import { useLoaderData, Link, Form } from '@remix-run/react';
+import { useLoaderData, Link, Form } from 'react-router-dom';
 ```
 
-## Secure Environment Variable Usage ✅
 
-**ALWAYS use server-side environment variable access:**
 
-```typescript
-// CORRECT - Server-side only
-const env = process.env as any;
-const KLING_ACCESS_KEY = env.KLING_ACCESS_KEY as string | undefined;
-const KLING_SECRET_KEY = env.KLING_SECRET_KEY as string | undefined;
+### Automated Type Generation
+- **`npm run codegen`** - Regenerate all GraphQL types
+- **Used types only** in main generated files
+- **Complete schema reference for guidance** in `/graphql-schema/` directory
 
-// NEVER expose sensitive keys to client-side code
-```
+### Schema Files
+- `storefrontapi.generated.d.ts` - Storefront API types (used in app)
+- `customer-accountapi.generated.d.ts` - Customer API types (used in app)  
+- `graphql-schema/` - Complete schema references for development
 
-# Important Developer Notes
 
-1. **Template Status**: This template is 100% configurable and production-ready
-2. **Customization**: Only `app/utils/config.ts` needs modification for new influencers
-3. **Components**: ALL components use `useConfig()` hook and CSS variables
-4. **🆕 Layout**: All sizing and spacing uses configurable CSS variables
-5. **Cart**: Fully functional with responsive sizing and comprehensive testing
-6. **Authentication**: Complete Shopify Customer Account integration
-7. **AI Generation**: Production-ready with usage limits and cost control
-8. **Navigation**: All links work correctly and are configurable
-9. **Theme**: Multiple brand styles available with instant transformation
-10. **Assets**: Store all media in `/public` directory with config references
-11. **Security**: API keys protected server-side, authentication required for expensive operations
+### Product Display Components (Fully Configurable)
 
-## When working with components:
-- **ALWAYS** use the `useConfig()` hook from `~/utils/themeContext` to access configuration
-- **ALWAYS** use Tailwind classes that reference CSS variables for styling
-- **🆕 ALWAYS** use CSS variables for layout values (widths, heights, spacing)
-- **NEVER** hardcode any styles, colors, text, or content that should come from the theme
-- **NEVER** hardcode layout values like cart sizes, header heights, or spacing
-- **ALWAYS** make components respond to configuration changes
-- **ALWAYS** implement conditional rendering based on feature flags
+The template includes several components for displaying products:
 
-## When implementing authentication features:
-- **ALWAYS** use Shopify Customer Account API for authentication
-- **ALWAYS** check authentication status before expensive operations
-- **ALWAYS** implement usage limits for costly features like AI generation
-- **ALWAYS** provide clear error messages and authentication prompts
-- **ALWAYS** keep sensitive API credentials server-side only
+1. **ProductCard.tsx**: Used in grids and product listings (FULLY CUSTOMIZABLE)
+2. **ProductItem.tsx**: Alternative product card used in specific contexts (FULLY CUSTOMIZABLE) 
+3. **ProductShowcase.tsx**: Displays a grid of products with heading and CTA (FULLY CUSTOMIZABLE)
 
-## When implementing cart functionality:
-- **ALWAYS** pass `selectedVariant` to AddToCartButton components
-- Use flexible type definitions that match actual GraphQL data
-- Use CartForm for all cart operations
-- **🆕 Use CSS classes** like `cart-container`, `cart-items-container`, `cart-summary-container`
-- Test thoroughly using the `/shopify-test` page
+These components can be completely modified for:
+- Custom layouts and animations
+- Unique product information display
+- Brand-specific interactions
+- Custom filtering and sorting
+- Unique shopping experiences
 
-## 🆕 When implementing layout changes:
-- **ALWAYS** add new layout values to the `layout` configuration in `config.ts`
-- **ALWAYS** update CSS variables in `app.css` for new layout values
-- **ALWAYS** use the `updateLayoutVariables()` function in `themeConfig.ts`
-- **NEVER** hardcode responsive breakpoints or sizing values
-- **ALWAYS** test layout changes across mobile, tablet, and desktop
+## Important Development Notes
+
+### Template Capabilities
+1. **Template Status**: Production-ready foundation with unlimited customization
+2. **Quick Setup**: Central config for rapid brand transformation
+3. **Full Customization**: Every component and route editable
+4. **Cart System**: Fully functional with responsive sizing
+5. **Authentication**: Complete Shopify Customer Account integration
+6. **AI Generation**: Production-ready with usage limits and cost control
+7. **Performance**: Optimized for modern web standards
+8. **Security**: API keys protected server-side, authentication for premium features
 
 ## Routes Structure
 
@@ -752,85 +347,8 @@ The project uses a file-based routing system with React Router conventions:
 - Routes with `._` denote layout routes
 - API routes in `/api.*` pattern for server-side functionality
 
-## Key Components (ALL CONFIGURABLE)
-- `PageLayout.tsx`: Main layout component
-- `Header.tsx` and `Footer.tsx`: Site-wide navigation components
-- `ProductCard.tsx`, `ProductDetail.tsx`: Product display components
-- `ProductShowcase.tsx`: Product grid display for featured products
-- `CartMain.tsx`, `CartSummary.tsx`: Shopping cart components (**🆕 Responsive sizing**)
-- `CartLineItem.tsx`: Individual cart line items (FULLY WORKING)
-- `AddToCartButton.tsx`: Add to cart functionality (FULLY WORKING)
-- `Hero.tsx`: Main landing page hero section
-- `LimitedEdition.tsx`: Limited edition product section with countdown
-- `Aside.tsx`: Slide-in panel for cart, search, and mobile menu (**🆕 Configurable width**)
-- `AIMediaGeneration.tsx`: AI photo generation with authentication ✅
-- `AuthPrompt.tsx`: Authentication prompts for protected features ✅
-- `ProductDesigner.tsx`: **🆕 Uses theme colors** instead of hardcoded values ✅
-- `FooterLogo.tsx`: **🆕 Uses CSS variables** for effects ✅
+**ALL ROUTES ARE FULLY CUSTOMIZABLE**
 
-# FINAL VERIFICATION SUMMARY
+**Use the central config as your starting point, then customize everything else to match your influencer's unique brand, style, aesthetic, requirements, etc.**
 
-## ✅ 100% CONFIGURABLE VERIFICATION COMPLETE + LAYOUT SYSTEM ✅
-
-**The Hydrogen template achieves complete customizability for any influencer with advanced AI capabilities and responsive layout system:**
-
-### Key Success Metrics:
-- **🎯 Zero hardcoded content** in UI components
-- **🎯 Complete theme flexibility** via CSS variables  
-- **🎯 Industry-agnostic** design patterns
-- **🎯 Minimal setup time** for new influencers (~1 hour)
-- **🎯 Professional scalability** for multiple brands
-- **🤖 AI-powered fan engagement** with cost control
-- **🔐 Enterprise-grade authentication** and security
-- **🆕 Fully responsive layout system** with configurable breakpoints
-- **🆕 Dynamic CSS variable updates** for real-time theming
-- **🆕 Cart sizing issues completely resolved** with fixed constraints
-
-### Tested Configurations:
-- ✅ Boxing influencer (Shane Mosley) - Original
-- ✅ Fitness influencer simulation
-- ✅ Gaming influencer simulation  
-- ✅ Fashion influencer simulation
-- ✅ Music artist simulation
-- ✅ AI generation with authentication across all types
-- ✅ **🆕 Responsive cart sizing** across all device types
-- ✅ **🆕 Layout configuration** testing and verification
-
-### Verified Functionality:
-- ✅ Complete visual transformation
-- ✅ All navigation working
-- ✅ E-commerce integration  
-- ✅ Social media links
-- ✅ Cart functionality **🆕 with responsive sizing**
-- ✅ Search functionality
-- ✅ Customer authentication system
-- ✅ AI media generation with usage limits
-- ✅ **🆕 Responsive design** with configurable breakpoints
-- ✅ Accessibility standards
-- ✅ SEO optimization
-- ✅ Security best practices
-- ✅ **🆕 No hardcoded layout values** anywhere in codebase
-
-### New Advanced Features ✅
-- ✅ **AI Photo Generation**: KlingAI integration with virtual try-on technology
-- ✅ **Authentication System**: Complete Shopify Customer Account integration
-- ✅ **Usage Limits**: Configurable monthly limits for AI generations
-- ✅ **Cost Control**: Server-side API protection and usage tracking
-- ✅ **Real-time Progress**: Live task status updates with polling
-- ✅ **Mobile Experience**: Fully responsive AI generation interface
-- ✅ **Error Handling**: Comprehensive error states and user feedback
-- ✅ **🆕 Layout Configuration System**: Complete responsive layout control
-- ✅ **🆕 CSS Variable System**: Dynamic theme and layout updates
-- ✅ **🆕 Cart Sizing Solution**: Fixed responsive cart with proper constraints
-
-### Recent Improvements ✅
-- ✅ **🆕 Enhanced Configuration Interface**: Added `layout` section to `LandingPageConfig`
-- ✅ **🆕 CSS Variables System**: All layout values use configurable CSS variables
-- ✅ **🆕 Dynamic Theme Updates**: `initThemeFromConfig()` applies both colors AND layout
-- ✅ **🆕 Utility Classes**: `.container-padding`, `.section-spacing-y`, `.card-spacing`
-- ✅ **🆕 Component Updates**: All layout-related components use CSS variables
-- ✅ **🆕 Zero Hardcoded Values**: Complete elimination of hardcoded sizing and colors
-
-**This template successfully delivers on the goal of being a highly customizable, reusable influencer store template with cutting-edge AI capabilities, responsive layout system, and complete central theming that maintains code quality while providing unlimited brand customization flexibility and advanced fan engagement features.**
-
-**The central theming system is 100% complete and production-ready with comprehensive layout configuration capabilities.** 🎉
+**Remember: The central configuration system is designed to accelerate development, not limit it. Every single UI component can be completely customized to create unique experiences that perfectly match any influencer's aesthetic, brand, and audience expectations.**

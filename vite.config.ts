@@ -1,21 +1,25 @@
-import {defineConfig} from 'vite';
-import {hydrogen} from '@shopify/hydrogen/vite';
-import {oxygen} from '@shopify/mini-oxygen/vite';
-import {reactRouter} from '@react-router/dev/vite';
+import { defineConfig } from 'vite';
+import { hydrogen } from '@shopify/hydrogen/vite';
+// import { oxygen } from '@shopify/mini-oxygen/vite';
+import { reactRouter } from '@react-router/dev/vite';
+import { cloudflare } from '@cloudflare/vite-plugin';
+
 import tsconfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
+import { resolve } from 'path';
+// import netlifyPlugin from '@netlify/vite-plugin-react-router'
 
 export default defineConfig({
   plugins: [
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
     hydrogen(),
-    oxygen(),
     reactRouter(),
     tsconfigPaths(),
   ],
   build: {
     // Allow a strict Content-Security-Policy
-    // withtout inlining assets as base64:
+    // without inlining assets as base64:
     assetsInlineLimit: 0,
   },
   ssr: {
@@ -30,7 +34,24 @@ export default defineConfig({
        * Include 'example-dep' in the array below.
        * @see https://vitejs.dev/config/dep-optimization-options
        */
-      include: [],
+      include: [
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        'react',
+        'react-dom',
+        'react-dom/server',
+      ],
     },
+  },
+  resolve: {
+    alias: {
+      // Alias canvas to mock file for Cloudflare Workers
+      'canvas': resolve('./canvas-mock.js'),
+    },
+  },
+  define: {
+    // Define environment variables
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    'global': 'globalThis',
   },
 });

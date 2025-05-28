@@ -44,7 +44,7 @@ export function Cart({cart}) {
 ```
 
 ```tsx
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 import {Link} from 'react-router';
 import {CartForm, useOptimisticCart} from '@shopify/hydrogen';
 import type {Cart} from '@shopify/hydrogen/storefront-api-types';

@@ -65,7 +65,7 @@ const ALL_PRODUCTS_QUERY = `#graphql
 ```
 
 ```tsx
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
 import {useLoaderData, Link} from 'react-router';
 import {ProductConnection} from '@shopify/hydrogen/storefront-api-types';

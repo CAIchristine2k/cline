@@ -65,7 +65,7 @@ const ALL_PRODUCTS_QUERY = `#graphql
 ```
 
 ```tsx
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
 import {useLoaderData, Link} from 'react-router';
 import {ProductConnection} from '@shopify/hydrogen/storefront-api-types';
@@ -320,7 +320,7 @@ const COLLECTION_PRODUCTS_QUERY = `#graphql
 ```
 
 ```tsx
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 import {useLoaderData, Link} from 'react-router';
 import {getPaginationVariables, Pagination} from '@shopify/hydrogen';
 import {type Collection} from '@shopify/hydrogen-react/storefront-api-types';
@@ -572,7 +572,7 @@ const COLLECTION_PRODUCTS_QUERY = `#graphql
 ```
 
 ```tsx
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 import {useLoaderData, Link} from 'react-router';
 import {getPaginationVariables, Pagination} from '@shopify/hydrogen';
 import {type Collection} from '@shopify/hydrogen-react/storefront-api-types';

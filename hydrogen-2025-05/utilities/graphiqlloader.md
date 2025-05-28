@@ -4,7 +4,7 @@ This function creates an instance of [GraphiQL](https://graphql.org/swapi-graphq
 
 ```js
 import {graphiqlLoader} from '@shopify/hydrogen';
-import {redirect} from '@shopify/remix-oxygen';
+import {redirect} from 'react-router';
 
 export async function loader(args) {
   if (process.env.NODE_ENV === 'development') {
@@ -18,7 +18,7 @@ export async function loader(args) {
 
 ```ts
 import {graphiqlLoader} from '@shopify/hydrogen';
-import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {redirect, type LoaderFunctionArgs} from 'react-router';
 
 export async function loader(args: LoaderFunctionArgs) {
   if (process.env.NODE_ENV === 'development') {

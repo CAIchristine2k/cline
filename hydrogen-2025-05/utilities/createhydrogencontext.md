@@ -10,7 +10,7 @@ import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -108,7 +108,7 @@ import {
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 export default {
   async fetch(request: Request, env: Env, executionContext: ExecutionContext) {

@@ -4,7 +4,7 @@ import {
   getPaginationVariables,
   flattenConnection,
 } from '@shopify/hydrogen';
-import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {redirect, type LoaderFunctionArgs} from 'react-router';
 import type {
   CustomerOrdersFragment,
   OrderItemFragment,

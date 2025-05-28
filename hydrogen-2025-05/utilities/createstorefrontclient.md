@@ -10,7 +10,7 @@ import {createStorefrontClient} from '@shopify/hydrogen';
 import {
   createRequestHandler,
   getStorefrontHeaders,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 export default {
   async fetch(request, env, executionContext) {
     /* Create a Storefront client with your credentials and options */
@@ -54,7 +54,7 @@ import * as serverBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   getStorefrontHeaders,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
 
 export default {
   async fetch(

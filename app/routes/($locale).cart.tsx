@@ -3,7 +3,7 @@ import type {LoaderFunctionArgs, ActionFunctionArgs, MetaFunction} from 'react-r
 import {CartMain} from '~/components/CartMain';
 import {useConfig} from '~/utils/themeContext';
 import {CartForm} from '@shopify/hydrogen';
-import {HeadersFunction, data} from '@shopify/remix-oxygen';
+import {HeadersFunction, data} from 'react-router';
 import {Link} from 'react-router';
 
 export const meta: MetaFunction = () => {
