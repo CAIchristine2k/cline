@@ -38,7 +38,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const config = getConfig();
 
   return {
-    ...deferredData, 
+    ...deferredData,
     ...criticalData,
     config: {
       ...config,
@@ -65,7 +65,7 @@ async function loadCriticalData({
 
   // Fix: Use a separate query to get the selectedOptions
   const selectedOptions = getSelectedProductOptions(request);
-  
+
   // The GraphQL query doesn't expect selectedOptions in variables
   const data = await storefront.query(PRODUCT_QUERY, {
     variables: {handle},
@@ -81,7 +81,7 @@ async function loadCriticalData({
   return {
     product: data.product,
     recommendedProducts: data.recommendedProducts?.nodes || [],
-    storeDomain: storefront.getShopifyDomain()
+    storeDomain: storefront.getShopifyDomain(),
   };
 }
 
@@ -98,7 +98,8 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
 }
 
 export default function Product() {
-  const {product, recommendedProducts, storeDomain} = useLoaderData<typeof loader>();
+  const {product, recommendedProducts, storeDomain} =
+    useLoaderData<typeof loader>();
   const config = useConfig();
 
   if (!product) {
@@ -106,7 +107,10 @@ export default function Product() {
       <div className="container mx-auto px-4 py-24 text-center">
         <h1 className="text-3xl font-bold mb-6">Product not found</h1>
         <p className="mb-8">The product you're looking for does not exist.</p>
-        <Link to="/collections" className="bg-primary text-background px-6 py-3 rounded-sm">
+        <Link
+          to="/collections"
+          className="bg-primary text-background px-6 py-3 rounded-sm"
+        >
           Back to Collections
         </Link>
       </div>
@@ -131,14 +135,15 @@ export default function Product() {
   const featuredImage = product.featuredImage;
   const images = product.images.nodes;
   const selectedVariant = product.selectedVariant ?? product.variants.nodes[0];
-  
+
   // Check if this product has a custom variant
   const customVariant = product.variants.nodes.find(
-    (variant: any) => variant?.title?.toLowerCase?.() === 'custom'
+    (variant: any) => variant?.title?.toLowerCase?.() === 'custom',
   );
   const hasCustomVariant = Boolean(customVariant);
-  const isCustomVariantOutOfStock = customVariant && !customVariant.availableForSale;
-  
+  const isCustomVariantOutOfStock =
+    customVariant && !customVariant.availableForSale;
+
   return (
     <div className="py-24">
       <div className="container mx-auto px-4">
@@ -147,11 +152,16 @@ export default function Product() {
           <nav className="flex" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2">
               <li>
-                <Link to="/" className="text-primary hover:text-primary-600">Home</Link>
+                <Link to="/" className="text-primary hover:text-primary-600">
+                  Home
+                </Link>
               </li>
               <li className="flex items-center space-x-2">
                 <span className="text-primary-700">/</span>
-                <Link to="/collections" className="text-primary hover:text-primary-600">
+                <Link
+                  to="/collections"
+                  className="text-primary hover:text-primary-600"
+                >
                   Collections
                 </Link>
               </li>
@@ -182,11 +192,14 @@ export default function Product() {
                 </div>
               )}
             </div>
-            
+
             {images.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
                 {images.map((image: any) => (
-                  <div key={image.id} className="aspect-square overflow-hidden rounded-sm border border-primary/10">
+                  <div
+                    key={image.id}
+                    className="aspect-square overflow-hidden rounded-sm border border-primary/10"
+                  >
                     <Image
                       data={image}
                       className="h-full w-full object-cover"
@@ -203,37 +216,41 @@ export default function Product() {
             {product.vendor && (
               <div className="text-primary-700 mb-2">{product.vendor}</div>
             )}
-            
+
             <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
-            
+
             <div className="flex items-center gap-4 mb-4">
               <div className="text-2xl font-bold text-primary">
                 <Money data={selectedVariant.price} />
               </div>
-              
+
               {selectedVariant.compareAtPrice && (
                 <div className="text-lg text-red-500 line-through">
                   <Money data={selectedVariant.compareAtPrice} />
                 </div>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2 mb-6">
-              <div className={`h-3 w-3 rounded-full ${selectedVariant.availableForSale ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <div
+                className={`h-3 w-3 rounded-full ${selectedVariant.availableForSale ? 'bg-green-500' : 'bg-red-500'}`}
+              ></div>
               <span className="text-sm">
                 {selectedVariant.availableForSale ? 'In stock' : 'Out of stock'}
               </span>
             </div>
-            
+
             <div className="prose prose-sm max-w-none mb-8">
-              <div dangerouslySetInnerHTML={{__html: product.descriptionHtml}} />
+              <div
+                dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
+              />
             </div>
-            
+
             {/* Product Form */}
             <Suspense fallback={<div>Loading...</div>}>
               <ProductForm product={product} storeDomain={storeDomain} />
             </Suspense>
-            
+
             {/* Customize Button */}
             {hasCustomVariant && (
               <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-sm">
@@ -243,16 +260,18 @@ export default function Product() {
                       🎨 Make It Your Own
                     </h3>
                     <p className="text-sm text-blue-300 mb-4">
-                      Customize this product with your own images, text, and designs to create something truly unique!
+                      Customize this product with your own images, text, and
+                      designs to create something truly unique!
                     </p>
-                    
+
                     {isCustomVariantOutOfStock ? (
                       <div className="bg-red-600/20 border border-red-600/30 rounded-md p-3">
                         <p className="text-red-400 text-sm font-semibold">
                           ⚠️ Custom variants are currently out of stock
                         </p>
                         <p className="text-red-300 text-xs mt-1">
-                          Please check back later or contact us for availability.
+                          Please check back later or contact us for
+                          availability.
                         </p>
                       </div>
                     ) : (
@@ -268,7 +287,7 @@ export default function Product() {
                 </div>
               </div>
             )}
-            
+
             {/* Product meta information */}
             {(product.tags?.length > 0 || product.productType) && (
               <div className="border-t border-primary/10 mt-8 pt-6 text-sm">
@@ -278,13 +297,16 @@ export default function Product() {
                     <span>{product.productType}</span>
                   </div>
                 )}
-                
+
                 {product.tags && product.tags.length > 0 && (
                   <div className="flex">
                     <span className="w-32 font-medium">Tags:</span>
                     <div className="flex flex-wrap gap-2">
                       {product.tags.map((tag: string) => (
-                        <span key={tag} className="bg-primary/10 px-2 py-1 rounded-sm text-xs">
+                        <span
+                          key={tag}
+                          className="bg-primary/10 px-2 py-1 rounded-sm text-xs"
+                        >
                           {tag}
                         </span>
                       ))}
@@ -293,25 +315,28 @@ export default function Product() {
                 )}
               </div>
             )}
-            
+
             {/* Championship Guarantee */}
             <div className="mt-8 bg-primary/10 border border-primary/30 rounded-sm p-4">
               <h3 className="text-lg font-bold text-primary mb-2">
                 {config.influencerName}'s Guarantee
               </h3>
               <p className="text-sm text-text/80">
-                Every product is crafted to championship standards and backed by {config.influencerName}'s 
-                legacy of excellence. Train like a champion with gear approved by 
-                a {config.influencerTitle.toLowerCase()}.
+                Every product is crafted to championship standards and backed by{' '}
+                {config.influencerName}'s legacy of excellence. Train like a
+                champion with gear approved by a{' '}
+                {config.influencerTitle.toLowerCase()}.
               </p>
             </div>
           </div>
         </div>
-      
+
         {/* Related Products Section */}
         {recommendedProducts.length > 0 && (
           <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-6 text-primary">You Might Also Like</h2>
+            <h2 className="text-2xl font-bold mb-6 text-primary">
+              You Might Also Like
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {recommendedProducts.map((relatedProduct: any) => (
                 <Link
@@ -342,19 +367,23 @@ export default function Product() {
           </div>
         )}
       </div>
-      
+
       {/* Analytics */}
-      <Analytics.ProductView data={{
-        products: [{
-          id: product.id,
-          title: product.title,
-          vendor: product.vendor,
-          variantId: selectedVariant?.id || '',
-          variantTitle: selectedVariant?.title || '',
-          price: selectedVariant?.price?.amount || '0',
-          quantity: 1
-        }]
-      }} />
+      <Analytics.ProductView
+        data={{
+          products: [
+            {
+              id: product.id,
+              title: product.title,
+              vendor: product.vendor,
+              variantId: selectedVariant?.id || '',
+              variantTitle: selectedVariant?.title || '',
+              price: selectedVariant?.price?.amount || '0',
+              quantity: 1,
+            },
+          ],
+        }}
+      />
     </div>
   );
 }

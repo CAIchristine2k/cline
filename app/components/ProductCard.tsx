@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
-import { Star, ShoppingCart, Eye, Heart } from 'lucide-react';
-import { Link } from 'react-router';
-import { Image, Money } from '@shopify/hydrogen';
-import { AddToCartButton } from '~/components/AddToCartButton';
-import { WishlistButton } from '~/components/WishlistButton';
-import { LoadingSpinner } from '~/components/LoadingSpinner';
-import type {
-  ProductItemFragment,
-} from 'storefrontapi.generated';
-import { useConfig } from '~/utils/themeContext';
+import React, {useState} from 'react';
+import {Star, ShoppingCart, Eye, Heart} from 'lucide-react';
+import {Link} from 'react-router';
+import {Image, Money} from '@shopify/hydrogen';
+import {AddToCartButton} from '~/components/AddToCartButton';
+import {WishlistButton} from '~/components/WishlistButton';
+import {LoadingSpinner} from '~/components/LoadingSpinner';
+import type {ProductItemFragment} from 'storefrontapi.generated';
+import {useConfig} from '~/utils/themeContext';
 
 interface VariantNode {
   id: string;
@@ -35,8 +33,8 @@ interface ProductCardProps {
   customizable?: boolean;
 }
 
-export function ProductCard({ 
-  product, 
+export function ProductCard({
+  product,
   loading = 'lazy',
   showQuickView = true,
   showWishlist = true,
@@ -48,52 +46,59 @@ export function ProductCard({
 
   if (!product) return null;
 
-  const { title, handle, featuredImage, tags = [] } = product;
+  const {title, handle, featuredImage, tags = []} = product;
   const variants = product.variants?.nodes || [];
-  const firstVariant = variants[0] as VariantNode | undefined || {} as VariantNode;
-  
+  const firstVariant =
+    (variants[0] as VariantNode | undefined) || ({} as VariantNode);
+
   const price = firstVariant?.price;
   const compareAtPrice = firstVariant?.compareAtPrice;
   const isAvailable = Boolean(firstVariant?.availableForSale);
   const variantId = firstVariant?.id;
 
   // Check if the product is on sale
-  const isOnSale = compareAtPrice && price &&
+  const isOnSale =
+    compareAtPrice &&
+    price &&
     parseFloat(price.amount) < parseFloat(compareAtPrice.amount);
-  
+
   // Calculate savings percentage
-  const savingsPercentage = isOnSale && compareAtPrice && price
-    ? Math.round((1 - parseFloat(price.amount) / parseFloat(compareAtPrice.amount)) * 100)
-    : 0;
-    
+  const savingsPercentage =
+    isOnSale && compareAtPrice && price
+      ? Math.round(
+          (1 - parseFloat(price.amount) / parseFloat(compareAtPrice.amount)) *
+            100,
+        )
+      : 0;
+
   // Generate mock rating and reviews for display (since Shopify doesn't provide this)
-  const rating = 4.8 + (Math.random() * 0.2);
+  const rating = 4.8 + Math.random() * 0.2;
   const reviews = 70 + Math.floor(Math.random() * 60);
-  
+
   // Check if product is a featured product based on config
   const isFeatured = config.shopify.featuredProducts.includes(handle);
-  
+
   // Get product label based on tags or sale status
   const getProductLabel = () => {
-    if (isOnSale) return { text: "Sale", color: "bg-red-500" };
-    if (isFeatured) return { text: "Featured", color: "bg-primary" };
-    if (tags && tags.includes("new")) return { text: "New", color: "bg-green-500" };
-    if (tags && tags.includes("bestseller")) return { text: "Bestseller", color: "bg-purple-500" };
+    if (isOnSale) return {text: 'Sale', color: 'bg-red-500'};
+    if (isFeatured) return {text: 'Featured', color: 'bg-primary'};
+    if (tags && tags.includes('new'))
+      return {text: 'New', color: 'bg-green-500'};
+    if (tags && tags.includes('bestseller'))
+      return {text: 'Bestseller', color: 'bg-purple-500'};
     return null;
   };
-  
+
   const productLabel = getProductLabel();
 
   // Format the variant ID to ensure it has the proper Shopify GID prefix
   const formatVariantId = (id: string) => {
     if (!id) return '';
     if (id.startsWith('gid://shopify/ProductVariant/')) return id;
-    
+
     // Extract the numeric ID if it's already in a GID format
-    const numericId = id.includes('/')
-      ? id.split('/').pop() || id
-      : id;
-      
+    const numericId = id.includes('/') ? id.split('/').pop() || id : id;
+
     return `gid://shopify/ProductVariant/${numericId}`;
   };
 
@@ -105,16 +110,17 @@ export function ProductCard({
 
   // Check if this product has a "custom" variant option - safely check title exists
   const hasCustomVariant = product?.variants?.nodes?.some(
-    (variant) => variant?.title?.toLowerCase?.() === 'custom'
+    (variant) => variant?.title?.toLowerCase?.() === 'custom',
   );
-  
+
   // Get the custom variant specifically
   const customVariant = product?.variants?.nodes?.find(
-    (variant) => variant?.title?.toLowerCase?.() === 'custom'
+    (variant) => variant?.title?.toLowerCase?.() === 'custom',
   );
-  
+
   // Check if custom variant is out of stock
-  const isCustomVariantOutOfStock = customVariant && !customVariant.availableForSale;
+  const isCustomVariantOutOfStock =
+    customVariant && !customVariant.availableForSale;
 
   // If customizable flag is true, only show products with custom variants
   if (customizable && !hasCustomVariant) {
@@ -123,7 +129,6 @@ export function ProductCard({
 
   return (
     <div className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1 hover:scale-[1.01]">
-      
       {/* Image Container */}
       <div className="relative h-80 overflow-hidden">
         <Link
@@ -160,7 +165,9 @@ export function ProductCard({
         {/* Product Labels */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {productLabel && (
-            <div className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20`}>
+            <div
+              className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20`}
+            >
               {productLabel.text}
             </div>
           )}
@@ -211,7 +218,7 @@ export function ProductCard({
                 <Eye className="w-4 h-4" />
               </Link>
             )}
-            
+
             {hasCustomVariant && !isCustomVariantOutOfStock && (
               <Link
                 to={`/customize-product/${handle}`}
@@ -223,14 +230,16 @@ export function ProductCard({
                 </div>
               </Link>
             )}
-            
+
             {isAvailable && variantId && (
               <div onClick={(e) => e.stopPropagation()}>
-                <AddToCartButton 
-                  lines={[{
-                    merchandiseId: formatVariantId(variantId),
-                    quantity: 1
-                  }]}
+                <AddToCartButton
+                  lines={[
+                    {
+                      merchandiseId: formatVariantId(variantId),
+                      quantity: 1,
+                    },
+                  ]}
                   selectedVariant={firstVariant}
                   onClick={handleAddToCart}
                   disabled={isAddingToCart}
@@ -260,10 +269,14 @@ export function ProductCard({
             {title}
           </h3>
         </Link>
-        
+
         {/* Rating stars */}
         <div className="flex items-center gap-3">
-          <div className="flex text-primary" role="img" aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}>
+          <div
+            className="flex text-primary"
+            role="img"
+            aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}
+          >
             {[...Array(Math.floor(rating))].map((_, i) => (
               <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
             ))}
@@ -271,10 +284,15 @@ export function ProductCard({
               <Star className="w-4 h-4 fill-current opacity-50" />
             )}
             {[...Array(5 - Math.ceil(rating))].map((_, i) => (
-              <Star key={`empty-${i}`} className="w-4 h-4 stroke-current fill-transparent opacity-30" />
+              <Star
+                key={`empty-${i}`}
+                className="w-4 h-4 stroke-current fill-transparent opacity-30"
+              />
             ))}
           </div>
-          <span className="text-sm text-gray-400 font-medium price-no-hover">({reviews})</span>
+          <span className="text-sm text-gray-400 font-medium price-no-hover">
+            ({reviews})
+          </span>
         </div>
 
         {/* Price Section */}
@@ -310,11 +328,13 @@ export function ProductCard({
         {/* Mobile Add to Cart (visible on mobile only) */}
         {isAvailable && variantId && (
           <div className="md:hidden pt-2">
-            <AddToCartButton 
-              lines={[{
-                merchandiseId: formatVariantId(variantId),
-                quantity: 1
-              }]}
+            <AddToCartButton
+              lines={[
+                {
+                  merchandiseId: formatVariantId(variantId),
+                  quantity: 1,
+                },
+              ]}
               selectedVariant={firstVariant}
               onClick={handleAddToCart}
               disabled={isAddingToCart}

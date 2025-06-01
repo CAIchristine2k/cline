@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs } from 'react-router';
-import { CUSTOMER_DETAILS_QUERY } from '~/graphql/customer-account/CustomerDetailsQuery';
-import { CUSTOMER_METAFIELD_UPDATE } from '~/graphql/customer-account/CustomerUpdateMutation';
+import type {ActionFunctionArgs} from 'react-router';
+import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
+import {CUSTOMER_METAFIELD_UPDATE} from '~/graphql/customer-account/CustomerUpdateMutation';
 
 const KLING_API_BASE = 'https://api-singapore.klingai.com';
 
@@ -23,45 +23,52 @@ function base64URLEncode(str: ArrayBuffer): string {
 }
 
 // Generate JWT token using Web Crypto API (compatible with Cloudflare Workers)
-async function generateKlingToken(accessKey: string, secretKey: string): Promise<string> {
+async function generateKlingToken(
+  accessKey: string,
+  secretKey: string,
+): Promise<string> {
   if (!accessKey || !secretKey) {
     throw new Error('KlingAI API credentials not configured');
   }
 
   const header = {
     alg: 'HS256',
-    typ: 'JWT'
+    typ: 'JWT',
   };
 
   const payload = {
     iss: accessKey,
     exp: Math.floor(Date.now() / 1000) + 1800, // 30 minutes from now
-    nbf: Math.floor(Date.now() / 1000) - 5     // 5 seconds ago
+    nbf: Math.floor(Date.now() / 1000) - 5, // 5 seconds ago
   };
 
   // Using exactly the same JSON stringification format as KlingAI examples
   const headerJson = JSON.stringify(header);
   const payloadJson = JSON.stringify(payload);
-  
+
   // Encode header and payload
   const encodedHeader = base64URLEncode(new TextEncoder().encode(headerJson));
   const encodedPayload = base64URLEncode(new TextEncoder().encode(payloadJson));
-  
+
   // Create signature
   const data = `${encodedHeader}.${encodedPayload}`;
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(secretKey),
-    { name: 'HMAC', hash: 'SHA-256' },
+    {name: 'HMAC', hash: 'SHA-256'},
     false,
-    ['sign']
+    ['sign'],
   );
-  
-  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
+
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    new TextEncoder().encode(data),
+  );
   const encodedSignature = base64URLEncode(signature);
-  
+
   const token = `${data}.${encodedSignature}`;
-  
+
   // Log JWT token details for verification
   console.log('🔐 JWT TOKEN VERIFICATION DETAILS:');
   console.log('✅ Complete JWT Token:', token);
@@ -73,15 +80,15 @@ async function generateKlingToken(accessKey: string, secretKey: string): Promise
   console.log('✅ Token Length:', token.length);
   console.log('✅ Generation Timestamp:', new Date().toISOString());
   console.log('✅ Formatted Authorization Header:', `Bearer ${token}`);
-  
+
   // Verify there's exactly one space between Bearer and token
   const authHeader = `Bearer ${token}`;
   console.log('✅ Auth Header Check:', {
     totalLength: authHeader.length,
     startsWithBearer: authHeader.startsWith('Bearer '),
-    bearerSpaceToken: authHeader === `Bearer ${token}`
+    bearerSpaceToken: authHeader === `Bearer ${token}`,
   });
-  
+
   return token;
 }
 
@@ -94,9 +101,13 @@ interface AIGenerationRequest {
   pose?: string;
   productImage?: string;
   clothImageUrl?: string;
-  
+
   // New generation types
-  generationType?: 'fan-together' | 'image-edit' | 'logo-design' | 'virtual-try-on' | 'image-generation';
+  generationType?:
+    | 'fan-together'
+    | 'image-reference'
+    | 'text-only'
+    | 'virtual-try-on'; // Keep virtual-try-on for backward compatibility
   prompt?: string;
   negativePrompt?: string;
   referenceImageUrl?: string;
@@ -106,11 +117,11 @@ interface AIGenerationRequest {
   numberOfImages?: number;
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
+export async function action({request, context}: ActionFunctionArgs) {
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ message: 'Method not allowed' }), { 
+    return new Response(JSON.stringify({message: 'Method not allowed'}), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' }
+      headers: {'Content-Type': 'application/json'},
     });
   }
 
@@ -123,28 +134,36 @@ export async function action({ request, context }: ActionFunctionArgs) {
       hasAccessKey: !!KLING_ACCESS_KEY,
       accessKeyLength: KLING_ACCESS_KEY?.length || 0,
       hasSecretKey: !!KLING_SECRET_KEY,
-      secretKeyLength: KLING_SECRET_KEY?.length || 0
+      secretKeyLength: KLING_SECRET_KEY?.length || 0,
     });
 
     if (!KLING_ACCESS_KEY || !KLING_SECRET_KEY) {
-      console.warn('❌ KlingAI API credentials not configured in environment variables');
-      return new Response(JSON.stringify({ 
-        message: 'AI media generation service is not configured. Please check your environment variables.' 
-      }), { 
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      console.warn(
+        '❌ KlingAI API credentials not configured in environment variables',
+      );
+      return new Response(
+        JSON.stringify({
+          message:
+            'AI media generation service is not configured. Please check your environment variables.',
+        }),
+        {
+          status: 503,
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
     }
 
     // TESTING: Skip authentication for now
-    console.log('🧪 TESTING MODE: Skipping authentication checks for AI generation');
-    
+    console.log(
+      '🧪 TESTING MODE: Skipping authentication checks for AI generation',
+    );
+
     // TODO: Re-enable authentication for production
     // const isLoggedIn = await context.customerAccount.isLoggedIn();
     // if (!isLoggedIn) {
-    //   return new Response(JSON.stringify({ 
-    //     message: 'Authentication required' 
-    //   }), { 
+    //   return new Response(JSON.stringify({
+    //     message: 'Authentication required'
+    //   }), {
     //     status: 401,
     //     headers: { 'Content-Type': 'application/json' }
     //   });
@@ -156,56 +175,98 @@ export async function action({ request, context }: ActionFunctionArgs) {
     // ... usage limit checks ...
 
     // Parse request body with the new parameters
-    const body = await request.json() as AIGenerationRequest;
-    const { 
+    const body = (await request.json()) as AIGenerationRequest;
+    const {
       // Legacy fields
-      userImage, userImageUrl, influencerImage, pose, productImage,
+      userImage,
+      userImageUrl,
+      influencerImage,
+      pose,
+      productImage,
       // New fields
-      generationType = 'logo-design', // Default to logo design for the new system
-      prompt, negativePrompt, referenceImageUrl, clothImageUrl, baseImageUrl,
-      imageReference = 'subject', aspectRatio = '1:1', numberOfImages = 1
+      generationType = 'text-only', // Default to text-only for cost optimization
+      prompt,
+      negativePrompt,
+      referenceImageUrl,
+      clothImageUrl,
+      baseImageUrl,
+      imageReference = 'subject',
+      aspectRatio = '1:1',
+      numberOfImages = 1,
     } = body;
 
     // Validation based on generation type
     if (generationType === 'virtual-try-on') {
       if (!userImage && !userImageUrl) {
-        return new Response(JSON.stringify({ message: 'User image or image URL is required for virtual try-on' }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            message: 'User image or image URL is required for virtual try-on',
+          }),
+          {
+            status: 400,
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
       }
     } else if (generationType === 'fan-together') {
       if (!prompt) {
-        return new Response(JSON.stringify({ message: 'Prompt is required for fan together generation' }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            message: 'Prompt is required for fan together generation',
+          }),
+          {
+            status: 400,
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
       }
       if (!userImageUrl && !referenceImageUrl) {
-        return new Response(JSON.stringify({ message: 'User image and target person/pet image are required for fan together' }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            message:
+              'User image and target person/pet image are required for fan together',
+          }),
+          {
+            status: 400,
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
       }
-    } else if (generationType === 'image-edit') {
+    } else if (generationType === 'image-reference') {
       if (!prompt) {
-        return new Response(JSON.stringify({ message: 'Prompt is required for image editing' }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            message: 'Prompt is required for image reference generation',
+          }),
+          {
+            status: 400,
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
       }
-      if (!baseImageUrl && !userImageUrl) {
-        return new Response(JSON.stringify({ message: 'Base image is required for image editing' }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+      if (!referenceImageUrl) {
+        return new Response(
+          JSON.stringify({
+            message:
+              'Reference image is required for image reference generation',
+          }),
+          {
+            status: 400,
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
       }
-    } else if (generationType === 'logo-design' || generationType === 'image-generation') {
+    } else if (generationType === 'text-only') {
       if (!prompt) {
-        return new Response(JSON.stringify({ message: 'Prompt is required for logo/design generation' }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            message: 'Prompt is required for text-only generation',
+          }),
+          {
+            status: 400,
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
       }
     }
 
@@ -217,58 +278,83 @@ export async function action({ request, context }: ActionFunctionArgs) {
       console.log('✅ JWT token generated successfully');
     } catch (error) {
       console.error('❌ JWT token generation failed:', error);
-      return new Response(JSON.stringify({ 
-        message: 'Failed to generate authentication token' 
-      }), { 
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          message: 'Failed to generate authentication token',
+        }),
+        {
+          status: 500,
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
     }
 
-    let klingRequest: Record<string, any>;
+    let klingRequest: any;
     let apiEndpoint: string;
 
     // Helper function to fetch and convert image to base64
     const fetchImageAsBase64 = async (imageUrl: string): Promise<string> => {
       // Skip conversion if already a base64 string
-      if (imageUrl.startsWith('data:image/') || 
-          imageUrl.match(/^[A-Za-z0-9+/=]+$/) && imageUrl.length > 100) {
+      if (
+        imageUrl.startsWith('data:image/') ||
+        (imageUrl.match(/^[A-Za-z0-9+/=]+$/) && imageUrl.length > 100)
+      ) {
         console.log('Image URL appears to be base64 already, skipping fetch');
         // Extract the base64 part if it's a data URL
         const base64Match = imageUrl.match(/base64,(.+)/);
         return base64Match ? base64Match[1] : imageUrl;
       }
-      
+
       // Log the URL we're trying to fetch (but mask it for privacy)
-      const urlForLog = typeof imageUrl === 'string' 
-        ? `${imageUrl.substring(0, 30)}...${imageUrl.substring(imageUrl.length - 10)}` 
-        : 'invalid-url';
+      const urlForLog =
+        typeof imageUrl === 'string'
+          ? `${imageUrl.substring(0, 30)}...${imageUrl.substring(imageUrl.length - 10)}`
+          : 'invalid-url';
       console.log(`Fetching image from: ${urlForLog}`);
-      
+
       try {
         const response = await fetch(imageUrl, {
           method: 'GET',
           headers: {
-            'Accept': 'image/*'
-          }
+            Accept: 'image/*',
+          },
         });
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch image: ${response.status}`);
         }
-        
+
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.startsWith('image/')) {
           throw new Error(`Invalid content type: ${contentType}`);
         }
-        
+
         const buffer = await response.arrayBuffer();
         if (!buffer || buffer.byteLength === 0) {
           throw new Error('Empty image data received');
         }
-        
+
+        // Check image size limits (KlingAI has 10MB limit)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (buffer.byteLength > maxSize) {
+          throw new Error(
+            `Image too large: ${buffer.byteLength} bytes (max ${maxSize} bytes)`,
+          );
+        }
+
         console.log(`Successfully fetched image: ${buffer.byteLength} bytes`);
-        return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+
+        // Convert ArrayBuffer to base64 in chunks to avoid stack overflow with large images
+        const uint8Array = new Uint8Array(buffer);
+        let binary = '';
+        const chunkSize = 8192; // Process in 8KB chunks
+
+        for (let i = 0; i < uint8Array.length; i += chunkSize) {
+          const chunk = uint8Array.slice(i, i + chunkSize);
+          binary += String.fromCharCode(...chunk);
+        }
+
+        return btoa(binary);
       } catch (error) {
         console.error(`Image fetch failed for ${urlForLog}:`, error);
         throw error;
@@ -278,7 +364,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
     if (generationType === 'virtual-try-on') {
       // Legacy virtual try-on logic (keep for backward compatibility)
       let userImageBase64: string;
-      
+
       if (userImage) {
         userImageBase64 = userImage;
       } else if (userImageUrl) {
@@ -286,20 +372,26 @@ export async function action({ request, context }: ActionFunctionArgs) {
           userImageBase64 = await fetchImageAsBase64(userImageUrl);
         } catch (error) {
           console.error('Failed to fetch user image:', error);
-          return new Response(JSON.stringify({ 
-            message: 'Failed to fetch user image from URL' 
-          }), { 
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-          });
+          return new Response(
+            JSON.stringify({
+              message: 'Failed to fetch user image from URL',
+            }),
+            {
+              status: 400,
+              headers: {'Content-Type': 'application/json'},
+            },
+          );
         }
       } else {
-        return new Response(JSON.stringify({ 
-          message: 'No user image provided' 
-        }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            message: 'No user image provided',
+          }),
+          {
+            status: 400,
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
       }
 
       klingRequest = {
@@ -319,96 +411,115 @@ export async function action({ request, context }: ActionFunctionArgs) {
       }
 
       apiEndpoint = `${KLING_API_BASE}/v1/images/kolors-virtual-try-on`;
-
     } else if (generationType === 'fan-together') {
-      // Fan together: Generate image with user and target person/pet
+      // Fan together: Only use expensive kling-v1-5 if specific subject/face targeting is needed
+      // kling-v1 supports basic image-to-image without subject/face targeting
+      const needsSubjectFaceTargeting =
+        imageReference &&
+        (imageReference === 'subject' || imageReference === 'face');
+      const modelName = needsSubjectFaceTargeting ? 'kling-v1-5' : 'kling-v1';
+
+      console.log(`🤝 Fan-together generation config (COST-OPTIMIZED):`, {
+        hasReferenceImage: !!referenceImageUrl,
+        imageReference,
+        needsSubjectFaceTargeting,
+        modelName,
+        costLevel: modelName === 'kling-v1' ? 'CHEAPEST' : 'EXPENSIVE',
+        reason: needsSubjectFaceTargeting
+          ? 'subject/face targeting required - needs kling-v1-5'
+          : 'basic image-to-image with kling-v1 (cheapest)',
+      });
+
       klingRequest = {
-        model_name: 'kling-v1-5',
+        model_name: modelName,
         prompt: prompt,
         aspect_ratio: aspectRatio,
         n: numberOfImages,
       };
 
-      // Add both user image and target image for composition
-      if (userImageUrl) {
-        try {
-          klingRequest.image = await fetchImageAsBase64(userImageUrl);
-          klingRequest.image_reference = 'subject'; // Use full subject for fan together
-        } catch (error) {
-          console.error('Failed to fetch user image:', error);
-        }
-      }
-
-      // Add target person/pet as additional reference if different from user image
-      if (referenceImageUrl && referenceImageUrl !== userImageUrl) {
-        // For fan together, we'll use the prompt to describe the scene and the reference image as guidance
-        // Note: KlingAI doesn't support multiple reference images directly, so we use one as the main reference
+      // Add reference image (both models support this)
+      if (referenceImageUrl) {
         try {
           klingRequest.image = await fetchImageAsBase64(referenceImageUrl);
-          klingRequest.image_reference = imageReference;
+          // Only set image_reference if using kling-v1-5 (which supports subject/face targeting)
+          if (modelName === 'kling-v1-5' && needsSubjectFaceTargeting) {
+            klingRequest.image_reference = imageReference;
+          }
+          // kling-v1 will use the image as basic reference without specific targeting
         } catch (error) {
           console.error('Failed to fetch reference image:', error);
         }
       }
 
       apiEndpoint = `${KLING_API_BASE}/v1/images/generations`;
+    } else if (generationType === 'image-reference') {
+      // Image reference: Use kling-v1 for basic reference, kling-v1-5 only for subject/face targeting
+      const needsSubjectFaceTargeting =
+        imageReference &&
+        (imageReference === 'subject' || imageReference === 'face');
+      const modelName = needsSubjectFaceTargeting ? 'kling-v1-5' : 'kling-v1';
 
-    } else if (generationType === 'image-edit') {
-      // Image editing: Modify existing image based on prompt
+      console.log(`🖼️ Image-reference generation config (COST-OPTIMIZED):`, {
+        hasReferenceImage: !!referenceImageUrl,
+        imageReference,
+        needsSubjectFaceTargeting,
+        modelName,
+        costLevel: modelName === 'kling-v1' ? 'CHEAPEST' : 'EXPENSIVE',
+        reason: needsSubjectFaceTargeting
+          ? 'subject/face targeting required - needs kling-v1-5'
+          : 'basic image reference with kling-v1 (cheapest)',
+      });
+
       klingRequest = {
-        model_name: 'kling-v1-5',
+        model_name: modelName,
         prompt: prompt,
         aspect_ratio: aspectRatio,
         n: numberOfImages,
       };
 
-      // Use the base image as reference for editing
-      const imageToEdit = baseImageUrl || userImageUrl;
-      if (imageToEdit) {
+      // Use the reference image (both models support this)
+      if (referenceImageUrl) {
         try {
-          klingRequest.image = await fetchImageAsBase64(imageToEdit);
-          klingRequest.image_reference = 'subject'; // Use subject reference for editing
+          klingRequest.image = await fetchImageAsBase64(referenceImageUrl);
+          // Only set image_reference if using kling-v1-5 and specifically requested
+          if (modelName === 'kling-v1-5' && needsSubjectFaceTargeting) {
+            klingRequest.image_reference = imageReference;
+          }
+          // kling-v1 will use the image as basic style/content reference
         } catch (error) {
-          console.error('Failed to fetch base image:', error);
-          return new Response(JSON.stringify({ 
-            message: 'Failed to fetch base image for editing' 
-          }), { 
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-          });
+          console.error('Failed to fetch reference image:', error);
+          return new Response(
+            JSON.stringify({
+              message: 'Failed to fetch reference image',
+            }),
+            {
+              status: 400,
+              headers: {'Content-Type': 'application/json'},
+            },
+          );
         }
       }
 
       apiEndpoint = `${KLING_API_BASE}/v1/images/generations`;
-
     } else {
-      // Logo design and general image generation
+      // Text-only generation - CHEAPEST option
+      console.log(`💭 Text-only generation config (COST-OPTIMIZED):`, {
+        hasNegativePrompt: !!negativePrompt,
+        modelName: 'kling-v1',
+        costLevel: 'CHEAPEST',
+        reason: 'text-only generation - no images needed, maximum cost savings',
+      });
+
       klingRequest = {
-        model_name: 'kling-v2',
+        model_name: 'kling-v1', // Always use cheapest for text-only
         prompt: prompt,
         aspect_ratio: aspectRatio,
         n: numberOfImages,
       };
 
-      // Add negative prompt if provided (useful for logo design)
+      // Add negative prompt for text-only generation (kling-v1 supports this)
       if (negativePrompt) {
         klingRequest.negative_prompt = negativePrompt;
-      }
-
-      // Add reference image if provided (optional for logo design)
-      if (referenceImageUrl) {
-        // Validate reference image URL
-        if (!referenceImageUrl.startsWith('http') && !referenceImageUrl.startsWith('data:image/')) {
-          console.warn(`Invalid reference image URL format: ${referenceImageUrl.substring(0, 20)}...`);
-        } else {
-          try {
-            klingRequest.image = await fetchImageAsBase64(referenceImageUrl);
-            klingRequest.image_reference = imageReference;
-          } catch (error) {
-            console.error('Failed to fetch reference image:', error);
-            // Don't fail for logo design, just continue without reference
-          }
-        }
       }
 
       apiEndpoint = `${KLING_API_BASE}/v1/images/generations`;
@@ -420,38 +531,45 @@ export async function action({ request, context }: ActionFunctionArgs) {
       generationType,
       promptLength: prompt?.length || 0,
       hasUserImage: !!userImageUrl,
-      hasReferenceImage: !!referenceImageUrl
+      hasReferenceImage: !!referenceImageUrl,
     });
 
     const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(klingRequest)
+      body: JSON.stringify(klingRequest),
     });
 
-    console.log('📡 KlingAI response status:', response.status, response.statusText);
+    console.log(
+      '📡 KlingAI response status:',
+      response.status,
+      response.statusText,
+    );
 
     let klingResult: KlingAIResponse;
     try {
-      klingResult = await response.json() as KlingAIResponse;
+      klingResult = (await response.json()) as KlingAIResponse;
     } catch (error) {
       console.error('❌ Failed to parse KlingAI response JSON:', error);
-      return new Response(JSON.stringify({ 
-        message: 'Invalid response from AI service' 
-      }), { 
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          message: 'Invalid response from AI service',
+        }),
+        {
+          status: 502,
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
     }
 
     console.log('📋 KlingAI response:', {
       status: response.status,
       code: klingResult.code,
       message: klingResult.message,
-      hasData: !!klingResult.data
+      hasData: !!klingResult.data,
     });
 
     if (!response.ok || klingResult.code !== 0) {
@@ -459,40 +577,50 @@ export async function action({ request, context }: ActionFunctionArgs) {
         httpStatus: response.status,
         apiCode: klingResult.code,
         message: klingResult.message,
-        requestId: klingResult.request_id
+        requestId: klingResult.request_id,
       });
-      
+
       // Provide more specific error messages
-      let errorMessage = klingResult.message || 'Failed to create AI generation task';
+      let errorMessage =
+        klingResult.message || 'Failed to create AI generation task';
       if (response.status === 401) {
-        errorMessage = 'Authentication failed with KlingAI API. Please check your API credentials.';
+        errorMessage =
+          'Authentication failed with KlingAI API. Please check your API credentials.';
       } else if (response.status === 403) {
-        errorMessage = 'Access denied by KlingAI API. Please check your account permissions.';
+        errorMessage =
+          'Access denied by KlingAI API. Please check your account permissions.';
       } else if (response.status === 429) {
         if (klingResult.code === 1102) {
-          errorMessage = 'KlingAI account balance is insufficient. Please top up your account or check your billing status.';
+          errorMessage =
+            'KlingAI account balance is insufficient. Please top up your account or check your billing status.';
         } else {
           errorMessage = 'Rate limit exceeded. Please try again later.';
         }
       }
-      
-      return new Response(JSON.stringify({ 
-        message: errorMessage,
-        code: klingResult.code,
-        requestId: klingResult.request_id
-      }), { 
-        status: response.status || 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+
+      return new Response(
+        JSON.stringify({
+          message: errorMessage,
+          code: klingResult.code,
+          requestId: klingResult.request_id,
+        }),
+        {
+          status: response.status || 500,
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
     }
 
     if (!klingResult.data) {
-      return new Response(JSON.stringify({ 
-        message: 'Invalid response from AI service' 
-      }), { 
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          message: 'Invalid response from AI service',
+        }),
+        {
+          status: 500,
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
     }
 
     // TODO: Update usage tracking when re-enabled
@@ -501,31 +629,36 @@ export async function action({ request, context }: ActionFunctionArgs) {
     console.log('🧪 TESTING MODE: AI generation completed (no usage tracking)');
 
     // Return the task information
-    return new Response(JSON.stringify({
-      taskId: klingResult.data.task_id,
-      status: klingResult.data.task_status,
-      createdAt: klingResult.data.created_at,
-      updatedAt: klingResult.data.updated_at,
-      generationType: generationType // Include the generation type for polling
-    }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        taskId: klingResult.data.task_id,
+        status: klingResult.data.task_status,
+        createdAt: klingResult.data.created_at,
+        updatedAt: klingResult.data.updated_at,
+        generationType: generationType, // Include the generation type for polling
+      }),
+      {
+        headers: {'Content-Type': 'application/json'},
+      },
+    );
   } catch (error) {
     console.error('AI media generation error:', error);
-    return new Response(JSON.stringify({ 
-      message: 'Failed to create AI generation task' 
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        message: 'Failed to create AI generation task',
+      }),
+      {
+        status: 500,
+        headers: {'Content-Type': 'application/json'},
+      },
+    );
   }
 }
 
 // Handle other methods
 export async function loader() {
-  return new Response(JSON.stringify({ message: 'Method not allowed' }), { 
+  return new Response(JSON.stringify({message: 'Method not allowed'}), {
     status: 405,
-    headers: { 'Content-Type': 'application/json' }
+    headers: {'Content-Type': 'application/json'},
   });
-} 
+}

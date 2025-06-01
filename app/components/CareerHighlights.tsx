@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
-import { defaultConfig, type LandingPageConfig } from '~/utils/config';
-import { useConfig } from '~/utils/themeContext';
+import React, {useState} from 'react';
+import {ChevronRight} from 'lucide-react';
+import {defaultConfig, type LandingPageConfig} from '~/utils/config';
+import {useConfig} from '~/utils/themeContext';
 
 interface CareerHighlightsProps {
   config?: LandingPageConfig;
 }
 
-export default function CareerHighlights({ config }: CareerHighlightsProps) {
+export default function CareerHighlights({config}: CareerHighlightsProps) {
   const defaultConfigFromContext = useConfig();
   const effectiveConfig = config || defaultConfigFromContext;
   const [activeHighlight, setActiveHighlight] = useState(0);
 
   // Skip rendering if career highlights section is disabled in config
-  if (!effectiveConfig.showCareerHighlights || !effectiveConfig.careerHighlights || effectiveConfig.careerHighlights.length === 0) {
+  if (
+    !effectiveConfig.showCareerHighlights ||
+    !effectiveConfig.careerHighlights ||
+    effectiveConfig.careerHighlights.length === 0
+  ) {
     return null;
   }
 
@@ -25,7 +29,9 @@ export default function CareerHighlights({ config }: CareerHighlightsProps) {
             CHAMPIONSHIP <span className="text-primary">LEGACY</span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            A career defined by excellence, determination, and championship victories. Explore the key moments that established {effectiveConfig.influencerName} as a boxing legend.
+            A career defined by excellence, determination, and championship
+            victories. Explore the key moments that established{' '}
+            {effectiveConfig.influencerName} as a boxing legend.
           </p>
         </div>
 
@@ -80,7 +86,10 @@ export default function CareerHighlights({ config }: CareerHighlightsProps) {
             <div className="relative h-80 lg:h-full overflow-hidden rounded-lg">
               <div className="absolute inset-0 bg-black/60 z-10"></div>
               <img
-                src={effectiveConfig.careerHighlights[activeHighlight]?.image || effectiveConfig.influencerImage}
+                src={
+                  effectiveConfig.careerHighlights[activeHighlight]?.image ||
+                  effectiveConfig.influencerImage
+                }
                 alt={`${effectiveConfig.influencerName} boxing career - ${effectiveConfig.careerHighlights[activeHighlight]?.title}`}
                 className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out"
               />
@@ -94,7 +103,10 @@ export default function CareerHighlights({ config }: CareerHighlightsProps) {
                     {effectiveConfig.careerHighlights[activeHighlight]?.title}
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    {effectiveConfig.careerHighlights[activeHighlight]?.description}
+                    {
+                      effectiveConfig.careerHighlights[activeHighlight]
+                        ?.description
+                    }
                   </p>
                 </div>
               </div>

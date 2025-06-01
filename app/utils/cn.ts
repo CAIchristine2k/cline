@@ -11,7 +11,22 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Utility for responsive text sizes
  */
-export function responsiveText(size: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | '8xl' | '9xl') {
+export function responsiveText(
+  size:
+    | 'xs'
+    | 'sm'
+    | 'base'
+    | 'lg'
+    | 'xl'
+    | '2xl'
+    | '3xl'
+    | '4xl'
+    | '5xl'
+    | '6xl'
+    | '7xl'
+    | '8xl'
+    | '9xl',
+) {
   const sizes = {
     xs: 'text-xs md:text-sm',
     sm: 'text-sm md:text-base',
@@ -33,7 +48,9 @@ export function responsiveText(size: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' 
 /**
  * Utility for spacing classes
  */
-export function spacing(size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') {
+export function spacing(
+  size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl',
+) {
   const sizes = {
     xs: 'p-2 md:p-4',
     sm: 'p-4 md:p-6',
@@ -49,10 +66,22 @@ export function spacing(size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') 
 /**
  * Utility for container classes
  */
-export function container(maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl') {
+export function container(
+  maxWidth?:
+    | 'sm'
+    | 'md'
+    | 'lg'
+    | 'xl'
+    | '2xl'
+    | '3xl'
+    | '4xl'
+    | '5xl'
+    | '6xl'
+    | '7xl',
+) {
   const base = 'container mx-auto px-4';
   if (!maxWidth) return base;
-  
+
   const maxWidths = {
     sm: 'max-w-sm',
     md: 'max-w-md',
@@ -65,6 +94,6 @@ export function container(maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' |
     '6xl': 'max-w-6xl',
     '7xl': 'max-w-7xl',
   };
-  
+
   return cn(base, maxWidths[maxWidth]);
-} 
+}

@@ -1,9 +1,9 @@
-import { CartForm, Image, Money } from '@shopify/hydrogen';
-import { Link } from 'react-router';
-import { useConfig } from '~/utils/themeContext';
-import type { CartLineFragment } from 'storefrontapi.generated';
-import type { CartLayout } from './CartMain';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import {CartForm, Image, Money} from '@shopify/hydrogen';
+import {Link} from 'react-router';
+import {useConfig} from '~/utils/themeContext';
+import type {CartLineFragment} from 'storefrontapi.generated';
+import type {CartLayout} from './CartMain';
+import {Trash2, Plus, Minus} from 'lucide-react';
 
 /**
  * Modern cart line item with clean design and proper theme integration.
@@ -13,21 +13,71 @@ export function CartLineItem({
   line,
   layout = 'aside',
 }: {
-  line: CartLineFragment & { isOptimistic?: boolean };
+  line: CartLineFragment & {isOptimistic?: boolean};
   layout: CartLayout;
 }) {
   const config = useConfig();
-  const { id, merchandise, quantity } = line;
-  
+  const {id, merchandise, quantity, attributes} = line;
+
   // Add safety checks for merchandise and product data
   if (!merchandise || !merchandise.product) {
-    console.warn('CartLineItem: merchandise or product data is missing', { line, merchandise });
+    console.warn('CartLineItem: merchandise or product data is missing', {
+      line,
+      merchandise,
+    });
     return null;
   }
 
-  const { product, title, image, selectedOptions } = merchandise;
+  const {product, title, image, selectedOptions} = merchandise;
   const isGiftCard = product.handle === 'gift-card';
   const lineItemUrl = `/products/${product.handle}`;
+
+  // Debug all attributes
+  console.log('🔍 CartLineItem Debug for product:', product.title, {
+    lineId: id,
+    allAttributes: attributes,
+    attributeCount: attributes?.length || 0,
+  });
+
+  // Check for custom design image in attributes
+  const customDesignImage = attributes?.find(
+    (attr) => attr.key === '_design_image_url',
+  )?.value;
+  const isCustomDesign = attributes?.some(
+    (attr) => attr.key === '_custom_design' && attr.value === 'true',
+  );
+
+  // Check if custom design image is a valid image (URL or base64) vs a placeholder
+  const isValidCustomImage =
+    customDesignImage &&
+    (customDesignImage.startsWith('http') ||
+      customDesignImage.startsWith('data:'));
+  const shouldShowCustomImage = isCustomDesign && isValidCustomImage;
+
+  // Debug logging for custom design
+  console.log('🎨 CartLineItem: Custom design analysis', {
+    isCustomDesign,
+    hasCustomDesignImage: !!customDesignImage,
+    customDesignImagePreview: customDesignImage
+      ? `${customDesignImage.substring(0, 50)}...`
+      : 'MISSING',
+    imageLength: customDesignImage?.length,
+    isCloudinaryURL: customDesignImage?.startsWith('http'),
+    isBase64: customDesignImage?.startsWith('data:'),
+    isValidImage: isValidCustomImage,
+    shouldShowCustomImage: shouldShowCustomImage,
+    originalProductImage: image?.url || 'NO PRODUCT IMAGE',
+  });
+
+  // Use custom design image if available, otherwise use product image
+  const displayImage = shouldShowCustomImage ? customDesignImage : image;
+
+  console.log('🖼️ CartLineItem: Final image decision', {
+    displayImageType: shouldShowCustomImage ? 'CUSTOM' : 'PRODUCT',
+    displayImageUrl: shouldShowCustomImage
+      ? `${customDesignImage?.substring(0, 50)}...`
+      : image?.url,
+  });
 
   return (
     <div className="cart-line-item group">
@@ -36,13 +86,39 @@ export function CartLineItem({
         <div className="relative flex-shrink-0">
           <Link to={lineItemUrl} prefetch="intent" className="block">
             <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 group-hover:border-primary/30">
-              {image ? (
-                <Image
-                  data={image}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  alt={title || product.title || 'Product image'}
-                  sizes="64px"
-                />
+              {displayImage ? (
+                shouldShowCustomImage ? (
+                  // Custom design image - could be URL or base64
+                  <img
+                    src={customDesignImage}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    alt={`Custom ${title || product.title || 'Product design'}`}
+                    onError={(e) => {
+                      console.error(
+                        '🚨 Custom design image failed to load:',
+                        customDesignImage?.substring(0, 100),
+                      );
+                      // Hide the image on error
+                      e.currentTarget.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Custom design image loaded successfully');
+                    }}
+                  />
+                ) : image ? (
+                  // Standard Shopify product image object
+                  <Image
+                    data={image!}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    alt={title || product.title || 'Product image'}
+                    sizes="64px"
+                  />
+                ) : (
+                  // No image available
+                  <div className="w-full h-full flex items-center justify-center text-white/40 text-xs font-medium">
+                    {isCustomDesign ? '🎨' : 'No Image'}
+                  </div>
+                )
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/40 text-xs font-medium">
                   No Image
@@ -50,10 +126,17 @@ export function CartLineItem({
               )}
             </div>
           </Link>
-          
+
           {/* Optimistic state indicator */}
           {line.isOptimistic && (
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+          )}
+
+          {/* Custom design indicator */}
+          {shouldShowCustomImage && (
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 border-2 border-white/20 rounded-full flex items-center justify-center">
+              <span className="text-xs">🎨</span>
+            </div>
           )}
         </div>
 
@@ -72,33 +155,46 @@ export function CartLineItem({
             </Link>
 
             {/* Variant Details */}
-            {title && title !== "Default Title" && (
+            {title && title !== 'Default Title' && (
               <p className="text-white/60 text-xs font-medium">{title}</p>
             )}
 
             {/* Selected Options */}
-            {selectedOptions && selectedOptions.length > 0 && selectedOptions[0]?.value !== 'Default Title' && (
-              <div className="flex flex-wrap gap-1">
-                {selectedOptions.map((option) => (
-                  <span
-                    key={option.name}
-                    className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/70 text-xs font-medium"
-                  >
-                    {option.value}
-                  </span>
-                ))}
+            {selectedOptions &&
+              selectedOptions.length > 0 &&
+              selectedOptions[0]?.value !== 'Default Title' && (
+                <div className="flex flex-wrap gap-1">
+                  {selectedOptions.map((option) => (
+                    <span
+                      key={option.name}
+                      className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/70 text-xs font-medium"
+                    >
+                      {option.value}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+            {/* Custom Design Badge */}
+            {isCustomDesign && (
+              <div className="flex items-center gap-1">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium">
+                  🎨 Custom Design{shouldShowCustomImage ? '' : ' (Processing)'}
+                </span>
               </div>
             )}
 
             {/* Price */}
             <div className="flex items-baseline gap-2">
               {merchandise.price ? (
-                <Money 
-                  data={merchandise.price} 
-                  className="text-white font-bold text-sm" 
+                <Money
+                  data={merchandise.price}
+                  className="text-white font-bold text-sm"
                 />
               ) : (
-                <span className="text-white font-bold text-sm">Price unavailable</span>
+                <span className="text-white font-bold text-sm">
+                  Price unavailable
+                </span>
               )}
               {merchandise.compareAtPrice && (
                 <Money
@@ -123,10 +219,14 @@ export function CartLineItem({
 /**
  * Modern quantity adjustment controls with better visibility and design.
  */
-function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimistic?: boolean } }) {
+function CartLineQuantityAdjust({
+  line,
+}: {
+  line: CartLineFragment & {isOptimistic?: boolean};
+}) {
   if (!line || typeof line?.quantity === 'undefined') return null;
 
-  const { id: lineId, quantity } = line;
+  const {id: lineId, quantity} = line;
   const prevQuantity = Number(Math.max(0, quantity - 1).toFixed(0));
   const nextQuantity = Number((quantity + 1).toFixed(0));
 
@@ -136,7 +236,7 @@ function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimis
       <CartForm
         route="/cart"
         action={CartForm.ACTIONS.LinesUpdate}
-        inputs={{ lines: [{ id: lineId, quantity: prevQuantity }] }}
+        inputs={{lines: [{id: lineId, quantity: prevQuantity}]}}
       >
         <button
           type="submit"
@@ -158,7 +258,7 @@ function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimis
       <CartForm
         route="/cart"
         action={CartForm.ACTIONS.LinesUpdate}
-        inputs={{ lines: [{ id: lineId, quantity: nextQuantity }] }}
+        inputs={{lines: [{id: lineId, quantity: nextQuantity}]}}
       >
         <button
           type="submit"
@@ -177,12 +277,18 @@ function CartLineQuantityAdjust({ line }: { line: CartLineFragment & { isOptimis
 /**
  * Modern remove button with improved design and hover effects.
  */
-function CartLineRemoveButton({ lineId, disabled = false }: { lineId: string; disabled?: boolean }) {
+function CartLineRemoveButton({
+  lineId,
+  disabled = false,
+}: {
+  lineId: string;
+  disabled?: boolean;
+}) {
   return (
     <CartForm
       route="/cart"
       action={CartForm.ACTIONS.LinesRemove}
-      inputs={{ lineIds: [lineId] }}
+      inputs={{lineIds: [lineId]}}
     >
       <button
         type="submit"

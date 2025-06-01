@@ -12,16 +12,20 @@ import {ProductCard} from '~/components/ProductCard';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const config = getConfig();
-  return [{title: `${config.brandName} | ${data?.collection?.title || ''} Collection`}];
+  return [
+    {
+      title: `${config.brandName} | ${data?.collection?.title || ''} Collection`,
+    },
+  ];
 };
 
 export function loader({params, context}: LoaderFunctionArgs) {
   const {handle} = params;
-  
+
   if (!handle) {
-    throw new Response('Collection handle is required', { status: 400 });
+    throw new Response('Collection handle is required', {status: 400});
   }
-  
+
   return context.storefront.query(COLLECTION_QUERY, {
     variables: {
       handle: handle,
@@ -37,8 +41,13 @@ export default function Collection() {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
         <h1 className="text-3xl font-bold mb-6">Collection not found</h1>
-        <p className="mb-8">The collection you're looking for does not exist.</p>
-        <Link to="/collections" className="bg-primary text-background px-6 py-3 rounded-sm">
+        <p className="mb-8">
+          The collection you're looking for does not exist.
+        </p>
+        <Link
+          to="/collections"
+          className="bg-primary text-background px-6 py-3 rounded-sm"
+        >
           Back to Collections
         </Link>
       </div>
@@ -53,7 +62,9 @@ export default function Collection() {
           <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
             Collection
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{collection.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
+            {collection.title}
+          </h1>
           {collection.description && (
             <p className="text-text/80 max-w-3xl mx-auto leading-relaxed">
               {collection.description}
@@ -64,8 +75,13 @@ export default function Collection() {
         {/* Product Grid */}
         {collection.products.nodes.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-lg mb-6">No products found in this collection.</p>
-            <Link to="/collections" className="bg-primary text-background px-6 py-3 rounded-sm">
+            <p className="text-lg mb-6">
+              No products found in this collection.
+            </p>
+            <Link
+              to="/collections"
+              className="bg-primary text-background px-6 py-3 rounded-sm"
+            >
               Back to Collections
             </Link>
           </div>
@@ -83,8 +99,9 @@ export default function Collection() {
             {config.influencerName}'s Championship Collection
           </h3>
           <p className="text-text/80 mb-6 max-w-2xl mx-auto">
-            Every product in this collection is designed to meet the highest standards of 
-            quality and performance, approved by {config.influencerName} himself.
+            Every product in this collection is designed to meet the highest
+            standards of quality and performance, approved by{' '}
+            {config.influencerName} himself.
           </p>
         </div>
       </div>

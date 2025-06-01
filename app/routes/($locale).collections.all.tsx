@@ -23,7 +23,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const config = getConfig();
 
   return {
-    ...deferredData, 
+    ...deferredData,
     ...criticalData,
     config: {
       ...config,
@@ -68,7 +68,7 @@ export default function Collection() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
@@ -86,7 +86,9 @@ export default function Collection() {
             <span className="text-primary">CHAMPIONSHIP</span> COLLECTION
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Explore our complete collection of premium {config.industry || 'sports'} equipment and exclusive merchandise inspired by {config.influencerName}'s legendary career.
+            Explore our complete collection of premium{' '}
+            {config.industry || 'sports'} equipment and exclusive merchandise
+            inspired by {config.influencerName}'s legendary career.
           </p>
         </div>
 
@@ -96,13 +98,18 @@ export default function Collection() {
             connection={products}
             resourcesClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
           >
-            {({node: product, index}) => (
-              <ProductItem
-                key={product.id}
-                product={product}
-                loading={index < 8 ? 'eager' : 'lazy'}
-              />
-            )}
+            {({node: product, index}) => {
+              const typedProduct =
+                product as import('storefrontapi.generated').CollectionItemFragment;
+
+              return (
+                <ProductItem
+                  key={typedProduct.id}
+                  product={typedProduct}
+                  loading={index < 8 ? 'eager' : 'lazy'}
+                />
+              );
+            }}
           </PaginatedResourceSection>
         </div>
 
@@ -112,9 +119,11 @@ export default function Collection() {
             Train Like a Champion
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Every product in our collection is crafted to championship standards and designed for those who refuse to settle for anything less than excellence.
+            Every product in our collection is crafted to championship standards
+            and designed for those who refuse to settle for anything less than
+            excellence.
           </p>
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >

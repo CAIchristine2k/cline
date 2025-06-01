@@ -3,6 +3,13 @@ import {useLoaderData, Link, type MetaFunction} from 'react-router';
 import {ArrowLeft, FileText, Shield} from 'lucide-react';
 import {useConfig} from '~/utils/themeContext';
 
+// Define the policy type
+interface Policy {
+  id: string;
+  title: string;
+  handle: string;
+}
+
 export const meta: MetaFunction = () => {
   const config = useConfig();
   return [{title: `${config.brandName} | Policies`}];
@@ -10,7 +17,15 @@ export const meta: MetaFunction = () => {
 
 export async function loader({context}: LoaderFunctionArgs) {
   const data = await context.storefront.query(POLICIES_QUERY);
-  const policies = Object.values(data.shop || {});
+  // Filter out null values and ensure each policy has the required fields
+  const policies = Object.values(data.shop || {}).filter(
+    (policy): policy is Policy =>
+      policy !== null &&
+      typeof policy === 'object' &&
+      'id' in policy &&
+      'title' in policy &&
+      'handle' in policy,
+  );
 
   if (!policies.length) {
     throw new Response('No policies found', {status: 404});
@@ -28,7 +43,7 @@ export default function Policies() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
           >
@@ -46,7 +61,8 @@ export default function Policies() {
             <span className="text-gold-500">STORE</span> POLICIES
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Review our store policies to understand your rights and our commitment to providing championship-quality service.
+            Review our store policies to understand your rights and our
+            commitment to providing championship-quality service.
           </p>
         </div>
 
@@ -67,11 +83,13 @@ export default function Policies() {
                       {policy.title}
                     </h2>
                   </div>
-                  
+
                   <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                    Read our {policy.title.toLowerCase()} to understand how we protect your interests and ensure a championship shopping experience.
+                    Read our {policy.title.toLowerCase()} to understand how we
+                    protect your interests and ensure a championship shopping
+                    experience.
                   </p>
-                  
+
                   <div className="flex items-center text-gold-500 text-sm font-bold">
                     <span>Read Policy</span>
                     <ArrowLeft className="w-4 h-4 ml-2 rotate-180 group-hover:translate-x-1 transition-transform duration-300" />
@@ -91,9 +109,11 @@ export default function Policies() {
             </h3>
           </div>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Just like {config.influencerName} protected himself in the ring, we protect your rights as a customer. Our policies ensure fair, transparent, and championship-quality service.
+            Just like {config.influencerName} protected himself in the ring, we
+            protect your rights as a customer. Our policies ensure fair,
+            transparent, and championship-quality service.
           </p>
-          <Link 
+          <Link
             to="/collections/all"
             className="inline-flex items-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >

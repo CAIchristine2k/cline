@@ -1,53 +1,12 @@
 {
-    // ↓ VS Code / WebStorm autocompletion
-    "$schema": "node_modules/wrangler/config-schema.json",
-  
-    // — core —
-    "name": "my-hydrogen-storefront",          // whatever you like
-    "main": "./workers/app.ts",                // React Router v7 Cloudflare pattern
-    "compatibility_date": "2025-05-23",
-  
-    // map the Worker to a hostname or workers.dev sub-domain
-    // "routes": [
-    //   { "pattern": "shop.example.com/*" }      // replace with your real domain or omit for *.workers.dev
-    // ],
-  
-    // — development environment (uses .env file automatically) —
-    "env": {
-      "development": {
-        // Wrangler automatically loads from .env file in development
-        // No need to specify vars here - they come from .env
-      },
-      
-      // — production environment —  
-      "production": {
-        "vars": {
-          // Non-sensitive public variables (these will be visible in dashboard)
-          // Set these using: wrangler var put VARIABLE_NAME value --env production
-          // Or uncomment and hardcode if they're truly public:
-          // "PUBLIC_STORE_DOMAIN": "your-store.myshopify.com",
-          // "PUBLIC_STOREFRONT_ID": "your-storefront-id",
-          // "PUBLIC_CHECKOUT_DOMAIN": "your-store.myshopify.com"
-        },
-        
-        // Sensitive variables should be set as secrets using:
-        // wrangler secret put SECRET_NAME --env production
-        // This includes:
-        // - PRIVATE_STOREFRONT_API_TOKEN
-        // - SESSION_SECRET  
-        // - KLING_ACCESS_KEY
-        // - KLING_SECRET_KEY
-        // - PUBLIC_STOREFRONT_API_TOKEN
-        // - PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID
-        // - CLOUDINARY_URL
-        
-        "kv_namespaces": [              // optional – if you adopt KV sessions
-          // { "binding": "SESSIONS", "id": "your-kv-namespace-id-here" }
-        ]
-      }
-    },
-  
-    // optional: pin isolates near your DB or Shopify's GraphQL POP
-    // "placement": "smart"
-  }
-  
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shane-hydrogen",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2025-05-23",
+  // — observability —
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  },
+}

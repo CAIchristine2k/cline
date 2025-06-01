@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, ShoppingCart } from 'lucide-react';
+import {Star, ShoppingCart} from 'lucide-react';
 import {Link} from 'react-router';
 import {Image, Money} from '@shopify/hydrogen';
 import type {
@@ -8,7 +8,7 @@ import type {
 } from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 import {useConfig} from '~/utils/themeContext';
-import { AddToCartButton } from '~/components/AddToCartButton';
+import {AddToCartButton} from '~/components/AddToCartButton';
 
 // Extended interface to handle tags
 interface ProductWithTags extends ProductItemFragment {
@@ -25,67 +25,77 @@ export function ProductItem({
   product,
   loading,
 }: {
-  product:
-    | CollectionItemFragment
-    | ProductWithTags;
+  product: CollectionItemFragment | ProductWithTags;
   loading?: 'eager' | 'lazy';
 }) {
   const config = useConfig();
   const variantUrl = useVariantUrl(product.handle);
-  
+
   if (!product) return null;
-  
+
   // Cast to the extended interface to access tags
   const productWithTags = product as ProductWithTags;
-  const { title, handle, featuredImage } = product;
+  const {title, handle, featuredImage} = product;
   const tags = productWithTags.tags || [];
-  
+
   const price = product.priceRange?.minVariantPrice;
-  const comparePrice = product.priceRange?.maxVariantPrice && 
-    product.priceRange.maxVariantPrice.amount !== product.priceRange.minVariantPrice.amount ? 
-    product.priceRange.maxVariantPrice : null;
-  
+  const comparePrice =
+    product.priceRange?.maxVariantPrice &&
+    product.priceRange.maxVariantPrice.amount !==
+      product.priceRange.minVariantPrice.amount
+      ? product.priceRange.maxVariantPrice
+      : null;
+
   // Check if the product is on sale
-  const isOnSale = comparePrice && price &&
+  const isOnSale =
+    comparePrice &&
+    price &&
     parseFloat(price.amount) < parseFloat(comparePrice.amount);
-    
+
   // Get the first variant id for add to cart
   const variants = productWithTags.variants?.nodes || [];
   const firstVariant = variants[0];
   const variantId = firstVariant?.id;
   const isAvailable = firstVariant?.availableForSale ?? true;
-  
+
   // Generate mock rating and reviews for display (since Shopify doesn't provide this)
-  const rating = 4.8 + (Math.random() * 0.2);
+  const rating = 4.8 + Math.random() * 0.2;
   const reviews = 70 + Math.floor(Math.random() * 60);
-  
+
   // Check if product is a featured product based on config
   const isFeatured = config.shopify.featuredProducts.includes(handle);
-  
+
   // Get product label based on tags or sale status
   const getProductLabel = () => {
-    if (isOnSale) return { text: "Sale", color: "bg-gradient-to-r from-red-500 to-red-600" };
-    if (isFeatured) return { text: "Featured", color: "bg-primary" };
-    if (tags.includes("new")) return { text: "New", color: "bg-gradient-to-r from-green-500 to-green-600" };
-    if (tags.includes("bestseller")) return { text: "Bestseller", color: "bg-gradient-to-r from-purple-500 to-purple-600" };
+    if (isOnSale)
+      return {text: 'Sale', color: 'bg-gradient-to-r from-red-500 to-red-600'};
+    if (isFeatured) return {text: 'Featured', color: 'bg-primary'};
+    if (tags.includes('new'))
+      return {
+        text: 'New',
+        color: 'bg-gradient-to-r from-green-500 to-green-600',
+      };
+    if (tags.includes('bestseller'))
+      return {
+        text: 'Bestseller',
+        color: 'bg-gradient-to-r from-purple-500 to-purple-600',
+      };
     return null;
   };
-  
+
   const productLabel = getProductLabel();
-  
+
   // Format the variant ID to ensure it has the proper Shopify GID prefix
   const formatVariantId = (id: string) => {
     if (!id) return '';
     if (id.startsWith('gid://shopify/ProductVariant/')) return id;
-    
+
     // Extract the numeric ID if it's already in a GID format
-    const numericId = id.includes('/')
-      ? id.split('/').pop() || id
-      : id;
-      
+    const numericId = id.includes('/') ? id.split('/').pop() || id : id;
+
     return `gid://shopify/ProductVariant/${numericId}`;
   };
-  
+
   return (
     <div className="group relative">
       <Link
@@ -114,7 +124,9 @@ export function ProductItem({
           {/* Product label badge */}
           {productLabel && (
             <div className="absolute top-4 left-4">
-              <div className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20`}>
+              <div
+                className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20`}
+              >
                 {productLabel.text}
               </div>
             </div>
@@ -132,7 +144,7 @@ export function ProductItem({
           <h3 className="text-white font-bold text-lg leading-tight line-clamp-2">
             {title}
           </h3>
-          
+
           {/* Rating stars */}
           <div className="flex items-center gap-3">
             <div className="flex text-primary">
@@ -143,10 +155,15 @@ export function ProductItem({
                 <Star className="w-4 h-4 fill-current opacity-50" />
               )}
               {[...Array(5 - Math.ceil(rating))].map((_, i) => (
-                <Star key={`empty-${i}`} className="w-4 h-4 stroke-current fill-transparent opacity-30" />
+                <Star
+                  key={`empty-${i}`}
+                  className="w-4 h-4 stroke-current fill-transparent opacity-30"
+                />
               ))}
             </div>
-            <span className="text-sm text-gray-400 font-medium price-no-hover">({reviews})</span>
+            <span className="text-sm text-gray-400 font-medium price-no-hover">
+              ({reviews})
+            </span>
           </div>
 
           {/* Price and Cart Section */}
@@ -164,15 +181,20 @@ export function ProductItem({
                 </div>
               )}
             </div>
-            
+
             {/* Cart button */}
             {isAvailable && variantId && (
-              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0" onClick={(e) => e.stopPropagation()}>
-                <AddToCartButton 
-                  lines={[{
-                    merchandiseId: formatVariantId(variantId),
-                    quantity: 1
-                  }]}
+              <div
+                className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <AddToCartButton
+                  lines={[
+                    {
+                      merchandiseId: formatVariantId(variantId),
+                      quantity: 1,
+                    },
+                  ]}
                   selectedVariant={firstVariant}
                   className="bg-primary hover:bg-primary-600 text-black rounded-lg p-3 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl"
                 >

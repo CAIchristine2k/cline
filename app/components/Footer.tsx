@@ -1,29 +1,44 @@
 import React from 'react';
-import { Instagram, Twitter, Facebook, Youtube, Mail, MapPin, Phone, Music } from 'lucide-react';
-import { Link } from 'react-router';
-import { FooterLogo } from './FooterLogo';
-import { useConfig } from '~/utils/themeContext';
+import {
+  Instagram,
+  Twitter,
+  Facebook,
+  Youtube,
+  Mail,
+  MapPin,
+  Phone,
+  Music,
+} from 'lucide-react';
+import {Link} from 'react-router';
+import {FooterLogo} from './FooterLogo';
+import {useConfig} from '~/utils/themeContext';
 
 export function Footer() {
   const config = useConfig();
-  
+
   // Build social links from config
   const socialLinks = Object.entries(config.socialLinks)
     .filter(([_, url]) => url) // Only include links that have URLs
     .map(([platform, url]) => ({
       icon: getSocialIcon(platform),
       label: platform.charAt(0).toUpperCase() + platform.slice(1),
-      url
+      url,
     }));
 
   function getSocialIcon(platform: string) {
     switch (platform) {
-      case 'instagram': return Instagram;
-      case 'twitter': return Twitter;
-      case 'youtube': return Youtube;
-      case 'facebook': return Facebook;
-      case 'tiktok': return Music;
-      default: return Instagram;
+      case 'instagram':
+        return Instagram;
+      case 'twitter':
+        return Twitter;
+      case 'youtube':
+        return Youtube;
+      case 'facebook':
+        return Facebook;
+      case 'tiktok':
+        return Music;
+      default:
+        return Instagram;
     }
   }
 
@@ -34,7 +49,7 @@ export function Footer() {
     'Limited Editions',
     `About ${config.influencerName.split(' ')[0]}`,
     'Career Highlights',
-    'Training Tips'
+    'Training Tips',
   ];
 
   const supportLinks = [
@@ -43,51 +58,80 @@ export function Footer() {
     'Shipping & Returns',
     'Size Guide',
     'Privacy Policy',
-    'Terms of Service'
+    'Terms of Service',
   ];
 
   const contactInfo = [
-    { icon: MapPin, text: config.contactInfo?.address || `${config.brandName} HQ, 123 Championship Blvd, Los Angeles, CA 90001` },
-    { icon: Phone, text: config.contactInfo?.phone || '+1 (800) CHAMPION' },
-    { icon: Mail, text: config.contactInfo?.email || `contact@${config.brandName.toLowerCase().replace(/\s+/g, '')}.store` }
+    {
+      icon: MapPin,
+      text:
+        config.contactInfo?.address ||
+        `${config.brandName} HQ, 123 Championship Blvd, Los Angeles, CA 90001`,
+    },
+    {icon: Phone, text: config.contactInfo?.phone || '+1 (800) CHAMPION'},
+    {
+      icon: Mail,
+      text:
+        config.contactInfo?.email ||
+        `contact@${config.brandName.toLowerCase().replace(/\s+/g, '')}.store`,
+    },
   ];
 
   const policies = ['Privacy Policy', 'Terms of Service', 'Sitemap'];
 
   // Map the quick links to appropriate routes
   const getQuickLinkRoute = (link: string) => {
-    switch(link) {
-      case 'Shop All': return '/collections/all';
-      case 'Boxing Equipment': return '/collections/equipment';
-      case 'Apparel': return '/collections/apparel';
-      case 'Limited Editions': return '/collections/limited-editions';
-      case `About ${config.influencerName.split(' ')[0]}`: return '/about';
-      case 'Career Highlights': return '/about#highlights';
-      case 'Training Tips': return '/blogs/training';
-      default: return '/';
+    switch (link) {
+      case 'Shop All':
+        return '/collections/all';
+      case 'Boxing Equipment':
+        return '/collections/equipment';
+      case 'Apparel':
+        return '/collections/apparel';
+      case 'Limited Editions':
+        return '/collections/limited-editions';
+      case `About ${config.influencerName.split(' ')[0]}`:
+        return '/about';
+      case 'Career Highlights':
+        return '/about#highlights';
+      case 'Training Tips':
+        return '/blogs/training';
+      default:
+        return '/';
     }
   };
 
-  // Map the support links to appropriate routes  
+  // Map the support links to appropriate routes
   const getSupportLinkRoute = (link: string) => {
-    switch(link) {
-      case 'Contact Us': return '/pages/contact';
-      case 'FAQs': return '/pages/faqs';
-      case 'Shipping & Returns': return '/pages/shipping-returns';
-      case 'Size Guide': return '/pages/size-guide';
-      case 'Privacy Policy': return '/pages/privacy-policy';
-      case 'Terms of Service': return '/pages/terms-of-service';
-      default: return '/';
+    switch (link) {
+      case 'Contact Us':
+        return '/pages/contact';
+      case 'FAQs':
+        return '/pages/faqs';
+      case 'Shipping & Returns':
+        return '/pages/shipping-returns';
+      case 'Size Guide':
+        return '/pages/size-guide';
+      case 'Privacy Policy':
+        return '/pages/privacy-policy';
+      case 'Terms of Service':
+        return '/pages/terms-of-service';
+      default:
+        return '/';
     }
   };
-  
+
   // Map the policy links to appropriate routes
   const getPolicyRoute = (policy: string) => {
-    switch(policy) {
-      case 'Privacy Policy': return '/pages/privacy-policy';
-      case 'Terms of Service': return '/pages/terms-of-service';
-      case 'Sitemap': return '/sitemap.xml';
-      default: return '/';
+    switch (policy) {
+      case 'Privacy Policy':
+        return '/pages/privacy-policy';
+      case 'Terms of Service':
+        return '/pages/terms-of-service';
+      case 'Sitemap':
+        return '/sitemap.xml';
+      default:
+        return '/';
     }
   };
 
@@ -102,8 +146,10 @@ export function Footer() {
               <FooterLogo />
             </Link>
             <p className="text-gray-400 mt-6 mb-8 leading-relaxed text-sm text-center">
-              The official brand of {config.influencerBio || `boxing legend ${config.influencerName}`}. 
-              Exclusive merchandise, training resources, and premium content for champions.
+              The official brand of{' '}
+              {config.influencerBio || `boxing legend ${config.influencerName}`}
+              . Exclusive merchandise, training resources, and premium content
+              for champions.
             </p>
             {socialLinks.length > 0 && (
               <div className="flex space-x-5 justify-center">
@@ -139,9 +185,7 @@ export function Footer() {
                     to={getQuickLinkRoute(link)}
                     className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
                   >
-                    <span 
-                      className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    ></span>
+                    <span className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                     {link}
                   </Link>
                 </li>
@@ -162,9 +206,7 @@ export function Footer() {
                     to={getSupportLinkRoute(link)}
                     className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
                   >
-                    <span 
-                      className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    ></span>
+                    <span className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                     {link}
                   </Link>
                 </li>
@@ -186,7 +228,9 @@ export function Footer() {
                     <div className="bg-gray-900 p-2 rounded-sm mr-3 flex-shrink-0">
                       <IconComponent className="h-4 w-4 text-primary" />
                     </div>
-                    <span className="text-gray-400 text-sm leading-relaxed">{info.text}</span>
+                    <span className="text-gray-400 text-sm leading-relaxed">
+                      {info.text}
+                    </span>
                   </li>
                 );
               })}
@@ -198,7 +242,8 @@ export function Footer() {
         <div className="border-t border-gray-800/50 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm mb-6 md:mb-0">
-              &copy; {new Date().getFullYear()} {config.brandName} Enterprises. All rights reserved.
+              &copy; {new Date().getFullYear()} {config.brandName} Enterprises.
+              All rights reserved.
             </p>
 
             <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2">

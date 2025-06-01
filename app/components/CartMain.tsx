@@ -12,13 +12,18 @@ export type CartLayout = 'page' | 'aside';
 export type CartMainProps = {
   cart: CartApiQueryFragment | null;
   layout: CartLayout;
+  checkoutDomain?: string;
 };
 
 /**
  * The main cart component that displays the cart items and summary.
  * Modern, clean design with fixed height layout and glass morphism effects.
  */
-export function CartMain({layout, cart: originalCart}: CartMainProps) {
+export function CartMain({
+  layout,
+  cart: originalCart,
+  checkoutDomain,
+}: CartMainProps) {
   const config = useConfig();
   const {close} = useAside();
 
@@ -28,11 +33,17 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
   // Debug the cart structure
   console.log('CartMain - Original cart:', originalCart);
   console.log('CartMain - Optimistic cart:', cart);
-  
+
   if (cart?.lines?.nodes && cart.lines.nodes.length > 0) {
     console.log('CartMain - First line item structure:', cart.lines.nodes[0]);
-    console.log('CartMain - First line merchandise:', cart.lines.nodes[0]?.merchandise);
-    console.log('CartMain - First line product:', cart.lines.nodes[0]?.merchandise?.product);
+    console.log(
+      'CartMain - First line merchandise:',
+      cart.lines.nodes[0]?.merchandise,
+    );
+    console.log(
+      'CartMain - First line product:',
+      cart.lines.nodes[0]?.merchandise?.product,
+    );
   }
 
   // Cart calculations
@@ -63,16 +74,28 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1 text-xs text-white/70">
                   <span>{cart?.totalQuantity || 0}</span>
-                  <span>{(cart?.totalQuantity || 0) === 1 ? 'item' : 'items'}</span>
+                  <span>
+                    {(cart?.totalQuantity || 0) === 1 ? 'item' : 'items'}
+                  </span>
                 </div>
                 {layout === 'aside' && (
-                  <button 
-                    className="w-6 h-6 flex items-center justify-center text-white/70 hover:text-white rounded-sm hover:bg-white/10 transition-all duration-200" 
+                  <button
+                    className="w-6 h-6 flex items-center justify-center text-white/70 hover:text-white rounded-sm hover:bg-white/10 transition-all duration-200"
                     onClick={close}
                     aria-label="Close cart"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 )}
@@ -90,11 +113,15 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
               </div>
             </div>
           </div>
-          
+
           {/* Cart Summary - Compact bottom */}
           <div className="cart-summary-container">
             <div className="border-t border-white/10 bg-black/40 backdrop-blur-xl">
-              <CartSummary cart={cart} layout={layout} />
+              <CartSummary
+                cart={cart}
+                layout={layout}
+                checkoutDomain={checkoutDomain}
+              />
             </div>
           </div>
         </div>
@@ -123,14 +150,12 @@ function CartEmpty({
         </div>
         <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-primary/20 to-primary/5 blur-sm -z-10"></div>
       </div>
-      
-      <h3 className="text-2xl font-bold text-white mb-3">
-        Your cart is empty
-      </h3>
+
+      <h3 className="text-2xl font-bold text-white mb-3">Your cart is empty</h3>
       <p className="text-white/60 mb-8 max-w-sm text-sm leading-relaxed">
         Discover amazing products and start building your collection today.
       </p>
-      
+
       <Link
         to="/collections"
         onClick={close}

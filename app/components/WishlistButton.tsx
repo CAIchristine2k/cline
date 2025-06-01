@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useConfig } from '~/utils/themeContext';
+import {useState, useEffect} from 'react';
+import {useConfig} from '~/utils/themeContext';
 
 interface WishlistButtonProps {
   productId: string;
@@ -48,7 +48,7 @@ export function WishlistButton({
   // Check if item is in wishlist on mount
   useEffect(() => {
     const wishlist = getWishlist();
-    setIsInWishlist(wishlist.some(item => item.id === productId));
+    setIsInWishlist(wishlist.some((item) => item.id === productId));
   }, [productId]);
 
   // Get wishlist from localStorage
@@ -56,7 +56,7 @@ export function WishlistButton({
     if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem('wishlist');
-      return stored ? JSON.parse(stored) as WishlistItem[] : [];
+      return stored ? (JSON.parse(stored) as WishlistItem[]) : [];
     } catch {
       return [];
     }
@@ -68,9 +68,11 @@ export function WishlistButton({
     try {
       localStorage.setItem('wishlist', JSON.stringify(wishlist));
       // Dispatch custom event for other components to listen
-      window.dispatchEvent(new CustomEvent('wishlistUpdated', { 
-        detail: { wishlist, count: wishlist.length } 
-      }));
+      window.dispatchEvent(
+        new CustomEvent('wishlistUpdated', {
+          detail: {wishlist, count: wishlist.length},
+        }),
+      );
     } catch (error) {
       console.error('Failed to save wishlist:', error);
     }
@@ -86,11 +88,11 @@ export function WishlistButton({
       price: productPrice,
       addedAt: new Date().toISOString(),
     };
-    
+
     const updatedWishlist = [...wishlist, newItem];
     saveWishlist(updatedWishlist);
     setIsInWishlist(true);
-    
+
     // Trigger animation
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 600);
@@ -99,7 +101,7 @@ export function WishlistButton({
   // Remove from wishlist
   const removeFromWishlist = () => {
     const wishlist = getWishlist();
-    const updatedWishlist = wishlist.filter(item => item.id !== productId);
+    const updatedWishlist = wishlist.filter((item) => item.id !== productId);
     saveWishlist(updatedWishlist);
     setIsInWishlist(false);
   };
@@ -124,7 +126,11 @@ export function WishlistButton({
         ${buttonSizeClasses[size]}
         ${className}
       `}
-      aria-label={isInWishlist ? `Remove ${productTitle} from wishlist` : `Add ${productTitle} to wishlist`}
+      aria-label={
+        isInWishlist
+          ? `Remove ${productTitle} from wishlist`
+          : `Add ${productTitle} to wishlist`
+      }
       title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
     >
       {/* Heart Icon */}
@@ -146,7 +152,7 @@ export function WishlistButton({
             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
           />
         </svg>
-        
+
         {/* Animated particles on add */}
         {isAnimating && (
           <div className="absolute inset-0">
@@ -183,14 +189,16 @@ export function WishlistButton({
 }
 
 // Wishlist count badge for header
-export function WishlistCount({ className = '' }: { className?: string }) {
+export function WishlistCount({className = ''}: {className?: string}) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     // Update count on mount
     const updateCount = () => {
       if (typeof window !== 'undefined') {
-        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]') as WishlistItem[];
+        const wishlist = JSON.parse(
+          localStorage.getItem('wishlist') || '[]',
+        ) as WishlistItem[];
         setCount(wishlist.length);
       }
     };
@@ -202,9 +210,15 @@ export function WishlistCount({ className = '' }: { className?: string }) {
       setCount(event.detail.count);
     };
 
-    window.addEventListener('wishlistUpdated', handleWishlistUpdate as EventListener);
+    window.addEventListener(
+      'wishlistUpdated',
+      handleWishlistUpdate as EventListener,
+    );
     return () => {
-      window.removeEventListener('wishlistUpdated', handleWishlistUpdate as EventListener);
+      window.removeEventListener(
+        'wishlistUpdated',
+        handleWishlistUpdate as EventListener,
+      );
     };
   }, []);
 
@@ -226,16 +240,22 @@ export function useWishlist() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('wishlist');
-      setWishlist(stored ? JSON.parse(stored) as WishlistItem[] : []);
+      setWishlist(stored ? (JSON.parse(stored) as WishlistItem[]) : []);
     }
 
     const handleWishlistUpdate = (event: CustomEvent) => {
       setWishlist(event.detail.wishlist as WishlistItem[]);
     };
 
-    window.addEventListener('wishlistUpdated', handleWishlistUpdate as EventListener);
+    window.addEventListener(
+      'wishlistUpdated',
+      handleWishlistUpdate as EventListener,
+    );
     return () => {
-      window.removeEventListener('wishlistUpdated', handleWishlistUpdate as EventListener);
+      window.removeEventListener(
+        'wishlistUpdated',
+        handleWishlistUpdate as EventListener,
+      );
     };
   }, []);
 
@@ -247,30 +267,36 @@ export function useWishlist() {
     const updatedWishlist = [...wishlist, newItem];
     setWishlist(updatedWishlist);
     localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
-    window.dispatchEvent(new CustomEvent('wishlistUpdated', { 
-      detail: { wishlist: updatedWishlist, count: updatedWishlist.length } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent('wishlistUpdated', {
+        detail: {wishlist: updatedWishlist, count: updatedWishlist.length},
+      }),
+    );
   };
 
   const removeFromWishlist = (productId: string) => {
-    const updatedWishlist = wishlist.filter(item => item.id !== productId);
+    const updatedWishlist = wishlist.filter((item) => item.id !== productId);
     setWishlist(updatedWishlist);
     localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
-    window.dispatchEvent(new CustomEvent('wishlistUpdated', { 
-      detail: { wishlist: updatedWishlist, count: updatedWishlist.length } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent('wishlistUpdated', {
+        detail: {wishlist: updatedWishlist, count: updatedWishlist.length},
+      }),
+    );
   };
 
   const isInWishlist = (productId: string) => {
-    return wishlist.some(item => item.id === productId);
+    return wishlist.some((item) => item.id === productId);
   };
 
   const clearWishlist = () => {
     setWishlist([]);
     localStorage.removeItem('wishlist');
-    window.dispatchEvent(new CustomEvent('wishlistUpdated', { 
-      detail: { wishlist: [], count: 0 } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent('wishlistUpdated', {
+        detail: {wishlist: [], count: 0},
+      }),
+    );
   };
 
   return {
@@ -281,4 +307,4 @@ export function useWishlist() {
     clearWishlist,
     count: wishlist.length,
   };
-} 
+}

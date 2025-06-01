@@ -1,6 +1,23 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ThemeConfig, setTheme as setGlobalTheme, getTheme, colorSchemes, BrandStyle, initThemeFromConfig } from '~/lib/themeConfig';
-import { defaultConfig, initConfig, type LandingPageConfig } from '~/utils/config';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
+import {
+  ThemeConfig,
+  setTheme as setGlobalTheme,
+  getTheme,
+  colorSchemes,
+  BrandStyle,
+  initThemeFromConfig,
+} from '~/lib/themeConfig';
+import {
+  defaultConfig,
+  initConfig,
+  type LandingPageConfig,
+} from '~/utils/config';
 
 interface ThemeContextType {
   theme: ThemeConfig;
@@ -16,12 +33,15 @@ interface ThemeProviderProps {
   initialConfig?: Partial<LandingPageConfig>;
 }
 
-export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderProps) {
+export function ThemeProvider({
+  children,
+  initialConfig = {},
+}: ThemeProviderProps) {
   // Initialize config with default values and any custom overrides
-  const [config, setConfig] = useState<LandingPageConfig>(() => 
-    initConfig(initialConfig)
+  const [config, setConfig] = useState<LandingPageConfig>(() =>
+    initConfig(initialConfig),
   );
-  
+
   // Get current theme state
   const [theme, setThemeState] = useState<ThemeConfig>(() => getTheme());
 
@@ -40,16 +60,16 @@ export function ThemeProvider({ children, initialConfig = {} }: ThemeProviderPro
 
   // Function to update config
   const updateConfig = (newConfig: Partial<LandingPageConfig>) => {
-    setConfig(current => initConfig({...current, ...newConfig}));
+    setConfig((current) => initConfig({...current, ...newConfig}));
   };
 
   return (
-    <ThemeContext.Provider 
-      value={{ 
-        theme, 
-        config, 
-        setTheme: updateTheme, 
-        updateConfig 
+    <ThemeContext.Provider
+      value={{
+        theme,
+        config,
+        setTheme: updateTheme,
+        updateConfig,
       }}
     >
       {children}

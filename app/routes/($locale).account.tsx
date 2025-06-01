@@ -1,7 +1,12 @@
+import {type LoaderFunctionArgs} from 'react-router';
 import {
-  type LoaderFunctionArgs,
+  Form,
+  NavLink,
+  Outlet,
+  useLoaderData,
+  Link,
+  type MetaFunction,
 } from 'react-router';
-import {Form, NavLink, Outlet, useLoaderData, Link, type MetaFunction} from 'react-router';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 import {ArrowLeft, User, Package, MapPin, LogOut} from 'lucide-react';
 import {getConfig} from '~/utils/config';
@@ -28,12 +33,12 @@ export async function loader({context}: LoaderFunctionArgs) {
   const config = getConfig();
 
   return {
-    customer, 
-    heading, 
+    customer,
+    heading,
     config: {
       ...config,
       theme: config.influencerName.toLowerCase().replace(/\s+/g, '-'),
-    }
+    },
   };
 }
 
@@ -45,7 +50,7 @@ export default function AccountLayout() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
@@ -59,9 +64,7 @@ export default function AccountLayout() {
           <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
             My Account
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            {heading}
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{heading}</h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Manage your account, view orders, and update your information.
           </p>
@@ -96,17 +99,17 @@ function AccountMenu() {
         <Package className="w-4 h-4" />
         <span>Orders</span>
       </NavLink>
-      
+
       <NavLink to="/account/profile" className={getNavLinkClass}>
         <User className="w-4 h-4" />
         <span>Profile</span>
       </NavLink>
-      
+
       <NavLink to="/account/addresses" className={getNavLinkClass}>
         <MapPin className="w-4 h-4" />
         <span>Addresses</span>
       </NavLink>
-      
+
       <Logout />
     </nav>
   );

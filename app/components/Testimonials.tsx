@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import { useConfig } from '~/utils/themeContext';
+import React, {useState, useEffect} from 'react';
+import {ChevronLeft, ChevronRight, Star} from 'lucide-react';
+import {useConfig} from '~/utils/themeContext';
 
 export default function Testimonials() {
   const config = useConfig();
@@ -8,21 +8,31 @@ export default function Testimonials() {
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Skip rendering if testimonials section is disabled in config
-  if (!config.showTestimonials || !config.testimonials || config.testimonials.length === 0) {
+  if (
+    !config.showTestimonials ||
+    !config.testimonials ||
+    config.testimonials.length === 0
+  ) {
     return null;
   }
 
   const handlePrev = (): void => {
-    if (isAnimating || !config.testimonials || config.testimonials.length === 0) return;
+    if (isAnimating || !config.testimonials || config.testimonials.length === 0)
+      return;
     setIsAnimating(true);
-    setCurrentIndex(currentIndex === 0 ? config.testimonials.length - 1 : currentIndex - 1);
+    setCurrentIndex(
+      currentIndex === 0 ? config.testimonials.length - 1 : currentIndex - 1,
+    );
     setTimeout(() => setIsAnimating(false), 500);
   };
 
   const handleNext = (): void => {
-    if (isAnimating || !config.testimonials || config.testimonials.length === 0) return;
+    if (isAnimating || !config.testimonials || config.testimonials.length === 0)
+      return;
     setIsAnimating(true);
-    setCurrentIndex(currentIndex === config.testimonials.length - 1 ? 0 : currentIndex + 1);
+    setCurrentIndex(
+      currentIndex === config.testimonials.length - 1 ? 0 : currentIndex + 1,
+    );
     setTimeout(() => setIsAnimating(false), 500);
   };
 
@@ -50,23 +60,24 @@ export default function Testimonials() {
             CHAMPION <span className="text-primary">TESTIMONIALS</span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            Hear what legends of the sport have to say about {config.influencerName}'s career and legacy.
+            Hear what legends of the sport have to say about{' '}
+            {config.influencerName}'s career and legacy.
           </p>
         </div>
-        
+
         <div className="max-w-4xl mx-auto relative">
           {/* Navigation Buttons - only show if multiple testimonials */}
           {config.testimonials.length > 1 && (
             <>
-              <button 
+              <button
                 onClick={handlePrev}
                 className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-10 bg-black/30 hover:bg-primary text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
                 aria-label="Previous testimonial"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
-              
-              <button 
+
+              <button
                 onClick={handleNext}
                 className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-10 bg-black/30 hover:bg-primary text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
                 aria-label="Next testimonial"
@@ -75,10 +86,10 @@ export default function Testimonials() {
               </button>
             </>
           )}
-          
+
           {/* Testimonial Slider */}
           <div className="overflow-hidden rounded-lg bg-gray-900 p-6 md:p-10 shadow-xl border border-gray-800 hover:border-primary/30 transition-all duration-300">
-            <div 
+            <div
               className={`transition-transform duration-500 ease-in-out ${
                 isAnimating ? 'opacity-0' : 'opacity-100'
               }`}
@@ -88,32 +99,34 @@ export default function Testimonials() {
                 {currentTestimonial.image && (
                   <div className="md:w-1/3 mb-6 md:mb-0">
                     <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-primary">
-                      <img 
-                        src={currentTestimonial.image} 
-                        alt={currentTestimonial.name} 
+                      <img
+                        src={currentTestimonial.image}
+                        alt={currentTestimonial.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
                   </div>
                 )}
-                
-                <div className={`${currentTestimonial.image ? 'md:w-2/3 md:pl-8' : 'w-full text-center'}`}>
+
+                <div
+                  className={`${currentTestimonial.image ? 'md:w-2/3 md:pl-8' : 'w-full text-center'}`}
+                >
                   {/* Rating stars - conditional rendering if rating exists */}
                   {currentTestimonial.rating && (
                     <div className="flex mb-3 justify-center md:justify-start">
                       {[...Array(currentTestimonial.rating)].map((_, n) => (
-                        <Star 
-                          key={n} 
-                          className="h-5 w-5 text-primary fill-primary" 
+                        <Star
+                          key={n}
+                          className="h-5 w-5 text-primary fill-primary"
                         />
                       ))}
                     </div>
                   )}
-                  
+
                   <blockquote className="text-white text-lg italic mb-4">
                     "{currentTestimonial.content}"
                   </blockquote>
-                  
+
                   <div>
                     <div className="font-bold text-primary">
                       {currentTestimonial.name}
@@ -128,7 +141,7 @@ export default function Testimonials() {
               </div>
             </div>
           </div>
-          
+
           {/* Indicator Dots - only show if multiple testimonials */}
           {config.testimonials.length > 1 && (
             <div className="flex justify-center mt-6 space-x-2">

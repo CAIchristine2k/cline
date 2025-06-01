@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs } from 'react-router';
-import { getCloudinaryConfig } from '~/utils/cloudinaryConfig';
+import type {ActionFunctionArgs} from 'react-router';
+import {getCloudinaryConfig} from '~/utils/cloudinaryConfig';
 
 // Cloudinary HTTP API client for serverless environments
 function parseCloudinaryUrl(cloudinaryUrl: string) {
@@ -13,48 +13,51 @@ function parseCloudinaryUrl(cloudinaryUrl: string) {
 }
 
 // Generate SHA1 signature using Web Crypto API (edge-compatible)
-async function generateCloudinarySignature(params: Record<string, string>, apiSecret: string): Promise<string> {
+async function generateCloudinarySignature(
+  params: Record<string, string>,
+  apiSecret: string,
+): Promise<string> {
   // Sort parameters and create query string (excluding signature itself)
   const sortedParams = Object.keys(params)
     .sort()
-    .filter(key => key !== 'signature' && key !== 'api_key' && key !== 'file')
-    .map(key => `${key}=${params[key]}`)
+    .filter((key) => key !== 'signature' && key !== 'api_key' && key !== 'file')
+    .map((key) => `${key}=${params[key]}`)
     .join('&');
-  
+
   const stringToSign = sortedParams + apiSecret;
-  
+
   // Use Web Crypto API (available in edge environments)
   const encoder = new TextEncoder();
   const data = encoder.encode(stringToSign);
   const hashBuffer = await crypto.subtle.digest('SHA-1', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
+export async function action({request, context}: ActionFunctionArgs) {
   if (request.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return new Response('Method not allowed', {status: 405});
   }
 
   try {
-    const { cloudName, apiKey, apiSecret } = getCloudinaryConfig(context.env);
-    
+    const {cloudName, apiKey, apiSecret} = getCloudinaryConfig(context.env);
+
     const formData = await request.formData();
     const imageFile = formData.get('image') as File;
     const productId = formData.get('productId') as string;
     const customizations = formData.get('customizations') as string;
-    
+
     if (!imageFile) {
-      return new Response(JSON.stringify({ error: 'No image file provided' }), {
+      return new Response(JSON.stringify({error: 'No image file provided'}), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
       });
     }
 
     // Convert file to base64 for upload (safe for large files)
     const arrayBuffer = await imageFile.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
-    
+
     // Convert to base64 in chunks to avoid stack overflow
     let binaryString = '';
     const chunkSize = 8192; // Process in 8KB chunks
@@ -62,7 +65,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
       const chunk = uint8Array.slice(i, i + chunkSize);
       binaryString += String.fromCharCode.apply(null, Array.from(chunk));
     }
-    
+
     const base64String = btoa(binaryString);
     const dataURI = `data:${imageFile.type};base64,${base64String}`;
 
@@ -93,18 +96,21 @@ export async function action({ request, context }: ActionFunctionArgs) {
     const contextData = {
       product_id: productId || 'unknown',
       created_at: new Date().toISOString(),
-      customizations: JSON.stringify(customizationData)
+      customizations: JSON.stringify(customizationData),
     };
-    
+
     // Convert context to format expected by Cloudinary API
     const contextString = Object.entries(contextData)
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join('|');
-    
+
     uploadParams.context = contextString;
 
     // Generate signature
-    const signature = await generateCloudinarySignature(uploadParams, apiSecret);
+    const signature = await generateCloudinarySignature(
+      uploadParams,
+      apiSecret,
+    );
 
     // Create form data for Cloudinary upload
     const cloudinaryFormData = new FormData();
@@ -123,7 +129,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
       {
         method: 'POST',
         body: cloudinaryFormData,
-      }
+      },
     );
 
     if (!uploadResponse.ok) {
@@ -131,7 +137,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
       throw new Error(`Cloudinary upload failed: ${errorText}`);
     }
 
-    const result = await uploadResponse.json() as {
+    const result = (await uploadResponse.json()) as {
       secure_url: string;
       public_id: string;
       width: number;
@@ -139,29 +145,34 @@ export async function action({ request, context }: ActionFunctionArgs) {
       bytes: number;
     };
 
-    return new Response(JSON.stringify({ 
-      success: true,
-      url: result.secure_url,
-      publicId: result.public_id,
-      filename: filename,
-      width: result.width,
-      height: result.height,
-      bytes: result.bytes,
-      productId: productId,
-      customizations: customizationData
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+        url: result.secure_url,
+        publicId: result.public_id,
+        filename: filename,
+        width: result.width,
+        height: result.height,
+        bytes: result.bytes,
+        productId: productId,
+        customizations: customizationData,
+      }),
+      {
+        status: 200,
+        headers: {'Content-Type': 'application/json'},
+      },
+    );
   } catch (error) {
     console.error('Error saving design to Cloudinary:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Failed to save design',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to save design',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      }),
+      {
+        status: 500,
+        headers: {'Content-Type': 'application/json'},
+      },
+    );
   }
-} 
+}

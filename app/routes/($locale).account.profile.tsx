@@ -54,14 +54,11 @@ export async function action({request, context}: ActionFunctionArgs) {
     }
 
     // update customer and possibly password
-    const {data, errors} = await customerAccount.mutate(
-      CUSTOMER_UPDATE,
-      {
-        variables: {
-          customer,
-        },
+    const {data, errors} = await customerAccount.mutate(CUSTOMER_UPDATE, {
+      variables: {
+        customer,
       },
-    );
+    });
 
     if (errors?.length) {
       throw new Error(errors[0].message);
@@ -72,14 +69,14 @@ export async function action({request, context}: ActionFunctionArgs) {
     }
 
     // Refetch customer data after update
-    const { data: customerData } = await customerAccount.query(
+    const {data: customerData} = await customerAccount.query(
       `query GetUpdatedCustomer {
         customer {
           id
           firstName
           lastName
         }
-      }`
+      }`,
     );
 
     return {
@@ -132,8 +129,8 @@ export default function AccountProfile() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* First Name */}
           <div>
-            <label 
-              htmlFor="firstName" 
+            <label
+              htmlFor="firstName"
               className="block text-sm font-bold text-gold-500 mb-2"
             >
               First Name
@@ -154,8 +151,8 @@ export default function AccountProfile() {
 
           {/* Last Name */}
           <div>
-            <label 
-              htmlFor="lastName" 
+            <label
+              htmlFor="lastName"
               className="block text-sm font-bold text-gold-500 mb-2"
             >
               Last Name
@@ -177,8 +174,8 @@ export default function AccountProfile() {
 
         {/* Submit Button */}
         <div className="pt-4">
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={state !== 'idle'}
             className="inline-flex items-center bg-gold-500 hover:bg-gold-400 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-3 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >
@@ -191,7 +188,8 @@ export default function AccountProfile() {
       {/* Championship Note */}
       <div className="mt-8 p-4 bg-gradient-to-r from-gold-900/20 via-gold-500/10 to-gold-900/20 border border-gold-500/30 rounded-sm">
         <p className="text-gray-300 text-sm leading-relaxed">
-          Keep your profile updated to ensure you receive the latest news about {config.brandName}'s championship collection and exclusive offers.
+          Keep your profile updated to ensure you receive the latest news about{' '}
+          {config.brandName}'s championship collection and exclusive offers.
         </p>
       </div>
     </div>

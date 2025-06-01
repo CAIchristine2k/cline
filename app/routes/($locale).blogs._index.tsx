@@ -16,12 +16,12 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
-  
+
   // Get configuration
   const config = getConfig();
 
   return {
-    ...deferredData, 
+    ...deferredData,
     ...criticalData,
     config: {
       ...config,
@@ -68,7 +68,7 @@ export default function Blogs() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
@@ -86,47 +86,62 @@ export default function Blogs() {
             <span className="text-primary">CHAMPIONSHIP</span> INSIGHTS
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Discover training tips, boxing insights, and stories from {config.influencerName}'s legendary career and the world of professional boxing.
+            Discover training tips, boxing insights, and stories from{' '}
+            {config.influencerName}'s legendary career and the world of
+            professional boxing.
           </p>
         </div>
 
         {/* Blogs Grid */}
         <div className="mb-16">
-          <PaginatedResourceSection 
+          <PaginatedResourceSection
             connection={blogs}
             resourcesClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {({node: blog}) => (
-              <Link
-                key={blog.handle}
-                prefetch="intent"
-                to={`/blogs/${blog.handle}`}
-                className="group block bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-primary/50 rounded-sm overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]"
-              >
-                {/* Blog Header */}
-                <div className="p-6">
-                  <div className="flex items-center mb-4">
-                    <BookOpen className="w-5 h-5 text-primary mr-2" />
-                    <span className="text-sm text-primary font-bold uppercase tracking-wider">Blog</span>
+            {({node: blog}) => {
+              // Add proper type assertion
+              const typedBlog = blog as {
+                handle: string;
+                title: string;
+                seo?: {
+                  description?: string;
+                };
+              };
+
+              return (
+                <Link
+                  key={typedBlog.handle}
+                  prefetch="intent"
+                  to={`/blogs/${typedBlog.handle}`}
+                  className="group block bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-primary/50 rounded-sm overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]"
+                >
+                  {/* Blog Header */}
+                  <div className="p-6">
+                    <div className="flex items-center mb-4">
+                      <BookOpen className="w-5 h-5 text-primary mr-2" />
+                      <span className="text-sm text-primary font-bold uppercase tracking-wider">
+                        Blog
+                      </span>
+                    </div>
+
+                    <h2 className="text-xl font-bold text-white group-hover:text-primary transition-colors duration-300 mb-4">
+                      {typedBlog.title}
+                    </h2>
+
+                    {typedBlog.seo?.description && (
+                      <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                        {typedBlog.seo.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center text-gray-500 text-sm">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>Latest Articles</span>
+                    </div>
                   </div>
-                  
-                  <h2 className="text-xl font-bold text-white group-hover:text-primary transition-colors duration-300 mb-4">
-                    {blog.title}
-                  </h2>
-                  
-                  {blog.seo?.description && (
-                    <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                      {blog.seo.description}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center text-gray-500 text-sm">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span>Latest Articles</span>
-                  </div>
-                </div>
-              </Link>
-            )}
+                </Link>
+              );
+            }}
           </PaginatedResourceSection>
         </div>
 
@@ -136,9 +151,11 @@ export default function Blogs() {
             Train Your Mind Like a Champion
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Mental preparation is just as important as physical training. Learn from {config.influencerName}'s experience and develop the champion mindset.
+            Mental preparation is just as important as physical training. Learn
+            from {config.influencerName}'s experience and develop the champion
+            mindset.
           </p>
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >

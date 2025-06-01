@@ -13,7 +13,7 @@ interface CollectionHeaderProps {
   config: LandingPageConfig;
 }
 
-export function CollectionHeader({ collection }: CollectionHeaderProps) {
+export function CollectionHeader({collection}: CollectionHeaderProps) {
   return (
     <>
       {/* Collection Header */}
@@ -38,13 +38,13 @@ export function CollectionHeader({ collection }: CollectionHeaderProps) {
             {collection.products.nodes.length} products
           </span>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <button className="flex items-center space-x-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-sm transition-colors duration-300 border border-gray-600">
             <Filter className="h-4 w-4" />
             <span>Filter</span>
           </button>
-          
+
           <button className="flex items-center space-x-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-sm transition-colors duration-300 border border-gray-600">
             <Grid className="h-4 w-4" />
             <span>Sort</span>

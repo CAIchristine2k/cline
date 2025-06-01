@@ -61,7 +61,7 @@ export default function Policy() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/policies"
             className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
           >
@@ -79,7 +79,8 @@ export default function Policy() {
             {policy.title}
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Our commitment to transparency and excellence in every aspect of our business.
+            Our commitment to transparency and excellence in every aspect of our
+            business.
           </p>
         </div>
 
@@ -90,10 +91,10 @@ export default function Policy() {
               <FileText className="w-6 h-6 text-gold-500 mr-3" />
               <h2 className="text-2xl font-bold text-white">{policy.title}</h2>
             </div>
-            
-            <div 
+
+            <div
               className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed [&>h1]:text-white [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h1]:mt-6 [&>h2]:text-white [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-3 [&>h2]:mt-5 [&>h3]:text-white [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mb-2 [&>h3]:mt-4 [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:mb-4 [&>ul]:pl-6 [&>li]:mb-2 [&>li]:text-gray-300 [&>ol]:mb-4 [&>ol]:pl-6 [&>strong]:text-white [&>strong]:font-semibold [&>em]:text-gold-300 [&>em]:italic [&>a]:text-gold-500 [&>a]:hover:text-gold-400 [&>a]:transition-colors [&>a]:duration-300"
-              dangerouslySetInnerHTML={{__html: policy.body}} 
+              dangerouslySetInnerHTML={{__html: policy.body}}
             />
           </div>
         </div>
@@ -104,9 +105,11 @@ export default function Policy() {
             Questions About This Policy?
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            We're committed to transparency and championship-quality service. If you have any questions about our policies, don't hesitate to reach out.
+            We're committed to transparency and championship-quality service. If
+            you have any questions about our policies, don't hesitate to reach
+            out.
           </p>
-          <Link 
+          <Link
             to="/collections/all"
             className="inline-flex items-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >

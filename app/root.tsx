@@ -45,8 +45,14 @@ export const links: LinksFunction = () => {
 export const meta: MetaFunction = () => {
   return [
     {title: `${config.brandName} - ${config.influencerTitle} | Official Store`},
-    {name: 'description', content: `${config.influencerBio.substring(0, 160)}...`},
-            {name: 'keywords', content: `${config.influencerName}, ${config.brandName}, ${config.industry || 'sports'} equipment, merchandise, champion gear`},
+    {
+      name: 'description',
+      content: `${config.influencerBio.substring(0, 160)}...`,
+    },
+    {
+      name: 'keywords',
+      content: `${config.influencerName}, ${config.brandName}, ${config.industry || 'sports'} equipment, merchandise, champion gear`,
+    },
     {property: 'og:title', content: `${config.brandName} - Official Store`},
     {property: 'og:description', content: config.heroSubtitle},
     {property: 'og:image', content: config.brandLogo},
@@ -106,42 +112,47 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
   const {storefront, customerAccount, cart, env} = context || {};
 
   // defer the footer query (below the fold)
-  const footer = storefront?.query(FOOTER_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        footerMenuHandle: 'footer', // Adjust to your footer menu handle
-      },
-    })
-    .catch((error) => {
-      // Log query errors, but don't throw them so the page can still render
-      console.error(error);
-      return null;
-    }) || Promise.resolve(null);
+  const footer =
+    storefront
+      ?.query(FOOTER_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          footerMenuHandle: 'footer', // Adjust to your footer menu handle
+        },
+      })
+      .catch((error: unknown) => {
+        // Log query errors, but don't throw them so the page can still render
+        console.error(error);
+        return null;
+      }) || Promise.resolve(null);
 
   // defer the header query (above the fold, but not critical)
-  const header = storefront?.query(HEADER_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        headerMenuHandle: 'main-menu', // Adjust to your header menu handle
-      },
-    })
-    .catch((error) => {
-      console.error(error);
-      return null;
-    }) || Promise.resolve(null);
+  const header =
+    storefront
+      ?.query(HEADER_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          headerMenuHandle: 'main-menu', // Adjust to your header menu handle
+        },
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        return null;
+      }) || Promise.resolve(null);
 
   // Safely access cart - it might not be available during POST actions
   const cartData = cart ? cart.get() : Promise.resolve(null);
-  
+
   // Log the cart data for debugging purposes
   console.log('Loading cart data:', cartData);
-  
+
   return {
     footer,
     header,
     cart: cartData,
     isLoggedIn: customerAccount?.isLoggedIn() || Promise.resolve(false),
     publicStoreDomain: env?.PUBLIC_STORE_DOMAIN || '',
+    checkoutDomain: env?.PUBLIC_CHECKOUT_DOMAIN || '',
   };
 }
 
@@ -159,12 +170,12 @@ const LAYOUT_QUERY = `#graphql
 function hexToRgb(hex: string) {
   // Remove # if present
   hex = hex.replace('#', '');
-  
+
   // Convert to RGB
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
-  
+
   return `${r}, ${g}, ${b}`;
 }
 
@@ -179,8 +190,10 @@ export function Layout({children}: {children?: React.ReactNode}) {
     // Add RGB versions of color variables for shadows and opacity
     if (typeof document !== 'undefined') {
       const root = document.documentElement;
-      const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
-      
+      const primaryColor = getComputedStyle(root)
+        .getPropertyValue('--color-primary')
+        .trim();
+
       if (primaryColor) {
         root.style.setProperty('--color-primary-rgb', hexToRgb(primaryColor));
       }
@@ -194,6 +207,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
     footer: data?.footer || null,
     isLoggedIn: data?.isLoggedIn || false,
     publicStoreDomain: data?.publicStoreDomain || '',
+    checkoutDomain: data?.checkoutDomain || '',
     layout: data?.layout || null,
   };
 
@@ -286,12 +300,13 @@ export function Layout({children}: {children?: React.ReactNode}) {
           <ThemeProvider>
             <Aside.Provider>
               <CartProvider>
-                <PageLayout 
+                <PageLayout
                   cart={safeData.cart}
                   header={safeData.header}
                   footer={safeData.footer}
                   isLoggedIn={safeData.isLoggedIn}
                   publicStoreDomain={safeData.publicStoreDomain}
+                  checkoutDomain={safeData.checkoutDomain}
                   layout={safeData.layout}
                 >
                   {children}

@@ -1,7 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Camera, Sparkles, Download, Share2, AlertCircle, CheckCircle, Loader2, Clock, Heart, ShoppingBag, Shirt, Users } from 'lucide-react';
-import { useConfig } from '~/utils/themeContext';
-import { AuthPrompt } from '~/components/AuthPrompt';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  Upload,
+  Camera,
+  Sparkles,
+  Download,
+  Share2,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Clock,
+  Heart,
+  ShoppingBag,
+  Shirt,
+  Users,
+} from 'lucide-react';
+import {useConfig} from '~/utils/themeContext';
+import {AuthPrompt} from '~/components/AuthPrompt';
 
 interface AITask {
   taskId: string;
@@ -66,7 +80,7 @@ export default function AIPhotoGenerator() {
     );
   }
 
-  const { aiMediaGeneration } = config;
+  const {aiMediaGeneration} = config;
 
   // Check authentication on component mount
   useEffect(() => {
@@ -79,8 +93,8 @@ export default function AIPhotoGenerator() {
     setIsLoadingAuth(true);
     try {
       const response = await fetch('/api/ai-media-generation/auth');
-      const data = await response.json() as CustomerData;
-      
+      const data = (await response.json()) as CustomerData;
+
       if (response.ok && data.customer) {
         setCustomerData(data);
         setUsageInfo(calculateUsageInfo(data.customer, aiMediaGeneration));
@@ -95,25 +109,37 @@ export default function AIPhotoGenerator() {
     }
   };
 
-  const calculateUsageInfo = (customer: CustomerData['customer'], config: typeof aiMediaGeneration): UsageInfo => {
+  const calculateUsageInfo = (
+    customer: CustomerData['customer'],
+    config: typeof aiMediaGeneration,
+  ): UsageInfo => {
     if (!customer) {
-      return { currentUsage: 0, limit: config.usageLimit, resetDate: new Date(), canGenerate: false };
+      return {
+        currentUsage: 0,
+        limit: config.usageLimit,
+        resetDate: new Date(),
+        canGenerate: false,
+      };
     }
 
     const usageMetafield = customer.metafields?.find(
-      m => m.namespace === 'ai_generation' && m.key === 'monthly_usage'
+      (m) => m.namespace === 'ai_generation' && m.key === 'monthly_usage',
     );
     const resetMetafield = customer.metafields?.find(
-      m => m.namespace === 'ai_generation' && m.key === 'last_reset'
+      (m) => m.namespace === 'ai_generation' && m.key === 'last_reset',
     );
 
-    const currentUsage = usageMetafield ? parseInt(usageMetafield.value) || 0 : 0;
-    const lastReset = resetMetafield ? new Date(resetMetafield.value) : new Date(0);
-    
+    const currentUsage = usageMetafield
+      ? parseInt(usageMetafield.value) || 0
+      : 0;
+    const lastReset = resetMetafield
+      ? new Date(resetMetafield.value)
+      : new Date(0);
+
     // Calculate next reset date based on period
     const now = new Date();
     let resetDate = new Date(lastReset);
-    
+
     switch (config.resetPeriod) {
       case 'daily':
         resetDate.setDate(resetDate.getDate() + 1);
@@ -130,14 +156,21 @@ export default function AIPhotoGenerator() {
     // Check if we need to reset usage
     const needsReset = now >= resetDate;
     const actualUsage = needsReset ? 0 : currentUsage;
-    
+
     return {
       currentUsage: actualUsage,
       limit: config.usageLimit,
-      resetDate: needsReset ? new Date(now.getTime() + (config.resetPeriod === 'daily' ? 24 * 60 * 60 * 1000 : 
-                                                      config.resetPeriod === 'weekly' ? 7 * 24 * 60 * 60 * 1000 : 
-                                                      30 * 24 * 60 * 60 * 1000)) : resetDate,
-      canGenerate: actualUsage < config.usageLimit
+      resetDate: needsReset
+        ? new Date(
+            now.getTime() +
+              (config.resetPeriod === 'daily'
+                ? 24 * 60 * 60 * 1000
+                : config.resetPeriod === 'weekly'
+                  ? 7 * 24 * 60 * 60 * 1000
+                  : 30 * 24 * 60 * 60 * 1000),
+          )
+        : resetDate,
+      canGenerate: actualUsage < config.usageLimit,
     };
   };
 
@@ -147,20 +180,27 @@ export default function AIPhotoGenerator() {
 
     // Validate file size
     if (file.size > aiMediaGeneration.maxFileSize * 1024 * 1024) {
-      setError(`File size must be less than ${aiMediaGeneration.maxFileSize}MB`);
+      setError(
+        `File size must be less than ${aiMediaGeneration.maxFileSize}MB`,
+      );
       return;
     }
 
     // Validate file type
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    if (!fileExtension || !aiMediaGeneration.allowedFormats.includes(fileExtension)) {
-      setError(`Only ${aiMediaGeneration.allowedFormats.join(', ')} files are allowed`);
+    if (
+      !fileExtension ||
+      !aiMediaGeneration.allowedFormats.includes(fileExtension)
+    ) {
+      setError(
+        `Only ${aiMediaGeneration.allowedFormats.join(', ')} files are allowed`,
+      );
       return;
     }
 
     setError('');
     setSelectedFile(file);
-    
+
     // Create preview URL
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
@@ -180,12 +220,12 @@ export default function AIPhotoGenerator() {
 
     setIsGenerating(true);
     setError('');
-    setCurrentTask({ taskId: '', status: 'submitted' });
+    setCurrentTask({taskId: '', status: 'submitted'});
 
     try {
       // Convert file to base64
       const base64 = await fileToBase64(selectedFile);
-      
+
       // Create task
       const response = await fetch('/api/ai-media-generation', {
         method: 'POST',
@@ -200,8 +240,8 @@ export default function AIPhotoGenerator() {
         }),
       });
 
-      const result = await response.json() as APIResponse;
-      
+      const result = (await response.json()) as APIResponse;
+
       if (!response.ok) {
         throw new Error(result.message || 'Failed to create generation task');
       }
@@ -209,11 +249,10 @@ export default function AIPhotoGenerator() {
       // Start polling for results
       setCurrentTask({
         taskId: result.taskId,
-        status: result.status as AITask['status']
+        status: result.status as AITask['status'],
       });
 
       pollTaskStatus(result.taskId);
-
     } catch (err) {
       console.error('Generation failed:', err);
       setError(err instanceof Error ? err.message : 'Generation failed');
@@ -225,22 +264,26 @@ export default function AIPhotoGenerator() {
   const pollTaskStatus = async (taskId: string) => {
     let attempts = 0;
     const maxAttempts = 60; // 5 minutes max
-    
+
     const poll = async () => {
       try {
         const response = await fetch(`/api/ai-media-generation/${taskId}`);
-        const result = await response.json() as APIResponse;
-        
+        const result = (await response.json()) as APIResponse;
+
         if (!response.ok) {
           throw new Error(result.message || 'Failed to check status');
         }
 
-        setCurrentTask(prev => prev ? {
-          ...prev,
-          status: result.status as AITask['status'],
-          resultUrl: result.resultUrl,
-          error: result.error
-        } : null);
+        setCurrentTask((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: result.status as AITask['status'],
+                resultUrl: result.resultUrl,
+                error: result.error,
+              }
+            : null,
+        );
 
         if (result.status === 'succeed' || result.status === 'failed') {
           setIsGenerating(false);
@@ -274,7 +317,7 @@ export default function AIPhotoGenerator() {
         const result = reader.result as string;
         resolve(result.split(',')[1]); // Remove data:image/jpeg;base64, prefix
       };
-      reader.onerror = error => reject(error);
+      reader.onerror = (error) => reject(error);
     });
   };
 
@@ -294,7 +337,9 @@ export default function AIPhotoGenerator() {
       try {
         await navigator.share({
           title: aiMediaGeneration.title,
-          text: aiMediaGeneration.shareText || `Check out my AI-generated photo with ${config.influencerName}!`,
+          text:
+            aiMediaGeneration.shareText ||
+            `Check out my AI-generated photo with ${config.influencerName}!`,
           url: currentTask.resultUrl,
         });
       } catch (err) {
@@ -318,7 +363,7 @@ export default function AIPhotoGenerator() {
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-6">
-              <a 
+              <a
                 href="/"
                 className="text-primary hover:text-primary-600 text-xs mb-4 flex items-center mx-auto bg-secondary/30 px-3 py-1 rounded-md border border-primary/10"
               >
@@ -343,7 +388,7 @@ export default function AIPhotoGenerator() {
     <section className="py-16 bg-secondary/80 backdrop-blur-sm min-h-[80vh] flex items-center">
       <div className="container mx-auto px-4">
         <div className="text-center mb-6">
-          <a 
+          <a
             href="/"
             className="text-primary hover:text-primary-600 text-xs mb-4 flex items-center mx-auto bg-secondary/30 px-3 py-1 rounded-md border border-primary/10"
           >
@@ -366,14 +411,25 @@ export default function AIPhotoGenerator() {
                   <Clock className="w-6 h-6 text-red-400" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">{aiMediaGeneration.limitReachedTitle}</h3>
-              <p className="text-gray-300 mb-4">{aiMediaGeneration.limitReachedMessage}</p>
+              <h3 className="text-xl font-bold text-white mb-3">
+                {aiMediaGeneration.limitReachedTitle}
+              </h3>
+              <p className="text-gray-300 mb-4">
+                {aiMediaGeneration.limitReachedMessage}
+              </p>
               <div className="bg-secondary/30 p-4 rounded-md border border-primary/10">
                 <p className="text-gray-400 text-xs mb-2">
-                  Usage: <span className="text-primary font-bold">{usageInfo.currentUsage}/{usageInfo.limit}</span> generations used
+                  Usage:{' '}
+                  <span className="text-primary font-bold">
+                    {usageInfo.currentUsage}/{usageInfo.limit}
+                  </span>{' '}
+                  generations used
                 </p>
                 <p className="text-gray-400 text-xs">
-                  Resets: <span className="text-white">{usageInfo.resetDate.toLocaleDateString()}</span>
+                  Resets:{' '}
+                  <span className="text-white">
+                    {usageInfo.resetDate.toLocaleDateString()}
+                  </span>
                 </p>
               </div>
             </div>
@@ -387,16 +443,21 @@ export default function AIPhotoGenerator() {
                     <Upload className="w-4 h-4 text-primary mr-2" />
                     Upload Your Photo
                   </h3>
-                  
+
                   {!selectedFile ? (
                     <div
                       className="border border-dashed border-primary/30 rounded-md p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Upload className="w-8 h-8 text-primary mx-auto mb-3" />
-                      <p className="text-white text-sm mb-2">{aiMediaGeneration.placeholderText}</p>
+                      <p className="text-white text-sm mb-2">
+                        {aiMediaGeneration.placeholderText}
+                      </p>
                       <p className="text-gray-400 text-xs">
-                        Max {aiMediaGeneration.maxFileSize}MB • {aiMediaGeneration.allowedFormats.join(', ').toUpperCase()}
+                        Max {aiMediaGeneration.maxFileSize}MB •{' '}
+                        {aiMediaGeneration.allowedFormats
+                          .join(', ')
+                          .toUpperCase()}
                       </p>
                     </div>
                   ) : (
@@ -414,14 +475,18 @@ export default function AIPhotoGenerator() {
                           ×
                         </button>
                       </div>
-                      <p className="text-gray-300 text-xs">{selectedFile.name}</p>
+                      <p className="text-gray-300 text-xs">
+                        {selectedFile.name}
+                      </p>
                     </div>
                   )}
 
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept={aiMediaGeneration.allowedFormats.map(format => `.${format}`).join(',')}
+                    accept={aiMediaGeneration.allowedFormats
+                      .map((format) => `.${format}`)
+                      .join(',')}
                     onChange={handleFileSelect}
                     className="hidden"
                   />
@@ -440,34 +505,42 @@ export default function AIPhotoGenerator() {
                     <Sparkles className="w-4 h-4 text-primary mr-2" />
                     Choose Your Pose
                   </h3>
-                  
+
                   <div className="grid grid-cols-2 gap-3">
                     {aiMediaGeneration.poseOptions.map((pose) => (
-                      <div 
+                      <div
                         key={pose.id}
                         className={`border rounded-md p-3 cursor-pointer transition-all ${
-                          selectedPose === pose.id 
-                            ? 'border-primary bg-primary/10' 
+                          selectedPose === pose.id
+                            ? 'border-primary bg-primary/10'
                             : 'border-gray-600/30 hover:border-primary/30'
                         }`}
                         onClick={() => setSelectedPose(pose.id)}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center">
-                            {pose.id === 'heart' && <Heart className="w-3 h-3 text-primary mr-1" />}
-                            {pose.id === 'try-on' && <Shirt className="w-3 h-3 text-primary mr-1" />}
-                            <h4 className="text-white text-sm font-medium">{pose.name}</h4>
+                            {pose.id === 'heart' && (
+                              <Heart className="w-3 h-3 text-primary mr-1" />
+                            )}
+                            {pose.id === 'try-on' && (
+                              <Shirt className="w-3 h-3 text-primary mr-1" />
+                            )}
+                            <h4 className="text-white text-sm font-medium">
+                              {pose.name}
+                            </h4>
                           </div>
                           {selectedPose === pose.id && (
                             <CheckCircle className="w-4 h-4 text-primary" />
                           )}
                         </div>
-                        <p className="text-gray-400 text-xs">{pose.description}</p>
+                        <p className="text-gray-400 text-xs">
+                          {pose.description}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Product Selection - Only visible when try-on is selected */}
                 {selectedPose === 'try-on' && (
                   <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-6 shadow-md">
@@ -475,20 +548,20 @@ export default function AIPhotoGenerator() {
                       <ShoppingBag className="w-4 h-4 text-primary mr-2" />
                       Select Product to Try On
                     </h3>
-                    
+
                     <div className="grid grid-cols-2 gap-3">
                       {aiMediaGeneration.productOptions.map((product) => (
-                        <div 
+                        <div
                           key={product.id}
                           className={`border rounded-md overflow-hidden cursor-pointer transition-all ${
-                            selectedProduct === product.id 
-                              ? 'border-primary' 
+                            selectedProduct === product.id
+                              ? 'border-primary'
                               : 'border-gray-600/30 hover:border-primary/30'
                           }`}
                           onClick={() => setSelectedProduct(product.id)}
                         >
                           <div className="bg-white p-2">
-                            <img 
+                            <img
                               src={product.imagePath}
                               alt={product.name}
                               className="w-full h-20 object-contain"
@@ -496,7 +569,9 @@ export default function AIPhotoGenerator() {
                           </div>
                           <div className="p-2">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-white text-xs">{product.name}</h4>
+                              <h4 className="text-white text-xs">
+                                {product.name}
+                              </h4>
                               {selectedProduct === product.id && (
                                 <CheckCircle className="w-3 h-3 text-primary" />
                               )}
@@ -510,7 +585,11 @@ export default function AIPhotoGenerator() {
 
                 <button
                   onClick={handleGenerate}
-                  disabled={!selectedFile || isGenerating || (selectedPose === 'try-on' && !selectedProduct)}
+                  disabled={
+                    !selectedFile ||
+                    isGenerating ||
+                    (selectedPose === 'try-on' && !selectedProduct)
+                  }
                   className="w-full bg-primary hover:bg-primary-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-background font-bold py-3 px-4 rounded-md transition-colors flex items-center justify-center"
                 >
                   {isGenerating ? (
@@ -535,15 +614,19 @@ export default function AIPhotoGenerator() {
                     </h4>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-300 text-xs">Generations Used:</span>
+                        <span className="text-gray-300 text-xs">
+                          Generations Used:
+                        </span>
                         <span className="text-primary font-bold text-xs">
                           {usageInfo.currentUsage}/{usageInfo.limit}
                         </span>
                       </div>
                       <div className="w-full bg-secondary/60 rounded-full h-2 overflow-hidden">
-                        <div 
-                          className="bg-primary h-2 rounded-full transition-all duration-300" 
-                          style={{ width: `${(usageInfo.currentUsage / usageInfo.limit) * 100}%` }}
+                        <div
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${(usageInfo.currentUsage / usageInfo.limit) * 100}%`,
+                          }}
                         ></div>
                       </div>
                       <div className="flex justify-between items-center text-xs">
@@ -564,33 +647,47 @@ export default function AIPhotoGenerator() {
                     <Sparkles className="w-4 h-4 text-primary mr-2" />
                     Your Result
                   </h3>
-                  
+
                   {!currentTask ? (
                     <div className="bg-secondary/30 rounded-md p-8 text-center border border-primary/10">
                       <Sparkles className="w-8 h-8 text-gray-500 mx-auto mb-3" />
-                      <p className="text-gray-400 text-xs">Your generated photo will appear here</p>
+                      <p className="text-gray-400 text-xs">
+                        Your generated photo will appear here
+                      </p>
                       {selectedPose === 'training' && (
-                        <p className="text-primary text-xs mt-2">Training with {config.influencerName}</p>
+                        <p className="text-primary text-xs mt-2">
+                          Training with {config.influencerName}
+                        </p>
                       )}
                       {selectedPose === 'hugging' && (
-                        <p className="text-primary text-xs mt-2">Meeting with {config.influencerName}</p>
+                        <p className="text-primary text-xs mt-2">
+                          Meeting with {config.influencerName}
+                        </p>
                       )}
                       {selectedPose === 'heart' && (
-                        <p className="text-primary text-xs mt-2">Fan moment with {config.influencerName}</p>
+                        <p className="text-primary text-xs mt-2">
+                          Fan moment with {config.influencerName}
+                        </p>
                       )}
                       {selectedPose === 'try-on' && selectedProduct && (
-                        <p className="text-primary text-xs mt-2">Virtual try-on</p>
+                        <p className="text-primary text-xs mt-2">
+                          Virtual try-on
+                        </p>
                       )}
                     </div>
-                  ) : currentTask.status === 'submitted' || currentTask.status === 'processing' ? (
+                  ) : currentTask.status === 'submitted' ||
+                    currentTask.status === 'processing' ? (
                     <div className="bg-secondary/30 rounded-md p-8 text-center border border-primary/20">
                       <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
-                      <p className="text-white text-sm mb-2">{aiMediaGeneration.processingMessage}</p>
+                      <p className="text-white text-sm mb-2">
+                        {aiMediaGeneration.processingMessage}
+                      </p>
                       <p className="text-gray-400 text-xs">
                         This usually takes 1-3 minutes
                       </p>
                     </div>
-                  ) : currentTask.status === 'succeed' && currentTask.resultUrl ? (
+                  ) : currentTask.status === 'succeed' &&
+                    currentTask.resultUrl ? (
                     <div className="space-y-4">
                       <div className="relative rounded-md overflow-hidden border border-primary/30">
                         <img
@@ -599,7 +696,9 @@ export default function AIPhotoGenerator() {
                           className="w-full h-auto object-cover"
                         />
                         <div className="absolute top-2 left-2 bg-primary/80 px-2 py-1 rounded-md">
-                          <p className="text-background text-xs font-bold">AI GENERATED</p>
+                          <p className="text-background text-xs font-bold">
+                            AI GENERATED
+                          </p>
                         </div>
                       </div>
                       <p className="text-green-400 text-xs flex items-center">
@@ -632,7 +731,9 @@ export default function AIPhotoGenerator() {
                   ) : currentTask.status === 'failed' ? (
                     <div className="bg-red-500/10 border border-red-500/30 rounded-md p-6 text-center">
                       <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
-                      <p className="text-red-300 mb-4 text-xs">{currentTask.error || 'Generation failed'}</p>
+                      <p className="text-red-300 mb-4 text-xs">
+                        {currentTask.error || 'Generation failed'}
+                      </p>
                       <button
                         onClick={reset}
                         className="bg-primary hover:bg-primary-600 text-background font-bold py-2 px-4 rounded-md transition-colors"
@@ -649,4 +750,4 @@ export default function AIPhotoGenerator() {
       </div>
     </section>
   );
-} 
+}

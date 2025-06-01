@@ -1,30 +1,40 @@
 import React from 'react';
-import { Link } from 'react-router';
-import { Image as ImageIcon, Pencil, Sparkles } from 'lucide-react';
-import { Image as ShopifyImage, Money } from '@shopify/hydrogen';
-import { useConfig } from '~/utils/themeContext';
+import {Link} from 'react-router';
+import {Image as ImageIcon, Pencil, Sparkles} from 'lucide-react';
+import {Image as ShopifyImage, Money} from '@shopify/hydrogen';
+import {useConfig} from '~/utils/themeContext';
 
 // Internal components
-function Image({ src, alt, className, sizes }: { src: string; alt?: string; className?: string; sizes?: string }) {
+function Image({
+  src,
+  alt,
+  className,
+  sizes,
+}: {
+  src: string;
+  alt?: string;
+  className?: string;
+  sizes?: string;
+}) {
   if (!src) return null;
-  
+
   return (
-    <img 
-      src={src} 
-      alt={alt || 'Product image'} 
-      className={className || 'w-full h-full object-cover'} 
+    <img
+      src={src}
+      alt={alt || 'Product image'}
+      className={className || 'w-full h-full object-cover'}
       sizes={sizes}
     />
   );
 }
 
-function PriceRange({ priceRange }: { priceRange: any }) {
+function PriceRange({priceRange}: {priceRange: any}) {
   if (!priceRange?.minVariantPrice) return null;
-  
-  const { minVariantPrice, maxVariantPrice } = priceRange;
+
+  const {minVariantPrice, maxVariantPrice} = priceRange;
   const minPrice = minVariantPrice.amount;
   const maxPrice = maxVariantPrice?.amount;
-  
+
   // Different prices in the range
   if (maxPrice && parseFloat(minPrice) < parseFloat(maxPrice)) {
     return (
@@ -35,7 +45,7 @@ function PriceRange({ priceRange }: { priceRange: any }) {
       </div>
     );
   }
-  
+
   // Same price or no max price
   return <Money data={minVariantPrice} className="text-primary font-bold" />;
 }
@@ -44,22 +54,27 @@ interface CustomizableProductCardProps {
   product: any;
 }
 
-export function CustomizableProductCard({ product }: CustomizableProductCardProps) {
+export function CustomizableProductCard({
+  product,
+}: CustomizableProductCardProps) {
   const config = useConfig();
-  
+
   if (!product) return null;
-  
-  const { handle, title, images, priceRange } = product;
+
+  const {handle, title, images, priceRange} = product;
   const firstImage = images?.nodes?.[0];
-  
+
   return (
     <div className="group relative flex flex-col bg-black/40 backdrop-blur-sm border border-primary/30 p-4 rounded-sm overflow-hidden h-full shadow-md hover:shadow-lg transition-all duration-300">
       <div className="absolute top-2 right-2 z-10 bg-primary text-black text-xs font-bold px-3 py-1 rounded-sm flex items-center">
         <Pencil className="w-3 h-3 mr-1" />
         Customize
       </div>
-      
-      <Link to={`/customize-product/${handle}`} className="block relative overflow-hidden rounded-sm mb-4 aspect-[4/5]">
+
+      <Link
+        to={`/customize-product/${handle}`}
+        className="block relative overflow-hidden rounded-sm mb-4 aspect-[4/5]"
+      >
         {firstImage ? (
           <div className="relative w-full h-full overflow-hidden group-hover:scale-105 transition-transform duration-500">
             <Image
@@ -83,23 +98,23 @@ export function CustomizableProductCard({ product }: CustomizableProductCardProp
           </div>
         )}
       </Link>
-      
+
       <div className="flex-grow">
         <h3 className="text-white font-medium mb-1 group-hover:text-primary transition-colors duration-200">
           {title}
         </h3>
-        
+
         {priceRange && (
           <div className="text-gray-300 text-sm mb-3">
             <PriceRange priceRange={priceRange} />
           </div>
         )}
-        
+
         <p className="text-gray-400 text-sm mb-4">
           Create your own custom design
         </p>
       </div>
-      
+
       <Link
         to={`/customize-product/${handle}`}
         className="w-full inline-flex items-center justify-center bg-primary hover:bg-primary-600 text-black font-bold py-2 px-4 rounded-sm transition duration-300 ease-in-out"
@@ -109,4 +124,4 @@ export function CustomizableProductCard({ product }: CustomizableProductCardProp
       </Link>
     </div>
   );
-} 
+}

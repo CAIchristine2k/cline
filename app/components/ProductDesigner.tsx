@@ -1,7 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Type, Sliders, Download, Trash2, Save, Undo, Image, User, Sparkles, Loader2 } from 'lucide-react';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  Upload,
+  Type,
+  Sliders,
+  Download,
+  Trash2,
+  Save,
+  Undo,
+  Image,
+  User,
+  Sparkles,
+  Loader2,
+} from 'lucide-react';
 import Konva from 'konva';
-import { Stage, Layer, Image as KonvaImage, Text, Transformer, Group } from 'react-konva';
+import {
+  Stage,
+  Layer,
+  Image as KonvaImage,
+  Text,
+  Transformer,
+  Group,
+} from 'react-konva';
 
 // Custom type definitions for Konva
 type StageType = Konva.Stage;
@@ -30,7 +49,7 @@ interface CustomElement {
 
 interface ProductDesignerProps {
   backgroundImage: HTMLImageElement | null;
-  stageSize: { width: number; height: number };
+  stageSize: {width: number; height: number};
   elements: CustomElement[];
   selectedId: string | null;
   onElementSelect: (id: string) => void;
@@ -47,7 +66,7 @@ export function ProductDesigner({
   onElementSelect,
   onElementDeselect,
   onElementTransform,
-  keepAspectRatio = true
+  keepAspectRatio = true,
 }: ProductDesignerProps) {
   const stageRef = useRef<StageType | null>(null);
   const transformerRef = useRef<TransformerType | null>(null);
@@ -58,7 +77,7 @@ export function ProductDesigner({
     if (imageCache.current.has(src)) {
       return imageCache.current.get(src)!;
     }
-    
+
     const img = new window.Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
@@ -77,7 +96,7 @@ export function ProductDesigner({
     if (transformerRef.current && stageRef.current) {
       const transformer = transformerRef.current;
       const selectedNode = stageRef.current.findOne('#' + selectedId);
-      
+
       if (selectedNode) {
         transformer.nodes([selectedNode as NodeType]);
         transformer.getLayer()?.batchDraw();
@@ -93,33 +112,41 @@ export function ProductDesigner({
     const handleCaptureDesign = () => {
       if (stageRef.current) {
         const stage = stageRef.current;
-        
+
         // Temporarily hide transformer for the export
         const transformerNode = stage.findOne('Transformer');
         if (transformerNode) {
           transformerNode.visible(false);
         }
-        
+
         try {
           // Capture the stage as an image
-          const dataURL = stage.toDataURL({ 
+          const dataURL = stage.toDataURL({
             pixelRatio: 2,
-            mimeType: 'image/png'
+            mimeType: 'image/png',
           });
-          
+
           // Call the capture handler that was set up by the parent component
-          if (typeof window !== 'undefined' && (window as any).handleDesignCapture) {
+          if (
+            typeof window !== 'undefined' &&
+            (window as any).handleDesignCapture
+          ) {
             (window as any).handleDesignCapture(dataURL);
           }
         } catch (error) {
           console.error('Failed to capture design:', error);
-          
+
           // Call the error handler if available
-          if (typeof window !== 'undefined' && (window as any).handleDesignCaptureError) {
+          if (
+            typeof window !== 'undefined' &&
+            (window as any).handleDesignCaptureError
+          ) {
             (window as any).handleDesignCaptureError(error);
           } else {
             // Fallback error handling
-            alert('Failed to capture design. This may be due to cross-origin image restrictions. Please try refreshing the page and re-uploading your images.');
+            alert(
+              'Failed to capture design. This may be due to cross-origin image restrictions. Please try refreshing the page and re-uploading your images.',
+            );
           }
         } finally {
           // Restore transformer visibility
@@ -129,10 +156,10 @@ export function ProductDesigner({
         }
       }
     };
-    
+
     // Listen for the capture event from parent component
     window.addEventListener('capture-design', handleCaptureDesign);
-    
+
     return () => {
       window.removeEventListener('capture-design', handleCaptureDesign);
     };
@@ -148,9 +175,9 @@ export function ProductDesigner({
 
   if (!backgroundImage) {
     return (
-      <div 
+      <div
         className="w-full h-full flex items-center justify-center bg-secondary/60 rounded-md border border-primary/10"
-        style={{ minHeight: '400px' }}
+        style={{minHeight: '400px'}}
       >
         <div className="text-center p-4">
           <Loader2 className="w-10 h-10 text-primary mx-auto mb-4 animate-spin" />
@@ -167,97 +194,97 @@ export function ProductDesigner({
       height={stageSize.height}
       onMouseDown={checkDeselect}
       onTouchStart={checkDeselect}
-              className="bg-neutral-800"
+      className="bg-neutral-800"
     >
       <Layer>
         {/* User Elements - Sorted by zIndex (lowest to highest) */}
         {elements
           .sort((a, b) => a.zIndex - b.zIndex)
           .map((element) => {
-          if (element.type === 'image' && element.src) {
-            return (
-              <Group
-                key={element.id}
-                id={element.id}
-                x={element.x}
-                y={element.y}
-                rotation={element.rotation}
-                scaleX={element.scaleX}
-                scaleY={element.scaleY}
-                draggable
-                onClick={() => onElementSelect(element.id)}
-                onTap={() => onElementSelect(element.id)}
-                onDragEnd={(e) => {
-                  onElementTransform(element.id, {
-                    x: e.target.x(),
-                    y: e.target.y()
-                  });
-                }}
-                onTransformEnd={(e) => {
-                  const node = e.target;
-                  
-                  // Use the absolute values of scale to prevent negative scaling
-                  // and avoid multiplying by the existing scale which causes shrinking
-                  onElementTransform(element.id, {
-                    x: node.x(),
-                    y: node.y(),
-                    rotation: node.rotation(),
-                    scaleX: Math.abs(node.scaleX()),
-                    scaleY: Math.abs(node.scaleY())
-                  });
-                }}
-              >
-                <KonvaImage
-                  image={getImage(element.src) || undefined}
-                  width={element.width}
-                  height={element.height}
+            if (element.type === 'image' && element.src) {
+              return (
+                <Group
+                  key={element.id}
+                  id={element.id}
+                  x={element.x}
+                  y={element.y}
+                  rotation={element.rotation}
+                  scaleX={element.scaleX}
+                  scaleY={element.scaleY}
+                  draggable
+                  onClick={() => onElementSelect(element.id)}
+                  onTap={() => onElementSelect(element.id)}
+                  onDragEnd={(e) => {
+                    onElementTransform(element.id, {
+                      x: e.target.x(),
+                      y: e.target.y(),
+                    });
+                  }}
+                  onTransformEnd={(e) => {
+                    const node = e.target;
+
+                    // Use the absolute values of scale to prevent negative scaling
+                    // and avoid multiplying by the existing scale which causes shrinking
+                    onElementTransform(element.id, {
+                      x: node.x(),
+                      y: node.y(),
+                      rotation: node.rotation(),
+                      scaleX: Math.abs(node.scaleX()),
+                      scaleY: Math.abs(node.scaleY()),
+                    });
+                  }}
+                >
+                  <KonvaImage
+                    image={getImage(element.src) || undefined}
+                    width={element.width}
+                    height={element.height}
+                    opacity={element.opacity}
+                  />
+                </Group>
+              );
+            } else if (element.type === 'text') {
+              return (
+                <Text
+                  key={element.id}
+                  id={element.id}
+                  x={element.x}
+                  y={element.y}
+                  text={element.text || ''}
+                  fontSize={element.fontSize}
+                  fontFamily={element.fontFamily}
+                  fill={element.fill}
+                  scaleX={element.scaleX}
+                  scaleY={element.scaleY}
+                  rotation={element.rotation}
                   opacity={element.opacity}
+                  draggable
+                  onClick={() => onElementSelect(element.id)}
+                  onTap={() => onElementSelect(element.id)}
+                  onDragEnd={(e) => {
+                    onElementTransform(element.id, {
+                      x: e.target.x(),
+                      y: e.target.y(),
+                    });
+                  }}
+                  onTransformEnd={(e) => {
+                    const node = e.target;
+
+                    // Use the absolute values of scale to prevent negative scaling
+                    // and avoid multiplying by the existing scale which causes shrinking
+                    onElementTransform(element.id, {
+                      x: node.x(),
+                      y: node.y(),
+                      rotation: node.rotation(),
+                      scaleX: Math.abs(node.scaleX()),
+                      scaleY: Math.abs(node.scaleY()),
+                    });
+                  }}
                 />
-              </Group>
-            );
-          } else if (element.type === 'text') {
-            return (
-              <Text
-                key={element.id}
-                id={element.id}
-                x={element.x}
-                y={element.y}
-                text={element.text || ''}
-                fontSize={element.fontSize}
-                fontFamily={element.fontFamily}
-                fill={element.fill}
-                scaleX={element.scaleX}
-                scaleY={element.scaleY}
-                rotation={element.rotation}
-                opacity={element.opacity}
-                draggable
-                onClick={() => onElementSelect(element.id)}
-                onTap={() => onElementSelect(element.id)}
-                onDragEnd={(e) => {
-                  onElementTransform(element.id, {
-                    x: e.target.x(),
-                    y: e.target.y()
-                  });
-                }}
-                onTransformEnd={(e) => {
-                  const node = e.target;
-                  
-                  // Use the absolute values of scale to prevent negative scaling
-                  // and avoid multiplying by the existing scale which causes shrinking
-                  onElementTransform(element.id, {
-                    x: node.x(),
-                    y: node.y(),
-                    rotation: node.rotation(),
-                    scaleX: Math.abs(node.scaleX()),
-                    scaleY: Math.abs(node.scaleY())
-                  });
-                }}
-              />
-            );
-          }
-          return null;
-        })}
-        
+              );
+            }
+            return null;
+          })}
+
         {/* Product Template Image - Always on top for cutout effect */}
         <KonvaImage
           image={backgroundImage}
@@ -265,12 +292,17 @@ export function ProductDesigner({
           height={stageSize.height}
           listening={false} // Don't interfere with user element selection
         />
-        
+
         {/* Transformer for selected elements */}
         <Transformer
           ref={transformerRef}
           keepRatio={keepAspectRatio}
-          enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
+          enabledAnchors={[
+            'top-left',
+            'top-right',
+            'bottom-left',
+            'bottom-right',
+          ]}
           rotateAnchorOffset={60}
           borderStroke="var(--color-primary)"
           borderStrokeWidth={2}
@@ -282,7 +314,7 @@ export function ProductDesigner({
             if (newBox.width < 10 || newBox.height < 10) {
               return oldBox;
             }
-            
+
             // Constrain to stage boundaries
             if (newBox.x < 0) {
               newBox.x = 0;
@@ -296,11 +328,11 @@ export function ProductDesigner({
             if (newBox.y + newBox.height > stageSize.height) {
               newBox.height = stageSize.height - newBox.y;
             }
-            
+
             return newBox;
           }}
         />
       </Layer>
     </Stage>
   );
-} 
+}

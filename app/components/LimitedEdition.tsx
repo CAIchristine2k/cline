@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router';
-import { useConfig } from '~/utils/themeContext';
+import React, {useState, useEffect} from 'react';
+import {ArrowRight} from 'lucide-react';
+import {Link} from 'react-router';
+import {useConfig} from '~/utils/themeContext';
 import TimeUnit from './TimeUnit';
 
 interface TimeLeft {
@@ -13,7 +13,12 @@ interface TimeLeft {
 
 export default function LimitedEdition() {
   const config = useConfig();
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   // Skip rendering if limited edition section is disabled in config
   if (!config.showLimitedEdition || !config.limitedEdition) {
@@ -24,21 +29,23 @@ export default function LimitedEdition() {
     if (!config.limitedEdition) return;
 
     const endDate = new Date(config.limitedEdition.endDate);
-    
+
     const updateTimer = () => {
       const now = new Date();
       const difference = endDate.getTime() - now.getTime();
 
       if (difference <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        setTimeLeft({days: 0, hours: 0, minutes: 0, seconds: 0});
         return;
       }
 
       setTimeLeft({
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        hours: Math.floor(
+          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+        ),
         minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        seconds: Math.floor((difference % (1000 * 60)) / 1000),
       });
     };
 
@@ -52,17 +59,17 @@ export default function LimitedEdition() {
   }, [config.limitedEdition]);
 
   const timeUnits = [
-    { value: timeLeft.days, label: 'Days' },
-    { value: timeLeft.hours, label: 'Hours' },
-    { value: timeLeft.minutes, label: 'Minutes' },
-    { value: timeLeft.seconds, label: 'Seconds' }
+    {value: timeLeft.days, label: 'Days'},
+    {value: timeLeft.hours, label: 'Hours'},
+    {value: timeLeft.minutes, label: 'Minutes'},
+    {value: timeLeft.seconds, label: 'Seconds'},
   ];
 
   return (
     <section id="limited" className="py-16 md:py-24 relative">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/90 to-black/70 z-10"></div>
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
           backgroundImage: `url('/images/limited-edition.jpg')`,
@@ -94,14 +101,16 @@ export default function LimitedEdition() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
             <div className="text-lg md:text-xl font-bold">
-              <span className="text-gray-400 line-through">{config.limitedEdition.originalPrice}</span>
+              <span className="text-gray-400 line-through">
+                {config.limitedEdition.originalPrice}
+              </span>
               <span className="text-primary ml-3">
                 {config.limitedEdition.salePrice}
               </span>
             </div>
           </div>
 
-          <Link 
+          <Link
             to={`/products/${config.limitedEdition.productHandle}`}
             className="bg-primary hover:bg-primary-600 text-black font-bold py-2.5 px-5 rounded-sm transition-all duration-300 inline-flex items-center group shadow-glow"
           >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
 interface ClientOnlyProps {
   children: React.ReactNode;
@@ -9,7 +9,7 @@ interface ClientOnlyProps {
  * ClientOnly renders its children only on the client side, not during server-side rendering.
  * This is useful for components that rely on browser-only APIs like Konva.
  */
-export function ClientOnly({ children, fallback = null }: ClientOnlyProps) {
+export function ClientOnly({children, fallback = null}: ClientOnlyProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -21,4 +21,4 @@ export function ClientOnly({ children, fallback = null }: ClientOnlyProps) {
   }
 
   return <>{children}</>;
-} 
+}

@@ -88,7 +88,14 @@ const CUSTOMER_ORDER_QUERY = `#graphql
 `;
 import {getConfig} from '~/utils/config';
 import {Link} from 'react-router';
-import {ArrowLeft, Package, Truck, CreditCard, MapPin, ExternalLink} from 'lucide-react';
+import {
+  ArrowLeft,
+  Package,
+  Truck,
+  CreditCard,
+  MapPin,
+  ExternalLink,
+} from 'lucide-react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const config = getConfig();
@@ -101,7 +108,7 @@ export async function loader({params, context}: LoaderFunctionArgs) {
   }
 
   const orderId = atob(params.id);
-  
+
   // Get customer access token
   const customerAccessToken = await context.customerAccount.getAccessToken();
   if (!customerAccessToken) {
@@ -113,7 +120,7 @@ export async function loader({params, context}: LoaderFunctionArgs) {
     {
       variables: {
         orderId,
-        customerAccessToken
+        customerAccessToken,
       },
     },
   );
@@ -186,7 +193,7 @@ export default function OrderRoute() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/account/orders"
             className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
           >
@@ -201,28 +208,35 @@ export default function OrderRoute() {
             <div>
               <div className="flex items-center mb-2">
                 <Package className="w-6 h-6 text-gold-500 mr-3" />
-                <h1 className="text-3xl font-bold text-white">Order #{order.name}</h1>
+                <h1 className="text-3xl font-bold text-white">
+                  Order #{order.name}
+                </h1>
               </div>
               <p className="text-gray-400">
                 Placed on {new Date(order.processedAt!).toLocaleDateString()}
               </p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-sm text-gray-400 mb-1">Total</div>
-                <Money data={order.totalPrice!} className="text-2xl font-bold text-gold-500" />
+                <Money
+                  data={order.totalPrice!}
+                  className="text-2xl font-bold text-gold-500"
+                />
               </div>
-              
-              <span className={`px-3 py-1 rounded-sm text-sm font-bold border ${getStatusColor(fulfillmentStatus)}`}>
+
+              <span
+                className={`px-3 py-1 rounded-sm text-sm font-bold border ${getStatusColor(fulfillmentStatus)}`}
+              >
                 {fulfillmentStatus}
               </span>
             </div>
           </div>
 
-          <a 
-            target="_blank" 
-            href={order.statusUrl} 
+          <a
+            target="_blank"
+            href={order.statusUrl}
             rel="noreferrer"
             className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
           >
@@ -238,7 +252,10 @@ export default function OrderRoute() {
               <h2 className="text-xl font-bold text-white mb-6">Order Items</h2>
               <div className="space-y-4">
                 {lineItems.map((lineItem, lineItemIndex) => (
-                  <OrderLineRow key={lineItemIndex} lineItem={lineItem as any} />
+                  <OrderLineRow
+                    key={lineItemIndex}
+                    lineItem={lineItem as any}
+                  />
                 ))}
               </div>
             </div>
@@ -252,31 +269,30 @@ export default function OrderRoute() {
                 <CreditCard className="w-5 h-5 mr-2 text-gold-500" />
                 Order Summary
               </h3>
-              
+
               <div className="space-y-3">
                 <div className="flex justify-between text-gray-300">
                   <span>Subtotal</span>
                   <Money data={order.subtotal!} />
                 </div>
-                
-                {((discountValue && discountValue.amount) || discountPercentage) && (
+
+                {((discountValue && discountValue.amount) ||
+                  discountPercentage) && (
                   <div className="flex justify-between text-green-400">
                     <span>Discount</span>
                     <span>
-                      {discountPercentage ? (
-                        `-${discountPercentage}% OFF`
-                      ) : (
-                        discountValue && <Money data={discountValue!} />
-                      )}
+                      {discountPercentage
+                        ? `-${discountPercentage}% OFF`
+                        : discountValue && <Money data={discountValue!} />}
                     </span>
                   </div>
                 )}
-                
+
                 <div className="flex justify-between text-gray-300">
                   <span>Tax</span>
                   <Money data={order.totalTax!} />
                 </div>
-                
+
                 <div className="border-t border-gray-700 pt-3">
                   <div className="flex justify-between font-bold text-gold-500 text-lg">
                     <span>Total</span>
@@ -292,12 +308,16 @@ export default function OrderRoute() {
                 <MapPin className="w-5 h-5 mr-2 text-gold-500" />
                 Shipping Address
               </h3>
-              
+
               {order?.shippingAddress ? (
                 <address className="text-gray-300 not-italic leading-relaxed">
-                  <div className="font-medium text-white mb-2">{order.shippingAddress.name}</div>
+                  <div className="font-medium text-white mb-2">
+                    {order.shippingAddress.name}
+                  </div>
                   {order.shippingAddress.formatted && (
-                    <div className="mb-1">{order.shippingAddress.formatted}</div>
+                    <div className="mb-1">
+                      {order.shippingAddress.formatted}
+                    </div>
                   )}
                   {order.shippingAddress.formattedArea && (
                     <div>{order.shippingAddress.formattedArea}</div>
@@ -320,7 +340,12 @@ function OrderLineRow({lineItem}: {lineItem: OrderLineItemFullFragment}) {
       <div className="flex items-center col-span-2">
         {lineItem?.image && (
           <div className="mr-4">
-            <Image data={lineItem.image} width={96} height={96} className="rounded-md" />
+            <Image
+              data={lineItem.image}
+              width={96}
+              height={96}
+              className="rounded-md"
+            />
           </div>
         )}
         <div>
@@ -338,7 +363,10 @@ function OrderLineRow({lineItem}: {lineItem: OrderLineItemFullFragment}) {
       </div>
       <div className="text-right">
         <p className="text-gray-400 text-sm">Total</p>
-        <Money data={lineItem.totalDiscount!} className="text-white font-medium" />
+        <Money
+          data={lineItem.totalDiscount!}
+          className="text-white font-medium"
+        />
       </div>
     </div>
   );

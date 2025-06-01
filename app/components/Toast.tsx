@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
+import React, {useState, useEffect} from 'react';
+import {CheckCircle, XCircle, AlertCircle, Info, X} from 'lucide-react';
 
 interface ToastProps {
   message: string;
@@ -8,7 +8,12 @@ interface ToastProps {
   onClose: () => void;
 }
 
-export const Toast: React.FC<ToastProps> = ({ message, type, duration = 5000, onClose }) => {
+export const Toast: React.FC<ToastProps> = ({
+  message,
+  type,
+  duration = 5000,
+  onClose,
+}) => {
   useEffect(() => {
     const timer = setTimeout(onClose, duration);
     return () => clearTimeout(timer);
@@ -41,7 +46,9 @@ export const Toast: React.FC<ToastProps> = ({ message, type, duration = 5000, on
   };
 
   return (
-    <div className={`flex items-center justify-between p-4 rounded-lg border backdrop-blur-sm ${getStyles()}`}>
+    <div
+      className={`flex items-center justify-between p-4 rounded-lg border backdrop-blur-sm ${getStyles()}`}
+    >
       <div className="flex items-center space-x-3">
         {getIcon()}
         <p className="text-sm font-medium">{message}</p>
@@ -66,7 +73,10 @@ interface ToastContainerProps {
   removeToast: (id: string) => void;
 }
 
-export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) => {
+export const ToastContainer: React.FC<ToastContainerProps> = ({
+  toasts,
+  removeToast,
+}) => {
   return (
     <div className="fixed top-4 right-4 z-50 space-y-3 max-w-md">
       {toasts.map((toast) => (
@@ -84,27 +94,37 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeTo
 
 // Hook for managing toasts
 export const useToast = () => {
-  const [toasts, setToasts] = useState<Array<{
-    id: string;
-    message: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-    duration?: number;
-  }>>([]);
+  const [toasts, setToasts] = useState<
+    Array<{
+      id: string;
+      message: string;
+      type: 'success' | 'error' | 'warning' | 'info';
+      duration?: number;
+    }>
+  >([]);
 
-  const addToast = (message: string, type: 'success' | 'error' | 'warning' | 'info', duration?: number) => {
+  const addToast = (
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info',
+    duration?: number,
+  ) => {
     const id = Math.random().toString(36).substr(2, 9);
-    setToasts(prev => [...prev, { id, message, type, duration }]);
+    setToasts((prev) => [...prev, {id, message, type, duration}]);
     return id;
   };
 
   const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
-  const showSuccess = (message: string, duration?: number) => addToast(message, 'success', duration);
-  const showError = (message: string, duration?: number) => addToast(message, 'error', duration);
-  const showWarning = (message: string, duration?: number) => addToast(message, 'warning', duration);
-  const showInfo = (message: string, duration?: number) => addToast(message, 'info', duration);
+  const showSuccess = (message: string, duration?: number) =>
+    addToast(message, 'success', duration);
+  const showError = (message: string, duration?: number) =>
+    addToast(message, 'error', duration);
+  const showWarning = (message: string, duration?: number) =>
+    addToast(message, 'warning', duration);
+  const showInfo = (message: string, duration?: number) =>
+    addToast(message, 'info', duration);
 
   return {
     toasts,
@@ -114,4 +134,4 @@ export const useToast = () => {
     showWarning,
     showInfo,
   };
-}; 
+};

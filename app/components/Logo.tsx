@@ -1,24 +1,24 @@
-import { useConfig } from '~/utils/themeContext';
-import { Link } from 'react-router';
+import {useConfig} from '~/utils/themeContext';
+import {Link} from 'react-router';
 
 interface LogoProps {
   isScrolled?: boolean;
 }
 
-export function Logo({ isScrolled = false }: LogoProps) {
+export function Logo({isScrolled = false}: LogoProps) {
   const config = useConfig();
-  
+
   return (
     <div className="flex items-center transition-all duration-500">
       <Link to="/" className="flex items-center">
-        <img 
-          src={config.brandLogo} 
-          alt={`${config.brandName} Logo`} 
+        <img
+          src={config.brandLogo}
+          alt={`${config.brandName} Logo`}
           className={`transition-all duration-500 ease-in-out filter drop-shadow-glow ${
             isScrolled ? 'h-10 w-auto logo-scrolled' : 'h-14 w-auto'
           }`}
         />
-        <span 
+        <span
           className={`ml-3 text-xl font-bold tracking-wider transition-all duration-500 ${
             !isScrolled ? 'text-white' : 'text-primary'
           }`}

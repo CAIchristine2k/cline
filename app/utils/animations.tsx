@@ -72,7 +72,14 @@ export const hoverGlow = {
 interface AnimatedSectionProps extends MotionProps {
   children: ReactNode;
   className?: string;
-  variant?: 'fadeInUp' | 'fadeInDown' | 'fadeInLeft' | 'fadeInRight' | 'fadeIn' | 'scaleIn' | 'slideInUp';
+  variant?:
+    | 'fadeInUp'
+    | 'fadeInDown'
+    | 'fadeInLeft'
+    | 'fadeInRight'
+    | 'fadeIn'
+    | 'scaleIn'
+    | 'slideInUp';
   delay?: number;
 }
 
@@ -152,7 +159,13 @@ export function StaggerContainer({
 interface StaggerItemProps {
   children: ReactNode;
   className?: string;
-  variant?: 'fadeInUp' | 'fadeInDown' | 'fadeInLeft' | 'fadeInRight' | 'fadeIn' | 'scaleIn';
+  variant?:
+    | 'fadeInUp'
+    | 'fadeInDown'
+    | 'fadeInLeft'
+    | 'fadeInRight'
+    | 'fadeIn'
+    | 'scaleIn';
 }
 
 export function StaggerItem({
@@ -236,4 +249,4 @@ export function PageTransition({children}: {children: ReactNode}) {
       {children}
     </motion.div>
   );
-} 
+}

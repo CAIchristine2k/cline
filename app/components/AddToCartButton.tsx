@@ -44,9 +44,10 @@ export function AddToCartButton({
 }) {
   const {openCart} = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
-  
-  const defaultClasses = "w-full bg-primary hover:bg-primary-600 text-background font-bold py-4 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none";
-  
+
+  const defaultClasses =
+    'w-full bg-primary hover:bg-primary-600 text-background font-bold py-4 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none';
+
   // Reset added state after some time
   useEffect(() => {
     if (addedToCart) {
@@ -62,33 +63,41 @@ export function AddToCartButton({
     console.log('AddToCartButton form submitted successfully');
     onClick?.();
   };
-  
+
   // Determine the button text based on the current state
   let buttonContent = children || buttonText;
   if (addedToCart) {
     buttonContent = 'Added to cart!';
   }
-  
+
   // Enhance lines with selectedVariant for optimistic cart
-  const enhancedLines = selectedVariant 
-    ? lines.map(line => ({ ...line, selectedVariant }))
+  const enhancedLines = selectedVariant
+    ? lines.map((line) => ({...line, selectedVariant}))
     : lines;
 
   return (
     <CartForm
       route="/cart"
       action={CartForm.ACTIONS.LinesAdd}
-      inputs={{ lines: enhancedLines }}
+      inputs={{lines: enhancedLines}}
     >
       {(fetcher) => {
         const isSubmitting = fetcher.state === 'submitting';
-        const isSuccess = fetcher.state === 'idle' && fetcher.data && !fetcher.data.errors?.length;
-        
+        const isSuccess =
+          fetcher.state === 'idle' &&
+          fetcher.data &&
+          !fetcher.data.errors?.length;
+
         // Debug logging
         useEffect(() => {
-          console.log('AddToCartButton fetcher state:', fetcher.state, 'data:', fetcher.data);
+          console.log(
+            'AddToCartButton fetcher state:',
+            fetcher.state,
+            'data:',
+            fetcher.data,
+          );
         }, [fetcher.state, fetcher.data]);
-        
+
         // Handle successful cart addition
         useEffect(() => {
           if (isSuccess && fetcher.data?.cart) {
@@ -100,13 +109,15 @@ export function AddToCartButton({
             }, 300);
           }
         }, [isSuccess, fetcher.data]);
-        
+
         return (
           <button
             type="submit"
             disabled={disabled || isSubmitting}
             className={className || defaultClasses}
-            aria-label={typeof buttonContent === 'string' ? buttonContent : 'Add to cart'}
+            aria-label={
+              typeof buttonContent === 'string' ? buttonContent : 'Add to cart'
+            }
           >
             {isSubmitting ? 'Adding...' : buttonContent}
           </button>

@@ -15,12 +15,12 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
-  
+
   // Get configuration
   const config = getConfig();
 
   return {
-    ...deferredData, 
+    ...deferredData,
     ...criticalData,
     config: {
       ...config,
@@ -80,7 +80,7 @@ export default function Page() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
@@ -94,9 +94,7 @@ export default function Page() {
           <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
             Page
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            {page.title}
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{page.title}</h1>
           {page.seo?.description && (
             <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
               {page.seo.description}
@@ -111,10 +109,10 @@ export default function Page() {
               <FileText className="w-6 h-6 text-primary mr-3" />
               <h2 className="text-2xl font-bold text-white">{page.title}</h2>
             </div>
-            
-            <div 
+
+            <div
               className="prose prose-invert prose-primary max-w-none text-gray-300 leading-relaxed"
-              dangerouslySetInnerHTML={{__html: page.body}} 
+              dangerouslySetInnerHTML={{__html: page.body}}
             />
           </div>
         </div>
@@ -125,9 +123,10 @@ export default function Page() {
             Questions About Our Policies?
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            We're committed to transparency and championship-quality service. If you have any questions, don't hesitate to reach out.
+            We're committed to transparency and championship-quality service. If
+            you have any questions, don't hesitate to reach out.
           </p>
-          <Link 
+          <Link
             to="/collections/all"
             className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >

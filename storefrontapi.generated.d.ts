@@ -462,11 +462,11 @@ export type CustomerOrderQuery = {
   >;
 };
 
-export type CustomerOrdersQueryVariables = StorefrontAPI.Exact<{
+export type AccountCustomerOrdersQueryVariables = StorefrontAPI.Exact<{
   customerAccessToken: StorefrontAPI.Scalars['String']['input'];
 }>;
 
-export type CustomerOrdersQuery = {
+export type AccountCustomerOrdersQuery = {
   customer?: StorefrontAPI.Maybe<{
     orders: {
       nodes: Array<
@@ -1385,9 +1385,9 @@ interface GeneratedQueryTypes {
     return: CustomerOrderQuery;
     variables: CustomerOrderQueryVariables;
   };
-  '#graphql\n  query CustomerOrders($customerAccessToken: String!) {\n    customer(customerAccessToken: $customerAccessToken) {\n      orders(first: 20) {\n        nodes {\n          id\n          name\n          processedAt\n          financialStatus\n          totalPrice {\n            amount\n            currencyCode\n          }\n        }\n        pageInfo {\n          hasNextPage\n          hasPreviousPage\n          startCursor\n          endCursor\n        }\n      }\n    }\n  }\n': {
-    return: CustomerOrdersQuery;
-    variables: CustomerOrdersQueryVariables;
+  '#graphql\n  query AccountCustomerOrders($customerAccessToken: String!) {\n    customer(customerAccessToken: $customerAccessToken) {\n      orders(first: 20) {\n        nodes {\n          id\n          name\n          processedAt\n          financialStatus\n          totalPrice {\n            amount\n            currencyCode\n          }\n        }\n        pageInfo {\n          hasNextPage\n          hasPreviousPage\n          startCursor\n          endCursor\n        }\n      }\n    }\n  }\n': {
+    return: AccountCustomerOrdersQuery;
+    variables: AccountCustomerOrdersQueryVariables;
   };
   '#graphql\n  query ArticleDetails(\n    $articleHandle: String!\n    $blogHandle: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    blog(handle: $blogHandle) {\n      handle\n      articleByHandle(handle: $articleHandle) {\n        handle\n        title\n        contentHtml\n        publishedAt\n        author: authorV2 {\n          name\n        }\n        image {\n          id\n          altText\n          url\n          width\n          height\n        }\n        seo {\n          description\n          title\n        }\n        blog {\n          handle\n        }\n      }\n    }\n  }\n': {
     return: ArticleDetailsQuery;

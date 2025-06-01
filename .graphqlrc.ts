@@ -15,7 +15,6 @@ export default {
         './app/**/*.{ts,tsx,js,jsx}',
         '!./app/graphql/**/*.{ts,tsx,js,jsx}',
       ],
-    
     },
 
     customer: {
@@ -30,7 +29,7 @@ export default {
       extensions: {
         codegen: {
           generates: {
-            './graphql-schema/storefront-schema.generated.ts': {
+            './docs/graphql-schema/storefront-schema.generated.ts': {
               plugins: ['typescript', 'typescript-resolvers'],
               config: {
                 skipTypename: false,
@@ -57,7 +56,7 @@ export default {
       extensions: {
         codegen: {
           generates: {
-            './graphql-schema/customer-schema.generated.ts': {
+            './docs/graphql-schema/customer-schema.generated.ts': {
               plugins: ['typescript', 'typescript-resolvers'],
               config: {
                 skipTypename: false,

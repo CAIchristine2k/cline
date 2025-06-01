@@ -1,27 +1,27 @@
 import React from 'react';
-import { Star, Truck, Shield, ArrowLeft } from 'lucide-react';
-import { Image, Money, type MappedProductOptions } from '@shopify/hydrogen';
-import { ProductForm } from './ProductForm';
-import { Link, useLocation } from 'react-router';
-import type { ProductDetailsQuery } from 'storefrontapi.generated';
-import type { LandingPageConfig } from '~/utils/config';
-import { useConfig } from '~/utils/themeContext';
+import {Star, Truck, Shield, ArrowLeft} from 'lucide-react';
+import {Image, Money, type MappedProductOptions} from '@shopify/hydrogen';
+import {ProductForm} from './ProductForm';
+import {Link, useLocation} from 'react-router';
+import type {ProductDetailsQuery} from 'storefrontapi.generated';
+import type {LandingPageConfig} from '~/utils/config';
+import {useConfig} from '~/utils/themeContext';
 
 interface ProductVariant {
   id: string;
   title: string;
   availableForSale: boolean;
   image: any;
-  selectedOptions: Array<{ name: string; value: string }>;
+  selectedOptions: Array<{name: string; value: string}>;
   price: {
     amount: string;
     currencyCode: any;
-    __typename?: "MoneyV2";
+    __typename?: 'MoneyV2';
   };
   compareAtPrice?: {
     amount: string;
     currencyCode: any;
-    __typename?: "MoneyV2";
+    __typename?: 'MoneyV2';
   } | null;
   sku?: string | null;
 }
@@ -47,13 +47,15 @@ export function ProductDetail({
   // SEO-friendly URL
   const shareUrl = `${location.pathname}${location.search}`;
 
-  const { title, descriptionHtml, vendor } = product;
+  const {title, descriptionHtml, vendor} = product;
 
   // Determine if product has a discount
   const firstVariant = product.variants?.nodes?.[0];
-  const isOnSale = firstVariant?.compareAtPrice?.amount &&
+  const isOnSale =
+    firstVariant?.compareAtPrice?.amount &&
     firstVariant?.price?.amount &&
-    Number(firstVariant.compareAtPrice.amount) > Number(firstVariant.price.amount);
+    Number(firstVariant.compareAtPrice.amount) >
+      Number(firstVariant.price.amount);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -106,18 +108,16 @@ export function ProductDetail({
             {/* Price */}
             <div className="border-t border-gray-800 pt-6">
               <div className="flex items-center space-x-4 mb-6">
-                <span className={`text-3xl font-bold ${isOnSale ? 'text-red-500' : 'text-gold-500'}`}>
+                <span
+                  className={`text-3xl font-bold ${isOnSale ? 'text-red-500' : 'text-gold-500'}`}
+                >
                   {selectedVariant?.price && (
-                    <Money
-                      data={selectedVariant.price}
-                    />
+                    <Money data={selectedVariant.price} />
                   )}
                 </span>
                 {selectedVariant?.compareAtPrice && (
                   <span className="text-xl text-gray-500 line-through">
-                    <Money
-                      data={selectedVariant.compareAtPrice}
-                    />
+                    <Money data={selectedVariant.compareAtPrice} />
                   </span>
                 )}
               </div>
@@ -134,24 +134,36 @@ export function ProductDetail({
                 <div className="flex items-center space-x-3 p-4 bg-gray-900/80 backdrop-blur-sm rounded-sm border border-gray-800">
                   <Truck className="h-6 w-6 text-gold-500" />
                   <div>
-                    <div className="font-bold text-sm text-white">Free Shipping</div>
-                    <div className="text-xs text-gray-400">On orders over $100</div>
+                    <div className="font-bold text-sm text-white">
+                      Free Shipping
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      On orders over $100
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3 p-4 bg-gray-900/80 backdrop-blur-sm rounded-sm border border-gray-800">
                   <Shield className="h-6 w-6 text-gold-500" />
                   <div>
-                    <div className="font-bold text-sm text-white">Authentic</div>
-                    <div className="text-xs text-gray-400">{config.influencerName} Approved</div>
+                    <div className="font-bold text-sm text-white">
+                      Authentic
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {config.influencerName} Approved
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3 p-4 bg-gray-900/80 backdrop-blur-sm rounded-sm border border-gray-800">
                   <Star className="h-6 w-6 text-gold-500" />
                   <div>
-                    <div className="font-bold text-sm text-white">Premium Quality</div>
-                    <div className="text-xs text-gray-400">Championship Grade</div>
+                    <div className="font-bold text-sm text-white">
+                      Premium Quality
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      Championship Grade
+                    </div>
                   </div>
                 </div>
               </div>
@@ -160,10 +172,12 @@ export function ProductDetail({
             {/* Product Description */}
             {descriptionHtml && (
               <div className="border-t border-gray-800 pt-6">
-                <h3 className="text-xl font-bold mb-4 text-white">Product Details</h3>
+                <h3 className="text-xl font-bold mb-4 text-white">
+                  Product Details
+                </h3>
                 <div
                   className="text-gray-300 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                  dangerouslySetInnerHTML={{__html: descriptionHtml}}
                 />
               </div>
             )}
@@ -175,8 +189,10 @@ export function ProductDetail({
                   {config.influencerName}'s Championship Guarantee
                 </h4>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  Every product is crafted to championship standards and backed by {config.influencerName}'s legacy of excellence.
-                  Train like a champion with gear approved by a {config.influencerTitle.toLowerCase()}.
+                  Every product is crafted to championship standards and backed
+                  by {config.influencerName}'s legacy of excellence. Train like
+                  a champion with gear approved by a{' '}
+                  {config.influencerTitle.toLowerCase()}.
                 </p>
               </div>
             </div>
@@ -242,7 +258,9 @@ export function ProductDetail({
         {/* Related Products */}
         {relatedProducts && relatedProducts.length > 0 && (
           <div className="col-span-1 lg:col-span-2 mt-16">
-            <h2 className="text-2xl font-bold mb-6 text-gold-500">You May Also Like</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gold-500">
+              You May Also Like
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.slice(0, 4).map((relatedProduct) => (
                 <Link

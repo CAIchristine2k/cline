@@ -23,31 +23,35 @@ export default function Collections() {
             Shop by <span className="text-primary">Category</span>
           </h1>
           <p className="text-text/80 max-w-3xl mx-auto leading-relaxed">
-            Browse our curated collections of premium boxing equipment and merchandise, 
-            designed by {config.influencerName}, {config.influencerTitle.toLowerCase()}.
+            Browse our curated collections of premium boxing equipment and
+            merchandise, designed by {config.influencerName},{' '}
+            {config.influencerTitle.toLowerCase()}.
           </p>
         </div>
 
         {collections.nodes.length === 0 ? (
           <div className="text-center">
             <p className="mb-8 text-lg">No collections found.</p>
-            <Link to="/" className="bg-primary text-background px-6 py-3 rounded-sm">
+            <Link
+              to="/"
+              className="bg-primary text-background px-6 py-3 rounded-sm"
+            >
               Back to Home
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {collections.nodes.map((collection: any) => (
-              <Link 
-                key={collection.id} 
+              <Link
+                key={collection.id}
                 to={`/collections/${collection.handle}`}
                 className="group block"
               >
                 <div className="relative overflow-hidden rounded-sm border border-primary/10 bg-background/30 backdrop-blur-sm transition-all duration-300 group-hover:shadow-glow">
                   <div className="aspect-w-16 aspect-h-9 overflow-hidden">
                     {collection.image ? (
-                      <Image 
-                        data={collection.image} 
+                      <Image
+                        data={collection.image}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                         sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                       />
@@ -58,18 +62,29 @@ export default function Collections() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                   </div>
-                  
+
                   <div className="relative p-6">
                     <h2 className="text-xl font-bold text-text group-hover:text-primary transition-colors duration-300">
                       {collection.title}
                     </h2>
                     <p className="mt-2 line-clamp-2 text-sm text-text/70">
-                      {collection.description || `Shop all ${collection.title} products`}
+                      {collection.description ||
+                        `Shop all ${collection.title} products`}
                     </p>
                     <div className="mt-4 flex items-center text-primary text-sm font-medium">
                       Shop Collection
-                      <svg className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      <svg
+                        className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -101,4 +116,4 @@ const COLLECTIONS_QUERY = `#graphql
       }
     }
   }
-`; 
+`;

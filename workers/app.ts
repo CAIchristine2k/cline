@@ -1,7 +1,7 @@
-import { createRequestHandler } from "react-router";
-import { createAppLoadContext } from "~/lib/context";
+import {createRequestHandler} from 'react-router';
+import {createAppLoadContext} from '~/lib/context';
 
-declare module "react-router" {
+declare module 'react-router' {
   export interface AppLoadContext {
     cloudflare: {
       env: Env;
@@ -16,8 +16,8 @@ declare module "react-router" {
 }
 
 const requestHandler = createRequestHandler(
-  () => import("virtual:react-router/server-build"),
-  import.meta.env.MODE
+  () => import('virtual:react-router/server-build'),
+  import.meta.env.MODE,
 );
 
 export default {
@@ -25,11 +25,11 @@ export default {
     try {
       // Create Hydrogen's app load context (includes storefront, session, etc.)
       const hydrogenContext = await createAppLoadContext(request, env, ctx);
-      
+
       // Merge with Cloudflare context
       const appLoadContext = {
         ...hydrogenContext,
-        cloudflare: { env, ctx },
+        cloudflare: {env, ctx},
       };
 
       const response = await requestHandler(request, appLoadContext);
@@ -45,7 +45,7 @@ export default {
       return response;
     } catch (error) {
       console.error('Worker error:', error);
-      return new Response('Internal Server Error', { status: 500 });
+      return new Response('Internal Server Error', {status: 500});
     }
   },
-} satisfies ExportedHandler<Env>; 
+} satisfies ExportedHandler<Env>;

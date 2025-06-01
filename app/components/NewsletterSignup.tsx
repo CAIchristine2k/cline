@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Mail, ChevronRight, Check, Trophy } from 'lucide-react';
-import { useConfig } from '~/utils/themeContext';
-import type { LandingPageConfig } from '~/utils/config';
+import React, {useState} from 'react';
+import {Mail, ChevronRight, Check, Trophy} from 'lucide-react';
+import {useConfig} from '~/utils/themeContext';
+import type {LandingPageConfig} from '~/utils/config';
 
 interface NewsletterSignupProps {
   config?: LandingPageConfig;
 }
 
-export default function NewsletterSignup({ config }: NewsletterSignupProps) {
+export default function NewsletterSignup({config}: NewsletterSignupProps) {
   const configFromContext = useConfig();
   const effectiveConfig = config || configFromContext;
   const [email, setEmail] = useState('');
@@ -24,22 +24,22 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
     'Early access to limited-edition boxing gear',
     `Exclusive training tips from ${effectiveConfig.influencerName}`,
     '10% off your first purchase',
-    `Invites to virtual Q&A sessions with ${effectiveConfig.influencerName.split(' ')[0]}`
+    `Invites to virtual Q&A sessions with ${effectiveConfig.influencerName.split(' ')[0]}`,
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       setError('Please enter your email address');
       return;
     }
-    
+
     if (!/\S+@\S+\.\S+/.test(email)) {
       setError('Please enter a valid email address');
       return;
     }
-    
+
     // In a real implementation, you would send this to a Shopify customer API endpoint or store's newsletter service
     console.log('Email submitted:', email);
     console.log('Interests:', interests);
@@ -48,10 +48,10 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
   };
 
   const handleInterestChange = (value: string) => {
-    setInterests(prev => 
-      prev.includes(value) 
-        ? prev.filter(interest => interest !== value)
-        : [...prev, value]
+    setInterests((prev) =>
+      prev.includes(value)
+        ? prev.filter((interest) => interest !== value)
+        : [...prev, value],
     );
   };
 
@@ -61,28 +61,46 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
         <div className="max-w-4xl mx-auto bg-gradient-to-r from-gray-900 to-black rounded-2xl p-8 md:p-12 shadow-xl border border-gray-800 relative overflow-hidden">
           {/* Boxing glove decorative element */}
           <div className="absolute -right-16 -bottom-16 opacity-10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="240"
+              height="240"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-primary"
+            >
               <path d="M12 6v4l2 2" />
               <path d="M15.536 13.9a3 3 0 1 0-4.072-4.4 7.1 7.1 0 0 0-2.464 5.5v1" />
               <path d="M9 16a2 2 0 1 1 4 0v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z" />
               <path d="M9 19h4" />
             </svg>
           </div>
-          
+
           <div className="flex flex-col md:flex-row items-center relative z-10">
             <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
               <div className="inline-block bg-primary text-black font-bold py-1 px-4 rounded-full text-sm mb-4">
                 CHAMPION'S INNER CIRCLE
               </div>
-              
+
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                JOIN <span className="text-primary">{effectiveConfig.brandName}</span> EXCLUSIVE COMMUNITY
+                JOIN{' '}
+                <span className="text-primary">
+                  {effectiveConfig.brandName}
+                </span>{' '}
+                EXCLUSIVE COMMUNITY
               </h2>
-              
+
               <p className="text-gray-300 mb-6 leading-relaxed">
-                Get ringside access to {effectiveConfig.influencerName}'s world with early product releases, training tips from a {effectiveConfig.influencerTitle.toLowerCase()}, and exclusive content you won't find anywhere else.
+                Get ringside access to {effectiveConfig.influencerName}'s world
+                with early product releases, training tips from a{' '}
+                {effectiveConfig.influencerTitle.toLowerCase()}, and exclusive
+                content you won't find anywhere else.
               </p>
-              
+
               <ul className="space-y-3">
                 {benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start">
@@ -94,7 +112,7 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
                 ))}
               </ul>
             </div>
-            
+
             <div className="md:w-1/2 w-full">
               <div className="bg-black bg-opacity-50 rounded-lg p-6 border border-gray-800 shadow-lg backdrop-blur-sm">
                 {!submitted ? (
@@ -102,14 +120,14 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
                     <h3 className="text-xl font-bold mb-4 text-white">
                       Get Ringside Updates
                     </h3>
-                    
+
                     <form onSubmit={handleSubmit}>
                       <div className="mb-4 relative">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
                           <Mail className="h-5 w-5" />
                         </div>
-                        <input 
-                          type="email" 
+                        <input
+                          type="email"
                           value={email}
                           onChange={(e) => {
                             setEmail(e.target.value);
@@ -119,34 +137,40 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
                           placeholder="Enter your email address"
                         />
                       </div>
-                      
+
                       <div className="mb-4">
                         <label className="flex items-start">
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             checked={interests.includes('products')}
                             onChange={() => handleInterestChange('products')}
                             className="mt-1 h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary"
                           />
-                          <span className="ml-2 text-sm text-gray-300">New product releases &amp; merch drops</span>
+                          <span className="ml-2 text-sm text-gray-300">
+                            New product releases &amp; merch drops
+                          </span>
                         </label>
                       </div>
-                      
+
                       <div className="mb-4">
                         <label className="flex items-start">
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             checked={interests.includes('events')}
                             onChange={() => handleInterestChange('events')}
                             className="mt-1 h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary"
                           />
-                          <span className="ml-2 text-sm text-gray-300">Boxing events &amp; appearances</span>
+                          <span className="ml-2 text-sm text-gray-300">
+                            Boxing events &amp; appearances
+                          </span>
                         </label>
                       </div>
-                      
-                      {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
-                      
-                      <button 
+
+                      {error && (
+                        <div className="text-red-500 text-sm mb-4">{error}</div>
+                      )}
+
+                      <button
                         type="submit"
                         className="group w-full bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 flex items-center justify-center"
                       >
@@ -154,10 +178,10 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
                         <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                       </button>
                     </form>
-                    
+
                     <p className="text-gray-500 text-xs mt-4 text-center">
-                      By subscribing, you agree to receive marketing emails from us. 
-                      You can unsubscribe at any time.
+                      By subscribing, you agree to receive marketing emails from
+                      us. You can unsubscribe at any time.
                     </p>
                   </>
                 ) : (
@@ -165,13 +189,14 @@ export default function NewsletterSignup({ config }: NewsletterSignupProps) {
                     <div className="bg-primary rounded-full p-3 inline-flex items-center justify-center mb-4">
                       <Trophy className="h-8 w-8 text-black" />
                     </div>
-                    
+
                     <h3 className="text-xl font-bold mb-2 text-white">
                       Welcome to the Champion's Circle!
                     </h3>
-                    
+
                     <p className="text-gray-300">
-                      You've successfully joined {effectiveConfig.influencerName}'s exclusive community. 
+                      You've successfully joined{' '}
+                      {effectiveConfig.influencerName}'s exclusive community.
                       Check your inbox soon for your 10% discount code!
                     </p>
                   </div>

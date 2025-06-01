@@ -1,16 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronRight, ShoppingBag, Instagram, Twitter, Youtube, Facebook, Music } from 'lucide-react';
-import { Link, useLocation } from 'react-router';
-import { Logo } from './Logo';
-import { useConfig } from '~/utils/themeContext';
-import { useCart } from '~/providers/CartProvider';
-import { useAside } from './Aside';
+import React, {useState, useEffect} from 'react';
+import {
+  Menu,
+  X,
+  ChevronRight,
+  ShoppingBag,
+  Instagram,
+  Twitter,
+  Youtube,
+  Facebook,
+  Music,
+} from 'lucide-react';
+import {Link, useLocation} from 'react-router';
+import {Logo} from './Logo';
+import {useConfig} from '~/utils/themeContext';
+import {useCart} from '~/providers/CartProvider';
+import {useAside} from './Aside';
 // Import removed - we'll handle navigation directly
 
 export function Header() {
   const config = useConfig();
-  const { totalQuantity, openCart } = useCart();
-  const { open } = useAside();
+  const {totalQuantity, openCart} = useCart();
+  const {open} = useAside();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
@@ -24,17 +34,23 @@ export function Header() {
     .map(([platform, url]) => ({
       name: platform.charAt(0).toUpperCase() + platform.slice(1),
       icon: getSocialIcon(platform),
-      link: url
+      link: url,
     }));
 
   function getSocialIcon(platform: string) {
     switch (platform) {
-      case 'instagram': return Instagram;
-      case 'twitter': return Twitter;
-      case 'youtube': return Youtube;
-      case 'facebook': return Facebook;
-      case 'tiktok': return Music;
-      default: return Instagram;
+      case 'instagram':
+        return Instagram;
+      case 'twitter':
+        return Twitter;
+      case 'youtube':
+        return Youtube;
+      case 'facebook':
+        return Facebook;
+      case 'tiktok':
+        return Music;
+      default:
+        return Instagram;
     }
   }
 
@@ -63,12 +79,13 @@ export function Header() {
         if (element) {
           const header = document.querySelector('header');
           const headerHeight = header ? header.offsetHeight : 80;
-          const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+          const elementPosition =
+            element.getBoundingClientRect().top + window.pageYOffset;
           const offsetPosition = elementPosition - headerHeight - 20;
-          
+
           window.scrollTo({
             top: offsetPosition,
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
         }
       } else {
@@ -88,8 +105,8 @@ export function Header() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-black/95 backdrop-blur-sm shadow-xl py-3' 
+        isScrolled
+          ? 'bg-black/95 backdrop-blur-sm shadow-xl py-3'
           : 'bg-gradient-to-b from-black/90 to-black/50 py-5'
       }`}
     >
@@ -115,13 +132,11 @@ export function Header() {
                 className="text-white hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-sm"
               >
                 {item.name}
-                <span 
-                  className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"
-                ></span>
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
               </Link>
             ))}
           </div>
-          
+
           {/* Cart Button */}
           <button
             onClick={handleCartClick}
@@ -151,7 +166,7 @@ export function Header() {
               </span>
             )}
           </button>
-          
+
           <button
             className="text-white focus:outline-none p-1.5 border border-white/20 rounded-sm hover:border-primary transition-all duration-300"
             onClick={() => setIsOpen(!isOpen)}
@@ -187,14 +202,14 @@ export function Header() {
                 </Link>
               ))}
             </nav>
-            
+
             {/* Social Icons (Mobile) - built from config */}
             {socialLinks.length > 0 && (
               <div className="flex justify-center space-x-8 mt-6 pt-6 border-t border-gray-800/50">
                 {socialLinks.map((social) => {
                   const IconComponent = social.icon;
                   return (
-                    <a 
+                    <a
                       key={social.name}
                       href={social.link as string}
                       className="text-gray-400 hover:text-primary transition-all duration-300"
@@ -213,8 +228,9 @@ export function Header() {
       )}
 
       {/* Add the subtle gold underline animation and shadow-glow effects */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           .group:hover span {
             box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.5);
           }
@@ -222,8 +238,9 @@ export function Header() {
           .shadow-glow {
             box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.2);
           }
-        `
-      }} />
+        `,
+        }}
+      />
     </header>
   );
 }

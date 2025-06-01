@@ -6,7 +6,7 @@ import type {
   HeaderQuery,
 } from 'storefrontapi.generated';
 import {Aside} from '~/components/Aside';
-import {CartAside} from '~/components/CartAside'; 
+import {CartAside} from '~/components/CartAside';
 import {Footer} from '~/components/Footer';
 import {Header} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
@@ -24,6 +24,7 @@ export type PageLayoutProps = {
   footer?: Promise<FooterQuery | null>;
   isLoggedIn?: Promise<boolean>;
   publicStoreDomain?: string;
+  checkoutDomain?: string;
 };
 
 export function PageLayout({
@@ -33,19 +34,18 @@ export function PageLayout({
   header,
   isLoggedIn,
   publicStoreDomain,
+  checkoutDomain,
 }: PageLayoutProps) {
   const config = useConfig();
-  
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-text">
       <Header />
-      
-      <main className="flex-grow">
-        {children}
-      </main>
-      
+
+      <main className="flex-grow">{children}</main>
+
       <Footer />
-      
+
       {/* Aside Components */}
       <Aside type="search" heading="SEARCH">
         <div className="bg-background text-text p-4">
@@ -96,28 +96,40 @@ export function PageLayout({
           </SearchResultsPredictive>
         </div>
       </Aside>
-      
+
       {/* USING SPECIALIZED CART ASIDE THAT GUARANTEES RIGHT POSITIONING */}
       <CartAside heading="CART">
-        <Suspense fallback={<div className="p-4 flex items-center justify-center h-full"><div className="w-10 h-10 border-t-2 border-r-2 border-primary rounded-full animate-spin"></div></div>}>
+        <Suspense
+          fallback={
+            <div className="p-4 flex items-center justify-center h-full">
+              <div className="w-10 h-10 border-t-2 border-r-2 border-primary rounded-full animate-spin"></div>
+            </div>
+          }
+        >
           <Await resolve={cart || Promise.resolve(null)}>
             {(resolvedCart) => {
               console.log('Cart resolved in PageLayout:', resolvedCart);
               // Ensure we have a valid cart object or null
               const cartData = resolvedCart || null;
-              return <CartMain cart={cartData} layout="aside" />;
+              return (
+                <CartMain
+                  cart={cartData}
+                  layout="aside"
+                  checkoutDomain={checkoutDomain}
+                />
+              );
             }}
           </Await>
         </Suspense>
       </CartAside>
-      
+
       <Aside type="mobile" heading="MENU">
         <div className="bg-background text-text p-4">
           <nav className="space-y-4">
             {config.navigation.map((item) => (
-              <a 
+              <a
                 key={item.name}
-                href={item.href} 
+                href={item.href}
                 className="block text-text hover:text-primary font-semibold text-lg transition-colors duration-300"
               >
                 {item.name}

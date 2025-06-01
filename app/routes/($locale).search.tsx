@@ -1,7 +1,4 @@
-import {
-  type LoaderFunctionArgs,
-  type ActionFunctionArgs,
-} from 'react-router';
+import {type LoaderFunctionArgs, type ActionFunctionArgs} from 'react-router';
 import {useLoaderData, type MetaFunction} from 'react-router';
 import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
 import {SearchForm} from '~/components/SearchForm';
@@ -28,7 +25,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
 
   // Get configuration
   const config = getConfig();
-  
+
   let result: PredictiveSearchReturn | RegularSearchReturn;
   let error: string | null = null;
 
@@ -39,22 +36,27 @@ export async function loader({request, context}: LoaderFunctionArgs) {
       });
 
       if (type === 'predictive') {
-        const response = await context.storefront.query(PREDICTIVE_SEARCH_QUERY, {
-          variables: {
-            country: context.storefront.i18n.country,
-            language: context.storefront.i18n.language,
-            limit: 10,
-            limitScope: 'ALL',
-            term: term,
-            types: ['COLLECTION', 'PAGE', 'ARTICLE', 'PRODUCT'],
+        const response = await context.storefront.query(
+          PREDICTIVE_SEARCH_QUERY,
+          {
+            variables: {
+              country: context.storefront.i18n.country,
+              language: context.storefront.i18n.language,
+              limit: 10,
+              limitScope: 'ALL',
+              term: term,
+              types: ['COLLECTION', 'PAGE', 'ARTICLE', 'PRODUCT'],
+            },
           },
-        });
+        );
         result = {
           type: 'predictive' as const,
           term,
           result: {
             total: 0,
-            items: response.predictiveSearch || getEmptyPredictiveSearchResult().items,
+            items:
+              response.predictiveSearch ||
+              getEmptyPredictiveSearchResult().items,
           },
         };
       } else {
@@ -88,17 +90,17 @@ export async function loader({request, context}: LoaderFunctionArgs) {
         result: {
           total: 0,
           items: {
-            products: { 
+            products: {
               nodes: [],
               pageInfo: {
                 hasNextPage: false,
                 hasPreviousPage: false,
                 startCursor: null,
                 endCursor: null,
-              }
+              },
             },
-            pages: { nodes: [] },
-            articles: { nodes: [] },
+            pages: {nodes: []},
+            articles: {nodes: []},
           },
         },
       };
@@ -106,32 +108,35 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : String(e);
     error = errorMessage;
-    result = type === 'predictive' ? {
-      type: 'predictive' as const,
-      term,
-      error: errorMessage,
-      result: getEmptyPredictiveSearchResult(),
-    } : {
-      type: 'regular' as const,
-      term,
-      error: errorMessage,
-      result: {
-        total: 0,
-        items: {
-          products: { 
-            nodes: [],
-            pageInfo: {
-              hasNextPage: false,
-              hasPreviousPage: false,
-              startCursor: null,
-              endCursor: null,
-            }
-          },
-          pages: { nodes: [] },
-          articles: { nodes: [] },
-        },
-      },
-    };
+    result =
+      type === 'predictive'
+        ? {
+            type: 'predictive' as const,
+            term,
+            error: errorMessage,
+            result: getEmptyPredictiveSearchResult(),
+          }
+        : {
+            type: 'regular' as const,
+            term,
+            error: errorMessage,
+            result: {
+              total: 0,
+              items: {
+                products: {
+                  nodes: [],
+                  pageInfo: {
+                    hasNextPage: false,
+                    hasPreviousPage: false,
+                    startCursor: null,
+                    endCursor: null,
+                  },
+                },
+                pages: {nodes: []},
+                articles: {nodes: []},
+              },
+            },
+          };
   }
 
   return {
@@ -158,7 +163,7 @@ export default function SearchPage() {
     'Training Gear',
     'Apparel',
     'Limited Edition',
-    'Championship Collection'
+    'Championship Collection',
   ];
 
   return (
@@ -166,7 +171,7 @@ export default function SearchPage() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
@@ -184,7 +189,8 @@ export default function SearchPage() {
             Find Your <span className="text-primary">Championship</span> Gear
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-            Search through {config.influencerName}'s premium collection of boxing equipment, apparel, and exclusive merchandise.
+            Search through {config.influencerName}'s premium collection of
+            boxing equipment, apparel, and exclusive merchandise.
           </p>
         </div>
 
@@ -202,7 +208,7 @@ export default function SearchPage() {
                   type="search"
                   className="w-full bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-sm py-4 pl-14 pr-32 text-white text-lg placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
                 />
-                <button 
+                <button
                   type="submit"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary/90 text-black font-bold py-2 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
                 >
@@ -218,7 +224,9 @@ export default function SearchPage() {
           <div className="max-w-2xl mx-auto mb-12">
             <div className="flex items-center mb-4">
               <TrendingUp className="h-5 w-5 text-primary mr-2" />
-              <span className="text-gray-400 font-medium">Popular Searches</span>
+              <span className="text-gray-400 font-medium">
+                Popular Searches
+              </span>
             </div>
             <div className="flex flex-wrap gap-3">
               {popularSearches.map((search, index) => (
@@ -254,11 +262,12 @@ export default function SearchPage() {
                     No results found for "{term}"
                   </h2>
                   <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
-                    Try searching with different keywords or browse our popular categories.
+                    Try searching with different keywords or browse our popular
+                    categories.
                   </p>
                 </div>
-                
-                <Link 
+
+                <Link
                   to="/collections/all"
                   className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
@@ -269,11 +278,10 @@ export default function SearchPage() {
               <div>
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold mb-2">
-                    Search Results for "<span className="text-primary">{term}</span>"
+                    Search Results for "
+                    <span className="text-primary">{term}</span>"
                   </h2>
-                  <p className="text-gray-400">
-                    Found {result.total} results
-                  </p>
+                  <p className="text-gray-400">Found {result.total} results</p>
                 </div>
 
                 {/* TODO: Fix type mismatch - response includes 'collections' which should only be in predictive search */}
@@ -291,7 +299,9 @@ export default function SearchPage() {
           </div>
         )}
 
-        <Analytics.SearchView data={{searchTerm: term, searchResults: result}} />
+        <Analytics.SearchView
+          data={{searchTerm: term, searchResults: result}}
+        />
       </div>
     </div>
   );

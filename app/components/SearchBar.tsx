@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
-import { useConfig } from '~/utils/themeContext';
-import { LoadingSpinner } from './LoadingSpinner';
-import { useAside } from './Aside';
+import {useState, useEffect, useRef} from 'react';
+import {useNavigate} from 'react-router';
+import {useConfig} from '~/utils/themeContext';
+import {LoadingSpinner} from './LoadingSpinner';
+import {useAside} from './Aside';
 
 interface SearchSuggestion {
   id: string;
@@ -28,7 +28,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const config = useConfig();
   const navigate = useNavigate();
-  const { close } = useAside();
+  const {close} = useAside();
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -45,10 +45,12 @@ export function SearchBar({
   }, [autoFocus]);
 
   // Mock search suggestions - in a real app, this would call the Shopify API
-  const fetchSuggestions = async (searchQuery: string): Promise<SearchSuggestion[]> => {
+  const fetchSuggestions = async (
+    searchQuery: string,
+  ): Promise<SearchSuggestion[]> => {
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     // Mock suggestions based on the query
     const mockSuggestions: SearchSuggestion[] = [
       {
@@ -57,7 +59,7 @@ export function SearchBar({
         handle: 'boxing-gloves',
         type: 'product' as const,
         image: '/images/boxing-gloves.jpg',
-        price: '$89.99'
+        price: '$89.99',
       },
       {
         id: '2',
@@ -71,11 +73,12 @@ export function SearchBar({
         handle: 'championship-belt',
         type: 'product' as const,
         image: '/images/belt.jpg',
-        price: '$299.99'
+        price: '$299.99',
       },
-    ].filter(item => 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.handle.toLowerCase().includes(searchQuery.toLowerCase())
+    ].filter(
+      (item) =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.handle.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     return mockSuggestions;
@@ -111,13 +114,13 @@ export function SearchBar({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : prev
+        setSelectedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev,
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
         break;
       case 'Enter':
         e.preventDefault();
@@ -137,12 +140,13 @@ export function SearchBar({
 
   // Handle suggestion selection
   const handleSuggestionSelect = (suggestion: SearchSuggestion) => {
-    const path = suggestion.type === 'product' 
-      ? `/products/${suggestion.handle}`
-      : suggestion.type === 'collection'
-      ? `/collections/${suggestion.handle}`
-      : `/${suggestion.handle}`;
-    
+    const path =
+      suggestion.type === 'product'
+        ? `/products/${suggestion.handle}`
+        : suggestion.type === 'collection'
+          ? `/collections/${suggestion.handle}`
+          : `/${suggestion.handle}`;
+
     navigate(path);
     setQuery('');
     setShowSuggestions(false);
@@ -197,7 +201,7 @@ export function SearchBar({
             aria-label="Search products"
             autoComplete="off"
           />
-          
+
           {/* Search Icon */}
           <button
             type="submit"
@@ -207,8 +211,18 @@ export function SearchBar({
             {isLoading ? (
               <LoadingSpinner size="sm" color="primary" />
             ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             )}
           </button>
@@ -232,8 +246,8 @@ export function SearchBar({
               {/* Suggestion Image */}
               {suggestion.image && (
                 <div className="w-8 h-8 bg-gray-700 rounded-sm overflow-hidden flex-shrink-0">
-                  <img 
-                    src={suggestion.image} 
+                  <img
+                    src={suggestion.image}
                     alt={suggestion.title}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -242,23 +256,37 @@ export function SearchBar({
                   />
                 </div>
               )}
-              
+
               {/* Suggestion Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-white font-medium truncate">{suggestion.title}</span>
+                  <span className="text-white font-medium truncate">
+                    {suggestion.title}
+                  </span>
                   {suggestion.price && (
-                    <span className="text-primary text-sm ml-2">{suggestion.price}</span>
+                    <span className="text-primary text-sm ml-2">
+                      {suggestion.price}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center text-xs text-gray-400">
                   <span className="capitalize">{suggestion.type}</span>
                 </div>
               </div>
-              
+
               {/* Arrow Icon */}
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           ))}
@@ -266,22 +294,25 @@ export function SearchBar({
       )}
 
       {/* No Results */}
-      {showSuggestions && !isLoading && suggestions.length === 0 && query.trim().length > 1 && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-black/95 backdrop-blur-sm border border-primary/30 rounded-sm p-4 text-center">
-          <p className="text-gray-400">No results found for "{query}"</p>
-        </div>
-      )}
+      {showSuggestions &&
+        !isLoading &&
+        suggestions.length === 0 &&
+        query.trim().length > 1 && (
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-black/95 backdrop-blur-sm border border-primary/30 rounded-sm p-4 text-center">
+            <p className="text-gray-400">No results found for "{query}"</p>
+          </div>
+        )}
     </div>
   );
 }
 
 // Mobile search overlay
-export function SearchOverlay({ 
-  isOpen, 
-  onClose 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
+export function SearchOverlay({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
 }) {
   const config = useConfig();
 
@@ -292,46 +323,62 @@ export function SearchOverlay({
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-primary/30">
-          <h2 className="text-lg font-bold text-white">Search {config.brandName}</h2>
+          <h2 className="text-lg font-bold text-white">
+            Search {config.brandName}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
             aria-label="Close search"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
-        
+
         {/* Search Input */}
         <div className="p-4">
-          <SearchBar 
-            autoFocus 
+          <SearchBar
+            autoFocus
             onSearch={onClose}
             placeholder={`Search ${config.brandName} products...`}
           />
         </div>
-        
+
         {/* Popular Searches */}
         <div className="px-4 pb-4">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Popular Searches</h3>
+          <h3 className="text-sm font-medium text-gray-400 mb-3">
+            Popular Searches
+          </h3>
           <div className="flex flex-wrap gap-2">
-            {['Boxing Gloves', 'Training Gear', 'Apparel', 'Accessories'].map((term) => (
-              <button
-                key={term}
-                className="px-3 py-1 bg-primary/20 text-primary text-sm rounded-full hover:bg-primary/30 transition-colors"
-                onClick={() => {
-                  // Handle popular search selection
-                  onClose();
-                }}
-              >
-                {term}
-              </button>
-            ))}
+            {['Boxing Gloves', 'Training Gear', 'Apparel', 'Accessories'].map(
+              (term) => (
+                <button
+                  key={term}
+                  className="px-3 py-1 bg-primary/20 text-primary text-sm rounded-full hover:bg-primary/30 transition-colors"
+                  onClick={() => {
+                    // Handle popular search selection
+                    onClose();
+                  }}
+                >
+                  {term}
+                </button>
+              ),
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

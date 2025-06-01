@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { ShoppingBag, Trophy } from 'lucide-react';
-import { Link } from 'react-router';
-import { useConfig } from '~/utils/themeContext';
+import React, {useEffect, useRef} from 'react';
+import {ShoppingBag, Trophy} from 'lucide-react';
+import {Link} from 'react-router';
+import {useConfig} from '~/utils/themeContext';
 
 export function Hero() {
   // Get config from context instead of props
@@ -11,12 +11,12 @@ export function Hero() {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.8;
-      
+
       // Try to play the video - handle autoplay restrictions
       const playPromise = videoRef.current.play();
-      
+
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
+        playPromise.catch((error) => {
           console.log('Auto-play was prevented by browser:', error);
           // We'll show the poster image as fallback
         });
@@ -25,7 +25,10 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-10">
+    <section
+      id="home"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-10"
+    >
       {/* Video/Image Background with Overlay - follows Vue template structure */}
       <div className="absolute inset-0 z-0">
         {config.heroVideoUrl ? (
@@ -40,16 +43,16 @@ export function Hero() {
           >
             <source src={config.heroVideoUrl} type="video/mp4" />
             {/* Fallback to image if video doesn't load */}
-            <img 
-              src={config.heroBackgroundImage} 
-              alt={config.influencerName} 
+            <img
+              src={config.heroBackgroundImage}
+              alt={config.influencerName}
               className="absolute inset-0 w-full h-full object-cover"
             />
           </video>
         ) : (
-          <img 
-            src={config.heroBackgroundImage} 
-            alt={config.influencerName} 
+          <img
+            src={config.heroBackgroundImage}
+            alt={config.influencerName}
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
@@ -62,7 +65,7 @@ export function Hero() {
           <div className="inline-block bg-primary text-black font-bold py-1 px-4 mb-6 tracking-wider rounded-sm">
             {config.influencerTitle}
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
             <span className="text-white">THE LEGACY OF</span>
             <br />
@@ -92,14 +95,16 @@ export function Hero() {
               <Trophy className="ml-2 h-5 w-5 transition-transform group-hover:translate-y-[-2px]" />
             </Link>
           </div>
-          
+
           {/* Boxing statistics badges - directly from Vue template */}
           <div className="mt-16 mb-16 md:mb-24 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
               <div className="text-primary text-3xl font-bold hero-stat-glow">
                 49
               </div>
-              <div className="text-white text-sm tracking-wider">CAREER WINS</div>
+              <div className="text-white text-sm tracking-wider">
+                CAREER WINS
+              </div>
             </div>
             <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
               <div className="text-primary text-3xl font-bold hero-stat-glow">
@@ -111,27 +116,34 @@ export function Hero() {
               <div className="text-primary text-3xl font-bold hero-stat-glow">
                 9
               </div>
-              <div className="text-white text-sm tracking-wider">WORLD TITLES</div>
+              <div className="text-white text-sm tracking-wider">
+                WORLD TITLES
+              </div>
             </div>
             <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
               <div className="text-primary text-3xl font-bold hero-stat-glow">
                 3
               </div>
-              <div className="text-white text-sm tracking-wider">WEIGHT DIVISIONS</div>
+              <div className="text-white text-sm tracking-wider">
+                WEIGHT DIVISIONS
+              </div>
             </div>
           </div>
         </div>
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
-          <span className="text-white text-xs mb-2 tracking-widest">SCROLL DOWN</span>
+          <span className="text-white text-xs mb-2 tracking-widest">
+            SCROLL DOWN
+          </span>
           <div className="w-0.5 h-12 bg-primary"></div>
         </div>
       </div>
-      
+
       {/* Add the CSS styles directly to match Vue template */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           .hero-title-glow {
             text-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.4);
           }
@@ -147,8 +159,9 @@ export function Hero() {
           video {
             filter: brightness(0.9) contrast(1.1);
           }
-        `
-      }} />
+        `,
+        }}
+      />
     </section>
   );
 }

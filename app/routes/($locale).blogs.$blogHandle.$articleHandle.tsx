@@ -16,12 +16,12 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
-  
+
   // Get configuration
   const config = getConfig();
 
   return {
-    ...deferredData, 
+    ...deferredData,
     ...criticalData,
     config: {
       ...config,
@@ -85,13 +85,13 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Article() {
   const {article, config} = useLoaderData<typeof loader>();
-  
+
   // Format date to make it more readable
   const publishDate = new Date(article.publishedAt);
   const formattedDate = publishDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
   return (
@@ -99,7 +99,7 @@ export default function Article() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to={`/blogs/${article.blog.handle}`}
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
@@ -123,12 +123,12 @@ export default function Article() {
               </div>
             )}
           </div>
-          
+
           {/* Article Title */}
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
             {article.title}
           </h1>
-          
+
           {/* Featured Image */}
           {article.image && (
             <div className="mb-10">
@@ -146,7 +146,7 @@ export default function Article() {
 
         {/* Article Content */}
         <div className="max-w-3xl mx-auto mb-16">
-          <div 
+          <div
             className="prose prose-invert prose-lg max-w-none"
             dangerouslySetInnerHTML={{__html: article.contentHtml}}
           />
@@ -159,9 +159,10 @@ export default function Article() {
               Train Like a Champion
             </h3>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-              Explore {config.influencerName}'s championship-quality equipment and follow his training methods to elevate your boxing game.
+              Explore {config.influencerName}'s championship-quality equipment
+              and follow his training methods to elevate your boxing game.
             </p>
-            <Link 
+            <Link
               to="/collections/all"
               className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
             >

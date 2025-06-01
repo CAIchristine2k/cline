@@ -84,7 +84,7 @@ export default function Blog() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/blogs"
             className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
           >
@@ -100,7 +100,8 @@ export default function Blog() {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">{blog.title}</h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Latest insights, training tips, and stories from the {config.influencerName} community.
+            Latest insights, training tips, and stories from the{' '}
+            {config.influencerName} community.
           </p>
         </div>
 
@@ -110,13 +111,16 @@ export default function Blog() {
             connection={articles}
             resourcesClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {({node: article, index}) => (
-              <ArticleItem
-                article={article}
-                key={article.id}
-                loading={index < 2 ? 'eager' : 'lazy'}
-              />
-            )}
+            {({node: article, index}) => {
+              const typedArticle = article as ArticleItemFragment;
+              return (
+                <ArticleItem
+                  article={typedArticle}
+                  key={typedArticle.id}
+                  loading={index < 2 ? 'eager' : 'lazy'}
+                />
+              );
+            }}
           </PaginatedResourceSection>
         </div>
       </div>
@@ -136,7 +140,7 @@ function ArticleItem({
     month: 'long',
     day: 'numeric',
   }).format(new Date(article.publishedAt!));
-  
+
   return (
     <div className="group bg-gray-900/80 backdrop-blur-sm border border-gray-800 hover:border-gold-500 rounded-sm overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:translate-y-[-3px]">
       <Link to={`/blogs/${article.blog.handle}/${article.handle}`}>
@@ -152,12 +156,12 @@ function ArticleItem({
             />
           </div>
         )}
-        
+
         <div className="p-6">
           <h3 className="text-xl font-bold text-white mb-3 group-hover:text-gold-400 transition-colors duration-300 line-clamp-2">
             {article.title}
           </h3>
-          
+
           <div className="flex items-center text-gray-400 text-sm">
             <Calendar className="w-4 h-4 mr-2" />
             <span>{publishedAt}</span>

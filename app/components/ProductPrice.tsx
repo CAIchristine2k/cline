@@ -12,7 +12,7 @@ export function ProductPrice({
   className?: string;
 }) {
   const config = useConfig();
-  
+
   return (
     <div className={`${className}`}>
       {compareAtPrice ? (

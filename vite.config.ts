@@ -1,17 +1,17 @@
-import { defineConfig } from 'vite';
-import { hydrogen } from '@shopify/hydrogen/vite';
+import {defineConfig} from 'vite';
+import {hydrogen} from '@shopify/hydrogen/vite';
 // import { oxygen } from '@shopify/mini-oxygen/vite';
-import { reactRouter } from '@react-router/dev/vite';
-import { cloudflare } from '@cloudflare/vite-plugin';
+import {reactRouter} from '@react-router/dev/vite';
+import {cloudflare} from '@cloudflare/vite-plugin';
 
 import tsconfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
-import { resolve } from 'path';
+import {resolve} from 'path';
 // import netlifyPlugin from '@netlify/vite-plugin-react-router'
 
 export default defineConfig({
   plugins: [
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    cloudflare({viteEnvironment: {name: 'ssr'}}),
     tailwindcss(),
     hydrogen(),
     reactRouter(),
@@ -45,13 +45,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Alias canvas to mock file for Cloudflare Workers
-      'canvas': resolve('./canvas-mock.js'),
+      canvas: resolve('./utils/canvas-mock.js'),
     },
   },
   define: {
-    // Define environment variables
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-    'global': 'globalThis',
+    'process.env.NODE_ENV': JSON.stringify(
+      process.env.NODE_ENV || 'development',
+    ),
+    global: 'globalThis',
   },
 });

@@ -9,11 +9,7 @@ interface ProductImage {
   height?: number | null;
 }
 
-export function ProductImage({
-  image,
-}: {
-  image: ProductImage | null;
-}) {
+export function ProductImage({image}: {image: ProductImage | null}) {
   if (!image) {
     return <div className="product-image" />;
   }

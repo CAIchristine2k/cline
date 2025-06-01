@@ -16,7 +16,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     const cart = await context.cart.get();
     return data({cart});
   }
-  
+
   // Otherwise return nothing (this is just an API route)
   return data({cart: null});
 }
@@ -25,7 +25,10 @@ export async function action({request, context}: ActionFunctionArgs) {
   const {cart} = context;
 
   const formData = await request.formData();
-  console.log('Cart action received from /cart route:', Object.fromEntries(formData));
+  console.log(
+    'Cart action received from /cart route:',
+    Object.fromEntries(formData),
+  );
 
   const {action, inputs} = CartForm.getFormInput(formData);
   console.log('Parsed action from /cart route:', action, 'inputs:', inputs);
@@ -53,29 +56,29 @@ export async function action({request, context}: ActionFunctionArgs) {
         break;
       case CartForm.ACTIONS.DiscountCodesUpdate: {
         const formDiscountCode = inputs.discountCode;
-  
+
         // User inputted discount code
         const discountCodes = (
           formDiscountCode ? [formDiscountCode] : []
         ) as string[];
-  
+
         // Combine discount codes already applied on cart
         discountCodes.push(...inputs.discountCodes);
-  
+
         result = await cart.updateDiscountCodes(discountCodes);
         break;
       }
       case CartForm.ACTIONS.GiftCardCodesUpdate: {
         const formGiftCardCode = inputs.giftCardCode;
-  
+
         // User inputted gift card code
         const giftCardCodes = (
           formGiftCardCode ? [formGiftCardCode] : []
         ) as string[];
-  
+
         // Combine gift card codes already applied on cart
         giftCardCodes.push(...inputs.giftCardCodes);
-  
+
         result = await cart.updateGiftCardCodes(giftCardCodes);
         break;
       }
@@ -95,14 +98,17 @@ export async function action({request, context}: ActionFunctionArgs) {
   } catch (error) {
     console.error(`Error handling cart action in /cart route: ${error}`);
     console.error('Error details:', error);
-    return data({
-      cart: null,
-      errors: [{message: `Error handling cart action: ${error}`}],
-      warnings: [],
-      analytics: {
-        cartId: null,
+    return data(
+      {
+        cart: null,
+        errors: [{message: `Error handling cart action: ${error}`}],
+        warnings: [],
+        analytics: {
+          cartId: null,
+        },
       },
-    }, {status: 500});
+      {status: 500},
+    );
   }
 
   const cartId = result?.cart?.id;
@@ -114,7 +120,7 @@ export async function action({request, context}: ActionFunctionArgs) {
     hasCart: !!cartResult,
     totalQuantity: cartResult?.totalQuantity,
     errors,
-    warnings
+    warnings,
   });
 
   const redirectTo = formData.get('redirectTo') ?? null;
@@ -139,4 +145,4 @@ export async function action({request, context}: ActionFunctionArgs) {
 // Export a blank component since this is just a route for API calls
 export default function CartRoute() {
   return null;
-} 
+}

@@ -12,11 +12,11 @@ interface CloudinaryConfig {
 // Parse CLOUDINARY_URL from Hydrogen context environment variables
 function getCloudinaryConfig(env: any): CloudinaryConfig {
   const cloudinaryUrl = env.CLOUDINARY_URL;
-  
+
   if (!cloudinaryUrl) {
     throw new Error('CLOUDINARY_URL environment variable is not set');
   }
-  
+
   // Parse CLOUDINARY_URL format: cloudinary://api_key:api_secret@cloud_name
   try {
     const url = new URL(cloudinaryUrl);
@@ -32,4 +32,4 @@ function getCloudinaryConfig(env: any): CloudinaryConfig {
   }
 }
 
-export { getCloudinaryConfig }; 
+export {getCloudinaryConfig};

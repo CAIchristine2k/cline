@@ -1,7 +1,7 @@
 import React from 'react';
-import { Sparkles, Camera } from 'lucide-react';
-import { useConfig } from '~/utils/themeContext';
-import { Link } from 'react-router';
+import {Sparkles, Camera} from 'lucide-react';
+import {useConfig} from '~/utils/themeContext';
+import {Link} from 'react-router';
 
 export function AIMediaGeneration() {
   const config = useConfig();
@@ -10,7 +10,7 @@ export function AIMediaGeneration() {
     return null;
   }
 
-  const { aiMediaGeneration } = config;
+  const {aiMediaGeneration} = config;
 
   return (
     <section className="py-16 bg-secondary/80 backdrop-blur-sm">
@@ -29,7 +29,11 @@ export function AIMediaGeneration() {
             {aiMediaGeneration.title}
           </h2>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto mb-6">
-            Upload your photo and see yourself with <span className="text-primary font-semibold">{config.influencerName}</span> in different poses or try on products virtually!
+            Upload your photo and see yourself with{' '}
+            <span className="text-primary font-semibold">
+              {config.influencerName}
+            </span>{' '}
+            in different poses or try on products virtually!
           </p>
         </div>
 
@@ -40,8 +44,8 @@ export function AIMediaGeneration() {
             {/* Before */}
             <div className="text-center">
               <div className="relative rounded-lg overflow-hidden h-36 mb-3 border border-secondary/60">
-                <img 
-                  src="/images/testimonial-3.jpeg" 
+                <img
+                  src="/images/testimonial-3.jpeg"
                   alt="Your photo"
                   className="w-full h-full object-cover bg-secondary"
                 />
@@ -57,14 +61,16 @@ export function AIMediaGeneration() {
               <div className="bg-primary/10 p-3 rounded-full mx-auto w-fit mb-2">
                 <Sparkles className="w-6 h-6 text-primary" />
               </div>
-              <p className="text-primary text-xs font-bold">AI TRANSFORMATION</p>
+              <p className="text-primary text-xs font-bold">
+                AI TRANSFORMATION
+              </p>
             </div>
 
             {/* After */}
             <div className="text-center">
               <div className="relative rounded-lg overflow-hidden h-36 mb-3 border border-primary/40">
-                <img 
-                  src="/images/influencer.jpeg" 
+                <img
+                  src="/images/influencer.jpeg"
                   alt="AI result"
                   className="w-full h-full object-cover"
                 />
@@ -72,7 +78,9 @@ export function AIMediaGeneration() {
                   <p className="text-background text-xs font-bold">AI RESULT</p>
                 </div>
               </div>
-              <p className="text-primary text-xs font-bold">You + {config.influencerName}</p>
+              <p className="text-primary text-xs font-bold">
+                You + {config.influencerName}
+              </p>
             </div>
           </div>
 
@@ -106,7 +114,7 @@ export function AIMediaGeneration() {
               {aiMediaGeneration.buttonText}
             </a>
             <p className="text-gray-400 text-xs mt-3">
-              {aiMediaGeneration.requiresAuth ? "Sign in required • " : ""}
+              {aiMediaGeneration.requiresAuth ? 'Sign in required • ' : ''}
               {aiMediaGeneration.usageLimit} free generations per month
             </p>
           </div>
@@ -114,4 +122,4 @@ export function AIMediaGeneration() {
       </div>
     </section>
   );
-} 
+}

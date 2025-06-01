@@ -8,12 +8,14 @@
     "build": "npm run codegen && react-router build",
     "dev": "react-router dev",
     "preview": "npm run build && vite preview",
-    "deploy": "npm run build && wrangler deploy",
-    "cf-typegen": "wrangler types",
-    "lint": "eslint --no-error-on-unmatched-pattern .",
+    "deploy": "npm run build && npx wrangler secret bulk .env && npx wrangler deploy",
+    "cf-typegen": "wrangler types && mv worker-configuration.d.ts types/worker-configuration.d.ts",
+    "lint": "eslint --no-error-on-unmatched-pattern --config ./config/eslint.config.js .",
     "typecheck": "npm run cf-typegen && react-router typegen && tsc --noEmit",
     "codegen": "shopify hydrogen codegen",
-    "codegen:graphql-schema": "graphql-codegen --config graphql-schema/codegen.ts"
+    "codegen:graphql-schema": "graphql-codegen --config graphql-schema/codegen.ts",
+    "codegen:schema": "graphql-codegen --config docs/graphql-schema/codegen.ts",
+    "clean": "rm -rf dist build .wrangler .react-router"
   },
   "prettier": "@shopify/prettier-config",
   "dependencies": {

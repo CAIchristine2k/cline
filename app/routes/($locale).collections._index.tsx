@@ -22,7 +22,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const config = getConfig();
 
   return {
-    ...deferredData, 
+    ...deferredData,
     ...criticalData,
     config: {
       ...config,
@@ -68,7 +68,7 @@ export default function Collections() {
       <div className="container mx-auto px-4 py-24">
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
           >
@@ -86,7 +86,9 @@ export default function Collections() {
             <span className="text-primary">CHAMPIONSHIP</span> COLLECTIONS
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Discover our curated collections of premium boxing equipment and exclusive merchandise, each inspired by different aspects of {config.influencerName}'s legendary career.
+            Discover our curated collections of premium boxing equipment and
+            exclusive merchandise, each inspired by different aspects of{' '}
+            {config.influencerName}'s legendary career.
           </p>
         </div>
 
@@ -115,9 +117,10 @@ export default function Collections() {
             Explore All Products
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Browse our complete catalog of championship-quality boxing equipment and exclusive {config.brandName} merchandise.
+            Browse our complete catalog of championship-quality boxing equipment
+            and exclusive {config.brandName} merchandise.
           </p>
-          <Link 
+          <Link
             to="/collections/all"
             className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >

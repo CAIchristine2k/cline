@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import React, {useState, useEffect} from 'react';
+import {Loader2} from 'lucide-react';
 
 // Define the interface for props
 export interface ProductDesignerProps {
   backgroundImage: HTMLImageElement | null;
-  stageSize: { width: number; height: number };
+  stageSize: {width: number; height: number};
   elements: Array<{
     id: string;
     type: 'image' | 'text';
@@ -36,7 +36,8 @@ export interface ProductDesignerProps {
  * the actual ProductDesigner component to avoid SSR issues with Konva
  */
 export function EnhancedProductDesigner(props: ProductDesignerProps) {
-  const [KonvaDesigner, setKonvaDesigner] = useState<React.ComponentType<ProductDesignerProps> | null>(null);
+  const [KonvaDesigner, setKonvaDesigner] =
+    useState<React.ComponentType<ProductDesignerProps> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Function to handle export image request
@@ -60,7 +61,7 @@ export function EnhancedProductDesigner(props: ProductDesignerProps) {
     if (typeof window !== 'undefined') {
       // Use dynamic import to load the Konva component
       import('./ProductDesigner')
-        .then(module => {
+        .then((module) => {
           if (module.ProductDesigner) {
             // ProductDesigner is exported as a named export
             setKonvaDesigner(() => module.ProductDesigner);
@@ -68,7 +69,7 @@ export function EnhancedProductDesigner(props: ProductDesignerProps) {
             setError('ProductDesigner component not found in module');
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.error('Error loading ProductDesigner:', err);
           setError('Failed to load design editor');
         });
@@ -79,11 +80,13 @@ export function EnhancedProductDesigner(props: ProductDesignerProps) {
     return (
       <div
         className="w-full h-full flex items-center justify-center bg-secondary/60 rounded-md border border-primary/10"
-        style={{ minHeight: '400px' }}
+        style={{minHeight: '400px'}}
       >
         <div className="text-center p-4">
           <p className="text-red-400 font-bold">Error: {error}</p>
-          <p className="text-white mt-2">Please refresh the page to try again</p>
+          <p className="text-white mt-2">
+            Please refresh the page to try again
+          </p>
         </div>
       </div>
     );
@@ -93,7 +96,7 @@ export function EnhancedProductDesigner(props: ProductDesignerProps) {
     return (
       <div
         className="w-full h-full flex items-center justify-center bg-secondary/60 rounded-md border border-primary/10"
-        style={{ minHeight: '400px' }}
+        style={{minHeight: '400px'}}
       >
         <div className="text-center p-4">
           <Loader2 className="w-10 h-10 text-primary mx-auto mb-4 animate-spin" />
@@ -105,4 +108,4 @@ export function EnhancedProductDesigner(props: ProductDesignerProps) {
 
   // When Konva is loaded, render the actual designer component
   return <KonvaDesigner {...props} />;
-} 
+}
