@@ -181,16 +181,6 @@ export function PrepareDesignsForCheckout({
     );
   }
 
-  if (designsPrepared) {
-    return (
-      <div className="mt-2 p-3 bg-green-500/10 backdrop-blur-sm border border-green-500/20 rounded-lg">
-        <div className="flex items-center justify-center space-x-2 text-xs text-green-300">
-          <span className="text-green-400">✓</span>
-          <span>Custom designs ready for checkout</span>
-        </div>
-      </div>
-    );
-  }
 
   return null;
 } 

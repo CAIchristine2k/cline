@@ -24,6 +24,9 @@ const STORAGE_KEY = 'product-customizer-designs';
 const MAX_DESIGNS = 10; // Limit to prevent storage bloat
 const MAX_AGE_DAYS = 30; // Auto-cleanup after 30 days
 
+// Constants for cart line design storage
+const CART_DESIGN_STORAGE_KEY = 'cart-line-designs';
+
 // Get all stored designs
 export function getStoredDesigns(): DesignStorage {
   try {
@@ -261,6 +264,60 @@ export function createAutoSave(
   return { start, stop, saveNow, setDesignId, currentDesignId };
 }
 
+// Store design URLs for cart line items to ensure persistence across page refreshes
+export function storeCartLineDesigns(cartLineId: string, designUrls: string | string[]): void {
+  try {
+    // Get existing stored cart designs
+    const storedCartDesigns = localStorage.getItem(CART_DESIGN_STORAGE_KEY);
+    let cartDesigns: Record<string, string[]> = {};
+    
+    if (storedCartDesigns) {
+      try {
+        const parsed = JSON.parse(storedCartDesigns);
+        if (parsed && typeof parsed === 'object') {
+          cartDesigns = parsed as Record<string, string[]>;
+        }
+      } catch (e) {
+        console.error('Error parsing stored cart designs', e);
+        // Continue with empty object
+      }
+    }
+    
+    // Store the new design URL(s)
+    cartDesigns[cartLineId] = Array.isArray(designUrls) ? designUrls : [designUrls];
+    
+    // Save back to localStorage
+    localStorage.setItem(CART_DESIGN_STORAGE_KEY, JSON.stringify(cartDesigns));
+    console.log(`✓ Stored design URLs for cart line ${cartLineId}`);
+  } catch (error) {
+    console.error('Error storing cart line design URLs:', error);
+  }
+}
+
+// Get stored design URLs for a cart line
+export function getCartLineDesigns(cartLineId: string): string[] {
+  try {
+    const storedCartDesigns = localStorage.getItem(CART_DESIGN_STORAGE_KEY);
+    if (!storedCartDesigns) return [];
+    
+    const cartDesigns = JSON.parse(storedCartDesigns) as Record<string, string[]>;
+    return cartDesigns[cartLineId] || [];
+  } catch (error) {
+    console.error('Error retrieving cart line design URLs:', error);
+    return [];
+  }
+}
+
+// Clear all stored cart line designs (useful after successful checkout)
+export function clearCartLineDesigns(): void {
+  try {
+    localStorage.removeItem(CART_DESIGN_STORAGE_KEY);
+    console.log('✓ Cleared all stored cart line design URLs');
+  } catch (error) {
+    console.error('Error clearing cart line design storage:', error);
+  }
+}
+
 // Clear all designs from storage (for debugging/development)
 export function clearAllDesigns(): void {
   try {
@@ -268,5 +325,15 @@ export function clearAllDesigns(): void {
     console.log('All designs cleared from storage');
   } catch (error) {
     console.error('Error clearing designs:', error);
+  }
+}
+
+// Store the latest design URL(s) for easy retrieval
+export function storeLatestDesign(designUrls: string | string[]): void {
+  try {
+    storeCartLineDesigns('temp-latest', designUrls);
+    console.log('✓ Stored latest design for easy retrieval');
+  } catch (error) {
+    console.error('Error storing latest design:', error);
   }
 }

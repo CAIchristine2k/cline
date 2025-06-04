@@ -277,7 +277,6 @@ export const defaultConfig: LandingPageConfig = {
     {name: 'Shop', href: '/collections/all'},
     {name: 'About', href: '/about'},
     {name: 'Career', href: '/about#highlights'},
-    {name: 'Customize', href: '/customize-products'},
     {name: 'Contact', href: '/pages/contact'},
   ],
 

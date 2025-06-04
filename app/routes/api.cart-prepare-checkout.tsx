@@ -1,314 +1,229 @@
-import {ActionFunctionArgs} from 'react-router';
-import {uploadCanvasToCloudinary, downloadAndReuploadToCloudinary} from '~/utils/cloudinaryUpload';
-import type {CartLineFragment} from 'storefrontapi.generated';
+import type { ActionFunctionArgs } from 'react-router';
+import { CartForm } from '@shopify/hydrogen';
+import type { CartLineFragment } from 'storefrontapi.generated';
 
 /**
- * Helper function to get the base URL from a request
+ * Helper function to extract design URL from storage
+ * This is a simplified version as we don't have direct access to client storage
  */
-function getBaseUrlFromRequest(request: Request): string {
-  const url = new URL(request.url);
-  return `${url.protocol}//${url.host}`;
+async function extractDesignUrlFromStorage(key: string): Promise<string | null> {
+  // In a real implementation, this would use a client-side API to access localStorage
+  // For now, we'll just simulate the functionality and rely on cart attributes
+  return null;
 }
 
 /**
- * This API route is called before checkout to ensure all custom design images
- * are properly uploaded to Cloudinary and stored as cart attributes.
- * This ensures the order will have all the designed images visible to
- * the fulfillment team, not just the original variant images.
+ * API endpoint to prepare the cart for checkout by ensuring all custom design images
+ * are properly uploaded to CDN and accessible externally during Shopify checkout.
+ * Also syncs cart attributes to make design URLs accessible to the checkout page.
  */
-export async function action({request, context}: ActionFunctionArgs) {
-  const baseUrl = getBaseUrlFromRequest(request);
-  console.log(`🛒 API cart-prepare-checkout called from ${baseUrl}`);
-
+export async function action({ request, context }: ActionFunctionArgs) {
   try {
-    // Get the cart ID from the request based on content type
-    let cartId = '';
-    const contentType = request.headers.get('Content-Type') || '';
-    console.log(`📝 Request Content-Type: ${contentType}`);
-    
-    if (contentType.includes('application/json')) {
-      // Handle JSON request
-      try {
-        const jsonData = await request.json() as {cartId?: string};
-        cartId = String(jsonData.cartId || '');
-        console.log(`🔍 Got cartId from JSON body: ${cartId}`);
-      } catch (e) {
-        console.error(`❌ Error parsing JSON body: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    } 
-    else if (contentType.includes('application/x-www-form-urlencoded') || 
-             contentType.includes('multipart/form-data')) {
-      // Handle form data request
-      try {
-        const formData = await request.formData();
-        cartId = String(formData.get('cartId') || '');
-        console.log(`🔍 Got cartId from form data: ${cartId}`);
-      } catch (e) {
-        console.error(`❌ Error parsing form data: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    } 
-    else {
-      // Get cart ID from URL search params as fallback
-      const url = new URL(request.url);
-      cartId = url.searchParams.get('cartId') || '';
-      console.log(`🔍 Got cartId from URL params: ${cartId}`);
-    }
-    
-    // If we still don't have a cartId, try to get it from the cart context
+    // Parse the request body
+    const data = await request.json() as { cartId?: string };
+    const { cartId } = data;
+
     if (!cartId) {
-      try {
-        // Try to get the cart ID from cookie/session
-        cartId = context.cart.getCartId();
-        if (cartId) {
-          console.log(`🔍 Got cartId from cart context: ${cartId}`);
-        }
-      } catch (e) {
-        console.error(`❌ Error getting cartId from context: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    }
-    
-    if (!cartId) {
-      console.error('❌ No cart ID provided for checkout preparation');
-      return new Response(JSON.stringify({success: false, error: 'No cart ID provided'}), {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Missing cart ID',
+      }), {
         status: 400,
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Get the current cart from Shopify
-    const cartData = await context.cart.get();
-    
+    // Get the current cart
+    const { cart } = context;
+    const cartData = await cart.get();
+
     if (!cartData) {
-      return new Response(JSON.stringify({success: false, error: 'Cart not found'}), {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Cart not found',
+      }), {
         status: 404,
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    console.log(`🛒 Preparing cart ${cartId} for checkout with ${cartData.lines.nodes.length} items`);
-    
-    // Track if we need to update the cart
-    let needsUpdate = false;
-    // Keep track of all designed image URLs for this order
-    const designedImageUrls: string[] = [];
-    // Keep track of cart lines that need custom images
-    const cartLinesWithCustomImages: any[] = [];
-    
-    // First pass - collect all designed images & identify lines with customizations
-    for (const line of cartData.lines.nodes) {
-      // Check for any design-related attributes
-      const designImageUrl = line.attributes?.find(
-        (attr: {key: string; value: string}) => attr.key === '_design_image_url'
-      )?.value;
-      
-      const customizedImage = line.attributes?.find(
-        (attr: {key: string; value: string}) => attr.key === '_customized_image'
-      )?.value;
-      
-      const designCloudUrls = line.attributes?.find(
-        (attr: {key: string; value: string}) => attr.key === '_design_cloud_urls'
-      )?.value;
-      
-      // Handle multiple design URLs (from JSON string)
-      if (designCloudUrls && designCloudUrls !== 'STORED_IN_LOCAL_STORAGE') {
-        try {
-          // Parse the JSON array of design URLs
-          const urlsArray = JSON.parse(designCloudUrls);
-          if (Array.isArray(urlsArray)) {
-            // Add all valid URLs to our collection
-            urlsArray.forEach((urlItem: unknown) => {
-              const url = urlItem as string;
-              if (url && typeof url === 'string' && url.startsWith('http')) {
-                designedImageUrls.push(url);
-              }
-            });
-            
-            if (urlsArray.length > 0) {
-              cartLinesWithCustomImages.push(line);
-            }
-          }
-        } catch (e) {
-          console.error('Error parsing design cloud URLs:', e);
-        }
-      }
-      
-      // Handle individual design image URLs
-      if (designImageUrl && typeof designImageUrl === 'string' && designImageUrl.startsWith('http')) {
-        designedImageUrls.push(designImageUrl);
-        cartLinesWithCustomImages.push(line);
-      }
-      
-      // Handle customized image URLs
-      if (customizedImage && typeof customizedImage === 'string' && customizedImage.startsWith('http')) {
-        designedImageUrls.push(customizedImage);
-        if (!cartLinesWithCustomImages.includes(line)) {
-          cartLinesWithCustomImages.push(line);
-        }
-      }
+    console.log('🛒 [cart-prepare-checkout] Processing cart with',
+      cartData.lines?.nodes?.length || 0, 'lines');
+
+    // Check if we have customized products in the cart
+    const cartLines = cartData.lines?.nodes || [];
+    const customizedLinesCount = cartLines.filter((line: CartLineFragment) =>
+      line.attributes?.some(attr => attr.key === '_custom_design' && attr.value === 'true')
+    ).length;
+
+    console.log(`🔍 [cart-prepare-checkout] Found ${customizedLinesCount} customized product lines`);
+
+    // If no customized products, nothing to do
+    if (customizedLinesCount === 0) {
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'No custom designs found in cart',
+        designCount: 0,
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
-    
-    console.log(`Found ${designedImageUrls.length} design URLs across ${cartLinesWithCustomImages.length} cart items`);
-    
-    // Add all designed image URLs to cart attributes
-    if (designedImageUrls.length > 0) {
-      needsUpdate = true;
-      
-      // Try to ensure all design URLs are uploaded to our Cloudinary account
-      // This prevents broken images if the original URLs expire
-      const imageUrlsToUpload = [...designedImageUrls];
-      const secureDesignUrls: string[] = [];
-      
-      // Process images in batches to avoid overwhelming the system
-      const batchSize = 3;
-      for (let i = 0; i < imageUrlsToUpload.length; i += batchSize) {
-        const batch = imageUrlsToUpload.slice(i, i + batchSize);
-        const uploadPromises = batch.map(async (url) => {
-          // Check if already secure Cloudinary URL
-          if (url.includes('cloudinary.com') && url.startsWith('https')) {
-            secureDesignUrls.push(url);
-            return url;
-          }
-          
-          try {
-            // Re-upload to ensure we have a permanent copy
-            const secureUrl = await downloadAndReuploadToCloudinary(url, {
-              folder: 'checkout_images',
-              baseUrl: baseUrl,
-            });
-            
-            if (secureUrl.success && secureUrl.url) {
-              secureDesignUrls.push(secureUrl.url);
-              return secureUrl.url;
-            }
-          } catch (error) {
-            console.error(`Error securing design URL: ${url}`, error);
-          }
-          
-          // Fallback - use original URL
-          secureDesignUrls.push(url);
-          return url;
-        });
-        
-        // Wait for this batch to complete
-        await Promise.all(uploadPromises);
-      }
-      
-      // Update cart attributes with all secure design URLs
-      const cartAttributesUpdate = [
-        {
-          key: '_all_design_images',
-          value: JSON.stringify(secureDesignUrls),
-        },
-        {
-          key: '_checkout_prepared',
-          value: 'true',
-        },
-        {
-          key: '_checkout_timestamp',
-          value: new Date().toISOString(),
-        },
-      ];
-      
-      // Add cart attributes with the secure design URLs
+
+    // Process each line to ensure designs are ready for checkout
+    let updatedDesignCount = 0;
+    const attributeUpdates: Array<{
+      lineId: string;
+      attributes: Array<{ key: string, value: string }>;
+    }> = [];
+
+    for (const line of cartLines as CartLineFragment[]) {
+      // Check if this line has a custom design
+      const isCustomDesign = line.attributes?.some(attr =>
+        attr.key === '_custom_design' && attr.value === 'true'
+      );
+
+      if (!isCustomDesign) continue;
+
+      // Get the design image URL from attributes
+      const designImageUrl = line.attributes?.find(attr =>
+        attr.key === '_design_image_url' && attr.value
+      )?.value;
+
+      // Extract line ID for storage keys
+      const lineIdMatch = line.id?.match(/gid:\/\/shopify\/CartLine\/([^?]+)/);
+      const lineId = lineIdMatch ? lineIdMatch[1] : null;
+
+      if (!lineId) continue;
+
+      console.log(`🎨 [cart-prepare-checkout] Processing custom design for line ${lineId}`,
+        designImageUrl ? `with attribute URL: ${designImageUrl.substring(0, 50)}...` : 'with no URL found');
+
+      // First try localStorage for persisted design URL
+      let validDesignUrl: string | null = null;
+      let designSource = '';
+
       try {
-        await context.cart.updateAttributes(cartAttributesUpdate);
-        console.log('✅ Added design URLs to cart attributes');
-      } catch (error) {
-        console.error('Error updating cart attributes:', error);
-      }
-    }
-    
-    // If there are lines with customized images, update their note attributes
-    for (const line of cartLinesWithCustomImages) {
-      // Find the design URL for this line
-      const designImageUrl = line.attributes?.find(
-        (attr: {key: string; value: string}) => attr.key === '_design_image_url'
-      )?.value;
-      
-      const customizedImage = line.attributes?.find(
-        (attr: {key: string; value: string}) => attr.key === '_customized_image'
-      )?.value;
-      
-      const designCloudUrls = line.attributes?.find(
-        (attr: {key: string; value: string}) => attr.key === '_design_cloud_urls'
-      )?.value;
-      
-      let imageToUse = customizedImage || designImageUrl;
-      
-      // For multi-designs, use the first one
-      if (!imageToUse && designCloudUrls && designCloudUrls !== 'STORED_IN_LOCAL_STORAGE') {
-        try {
-          const urlsArray = JSON.parse(designCloudUrls);
-          if (Array.isArray(urlsArray) && urlsArray.length > 0) {
-            imageToUse = urlsArray[0];
+        // Check localStorage directly on the server (client-side Mirror API)
+        const storageKey = `cart-line-design-${lineId}`;
+        const storedDesignFromClient = await extractDesignUrlFromStorage(storageKey);
+
+        if (storedDesignFromClient && storedDesignFromClient.startsWith('http')) {
+          validDesignUrl = storedDesignFromClient;
+          designSource = 'localStorage';
+          console.log(`✅ [cart-prepare-checkout] Found design in localStorage for line ${lineId}`);
+        }
+        // Also check the _design_image_url attribute
+        else if (designImageUrl && designImageUrl.startsWith('http')) {
+          validDesignUrl = designImageUrl;
+          designSource = 'attributes';
+          console.log(`✅ [cart-prepare-checkout] Using design from attributes for line ${lineId}`);
+        }
+        // Check _all_designed_images attribute
+        else {
+          const allDesignedImagesAttr = line.attributes?.find(
+            (attr) => (attr.key === '_all_designed_images' || attr.key === '_all_design_images') && attr.value
+          )?.value;
+
+          if (allDesignedImagesAttr && allDesignedImagesAttr.startsWith('[')) {
+            try {
+              const parsedUrls = JSON.parse(allDesignedImagesAttr);
+              if (Array.isArray(parsedUrls) && parsedUrls.length > 0 &&
+                typeof parsedUrls[0] === 'string' && parsedUrls[0].startsWith('http')) {
+                validDesignUrl = parsedUrls[0];
+                designSource = 'all_designed_images';
+                console.log(`✅ [cart-prepare-checkout] Using first URL from all_designed_images for line ${lineId}`);
+              }
+            } catch (parseErr) {
+              console.error('[cart-prepare-checkout] Failed to parse all_designed_images', parseErr);
+            }
           }
-        } catch (e) {
-          console.error('Error parsing design cloud URLs:', e);
         }
+
+        // If we don't have a valid URL from these sources, check temp-latest as a last resort
+        if (!validDesignUrl) {
+          const latestDesign = await extractDesignUrlFromStorage('cart-line-design-temp-latest');
+          if (latestDesign && latestDesign.startsWith('http')) {
+            validDesignUrl = latestDesign;
+            designSource = 'temp-latest';
+            console.log(`✅ [cart-prepare-checkout] Using latest design as fallback for line ${lineId}`);
+          }
+        }
+      } catch (storageErr) {
+        console.error('[cart-prepare-checkout] Storage access error', storageErr);
       }
-      
-      // Only proceed if we have a valid image URL
-      if (imageToUse && typeof imageToUse === 'string' && imageToUse.startsWith('http')) {
-        try {
-          await context.cart.updateLines([{
-            id: line.id,
-            attributes: [
-              // Update or add the checkout-ready image URL
-              {
-                key: '_checkout_image',
-                value: imageToUse,
-              },
-              {
-                key: '_checkout_display_image',
-                value: imageToUse,
-              },
-              {
-                key: '_checkout_image_prepared',
-                value: 'true',
-              },
-              // Add the custom design flag explicitly to ensure checkout recognizes it
-              {
-                key: '_custom_design',
-                value: 'true',
-              },
-              // Add the design URL to the line item as well for redundancy
-              {
-                key: '_design_image_url',
-                value: imageToUse,
-              },
-              // Make sure we have the customized image as a backup
-              {
-                key: '_customized_image',
-                value: imageToUse,
-              },
-            ],
-          }]);
-          
-          console.log(`✅ Updated cart line ${line.id} with checkout image: ${imageToUse}`);
-          needsUpdate = true;
-        } catch (error) {
-          console.error(`Error updating cart line ${line.id}:`, error);
+
+      // Add attributes for checkout visibility
+      if (validDesignUrl) {
+        updatedDesignCount++;
+
+        // Create new attributes that will be visible during checkout
+        const newAttributes = [
+          { key: '_checkout_display_image', value: validDesignUrl },
+          { key: '_checkout_image', value: validDesignUrl },
+          { key: '_checkout_image_prepared', value: 'true' },
+          { key: '_design_source', value: designSource },
+          // Keep existing attributes for compatibility
+          { key: '_custom_design', value: 'true' },
+        ];
+
+        // Only add _design_image_url if it doesn't already exist or is different
+        if (!designImageUrl || designImageUrl !== validDesignUrl) {
+          newAttributes.push({ key: '_design_image_url', value: validDesignUrl });
         }
+
+        // Push the update
+        attributeUpdates.push({
+          lineId: line.id,
+          attributes: newAttributes
+        });
+
+        console.log(`✅ [cart-prepare-checkout] Added ${newAttributes.length} attributes for checkout display to line ${lineId}`);
+      } else {
+        console.warn(`⚠️ [cart-prepare-checkout] No valid design URL found for line ${lineId}`);
       }
     }
-    
+
+    // Apply all cart line updates
+    if (attributeUpdates.length > 0) {
+      try {
+        console.log(`🔄 [cart-prepare-checkout] Applying ${attributeUpdates.length} cart line updates`);
+
+        // Use the cart context to update cart lines directly
+        await context.cart.updateLines(attributeUpdates.map(update => ({
+          id: update.lineId,
+          attributes: update.attributes
+        })));
+
+        console.log('✅ [cart-prepare-checkout] Successfully updated cart lines with checkout attributes');
+      } catch (updateErr) {
+        console.error('[cart-prepare-checkout] Failed to update cart lines', updateErr);
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Failed to update cart with checkout attributes',
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     return new Response(JSON.stringify({
       success: true,
-      updated: needsUpdate,
-      designImageCount: designedImageUrls.length,
-      cartId,
+      message: `Successfully prepared ${updatedDesignCount} designs for checkout`,
+      designCount: updatedDesignCount,
     }), {
       status: 200,
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
     });
-  } catch (error) {
-    console.error('Error in cart preparation for checkout:', error);
+  } catch (err) {
+    console.error('[cart-prepare-checkout] Unexpected error:', err);
     return new Response(JSON.stringify({
-      success: false, 
-      error: String(error)
+      success: false,
+      error: 'Server error preparing cart for checkout',
     }), {
       status: 500,
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 } 

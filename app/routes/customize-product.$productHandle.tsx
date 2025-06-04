@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {useLoaderData, useParams, type LoaderFunctionArgs} from 'react-router';
+import {useLoaderData, useParams, type LoaderFunctionArgs, useNavigate, useRevalidator, useSubmit, useFetcher} from 'react-router';
 import {
   Upload,
   Type,
@@ -48,7 +48,10 @@ import {
   resetDesignsForProduct,
   type StoredDesign,
   getDesignForProductAndImage,
+  storeCartLineDesigns,
+  storeLatestDesign,
 } from '~/utils/designStorage';
+import {useCart} from '~/hooks/useCart';
 
 // Extend StoredDesign type locally to include cloudinaryUrl
 type ExtendedStoredDesign = StoredDesign & {
@@ -923,12 +926,17 @@ export async function loader({params, context}: LoaderFunctionArgs) {
 }
 
 export default function ProductCustomizer() {
-  const {product, customVariant, isOutOfStock, isLoggedIn, customer} =
+  const {product, customVariant, isOutOfStock, isLoggedIn, customer} = 
     useLoaderData<LoaderData>();
   const config = useConfig();
-  const params = useParams();
+  const {openCart} = useCart(); // Get openCart function from hook
+  const navigate = useNavigate();
+  const revalidator = useRevalidator();
+  const submit = useSubmit();
+  const cartFetcher = useFetcher(); // Add fetcher for cart updates without navigation
   const {toasts, removeToast, showSuccess, showError, showWarning, showInfo} =
     useToast();
+  const params = useParams();
 
   // Debug loader data
   console.log('⭐ ProductCustomizer loaded from loader:', {
@@ -2999,7 +3007,7 @@ export default function ProductCustomizer() {
                           ],
                         };
 
-                        // Step 3: Submit to cart using the proper Hydrogen CartForm format
+                        // Step 3: Submit to cart using proper React Router navigation
                         const cartFormInput = {
                           action: 'LinesAdd',
                           inputs: {
@@ -3011,51 +3019,66 @@ export default function ProductCustomizer() {
                           },
                         };
 
-                        const formData = new FormData();
-                        formData.append('cartFormInput', JSON.stringify(cartFormInput));
-
-                        const response = await fetch('/cart', {
-                          method: 'POST',
-                          body: formData,
-                        });
-
-                        console.log('Cart submission response:', {
-                          status: response.status,
-                          statusText: response.statusText,
-                          headers: Object.fromEntries(response.headers.entries()),
-                          url: response.url
-                        });
-
-                        if (response.ok) {
-                          const contentType = response.headers.get('content-type');
-                          if (contentType && contentType.includes('application/json')) {
-                            const result = await response.json();
-                            console.log('✅ Successfully added custom design to cart:', result);
-                            
-                            setIsCapturingDesign(false);
-                            showSuccess('Custom design added to cart!');
-                            
-                            // Open cart drawer/sidebar instead of redirecting
-                            document.dispatchEvent(new CustomEvent('cart:open'));
-                          } else {
-                            // Response is HTML, likely a redirect
-                            const textResult = await response.text();
-                            console.log('Cart submission returned HTML (likely redirect):', textResult.substring(0, 200));
-                            
-                            setIsCapturingDesign(false);
-                            showSuccess('Custom design added to cart!');
-                            
-                            // Open cart drawer/sidebar instead of redirecting
-                            document.dispatchEvent(new CustomEvent('cart:open'));
-                          }
-                        } else {
-                          const errorText = await response.text();
-                          console.error('Cart submission failed:', {
-                            status: response.status,
-                            statusText: response.statusText,
-                            body: errorText.substring(0, 500)
+                        try {
+                          // Use React Router fetcher for data submission without navigation
+                          const cartFormData = new FormData();
+                          cartFormData.append('cartFormInput', JSON.stringify(cartFormInput));
+                          
+                          // Store design URL in localStorage for persistence across page refreshes
+                          // We'll use a temporary ID until we get the real cart line ID
+                          const tempCartLineId = `temp-${Date.now()}`;
+                          storeCartLineDesigns(tempCartLineId, designResult.url!);
+                          
+                          // Also store as the latest design for easy retrieval
+                          storeLatestDesign(designResult.url!);
+                          
+                          // Submit to cart route using fetcher to prevent navigation
+                          cartFetcher.submit(cartFormData, {
+                            method: 'post',
+                            action: '/cart',
                           });
-                          throw new Error(`Cart submission failed: ${response.status} - ${errorText.substring(0, 100)}`);
+                          
+                          // Wait a moment for the submission to complete
+                          await new Promise(resolve => setTimeout(resolve, 300));
+                          
+                          console.log('✅ Successfully added custom design to cart with fetcher');
+                          console.log('✅ Design URL stored in localStorage for persistence');
+                          showSuccess('Custom design added to cart!');
+                          
+                          // Open cart drawer/sidebar
+                          openCart();
+                          
+                          // Only turn off loading state after everything completes
+                          setTimeout(() => {
+                            setIsCapturingDesign(false);
+                          }, 200);
+                          
+                        } catch (submitError) {
+                          console.error('Submit failed, falling back to fetch:', submitError);
+                          
+                          // Fallback to fetch if submit fails
+                          const cartFormData = new FormData();
+                          cartFormData.append('cartFormInput', JSON.stringify(cartFormInput));
+                          
+                          const response = await fetch('/cart', {
+                            method: 'POST',
+                            body: cartFormData,
+                          });
+
+                          if (response.ok) {
+                            console.log('✅ Fallback fetch successful');
+                            showSuccess('Custom design added to cart!');
+                            
+                            // Manually revalidate cart data
+                            revalidator.revalidate();
+                            
+                            // Open cart
+                            openCart();
+                          } else {
+                            throw new Error(`Cart submission failed: ${response.status}`);
+                          }
+                          
+                          setIsCapturingDesign(false);
                         }
 
                       } catch (error) {
@@ -3218,7 +3241,7 @@ export default function ProductCustomizer() {
                           ],
                         };
 
-                        // Step 3: Submit to cart using the proper Hydrogen CartForm format
+                        // Step 3: Submit to cart using proper React Router navigation
                         const cartFormInput = {
                           action: 'LinesAdd',
                           inputs: {
@@ -3230,51 +3253,66 @@ export default function ProductCustomizer() {
                           },
                         };
 
-                        const formData = new FormData();
-                        formData.append('cartFormInput', JSON.stringify(cartFormInput));
-
-                        const response = await fetch('/cart', {
-                          method: 'POST',
-                          body: formData,
-                        });
-
-                        console.log('Multi-design cart submission response:', {
-                          status: response.status,
-                          statusText: response.statusText,
-                          headers: Object.fromEntries(response.headers.entries()),
-                          url: response.url
-                        });
-
-                        if (response.ok) {
-                          const contentType = response.headers.get('content-type');
-                          if (contentType && contentType.includes('application/json')) {
-                            const result = await response.json();
-                            console.log('✅ Successfully added custom designs to cart:', result);
-                            
-                            setIsCapturingDesign(false);
-                            showSuccess(`${allDesignUrls.length} custom design(s) added to cart!`);
-                            
-                            // Open cart drawer/sidebar instead of redirecting
-                            document.dispatchEvent(new CustomEvent('cart:open'));
-                          } else {
-                            // Response is HTML, likely a redirect
-                            const textResult = await response.text();
-                            console.log('Multi-design cart submission returned HTML (likely redirect):', textResult.substring(0, 200));
-                            
-                            setIsCapturingDesign(false);
-                            showSuccess(`${allDesignUrls.length} custom design(s) added to cart!`);
-                            
-                            // Open cart drawer/sidebar instead of redirecting
-                            document.dispatchEvent(new CustomEvent('cart:open'));
-                          }
-                        } else {
-                          const errorText = await response.text();
-                          console.error('Multi-design cart submission failed:', {
-                            status: response.status,
-                            statusText: response.statusText,
-                            body: errorText.substring(0, 500)
+                        try {
+                          // Use React Router fetcher for data submission without navigation
+                          const cartFormData = new FormData();
+                          cartFormData.append('cartFormInput', JSON.stringify(cartFormInput));
+                          
+                          // Store design URLs in localStorage for persistence across page refreshes
+                          // We'll use a temporary ID until we get the real cart line ID
+                          const tempCartLineId = `temp-${Date.now()}`;
+                          storeCartLineDesigns(tempCartLineId, allDesignUrls);
+                          
+                          // Also store as the latest design for easy retrieval
+                          storeLatestDesign(allDesignUrls);
+                          
+                          // Submit to cart route using fetcher to prevent navigation
+                          cartFetcher.submit(cartFormData, {
+                            method: 'post',
+                            action: '/cart',
                           });
-                          throw new Error(`Cart submission failed: ${response.status} - ${errorText.substring(0, 100)}`);
+                          
+                          // Wait a moment for the submission to complete
+                          await new Promise(resolve => setTimeout(resolve, 300));
+                          
+                          console.log('✅ Successfully added custom designs to cart with fetcher');
+                          console.log('✅ Design URLs stored in localStorage for persistence');
+                          showSuccess(`${allDesignUrls.length} custom design(s) added to cart!`);
+                          
+                          // Open cart drawer/sidebar
+                          openCart();
+                          
+                          // Only turn off loading state after everything completes
+                          setTimeout(() => {
+                            setIsCapturingDesign(false);
+                          }, 200);
+                          
+                        } catch (submitError) {
+                          console.error('Submit failed, falling back to fetch:', submitError);
+                          
+                          // Fallback to fetch if submit fails
+                          const cartFormData = new FormData();
+                          cartFormData.append('cartFormInput', JSON.stringify(cartFormInput));
+                          
+                          const response = await fetch('/cart', {
+                            method: 'POST',
+                            body: cartFormData,
+                          });
+
+                          if (response.ok) {
+                            console.log('✅ Fallback fetch successful');
+                            showSuccess(`${allDesignUrls.length} custom design(s) added to cart!`);
+                            
+                            // Manually revalidate cart data
+                            revalidator.revalidate();
+                            
+                            // Open cart
+                            openCart();
+                          } else {
+                            throw new Error(`Cart submission failed: ${response.status}`);
+                          }
+                          
+                          setIsCapturingDesign(false);
                         }
 
                       } catch (error) {

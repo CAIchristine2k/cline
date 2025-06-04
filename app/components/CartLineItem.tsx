@@ -5,6 +5,7 @@ import type {CartLineFragment} from 'storefrontapi.generated';
 import type {CartLayout} from './CartMain';
 import {Trash2, Plus, Minus} from 'lucide-react';
 import {useEffect, useState} from 'react';
+import {getCartLineDesigns} from '~/utils/designStorage';
 
 /**
  * Modern cart line item with clean design and proper theme integration.
@@ -37,16 +38,19 @@ export function CartLineItem({
   const lineAttributes = line.attributes || [];
   
   const customDesignImage = lineAttributes.find(
-    (attr) => attr.key === '_design_image_url',
+    (attr) => attr.key === '_design_image_url' || attr.key === '_checkout_image' || attr.key === '_checkout_display_image',
   )?.value;
 
   const isCustomDesign =
     lineAttributes.find(
       (attr) => attr.key === '_custom_design'
+    )?.value === 'true' || 
+    lineAttributes.find(
+      (attr) => attr.key === '_checkout_image_prepared'
     )?.value === 'true';
 
   const customizedImage = lineAttributes.find(
-    (attr) => attr.key === '_customized_image',
+    (attr) => attr.key === '_customized_image' || attr.key === '_checkout_display_image',
   )?.value;
   
   // Look for designs in multiple locations
@@ -310,6 +314,48 @@ export function CartLineItem({
     merchandiseImage: merchandise?.image?.url || 'NO_IMAGE',
   });
 
+  // Check localStorage for design URLs
+  useEffect(() => {
+    if (isCustomDesign && !localDesignUrl) {
+      // Extract line ID from the Shopify cart line ID
+      const lineIdMatch = line.id?.match(/gid:\/\/shopify\/CartLine\/([^?]+)/);
+      const lineId = lineIdMatch ? lineIdMatch[1] : null;
+      
+      if (lineId) {
+        console.log(`🔍 Looking for persisted designs for cart line: ${lineId}`);
+        
+        // First check our new direct localStorage key
+        try {
+          const storageKey = `cart-line-design-${lineId}`;
+          const storedDesign = localStorage.getItem(storageKey);
+          
+          if (storedDesign && storedDesign.startsWith('http')) {
+            console.log(`✅ Found directly persisted design in localStorage for line: ${lineId}`);
+            setLocalDesignUrl(storedDesign);
+            return;
+          }
+        } catch (e) {
+          console.error('Error accessing localStorage directly', e);
+        }
+        
+        // Then try our structured storage
+        const persistedDesigns = getCartLineDesigns(lineId);
+        
+        if (persistedDesigns.length > 0) {
+          console.log(`✅ Found persisted designs in localStorage: ${persistedDesigns.length} URLs`);
+          setLocalDesignUrl(persistedDesigns[0]);
+        } else {
+          // Also try with temp IDs (look at all stored designs)
+          const tempDesigns = getCartLineDesigns('temp-latest');
+          if (tempDesigns.length > 0) {
+            console.log(`✅ Found persisted designs with temp ID: ${tempDesigns.length} URLs`);
+            setLocalDesignUrl(tempDesigns[0]);
+          }
+        }
+      }
+    }
+  }, [line.id, isCustomDesign, localDesignUrl]);
+
   // Debug custom design information
   console.log(`🎨 CartLineItem: Custom design analysis`, {
     isCustomDesign,
@@ -505,7 +551,7 @@ export function CartLineItem({
               )}
 
             {/* Custom Design Badge */}
-            {isCustomDesign && (
+            {/* {isCustomDesign && (
               <div className="flex items-center gap-1">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${
                   displayImageType === 'CUSTOM_DESIGN' || displayImageType === 'MULTI_DESIGN'
@@ -528,7 +574,7 @@ export function CartLineItem({
                   <div className="animate-pulse w-4 h-4 bg-yellow-500/30 rounded-full"></div>
                 )}
               </div>
-            )}
+            )} */}
 
             {/* Price */}
             <div className="flex items-baseline gap-2">

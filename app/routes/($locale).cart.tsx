@@ -336,11 +336,15 @@ export default function Cart() {
           {!cart?.totalQuantity ? 'Your Cart is Empty' : 'Your Cart'}
         </h1>
 
+        <center>
+
         {/* Main cart component - handles empty state and populated cart */}
         <CartMain 
           cart={cart}
           layout="page"
         />
+
+</center>
 
         {/* Continue shopping button when cart is empty */}
         {!cart?.totalQuantity && (

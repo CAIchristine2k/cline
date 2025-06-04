@@ -413,6 +413,128 @@ grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3
 
 ---
 
+## 🛒 Cart & Checkout Implementation
+
+### Custom Design Cart Implementation
+```typescript
+// Key components for custom designs
+app/components/ProductDesigner.tsx     // Main design editor
+app/components/AddToCartButton.tsx     // Cart submission handling
+app/components/CartLineItem.tsx        // Cart line item display
+app/routes/($locale).checkout.tsx      // Checkout flow
+app/routes/api.cart-prepare-checkout.tsx // Design preparation for checkout
+```
+
+### Design Storage Strategy
+1. **Primary**: Upload to Cloudinary with optimized URLs
+2. **Secondary**: Store in cart line item attributes:
+   - `_design_image_url`: Main design URL
+   - `_custom_design`: 'true' to flag as custom
+   - `_customized_image`: Base image URL
+   - `_checkout_image`: Checkout-specific URL
+3. **Fallback**: Store in localStorage for persistence:
+   - `cart-line-design-{lineId}`: Per-line item designs
+   - `cart-line-design-temp-latest`: Latest design as backup
+
+### Common Cart & Checkout Issues
+- **Problem**: Race condition between design capture and cart submission
+- **Solution**: Create sequential workflow that captures design first
+
+- **Problem**: Cart drawer not updating after design changes
+- **Solution**: Use Shopify CartForm component + custom fetchers properly
+
+- **Problem**: Custom designs disappearing on checkout
+- **Solution**: Use api.cart-prepare-checkout.tsx to prepare checkout attributes
+
+- **Problem**: Images not showing on checkout page
+- **Solution**: Add multiple attribute types + localStorage fallback strategy
+
+- **Problem**: Header covering checkout page content 
+- **Solution**: Add proper spacing (pt-16 mt-6) to container elements
+
+### Canvas Rendering & Konva Implementation
+- **Problem**: Canvas not working in Cloudflare Workers
+- **Solution**: Add canvas-mock.js + SSR optimization in vite.config.ts
+
+```typescript
+// Konva SSR optimization in vite.config.ts
+ssr: {
+  noExternal: ['react-konva', 'konva', ...],
+}
+```
+
+### API Response Patterns
+- **API Routes Pattern**: Use standard Response objects (not json helper)
+```typescript
+// ✅ CORRECT - Direct Response objects
+return new Response(JSON.stringify({
+  success: true,
+  data: result
+}), {
+  status: 200,
+  headers: {'Content-Type': 'application/json'},
+});
+
+// ❌ INCORRECT - Don't use Remix json helper
+return json({ success: true, data: result });
+```
+
+### Cloudinary Integration
+- **Config**: Stored in environment variables as `CLOUDINARY_URL`
+- **Upload Flow**:
+  1. Capture canvas as data URL
+  2. Upload to Cloudinary via api.upload-image.tsx
+  3. Store resulting URL in cart attributes
+  4. Create localStorage backup
+- **Utils**: 
+  - `app/utils/cloudinaryUpload.ts`: Main upload functions
+  - `app/utils/cloudinaryConfig.ts`: Config extraction
+  - `app/utils/storageManager.ts`: Multi-source storage
+
+### Error Handling & Debugging
+- **Logging Conventions**: Use emoji prefixes for log categories
+```typescript
+console.log('🛒 [Cart] Processing items:', items.length);
+console.error('❌ [Cart] Failed to process item:', error);
+console.warn('⚠️ [Checkout] Missing design URL, using fallback');
+```
+
+- **Fallback Strategy**: Always implement multi-layered fallbacks
+```typescript
+// Example fallback pattern for images
+try {
+  // Primary source
+  let imageUrl = await fetchPrimaryImage();
+  if (!imageUrl) {
+    // Secondary source
+    imageUrl = getFromAttributes();
+  }
+  if (!imageUrl) {
+    // Tertiary source
+    imageUrl = getFromLocalStorage();
+  }
+  if (!imageUrl) {
+    // Final fallback
+    imageUrl = defaultProductImage;
+  }
+} catch (error) {
+  console.error('Image retrieval error:', error);
+  // Safety fallback
+  imageUrl = defaultProductImage;
+}
+```
+
+- **Component State Debugging**: Add transparent debug overlays when needed
+```typescript
+{process.env.NODE_ENV === 'development' && (
+  <div className="fixed bottom-0 left-0 bg-black/80 text-white text-xs p-1 max-w-xs overflow-auto z-50">
+    <pre>{JSON.stringify({state, props, calculated}, null, 2)}</pre>
+  </div>
+)}
+```
+
+---
+
 ## 🎨 Customization Philosophy
 
 **Remember**: This template provides a **foundation with intelligent defaults** while maintaining **complete customizability**. 

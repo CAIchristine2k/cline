@@ -1,15 +1,15 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {useLoaderData, Link, Form, redirect} from 'react-router';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLoaderData, Link, Form, redirect } from 'react-router';
 import type {
   LoaderFunctionArgs,
   ActionFunctionArgs,
   MetaFunction,
 } from 'react-router';
-import {CartForm, Image, Money} from '@shopify/hydrogen';
-import {useConfig} from '~/utils/themeContext';
-import type {CartApiQueryFragment, CartLineFragment} from 'storefrontapi.generated';
-import {Truck, Shield, CreditCard, ArrowLeft, ExternalLink} from 'lucide-react';
-import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
+import { CartForm, Image, Money } from '@shopify/hydrogen';
+import { useConfig } from '~/utils/themeContext';
+import type { CartApiQueryFragment, CartLineFragment } from 'storefrontapi.generated';
+import { Truck, Shield, CreditCard, ArrowLeft, ExternalLink } from 'lucide-react';
+import { CART_QUERY_FRAGMENT } from '~/lib/fragments';
 
 interface LoaderData {
   cart: CartApiQueryFragment;
@@ -18,7 +18,7 @@ interface LoaderData {
 
 export const meta: MetaFunction = () => {
   return [
-    {title: 'Checkout'},
+    { title: 'Checkout' },
     {
       property: 'og:title',
       content: 'Secure Checkout',
@@ -30,8 +30,8 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({context}: LoaderFunctionArgs) {
-  const {cart: cartHandler} = context;
+export async function loader({ context }: LoaderFunctionArgs) {
+  const { cart: cartHandler } = context;
   const cartData = await cartHandler.get();
 
   if (!cartData || !cartData.lines?.nodes?.length) {
@@ -48,30 +48,31 @@ export async function loader({context}: LoaderFunctionArgs) {
  * CheckoutLineItem component that properly displays custom designs
  * using the same storage manager as CartLineItem for consistency
  */
-function CheckoutLineItem({line}: {line: CartLineFragment}) {
-  const {merchandise, quantity, attributes} = line;
-  
+function CheckoutLineItem({ line }: { line: CartLineFragment }) {
+  const { merchandise, quantity, attributes } = line;
+
   // Find the custom design attributes for this line item
   const customDesignImage = attributes?.find(
-    (attr) => attr.key === '_design_image_url',
+    (attr) => attr.key === '_design_image_url' || attr.key === '_checkout_image' || attr.key === '_checkout_display_image',
   )?.value;
 
   const isCustomDesign = attributes?.some(
-    (attr) => attr.key === '_custom_design' && attr.value === 'true',
+    (attr) => (attr.key === '_custom_design' && attr.value === 'true') ||
+      (attr.key === '_checkout_image_prepared' && (attr.value === 'true' || attr.value === 'ready'))
   );
 
   const customizedImage = attributes?.find(
-    (attr) => attr.key === '_customized_image',
+    (attr) => attr.key === '_customized_image' || attr.key === '_checkout_display_image',
   )?.value;
 
   const designStorageKey = attributes?.find(
     (attr) => attr.key === '_design_storage_key',
   )?.value;
-  
+
   // State to store local design images
   const [localDesignUrl, setLocalDesignUrl] = useState<string | null>(null);
   const [imageLoadAttempted, setImageLoadAttempted] = useState(false);
-  
+
   // Debug log all attributes and design info
   console.log(`🔍 [Checkout] CheckoutLineItem Debug for ${merchandise?.product?.title}:`, {
     lineId: line.id,
@@ -83,147 +84,82 @@ function CheckoutLineItem({line}: {line: CartLineFragment}) {
     localDesignUrl: localDesignUrl ? `${localDesignUrl.substring(0, 50)}...` : 'NONE',
     imageLoadAttempted,
   });
-  
-  // Effect to load designs using the smart storage manager
+
+  // Check localStorage for persisted design URLs
   useEffect(() => {
     if (!isCustomDesign || imageLoadAttempted) {
       return;
     }
 
-    // Helper function to process design references
-    async function processDesignReference(designRef: string, retrieveData: any): Promise<string | null> {
-      if (designRef.startsWith('http')) {
-        return designRef;
-      } else if (designRef.startsWith('data:image')) {
-        return designRef;
-      } else if (designRef.match(/^(localStorage|indexedDB|cloudinary):\/\//)) {
-        const imageData = await retrieveData(designRef);
-        if (imageData && typeof imageData === 'string') {
-          return imageData;
-        } else if (designRef.startsWith('cloudinary://')) {
-          const cloudinaryUrl = designRef.replace('cloudinary://', '');
-          if (cloudinaryUrl.startsWith('http')) {
-            return cloudinaryUrl;
-          }
-        }
-      }
-      return null;
-    }
+    setImageLoadAttempted(true);
 
-    async function loadDesignImage() {
-      setImageLoadAttempted(true);
-      console.log('🎯 [Checkout] Starting design image load for:', merchandise?.product?.title);
-      
+    // Extract line ID from the Shopify cart line ID
+    const lineIdMatch = line.id?.match(/gid:\/\/shopify\/CartLine\/([^?]+)/);
+    const lineId = lineIdMatch ? lineIdMatch[1] : null;
+
+    if (lineId) {
       try {
-        // Import the storage manager
-        const { retrieveData } = await import('~/utils/storageManager');
-        
-        // Strategy 1: Check if customDesignImage is a direct URL (http/https)
-        if (customDesignImage?.startsWith('http')) {
-          console.log('🌐 [Checkout] Using direct URL from customDesignImage');
-          setLocalDesignUrl(customDesignImage);
+        // Try direct localStorage access first - fastest method
+        const storageKey = `cart-line-design-${lineId}`;
+        const storedDesign = localStorage.getItem(storageKey);
+
+        if (storedDesign && storedDesign.startsWith('http')) {
+          console.log(`✅ [Checkout] Found persisted design in localStorage for line: ${lineId}`);
+          setLocalDesignUrl(storedDesign);
           return;
         }
-        
-        // Strategy 2: Check if customDesignImage is a base64 data URL
-        if (customDesignImage?.startsWith('data:image')) {
-          console.log('📸 [Checkout] Using base64 data URL from customDesignImage');
-          setLocalDesignUrl(customDesignImage);
+
+        // Also check 'temp-latest' as fallback
+        const latestDesign = localStorage.getItem('cart-line-design-temp-latest');
+        if (latestDesign && latestDesign.startsWith('http')) {
+          console.log('✅ [Checkout] Using latest design from localStorage');
+          setLocalDesignUrl(latestDesign);
           return;
         }
-        
-        // Strategy 3: Check if customDesignImage is a storage reference
-        if (customDesignImage?.match(/^(localStorage|indexedDB|cloudinary):\/\//)) {
-          console.log('🔍 [Checkout] Found storage reference:', customDesignImage);
-          
-          // Try to retrieve the design from the appropriate storage
-          const imageData = await retrieveData(customDesignImage);
-          
-          if (imageData && typeof imageData === 'string') {
-            console.log('✅ [Checkout] Successfully retrieved design from storage');
-            setLocalDesignUrl(imageData);
-            return;
-          } else {
-            console.warn('❌ [Checkout] Design not found in storage:', customDesignImage);
-            // If the reference is a cloudinary URL, we can use it directly
-            if (customDesignImage.startsWith('cloudinary://')) {
-              const cloudinaryUrl = customDesignImage.replace('cloudinary://', '');
-              if (cloudinaryUrl.startsWith('http')) {
-                console.log('🌥️ [Checkout] Using cloudinary URL directly');
-                setLocalDesignUrl(cloudinaryUrl);
-                return;
-              }
-            }
-          }
-        }
-        
-        // Strategy 4: Check multi-design storage using designStorageKey
-        if (designStorageKey) {
-          console.log('📦 [Checkout] Checking multi-design storage with key:', designStorageKey);
-          
-          try {
-            // Get the design URLs from IndexedDB first, then localStorage
-            let storedDesigns = await retrieveData(`indexedDB://${designStorageKey}`);
-            
-            if (!storedDesigns) {
-              console.log('🔄 [Checkout] IndexedDB storage empty, trying localStorage');
-              storedDesigns = localStorage.getItem(designStorageKey);
-            }
-            
-            if (storedDesigns && typeof storedDesigns === 'string') {
-              // Parse with proper typing
-              const designUrls = JSON.parse(storedDesigns) as Record<string, string>;
-              console.log('📦 [Checkout] Retrieved design URLs from storage:', designUrls);
-              
-              // If we have customizedImage, use it as a key to find the right design
-              if (customizedImage && designUrls[customizedImage]) {
-                const designRef = designUrls[customizedImage];
-                console.log('🎯 [Checkout] Found design for customized image:', designRef);
-                
-                // Process the design reference
-                const processedUrl = await processDesignReference(designRef, retrieveData);
-                if (processedUrl) {
-                  setLocalDesignUrl(processedUrl);
-                  return;
-                }
-              } else if (Object.keys(designUrls).length > 0) {
-                // Otherwise, just use the first design
-                const firstKey = Object.keys(designUrls)[0];
-                const designRef = designUrls[firstKey];
-                console.log('🎯 [Checkout] Using first design found:', designRef);
-                
-                const processedUrl = await processDesignReference(designRef, retrieveData);
-                if (processedUrl) {
-                  setLocalDesignUrl(processedUrl);
-                  return;
-                }
-              }
-            }
-          } catch (parseError) {
-            console.error('[Checkout] Error parsing stored designs:', parseError);
-          }
-        }
-        
-        // Strategy 5: Fallback to customizedImage if it's a URL
-        if (customizedImage?.startsWith('http')) {
-          console.log('🔄 [Checkout] Falling back to customizedImage URL');
-          setLocalDesignUrl(customizedImage);
-          return;
-        }
-        
-        console.warn('❌ [Checkout] No design image found, will use product image');
-        
-      } catch (error) {
-        console.error('[Checkout] Error loading design image:', error);
+      } catch (e) {
+        console.error('[Checkout] Error accessing localStorage', e);
       }
     }
-    
-    loadDesignImage();
-  }, [isCustomDesign, customDesignImage, designStorageKey, customizedImage, imageLoadAttempted, merchandise?.product?.title]);
+  }, [isCustomDesign, line.id, imageLoadAttempted]);
 
   // Determine what image to display - prioritize custom designs completely
   let displayImageUrl = merchandise?.image?.url || '';
   let displayImageType = 'PRODUCT';
+
+  // Add an effect to use direct attribute values as fallback
+  useEffect(() => {
+    // If we already have a design image from localStorage, don't replace it
+    if (localDesignUrl) return;
+
+    // Otherwise, check direct cart attributes as fallback
+    if (isCustomDesign) {
+      if (customDesignImage?.startsWith('http')) {
+        console.log('🔍 [Checkout] Setting design URL from direct attributes:', customDesignImage.substring(0, 50));
+        setLocalDesignUrl(customDesignImage);
+      } else if (customizedImage?.startsWith('http')) {
+        console.log('🔍 [Checkout] Setting design URL from customized image:', customizedImage.substring(0, 50));
+        setLocalDesignUrl(customizedImage);
+      }
+
+      // Check for all_designed_images attribute
+      const allDesignedImagesAttr = attributes?.find(
+        (attr) => attr.key === '_all_designed_images' || attr.key === '_all_design_images'
+      )?.value;
+
+      if (allDesignedImagesAttr && !localDesignUrl) {
+        try {
+          const imageUrls = JSON.parse(allDesignedImagesAttr);
+          if (Array.isArray(imageUrls) && imageUrls.length > 0 &&
+            typeof imageUrls[0] === 'string' && imageUrls[0].startsWith('http')) {
+            console.log('🔍 [Checkout] Setting design URL from all_designed_images:', imageUrls[0].substring(0, 50));
+            setLocalDesignUrl(imageUrls[0]);
+          }
+        } catch (e) {
+          console.error('[Checkout] Error parsing all_designed_images', e);
+        }
+      }
+    }
+  }, [isCustomDesign, customDesignImage, customizedImage, localDesignUrl, attributes]);
 
   if (isCustomDesign) {
     // ABSOLUTE PRIORITY: If we have a local design URL from storage, use it
@@ -231,25 +167,25 @@ function CheckoutLineItem({line}: {line: CartLineFragment}) {
       displayImageUrl = localDesignUrl;
       displayImageType = 'CUSTOM_DESIGN';
       console.log('✅ [Checkout] Using custom design from storage:', localDesignUrl.substring(0, 50) + '...');
-    } 
+    }
     // SECOND: Direct URL from cart attributes
     else if (customDesignImage?.startsWith('http')) {
       displayImageUrl = customDesignImage;
       displayImageType = 'CUSTOM_DESIGN';
       console.log('✅ [Checkout] Using custom design URL from cart attributes');
-    } 
+    }
     // THIRD: Base64 image from cart attributes
     else if (customDesignImage?.startsWith('data:image')) {
       displayImageUrl = customDesignImage;
       displayImageType = 'CUSTOM_DESIGN';
       console.log('✅ [Checkout] Using custom design base64 from cart attributes');
-    } 
+    }
     // FOURTH: Fallback to customized base image
     else if (customizedImage?.startsWith('http')) {
       displayImageUrl = customizedImage;
       displayImageType = 'CUSTOMIZED_BASE';
       console.log('⚠️ [Checkout] Using customized base image as fallback');
-    } 
+    }
     // LAST RESORT: Product image with custom label
     else {
       displayImageUrl = merchandise?.image?.url || '';
@@ -285,27 +221,98 @@ function CheckoutLineItem({line}: {line: CartLineFragment}) {
                   alt={`Custom ${merchandise.product.title}`}
                   onError={(e) => {
                     console.error('🚨 [Checkout] Custom design image failed to load:', displayImageUrl?.substring(0, 100));
-                    // If the custom design image fails to load, try falling back to the product image
-                    if (merchandise?.image?.url) {
+
+                    // Try falling back to different sources in priority order
+                    const imgElement = e.currentTarget;
+
+                    // First check if there are any other attributes with images
+                    if (attributes) {
+                      // First try _checkout_image or _checkout_display_image if we're not already using it
+                      const checkoutImage = attributes.find(attr =>
+                        (attr.key === '_checkout_image' || attr.key === '_checkout_display_image') &&
+                        attr.value && attr.value.startsWith('http') &&
+                        attr.value !== displayImageUrl
+                      )?.value;
+
+                      if (checkoutImage) {
+                        console.log('♻️ [Checkout] Falling back to checkout image attribute');
+                        imgElement.src = checkoutImage;
+                        return;
+                      }
+
+                      // Next try _all_designed_images or _all_design_images
+                      const allDesignedImagesAttr = attributes.find(
+                        (attr) => (attr.key === '_all_designed_images' || attr.key === '_all_design_images') &&
+                          attr.value && attr.value.startsWith('[')
+                      )?.value;
+
+                      if (allDesignedImagesAttr) {
+                        try {
+                          const imageUrls = JSON.parse(allDesignedImagesAttr);
+                          if (Array.isArray(imageUrls) && imageUrls.length > 0 &&
+                            typeof imageUrls[0] === 'string' && imageUrls[0].startsWith('http') &&
+                            imageUrls[0] !== displayImageUrl) {
+                            console.log('♻️ [Checkout] Falling back to all_designed_images URL');
+                            imgElement.src = imageUrls[0];
+                            return;
+                          }
+                        } catch (e) { /* Ignore parsing errors */ }
+                      }
+
+                      // Next try _design_image_url if not already using it
+                      const designImageUrl = attributes.find(attr =>
+                        attr.key === '_design_image_url' &&
+                        attr.value && attr.value.startsWith('http') &&
+                        attr.value !== displayImageUrl
+                      )?.value;
+
+                      if (designImageUrl) {
+                        console.log('♻️ [Checkout] Falling back to design_image_url attribute');
+                        imgElement.src = designImageUrl;
+                        return;
+                      }
+
+                      // Next try _customized_image if not already using it
+                      const custImage = attributes.find(attr =>
+                        attr.key === '_customized_image' &&
+                        attr.value && attr.value.startsWith('http') &&
+                        attr.value !== displayImageUrl
+                      )?.value;
+
+                      if (custImage) {
+                        console.log('♻️ [Checkout] Falling back to customized_image attribute');
+                        imgElement.src = custImage;
+                        return;
+                      }
+                    }
+
+                    // Additionally, check localStorage fallbacks
+                    try {
+                      // Check the temp-latest key first as that's most likely to have a valid image
+                      const latestDesign = localStorage.getItem('cart-line-design-temp-latest');
+                      if (latestDesign && latestDesign.startsWith('http') && latestDesign !== displayImageUrl) {
+                        console.log('♻️ [Checkout] Falling back to latest design from localStorage');
+                        imgElement.src = latestDesign;
+                        return;
+                      }
+                    } catch (e) {
+                      console.error('[Checkout] Error accessing localStorage during fallback', e);
+                    }
+
+                    // Finally fall back to product image as last resort
+                    if (merchandise?.image?.url && merchandise.image.url !== displayImageUrl) {
                       console.log('♻️ [Checkout] Falling back to product image');
-                      e.currentTarget.src = merchandise.image.url;
+                      imgElement.src = merchandise.image.url;
                     } else {
                       // Hide the image on error if no fallback is available
                       console.log('❌ [Checkout] No fallback image available, hiding image');
-                      e.currentTarget.style.display = 'none';
+                      imgElement.style.display = 'none';
                     }
                   }}
                   onLoad={() => {
                     console.log('✅ [Checkout] Custom design image loaded successfully');
                   }}
                 />
-                
-                {/* Show a badge indicating this is a custom design */}
-                <div className="absolute bottom-0 w-full py-1 px-1 bg-black/70 backdrop-blur-sm text-center">
-                  <span className="text-xs text-white font-medium">
-                    {displayImageType === 'CUSTOM_DESIGN' ? 'Custom Design' : 'Customized'}
-                  </span>
-                </div>
               </div>
             ) : merchandise.image ? (
               // Standard Shopify product image object
@@ -326,35 +333,11 @@ function CheckoutLineItem({line}: {line: CartLineFragment}) {
               No Image
             </div>
           )}
-          
-          {/* Custom design indicator */}
-          {(displayImageType === 'CUSTOM_DESIGN' || 
-            displayImageType === 'CUSTOMIZED_BASE' || 
-            displayImageType === 'VARIANT_WITH_CUSTOM_LABEL') && (
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 border-2 border-white/20 rounded-full flex items-center justify-center">
-              <span className="text-xs">🎨</span>
-            </div>
-          )}
+
+          {/* Custom design indicator removed as requested */}
         </div>
 
-        {/* Custom design status badge */}
-        {isCustomDesign && (
-          <div className="mt-2 text-center">
-            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-              displayImageType === 'CUSTOM_DESIGN' 
-                ? 'bg-green-500/20 border border-green-500/30 text-green-300' 
-                : displayImageType === 'CUSTOMIZED_BASE' 
-                  ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300'
-                  : 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
-            }`}>
-              🎨 {displayImageType === 'CUSTOM_DESIGN' 
-                  ? 'Custom' 
-                  : displayImageType === 'CUSTOMIZED_BASE' 
-                    ? 'Customized'
-                    : 'Processing'}
-            </span>
-          </div>
-        )}
+        {/* Custom design status badge removed as requested */}
       </div>
 
       {/* Product Details */}
@@ -404,7 +387,7 @@ const CART_QUERY = `#graphql
  * and provides a clean review experience before payment
  */
 export default function Checkout() {
-  const {cart, checkoutDomain} = useLoaderData<LoaderData>();
+  const { cart, checkoutDomain } = useLoaderData<LoaderData>();
   const config = useConfig();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPreparingOrder, setIsPreparingOrder] = useState(false);
@@ -417,14 +400,14 @@ export default function Checkout() {
       (attr) => attr.key === '_custom_design' && attr.value === 'true',
     ),
   ) || false;
-  
+
   // Function to prepare cart for checkout by ensuring all design images are uploaded
   const prepareCartForCheckout = useCallback(async () => {
     if (!cart?.id) return;
-    
+
     setIsPreparingOrder(true);
     setPrepareError(null);
-    
+
     try {
       console.log('🔄 Preparing cart for checkout...');
       const response = await fetch('/api/cart-prepare-checkout', {
@@ -434,14 +417,14 @@ export default function Checkout() {
         },
         body: JSON.stringify({ cartId: cart.id }),
       });
-      
+
       const result = await response.json() as {
         success: boolean;
         message?: string;
         error?: string;
         designCount?: number;
       };
-      
+
       if (result.success) {
         console.log('✅ Cart prepared successfully with', result.designCount || 0, 'designs');
         setCheckoutReady(true);
@@ -461,7 +444,7 @@ export default function Checkout() {
       setIsPreparingOrder(false);
     }
   }, [cart?.id]);
-  
+
   // Initialize checkout preparation if cart has custom designs
   useEffect(() => {
     if (hasCustomDesigns && cart?.id && !isPreparingOrder && !checkoutReady && !prepareError) {
@@ -474,7 +457,7 @@ export default function Checkout() {
 
   const handleProceedToPayment = async () => {
     setIsProcessing(true);
-    
+
     // If we have custom designs but they haven't been prepared yet, prepare them first
     if (hasCustomDesigns && !checkoutReady && !isPreparingOrder) {
       const success = await prepareCartForCheckout();
@@ -483,7 +466,7 @@ export default function Checkout() {
         return; // Don't proceed if preparation failed
       }
     }
-    
+
     // Create checkout URL on the centralized domain or use Shopify's checkout
     if (cart.checkoutUrl) {
       window.location.href = cart.checkoutUrl;
@@ -493,10 +476,10 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-secondary/80 backdrop-blur-sm mt-20">
       {/* Header */}
-      <div className="bg-secondary/40 backdrop-blur-md border-b border-primary/20 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+      <div className="bg-secondary/70 backdrop-blur-md border-b border-primary/20 sticky top-0 z-50 shadow-lg">
+        <div className="container mx-auto px-4 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link
@@ -515,7 +498,7 @@ export default function Checkout() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-16 mt-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Order Review - Left Side */}
           <div className="order-2 lg:order-1">
@@ -561,7 +544,7 @@ export default function Checkout() {
 
           {/* Order Summary & Payment - Right Side */}
           <div className="order-1 lg:order-2">
-            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-6 sticky top-24">
+            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-6 sticky top-28">
               <h2 className="text-2xl font-bold text-white mb-6">
                 Order Summary
               </h2>
@@ -612,35 +595,16 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Custom Design Notice */}
-              {hasCustomDesigns && (
-                <div className="mb-6 p-4 bg-blue-600/20 border border-blue-600/30 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <div className="text-blue-400 mt-0.5">🎨</div>
-                    <div>
-                      <h4 className="text-blue-300 font-semibold text-sm mb-1">
-                        Custom Design Order
-                      </h4>
-                      <p className="text-blue-200 text-xs">
-                        Your custom design will be printed exactly as shown
-                        above. Production typically takes 2-3 business days.
-                      </p>
-                      {isPreparingOrder && (
-                        <div className="mt-2 flex items-center text-blue-200 text-xs">
-                          <div className="w-3 h-3 border-2 border-blue-300/30 border-t-blue-300 rounded-full animate-spin mr-1"></div>
-                          Preparing designs for production...
-                        </div>
-                      )}
-                      {checkoutReady && hasCustomDesigns && (
-                        <div className="mt-2 text-green-300 text-xs flex items-center">
-                          ✓ Designs ready for production
-                        </div>
-                      )}
-                    </div>
+              {/* Loading indicator only if designs are being prepared */}
+              {isPreparingOrder && (
+                <div className="mb-6 p-4 bg-blue-600/10 border border-blue-600/20 rounded-lg">
+                  <div className="flex items-center justify-center text-blue-200 text-sm">
+                    <div className="w-4 h-4 border-2 border-blue-300/30 border-t-blue-300 rounded-full animate-spin mr-2"></div>
+                    Preparing your order...
                   </div>
                 </div>
               )}
-              
+
               {/* Error message */}
               {prepareError && (
                 <div className="mb-6 p-4 bg-red-600/20 border border-red-600/30 rounded-lg">
@@ -653,7 +617,7 @@ export default function Checkout() {
                       <p className="text-red-200 text-xs">
                         {prepareError} Please try again or contact customer support.
                       </p>
-                      <button 
+                      <button
                         onClick={() => prepareCartForCheckout()}
                         className="mt-2 text-xs text-white bg-red-600/30 hover:bg-red-600/50 px-3 py-1 rounded-full"
                       >

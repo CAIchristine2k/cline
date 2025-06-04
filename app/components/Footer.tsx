@@ -4,9 +4,6 @@ import {
   Twitter,
   Facebook,
   Youtube,
-  Mail,
-  MapPin,
-  Phone,
   Music,
 } from 'lucide-react';
 import {Link} from 'react-router';
@@ -55,20 +52,6 @@ export function Footer() {
     'Search',
     'Cart',
     'Privacy Policy & Terms', // Combined Privacy Policy and Terms
-  ];
-
-  const contactInfo = [
-    {
-      icon: MapPin,
-      text:
-        config.contactInfo?.address ||
-        `${config.brandName} HQ, 123 Championship Blvd, Los Angeles, CA 90001`,
-    },
-    {icon: Phone, text: config.contactInfo?.phone || '+1 (800) CHAMPION'},
-    {
-      icon: Mail,
-      text: 'contact@xavvi.com', // Updated email address
-    },
   ];
 
   const policies = ['Privacy Policy & Terms', 'Sitemap']; // Updated policies array
@@ -123,7 +106,7 @@ export function Footer() {
     <footer className="bg-gray-950 pt-20 pb-10">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           {/* Brand Column */}
           <div>
             <Link to="/">
@@ -195,29 +178,6 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
-            </ul>
-          </div>
-
-          {/* Contact Info Column */}
-          <div>
-            <h4 className="text-white font-bold text-lg mb-6 relative inline-block">
-              Contact Info
-              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-primary"></span>
-            </h4>
-            <ul className="space-y-5">
-              {contactInfo.map((info, index) => {
-                const IconComponent = info.icon;
-                return (
-                  <li key={index} className="flex items-start">
-                    <div className="bg-gray-900 p-2 rounded-sm mr-3 flex-shrink-0">
-                      <IconComponent className="h-4 w-4 text-primary" />
-                    </div>
-                    <span className="text-gray-400 text-sm leading-relaxed">
-                      {info.text}
-                    </span>
-                  </li>
-                );
-              })}
             </ul>
           </div>
         </div>
