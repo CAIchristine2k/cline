@@ -45,6 +45,32 @@ export function MyComponent() {
 3. **Custom CSS for complex styling**
 4. **Config integration optional** (components can override)
 
+### 🖌️ UI Design System Patterns
+1. **Interactive elements**: Use gradients with soft shadows
+   ```tsx
+   className="bg-gradient-to-br from-blue-600 to-primary shadow-sm shadow-primary/20"
+   ```
+2. **Hover effects**: Scale transforms + backdrop glow
+   ```tsx
+   className="group hover:scale-105"
+   // With inner element
+   className="group-hover:scale-110 transition-transform"
+   ```
+3. **Icon containers**: Circular with subtle backdrop blur
+   ```tsx
+   <div className="bg-white/10 backdrop-blur-sm rounded-full p-1">
+     <Icon className="w-4 h-4 text-white" />
+   </div>
+   ```
+4. **Action buttons**: Square aspect ratio for visual balance
+   ```tsx
+   className="aspect-square bg-secondary/70 hover:bg-secondary disabled:opacity-40"
+   ```
+5. **Card patterns**: Consistent rounding, borders, and shadows
+   ```tsx
+   className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-xl overflow-hidden shadow-lg"
+   ```
+
 ---
 
 ## 🏭 Infrastructure & Deployment
@@ -246,6 +272,37 @@ className="bg-primary text-primary border-primary"
 3. **Polling**: `api.ai-media-generation.$taskId.tsx` - Check status
 4. **Auth**: `api.ai-media-generation.auth.tsx` - Verify access
 
+### KlingAI API Status Codes
+- **submitted**: Initial state when task is created
+- **processing**: Task is actively being processed by KlingAI
+- **succeed**: Task has completed successfully ✅ (Note: NOT "completed")
+- **failed**: Task has failed to process ❌
+
+### KlingAI Polling Best Practices
+```typescript
+// Start polling with a shorter interval (3 seconds) 
+pollInterval = setInterval(poll, 3000);
+
+// Check for both status conditions
+if (statusResult.status === 'completed' || statusResult.status === 'succeed') {
+  console.log('✅ AI generation completed successfully!');
+  clearInterval(pollInterval);
+  // Process result
+}
+
+// Include timeout safety
+const MAX_POLL_ATTEMPTS = 200; // 10 minutes max
+let pollAttempts = 0;
+
+// Within poll function
+pollAttempts++;
+if (pollAttempts > MAX_POLL_ATTEMPTS) {
+  clearInterval(pollInterval);
+  console.error('❌ Polling timeout - reached maximum attempts');
+  // Handle timeout error
+}
+```
+
 ### KlingAI Integration Points
 - JWT token generation for authentication
 - Multiple generation types: virtual-try-on, fan-together, logo-design
@@ -344,6 +401,8 @@ grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3
 ### AI Generation Failing
 - **Problem**: KlingAI API errors
 - **Solution**: Check environment variables `KLING_ACCESS_KEY` and `KLING_SECRET_KEY`
+- **Problem**: Status handling issues
+- **Solution**: Check for both 'completed' AND 'succeed' status values
 
 ---
 
@@ -461,6 +520,28 @@ app/routes/api.cart-prepare-checkout.tsx // Design preparation for checkout
 ssr: {
   noExternal: ['react-konva', 'konva', ...],
 }
+```
+
+### Layer Management in ProductDesigner
+- **CRITICAL**: Background images with cutouts MUST be on top of user elements
+```typescript
+// Correct layer ordering in ProductDesigner.tsx
+<Layer>
+  {/* First layer: User Elements - Sorted by zIndex */}
+  {elements
+    .sort((a, b) => a.zIndex - b.zIndex)
+    .map((element) => {
+      // User elements rendering
+    })}
+    
+  {/* Top layer: Background Product Image with transparent cutouts */}
+  <KonvaImage
+    image={backgroundImage}
+    width={stageSize.width}
+    height={stageSize.height}
+    listening={false}
+  />
+</Layer>
 ```
 
 ### API Response Patterns

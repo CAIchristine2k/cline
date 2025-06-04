@@ -1315,6 +1315,75 @@ export type StoreRobotsQueryVariables = StorefrontAPI.Exact<{
 
 export type StoreRobotsQuery = {shop: Pick<StorefrontAPI.Shop, 'id'>};
 
+export type ProductCustomizerQueryVariables = StorefrontAPI.Exact<{
+  handle: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type ProductCustomizerQuery = {
+  product?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Product, 'id' | 'handle' | 'title' | 'description'> & {
+      images: {
+        nodes: Array<
+          Pick<
+            StorefrontAPI.Image,
+            'id' | 'url' | 'altText' | 'width' | 'height'
+          >
+        >;
+      };
+      media: {
+        nodes: Array<
+          | Pick<StorefrontAPI.ExternalVideo, 'id'>
+          | (Pick<StorefrontAPI.MediaImage, 'id'> & {
+              image?: StorefrontAPI.Maybe<
+                Pick<
+                  StorefrontAPI.Image,
+                  'id' | 'url' | 'altText' | 'width' | 'height'
+                >
+              >;
+            })
+          | Pick<StorefrontAPI.Model3d, 'id'>
+          | Pick<StorefrontAPI.Video, 'id'>
+        >;
+      };
+      variants: {
+        nodes: Array<
+          Pick<
+            StorefrontAPI.ProductVariant,
+            'id' | 'title' | 'availableForSale'
+          > & {
+            price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+            compareAtPrice?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+            >;
+            image?: StorefrontAPI.Maybe<
+              Pick<
+                StorefrontAPI.Image,
+                'id' | 'url' | 'altText' | 'width' | 'height'
+              >
+            >;
+            metafield?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Metafield, 'id' | 'type' | 'value'> & {
+                references?: StorefrontAPI.Maybe<{
+                  nodes: Array<
+                    Pick<StorefrontAPI.MediaImage, 'id'> & {
+                      image?: StorefrontAPI.Maybe<
+                        Pick<
+                          StorefrontAPI.Image,
+                          'url' | 'altText' | 'width' | 'height'
+                        >
+                      >;
+                    }
+                  >;
+                }>;
+              }
+            >;
+          }
+        >;
+      };
+    }
+  >;
+};
+
 export type AllProductsQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
@@ -1521,6 +1590,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query StoreRobots($country: CountryCode, $language: LanguageCode)\n   @inContext(country: $country, language: $language) {\n    shop {\n      id\n    }\n  }\n': {
     return: StoreRobotsQuery;
     variables: StoreRobotsQueryVariables;
+  };
+  '#graphql\n  query ProductCustomizer($handle: String!) {\n    product(handle: $handle) {\n      id\n      handle\n      title\n      description\n      images(first: 10) {\n        nodes {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n      }\n      media(first: 50) {\n        nodes {\n          id\n          ... on MediaImage {\n            image {\n              id\n              url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      variants(first: 25) {\n        nodes {\n          id\n          title\n          availableForSale\n          price {\n            amount\n            currencyCode\n          }\n          compareAtPrice {\n            amount\n            currencyCode\n          }\n          image {\n            id\n            url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n            altText\n            width\n            height\n          }\n          metafield(namespace: "custom", key: "variant_imgs") {\n            id\n            type\n            value\n            references(first: 20) {\n              nodes {\n                ... on MediaImage {\n                  id\n                  image {\n                    url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n                    altText\n                    width\n                    height\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: ProductCustomizerQuery;
+    variables: ProductCustomizerQueryVariables;
   };
   '#graphql\n  query AllProducts($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    products(first: 50) {\n      nodes {\n        id\n        title\n        handle\n        description\n        tags\n        featuredImage {\n          url\n          altText\n          width\n          height\n        }\n        images(first: 5) {\n          nodes {\n            url\n            altText\n            width\n            height\n          }\n        }\n        media(first: 20) {\n          nodes {\n            id\n            ... on MediaImage {\n              image {\n                url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n                altText\n                width\n                height\n              }\n            }\n          }\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 25) {\n          nodes {\n            id\n            title\n            availableForSale\n            image {\n              url\n              altText\n              width\n              height\n            }\n            price {\n              amount\n              currencyCode\n            }\n            compareAtPrice {\n              amount\n              currencyCode\n            }\n            metafields(identifiers: [{namespace: "custom", key: "variant_imgs"}]) {\n              key\n              value\n              namespace\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: AllProductsQuery;
