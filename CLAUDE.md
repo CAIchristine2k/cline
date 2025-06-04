@@ -160,7 +160,11 @@ $locale._index
   )
   .products.$handle.tsx($locale)
   .collections.$handle.tsx($locale)
-  .collections._index.tsx(
+  .collections.all.tsx(
+    // "Shop All" products collection
+    // IMPORTANT: Never use ($locale).collections._index.tsx or ($locale).collections.index.tsx directly
+    // as we're operating in a multi-storefront environment and collections are store-specific
+
     // Cart & Search
     $locale,
   )
@@ -171,6 +175,21 @@ $locale._index
   )
   .account.tsx($locale)
   .account._index.tsx($locale).account.profile.tsx;
+```
+
+### Multi-Storefront Considerations
+
+```typescript
+// DO NOT use these patterns:
+- Link directly to "/collections" (use "/collections/all" instead)
+- Try to display all collections from multiple storefronts
+- Create collection routes that aren't store-specific
+
+// Collections in multi-storefront setup
+- Each storefront has its own unique collections
+- Always link to specific collection handles: "/collections/{handle}"
+- Use "/collections/all" as the primary browsing route
+- Redirect generic "/collections" routes to "/collections/all"
 ```
 
 ### API Routes (Server-side)

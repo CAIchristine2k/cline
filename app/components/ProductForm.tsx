@@ -29,9 +29,11 @@ interface ProductVariant {
 export function ProductForm({
   product,
   storeDomain,
+  onVariantChange,
 }: {
   product: NonNullable<ProductDetailsQuery['product']>;
   storeDomain?: string;
+  onVariantChange?: (variant: any) => void;
 }) {
   const config = useConfig();
   const {open} = useAside();
@@ -53,6 +55,7 @@ export function ProductForm({
   useEffect(() => {
     const variant = product.selectedVariant || product.variants?.nodes?.[0];
     if (variant) {
+      // Create a basic variant without the image field
       setSelectedVariant({
         id: variant.id,
         title: variant.title,
@@ -85,6 +88,20 @@ export function ProductForm({
     }
   }, [product]);
 
+  // Call onVariantChange once when the selected variant is initialized or changes
+  useEffect(() => {
+    if (selectedVariant && onVariantChange) {
+      const variantWithImage = product.variants?.nodes?.find(
+        (variant) => variant.id === selectedVariant.id,
+      );
+      if (variantWithImage) {
+        onVariantChange(variantWithImage);
+      }
+    }
+    // Intentionally only depend on selectedVariant.id, not the entire object or onVariantChange
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVariant?.id, product.variants?.nodes]);
+
   // Find options available in this product
   const options = product.options.filter((option) => option.values.length > 1);
 
@@ -103,6 +120,7 @@ export function ProductForm({
     });
 
     if (newVariant) {
+      // Set the variant without the image field to avoid type issues
       setSelectedVariant({
         id: newVariant.id,
         title: newVariant.title,
@@ -122,6 +140,8 @@ export function ProductForm({
           : null,
         sku: newVariant.sku,
       });
+
+      // The useEffect that depends on selectedVariant.id will handle calling onVariantChange
     }
   };
 
@@ -203,11 +223,25 @@ export function ProductForm({
             <div key={option.name}>
               <h3 className="text-sm font-medium mb-2">
                 {option.name}
-                {selectedOptions[option.name] && (
-                  <span className="ml-1 font-normal text-primary-700">
-                    - {selectedOptions[option.name]}
-                  </span>
-                )}
+                {selectedOptions[option.name] &&
+                  (() => {
+                    const variantNodes = product.variants?.nodes || [];
+                    const currentOptionVariant = variantNodes.find((variant) =>
+                      variant.selectedOptions.some(
+                        (opt) =>
+                          opt.name === option.name &&
+                          opt.value === selectedOptions[option.name],
+                      ),
+                    );
+                    const isCurrentOptionAvailable =
+                      currentOptionVariant?.availableForSale || false;
+
+                    return isCurrentOptionAvailable ? (
+                      <span className="ml-1 font-normal text-primary-700">
+                        - {selectedOptions[option.name]}
+                      </span>
+                    ) : null;
+                  })()}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {option.values.map((value) => {
@@ -234,7 +268,7 @@ export function ProductForm({
                       }`}
                       disabled={!isAvailableOption}
                     >
-                      {value}
+                      {isAvailableOption && value}
                       {!isAvailableOption && (
                         <span className="absolute inset-0 flex items-center justify-center text-xs">
                           Sold out

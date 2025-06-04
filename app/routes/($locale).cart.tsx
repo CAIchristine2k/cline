@@ -9,6 +9,11 @@ import {useConfig} from '~/utils/themeContext';
 import {CartForm} from '@shopify/hydrogen';
 import {HeadersFunction, data} from 'react-router';
 import {Link} from 'react-router';
+import {useEffect} from 'react';
+import {redirect} from 'react-router';
+import {PrepareDesignsForCheckout} from '~/components/PrepareDesignsForCheckout';
+import {downloadAndReuploadToCloudinary} from '~/utils/cloudinaryUpload';
+import type {CartApiQueryFragment} from 'storefrontapi.generated';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Your Cart | Official Store'}];
@@ -41,8 +46,56 @@ export async function action({request, context}: ActionFunctionArgs) {
     switch (action) {
       case CartForm.ACTIONS.LinesAdd:
         console.log('Adding lines to cart:', inputs.lines);
+
+        // Enhanced logging for custom attributes
+        if (inputs.lines?.some((line: any) => line.attributes?.length > 0)) {
+          console.log('📦 Custom attributes detected in cart action:');
+          inputs.lines.forEach((line: any, index: number) => {
+            if (line.attributes?.length > 0) {
+              console.log(`Line ${index + 1}:`, {
+                merchandiseId: line.merchandiseId,
+                quantity: line.quantity,
+                attributeCount: line.attributes.length,
+                attributes: line.attributes.map((attr: any) => ({
+                  key: attr.key,
+                  value: attr.key.startsWith('_design')
+                    ? `${attr.value.substring(0, 30)}...`
+                    : attr.value,
+                })),
+              });
+            }
+          });
+        }
+
         result = await cart.addLines(inputs.lines);
         console.log('Cart addLines result:', result);
+
+        // Log cart line attributes after addition
+        if (result?.cart?.lines?.nodes) {
+          console.log('📦 Cart lines after addition:');
+          result.cart.lines.nodes.forEach((line: any, index: number) => {
+            console.log(`Line ${index + 1}:`, {
+              id: line.id,
+              title: line.merchandise?.product?.title,
+              variantTitle: line.merchandise?.title,
+              quantity: line.quantity,
+              attributeCount: line.attributes?.length || 0,
+              attributes: line.attributes || [],
+            });
+          });
+        }
+
+        // Log that custom designs have been added
+        const addedLines = inputs.lines;
+        const hasCustomDesigns = addedLines.some((line: any) => 
+          line.attributes?.some((attr: any) => 
+            attr.key === '_custom_design' && attr.value === 'true'
+          )
+        );
+
+        if (hasCustomDesigns) {
+          console.log('🎨 Cart contains custom design products for checkout display');
+        }
         break;
       case CartForm.ACTIONS.LinesUpdate:
         console.log('Updating lines in cart:', inputs.lines);
@@ -90,6 +143,10 @@ export async function action({request, context}: ActionFunctionArgs) {
       }
       case CartForm.ACTIONS.NoteUpdate: {
         result = await cart.updateNote(inputs.note);
+        break;
+      }
+      case CartForm.ACTIONS.AttributesUpdateInput: {
+        result = await cart.updateAttributes(inputs.attributes);
         break;
       }
       default:
@@ -147,27 +204,128 @@ export async function action({request, context}: ActionFunctionArgs) {
  * Get cart data for displaying on the cart page
  */
 export async function loader({context}: LoaderFunctionArgs) {
-  const cart = await context.cart.get();
+  const {cart} = context;
+  const cartId = cart.getCartId();
 
-  return {
-    cart,
-    checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-  };
+  // Redirect to the home page if the cart is empty
+  if (!cartId) {
+    return redirect('/');
+  }
+
+  // Load the cart data
+  const cartData = await cart.get();
+  
+  return data({
+    cart: cartData,
+  });
 }
 
 /**
  * Cart page component
  */
 export default function Cart() {
+  const loaderData = useLoaderData<typeof loader>();
+  const cart = loaderData?.cart;
   const config = useConfig();
-  const data = useLoaderData<typeof loader>();
-  const cart = data.cart;
-  const cartEmpty = !cart?.totalQuantity;
+
+  // Check if any items in the cart have custom designs
+  const hasCustomDesigns = cart?.lines?.nodes?.some((line: any) => 
+    line.attributes?.some((attr: any) => attr.key === '_custom_design' && attr.value === 'true')
+  );
+
+  // Use effect to call our prepare checkout endpoint when the cart changes
+  useEffect(() => {
+    if (hasCustomDesigns && cart) {
+      // Additional client-side preparation for checkout
+      const prepareCheckout = async () => {
+        try {
+          console.log('📦 Preparing cart for checkout with custom designs...');
+          
+          // First ensure all custom design images are properly uploaded to Cloudinary
+          const customDesignItems = cart.lines?.nodes?.filter((line: any) => 
+            line.attributes?.some((attr: any) => attr.key === '_custom_design' && attr.value === 'true')
+          ) || [];
+          
+          // Process each custom design item
+          for (const line of customDesignItems) {
+            // Find design image URL attributes
+            const designImageUrl = line.attributes?.find(
+              (attr: any) => attr.key === '_design_image_url'
+            )?.value;
+            
+            const customizedImage = line.attributes?.find(
+              (attr: any) => attr.key === '_customized_image'
+            )?.value;
+            
+            // If we have a design image URL that's valid, ensure it's uploaded to Cloudinary
+            if (
+              designImageUrl && 
+              typeof designImageUrl === 'string' && 
+              designImageUrl.startsWith('http')
+            ) {
+              try {
+                console.log(`🔄 Processing design image: ${designImageUrl.substring(0, 50)}...`);
+                // Re-upload to ensure permanent storage if it's not already a Cloudinary URL
+                if (!designImageUrl.includes('cloudinary.com')) {
+                  await downloadAndReuploadToCloudinary(designImageUrl, {
+                    folder: 'cart-checkout-images'
+                  });
+                }
+              } catch (imageError) {
+                console.error('Error processing design image:', imageError);
+              }
+            }
+            
+            if (
+              customizedImage && 
+              typeof customizedImage === 'string' && 
+              customizedImage.startsWith('http') &&
+              customizedImage !== designImageUrl
+            ) {
+              try {
+                console.log(`🔄 Processing customized image: ${customizedImage.substring(0, 50)}...`);
+                // Re-upload to ensure permanent storage if it's not already a Cloudinary URL
+                if (!customizedImage.includes('cloudinary.com')) {
+                  await downloadAndReuploadToCloudinary(customizedImage, {
+                    folder: 'cart-checkout-images'  
+                  });
+                }
+              } catch (imageError) {
+                console.error('Error processing customized image:', imageError);
+              }
+            }
+          }
+
+          // Now call the API to update the cart with prepared image URLs
+          console.log('📤 Sending cart prepare request to API...');
+          const response = await fetch('/api/cart-prepare-checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              cartId: cart.id
+            }),
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to prepare checkout:', await response.text());
+          } else {
+            const result = await response.json();
+            console.log('✅ Cart prepared for checkout:', result);
+          }
+        } catch (error) {
+          console.error('Error preparing checkout:', error);
+        }
+      };
+      
+      prepareCheckout();
+    }
+  }, [cart?.id, hasCustomDesigns, cart]);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Add padding-top to account for fixed header */}
-      <div
+      <div 
         className="cart-page-container container mx-auto px-4"
         style={{
           paddingTop: 'calc(var(--header-height-desktop) + 2rem)',
@@ -175,18 +333,17 @@ export default function Cart() {
         }}
       >
         <h1 className="text-3xl font-bold text-primary mb-8 text-center">
-          {cartEmpty ? 'Your Cart is Empty' : 'Your Cart'}
+          {!cart?.totalQuantity ? 'Your Cart is Empty' : 'Your Cart'}
         </h1>
 
         {/* Main cart component - handles empty state and populated cart */}
-        <CartMain
+        <CartMain 
           cart={cart}
           layout="page"
-          checkoutDomain={data.checkoutDomain}
         />
 
         {/* Continue shopping button when cart is empty */}
-        {cartEmpty && (
+        {!cart?.totalQuantity && (
           <div className="flex justify-center mt-10">
             <Link
               to="/collections"
@@ -196,6 +353,9 @@ export default function Cart() {
             </Link>
           </div>
         )}
+        
+        {/* Add the prepare designs component to ensure checkout displays custom images */}
+        {hasCustomDesigns && cart && <PrepareDesignsForCheckout cart={cart} />}
       </div>
     </div>
   );

@@ -9,6 +9,8 @@ export interface StoredDesign {
   uploadedImages: {id: string; src: string; name: string}[];
   stageSize: {width: number; height: number};
   backgroundImage: string;
+  selectedCustomImage?: string | null; // Track which specific customizable image this design is for
+  designImageBase64?: string; // Base64 image of the design (for performance, avoid Cloudinary)
   lastModified: string;
   name?: string;
 }
@@ -159,6 +161,62 @@ export function getDesignsForProduct(productId: string): StoredDesign[] {
   }
 }
 
+// Get designs for a specific product and customizable image
+export function getDesignForProductAndImage(productId: string, imageUrl: string | null): StoredDesign | null {
+  try {
+    if (!imageUrl) return null;
+    
+    const storage = getStoredDesigns();
+    const matchingDesigns = Object.values(storage.designs)
+      .filter(
+        (design) => 
+          design.productId === productId && 
+          design.selectedCustomImage === imageUrl
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.lastModified).getTime() -
+          new Date(a.lastModified).getTime(),
+      );
+    
+    // Return the most recent design for this product and image
+    return matchingDesigns.length > 0 ? matchingDesigns[0] : null;
+  } catch (error) {
+    console.error('Error finding design for product and image:', error);
+    return null;
+  }
+}
+
+// Delete all designs for a specific product
+export function resetDesignsForProduct(productId: string): void {
+  try {
+    const storage = getStoredDesigns();
+    let designsDeleted = false;
+    
+    // Find and remove all designs for this product
+    Object.keys(storage.designs).forEach(key => {
+      const design = storage.designs[key];
+      if (design.productId === productId) {
+        delete storage.designs[key];
+        designsDeleted = true;
+        
+        // Also reset current design if it matches
+        if (storage.currentDesign === key) {
+          delete storage.currentDesign;
+        }
+      }
+    });
+    
+    if (designsDeleted) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
+      console.log(`✓ All designs for product ${productId} have been reset`);
+    }
+  } catch (error) {
+    console.error('Error resetting designs for product:', error);
+    throw new Error('Failed to reset designs for product');
+  }
+}
+
 // Auto-save functionality
 export function createAutoSave(
   getCurrentDesignState: () => Omit<StoredDesign, 'id' | 'lastModified'>,
@@ -176,16 +234,14 @@ export function createAutoSave(
       } else {
         currentDesignId = saveDesignToStorage(designState);
       }
-
-      console.log('Design auto-saved locally');
     } catch (error) {
       console.error('Auto-save failed:', error);
     }
   };
 
   const start = () => {
-    stop(); // Clear any existing timer
     autoSaveTimer = setInterval(save, interval);
+    return () => stop(); // Return cleanup function
   };
 
   const stop = () => {
@@ -202,13 +258,14 @@ export function createAutoSave(
     currentDesignId = id;
   };
 
-  return {start, stop, saveNow, setDesignId};
+  return { start, stop, saveNow, setDesignId, currentDesignId };
 }
 
-// Clear all stored designs (for cleanup or reset)
+// Clear all designs from storage (for debugging/development)
 export function clearAllDesigns(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
+    console.log('All designs cleared from storage');
   } catch (error) {
     console.error('Error clearing designs:', error);
   }

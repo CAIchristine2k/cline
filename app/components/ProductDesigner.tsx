@@ -58,6 +58,16 @@ interface ProductDesignerProps {
   keepAspectRatio?: boolean;
 }
 
+// Helper function to check if a value is a valid number
+const isValidNumber = (value: any): boolean => {
+  return typeof value === 'number' && !isNaN(value) && isFinite(value);
+};
+
+// Helper function to safely get numeric attributes
+const getSafeNumber = (value: any, defaultValue: number = 0): number => {
+  return isValidNumber(value) ? value : defaultValue;
+};
+
 export function ProductDesigner({
   backgroundImage,
   stageSize,
@@ -95,12 +105,20 @@ export function ProductDesigner({
   useEffect(() => {
     if (transformerRef.current && stageRef.current) {
       const transformer = transformerRef.current;
-      const selectedNode = stageRef.current.findOne('#' + selectedId);
+      
+      try {
+        const selectedNode = selectedId ? stageRef.current.findOne('#' + selectedId) : null;
 
       if (selectedNode) {
         transformer.nodes([selectedNode as NodeType]);
         transformer.getLayer()?.batchDraw();
       } else {
+          transformer.nodes([]);
+          transformer.getLayer()?.batchDraw();
+        }
+      } catch (error) {
+        console.error('Error updating transformer:', error);
+        // Reset transformer if there's an error
         transformer.nodes([]);
         transformer.getLayer()?.batchDraw();
       }
@@ -197,41 +215,77 @@ export function ProductDesigner({
       className="bg-neutral-800"
     >
       <Layer>
+        {/* Background Product Image */}
+        <KonvaImage
+          image={backgroundImage}
+          width={stageSize.width}
+          height={stageSize.height}
+          listening={false}
+        />
+
         {/* User Elements - Sorted by zIndex (lowest to highest) */}
         {elements
           .sort((a, b) => a.zIndex - b.zIndex)
           .map((element) => {
+            // Ensure coordinates are valid numbers
+            const safeX = getSafeNumber(element.x, stageSize.width / 2);
+            const safeY = getSafeNumber(element.y, stageSize.height / 2);
+            const safeRotation = getSafeNumber(element.rotation, 0);
+            const safeScaleX = getSafeNumber(element.scaleX, 1);
+            const safeScaleY = getSafeNumber(element.scaleY, 1);
+            
             if (element.type === 'image' && element.src) {
               return (
                 <Group
                   key={element.id}
                   id={element.id}
-                  x={element.x}
-                  y={element.y}
-                  rotation={element.rotation}
-                  scaleX={element.scaleX}
-                  scaleY={element.scaleY}
+                  x={safeX}
+                  y={safeY}
+                  rotation={safeRotation}
+                  scaleX={safeScaleX}
+                  scaleY={safeScaleY}
                   draggable
                   onClick={() => onElementSelect(element.id)}
                   onTap={() => onElementSelect(element.id)}
                   onDragEnd={(e) => {
+                    const node = e.target;
+                    const newX = node.x();
+                    const newY = node.y();
+                    
+                    // Only update if values are valid
+                    if (isValidNumber(newX) && isValidNumber(newY)) {
                     onElementTransform(element.id, {
-                      x: e.target.x(),
-                      y: e.target.y(),
+                        x: newX,
+                        y: newY,
                     });
+                    }
                   }}
                   onTransformEnd={(e) => {
                     const node = e.target;
 
-                    // Use the absolute values of scale to prevent negative scaling
-                    // and avoid multiplying by the existing scale which causes shrinking
+                    // Get new position and scale values
+                    const newX = node.x();
+                    const newY = node.y();
+                    const newRotation = node.rotation();
+                    const newScaleX = Math.abs(node.scaleX());
+                    const newScaleY = Math.abs(node.scaleY());
+                    
+                    // Only update if all values are valid
+                    if (
+                      isValidNumber(newX) && 
+                      isValidNumber(newY) && 
+                      isValidNumber(newRotation) && 
+                      isValidNumber(newScaleX) && 
+                      isValidNumber(newScaleY)
+                    ) {
                     onElementTransform(element.id, {
-                      x: node.x(),
-                      y: node.y(),
-                      rotation: node.rotation(),
-                      scaleX: Math.abs(node.scaleX()),
-                      scaleY: Math.abs(node.scaleY()),
+                        x: newX,
+                        y: newY,
+                        rotation: newRotation,
+                        scaleX: newScaleX,
+                        scaleY: newScaleY,
                     });
+                    }
                   }}
                 >
                   <KonvaImage
@@ -247,37 +301,58 @@ export function ProductDesigner({
                 <Text
                   key={element.id}
                   id={element.id}
-                  x={element.x}
-                  y={element.y}
+                  x={safeX}
+                  y={safeY}
                   text={element.text || ''}
                   fontSize={element.fontSize}
                   fontFamily={element.fontFamily}
                   fill={element.fill}
-                  scaleX={element.scaleX}
-                  scaleY={element.scaleY}
-                  rotation={element.rotation}
+                  rotation={safeRotation}
+                  scaleX={safeScaleX}
+                  scaleY={safeScaleY}
                   opacity={element.opacity}
                   draggable
                   onClick={() => onElementSelect(element.id)}
                   onTap={() => onElementSelect(element.id)}
                   onDragEnd={(e) => {
+                    const node = e.target;
+                    const newX = node.x();
+                    const newY = node.y();
+                    
+                    // Only update if values are valid
+                    if (isValidNumber(newX) && isValidNumber(newY)) {
                     onElementTransform(element.id, {
-                      x: e.target.x(),
-                      y: e.target.y(),
+                        x: newX,
+                        y: newY,
                     });
+                    }
                   }}
                   onTransformEnd={(e) => {
                     const node = e.target;
 
-                    // Use the absolute values of scale to prevent negative scaling
-                    // and avoid multiplying by the existing scale which causes shrinking
+                    // Get new values
+                    const newX = node.x();
+                    const newY = node.y();
+                    const newRotation = node.rotation();
+                    const newScaleX = Math.abs(node.scaleX());
+                    const newScaleY = Math.abs(node.scaleY());
+                    
+                    // Only update if all values are valid
+                    if (
+                      isValidNumber(newX) && 
+                      isValidNumber(newY) && 
+                      isValidNumber(newRotation) && 
+                      isValidNumber(newScaleX) && 
+                      isValidNumber(newScaleY)
+                    ) {
                     onElementTransform(element.id, {
-                      x: node.x(),
-                      y: node.y(),
-                      rotation: node.rotation(),
-                      scaleX: Math.abs(node.scaleX()),
-                      scaleY: Math.abs(node.scaleY()),
+                        x: newX,
+                        y: newY,
+                        rotation: newRotation,
+                        scaleX: newScaleX,
+                        scaleY: newScaleY,
                     });
+                    }
                   }}
                 />
               );
@@ -285,48 +360,26 @@ export function ProductDesigner({
             return null;
           })}
 
-        {/* Product Template Image - Always on top for cutout effect */}
-        <KonvaImage
-          image={backgroundImage}
-          width={stageSize.width}
-          height={stageSize.height}
-          listening={false} // Don't interfere with user element selection
-        />
-
         {/* Transformer for selected elements */}
         <Transformer
           ref={transformerRef}
-          keepRatio={keepAspectRatio}
-          enabledAnchors={[
-            'top-left',
-            'top-right',
-            'bottom-left',
-            'bottom-right',
-          ]}
-          rotateAnchorOffset={60}
-          borderStroke="var(--color-primary)"
-          borderStrokeWidth={2}
-          anchorStroke="var(--color-primary)"
-          anchorFill="var(--color-background)"
-          anchorSize={8}
           boundBoxFunc={(oldBox, newBox) => {
-            // Limit resizing to maintain minimum dimensions
-            if (newBox.width < 10 || newBox.height < 10) {
+            // Prevent scaling to zero or negative
+            if (newBox.width < 5 || newBox.height < 5) {
               return oldBox;
             }
 
-            // Constrain to stage boundaries
-            if (newBox.x < 0) {
-              newBox.x = 0;
-            }
-            if (newBox.y < 0) {
-              newBox.y = 0;
-            }
-            if (newBox.x + newBox.width > stageSize.width) {
-              newBox.width = stageSize.width - newBox.x;
-            }
-            if (newBox.y + newBox.height > stageSize.height) {
-              newBox.height = stageSize.height - newBox.y;
+            // Honor aspect ratio if needed
+            if (keepAspectRatio) {
+              const aspect = oldBox.width / oldBox.height;
+              
+              // If width changes more than height, adjust height to match aspect ratio
+              if (Math.abs(newBox.width - oldBox.width) > Math.abs(newBox.height - oldBox.height)) {
+                newBox.height = newBox.width / aspect;
+              } else {
+                // Otherwise, adjust width to match aspect ratio
+                newBox.width = newBox.height * aspect;
+              }
             }
 
             return newBox;

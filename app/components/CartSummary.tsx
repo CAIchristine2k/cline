@@ -76,22 +76,84 @@ function CartCheckoutActions({
 
   if (!checkoutUrl) return null;
 
-  // Use the passed checkoutDomain or fallback to current domain
-  const domain = checkoutDomain || window.location.hostname;
-  const centralizedCheckoutUrl = `https://${domain}/checkout`;
+  // Debug the checkout URL for troubleshooting
+  console.log('🔗 CartCheckoutActions - Original checkoutUrl:', checkoutUrl);
+
+  // Parse the checkout URL to preserve query parameters
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(checkoutUrl);
+    console.log('🔍 CartCheckoutActions - Parsed URL:', {
+      protocol: parsedUrl.protocol,
+      host: parsedUrl.host,
+      pathname: parsedUrl.pathname,
+      search: parsedUrl.search,
+      params: Array.from(parsedUrl.searchParams.entries()),
+    });
+  } catch (error) {
+    console.error(
+      '❌ CartCheckoutActions - Error parsing checkout URL:',
+      error,
+    );
+    // Fallback to our custom checkout
+    return (
+      <div className="mt-8">
+        <Link
+          to="/checkout"
+          onClick={close}
+          className="block w-full bg-primary hover:bg-primary-600 text-black text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
+        >
+          Review & Checkout →
+        </Link>
+        <div className="mt-4 flex items-center justify-center">
+          <p className="text-xs text-white/50 text-center">
+            Review your designs, then secure checkout
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Preserve the actual checkout path and parameters
+  const checkoutPath = parsedUrl.pathname;
+  const checkoutParams = parsedUrl.search;
+
+  // Construct the final checkout URL
+  let finalCheckoutUrl = checkoutUrl;
+
+  // If we're using a custom domain, ensure we construct the URL correctly
+  if (checkoutDomain) {
+    try {
+      const customDomainUrl = new URL(`https://${checkoutDomain}`);
+      customDomainUrl.pathname = checkoutPath;
+      customDomainUrl.search = checkoutParams;
+      finalCheckoutUrl = customDomainUrl.toString();
+      console.log(
+        '✅ CartCheckoutActions - Using custom domain checkout URL:',
+        finalCheckoutUrl,
+      );
+    } catch (error) {
+      console.error(
+        '❌ CartCheckoutActions - Error creating custom domain URL:',
+        error,
+      );
+      // Fallback to the original checkout URL
+      finalCheckoutUrl = checkoutUrl;
+    }
+  }
 
   return (
     <div className="mt-8">
-      <a
-        href={centralizedCheckoutUrl}
+      <Link
+        to="/checkout"
         onClick={close}
         className="block w-full bg-primary hover:bg-primary-600 text-black text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
       >
-        Continue to Checkout →
-      </a>
+        Review & Checkout →
+      </Link>
       <div className="mt-4 flex items-center justify-center">
         <p className="text-xs text-white/50 text-center">
-          Secure checkout powered by Shopify
+          Review your designs, then secure checkout
         </p>
       </div>
     </div>

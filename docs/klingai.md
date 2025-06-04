@@ -1,101 +1,3 @@
-1. API Domain
-   https://api-singapore.klingai.com
-   ⚠️Notice: The API endpoint for the new system has been updated from https://api.klingai.com to https://api-singapore.klingai.com.
-
-2. API Authentication
-   ● Step-1：Obtain AccessKey + SecretKey
-   ● Step-2：Every time you request the API, you need to generate an API Token according to the Fixed Encryption Method, Authorization = Bearer <API Token> in Requset Header
-   ● Encryption Method：Follow JWT（Json Web Token, RFC 7519）standard
-   ● JWT consists of three parts：Header、Payload、Signature
-   ● Sample code (Python)：
-   import time
-   import jwt
-
-ak = "" # fill access key
-sk = "" # fill secret key
-
-def encode_jwt_token(ak, sk):
-headers = {
-"alg": "HS256",
-"typ": "JWT"
-}
-payload = {
-"iss": ak,
-"exp": int(time.time()) + 1800, # The valid time, in this example, represents the current time+1800s(30min)
-"nbf": int(time.time()) - 5 # The time when it starts to take effect, in this example, represents the current time minus 5s
-}
-token = jwt.encode(payload, sk, headers=headers)
-return token
-
-authorization = encode_jwt_token(ak, sk)
-print(authorization) # Printing the generated API_TOKEN
-● Sample code (Java):
-package test;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-public class JWTDemo {
-
-    static String ak = ""; // fill access key
-    static String sk = ""; // fill secret key
-
-    public static void main(String[] args) {
-        String token = sign(ak, sk);
-        System.out.println(token); // Printing the generated API_TOKEN
-    }
-    static String sign(String ak,String sk) {
-        try {
-            Date expiredAt = new Date(System.currentTimeMillis() + 1800*1000); // The valid time, in this example, represents the current time+1800s(30min)
-            Date notBefore = new Date(System.currentTimeMillis() - 5*1000); // The time when it starts to take effect, in this example, represents the current time minus 5s
-            Algorithm algo = Algorithm.HMAC256(sk);
-            Map<String, Object> header = new HashMap<String, Object>();
-            header.put("alg", "HS256");
-            return JWT.create()
-                    .withIssuer(ak)
-                    .withHeader(header)
-                    .withExpiresAt(expiredAt)
-                    .withNotBefore(notBefore)
-                    .sign(algo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-}
-● Step-3: Use the API Token generated in Step 2 to assemble the Authorization and include it in the Request Header.
-● Assembly format: Authorization = "Bearer XXX", where XXX is the API Token generated in Step 2.
-● Note: There should be a space between Bearer and XXX.
-
-3. Error CodeHTTP Status Code Service Code Definition of Service Code Explaination of Service Code Suggested Solutions
-   200 0 Request - -
-   401 1000 Authentication failed Authentication failed Check if the Authorization is correct
-   401 1001 Authentication failed Authorization is empty Fill in the correct Authorization in the Request Header
-   401 1002 Authentication failed Authorization is invalid Fill in the correct Authorization in the Request Header
-   401 1003 Authentication failed Authorization is not yet valid Check the start effective time of the token, wait for it to take effect or reissue
-   401 1004 Authentication failed Authorization has expired Check the validity period of the token and reissue it
-   429 1100 Account exception Account exception Verifying account configuration information
-   429 1101 Account exception Account in arrears (postpaid scenario) Recharge the account to ensure sufficient balance
-   429 1102 Account exception Resource pack depleted or expired (prepaid scenario) Purchase additional resource packages, or activate the post-payment service (if available)
-   403 1103 Account exception Unauthorized access to requested resource, such as API/model Verifying account permissions
-   400 1200 Invalid request parameters Invalid request parameters Check whether the request parameters are correct
-   400 1201 Invalid request parameters Invalid parameters, such as incorrect key or illegal value Refer to the specific information in the message field of the returned body and modify the request parameters
-   404 1202 Invalid request parameters The requested method is invalid Review the API documentation and use the correct request method
-   404 1203 Invalid request parameters The requested resource does not exist, such as the model Refer to the specific information in the message field of the returned body and modify the request parameters
-   400 1300 Trigger strategy Trigger strategy of the platform Check if any platform policies have been triggered
-   400 1301 Trigger strategy Trigger the content security policy of the platform Check the input content, modify it, and resend the request
-   429 1302 Trigger strategy The API request is too fast, exceeding the platform's rate limit Reduce the request frequency, try again later, or contact customer service to increase the limit
-   429 1303 Trigger strategy Concurrency or QPS exceeds the prepaid resource package limit Reduce the request frequency, try again later, or contact customer service to increase the limit
-   429 1304 Trigger strategy Trigger the platform's IP whitelisting policy Contact customer service
-   500 5000 Internal error Server internal error Try again later, or contact customer service
-   503 5001 Internal error Server temporarily unavailable, usually due to maintenance Try again later, or contact customer service
-   504 5002 Internal error Server internal timeout, usually due to a backlog Try again later, or contact customer service
-
 II. Image generation
 2-0 Capability Mapkling-v1
 1:1 16:9 4:3 3:2 2:3 3:4 9:16
@@ -234,3 +136,199 @@ pageSize int Optional 30 Data volume per page
 ● Value range：[1,500]Request Body
 None
 Response Body
+{
+"code": 0, //Error codes；Specific definitions can be found in Error codes
+"message": "string", //Error information
+"request_id": "string", //Request ID, generated by the system, is used to track requests and troubleshoot problems
+"data":[
+{
+"task_id": "string", //Task ID, generated by the system
+"task_status": "string", //Task status, Enum values：submitted、processing、succeed、failed
+"task_status_msg": "string", //Task status information, displaying the failure reason when the task fails (such as triggering the content risk control of the platform, etc.)
+"created_at": 1722769557708, //Task creation time, Unix timestamp, unit ms
+"updated_at": 1722769557708, //Task update time, Unix timestamp, unit ms
+"task_result":{
+"images":[
+{
+"index": int, //Image Number，0-9
+"url": "string" //URL for generating images，such as：https://h1.inkwai.com/bs2/upload-ylab-stunt/1fa0ac67d8ce6cd55b50d68b967b3a59.png(To ensure information security, generated images/videos will be cleared after 30 days. Please make sure to save them promptly.)
+}
+]
+}
+}
+]
+}
+
+2-4【Image Expansion】Create taskProtocol https
+Request URL /v1/images/editing/expand
+Request Method POST
+Request Format application/json
+Response Format application/jsonRequest HeaderField Value Description
+Content-Type application/json Data Exchange Format
+Authorization Authentication information, refer to API authentication Authentication information, refer to API authenticationRequest BodyField Type Required Field Default Description
+image string Required Null Reference Image
+● Support inputting image Base64 encoding or image URL (ensure accessibility)
+Please note, if you use the Base64 method, make sure all image data parameters you pass are in Base64 encoding format. When submitting data, do not add any prefixes to the Base64-encoded string, such as data:image/png;base64. The correct parameter format should be the Base64-encoded string itself.
+Example: Correct Base64 encoded parameter:
+iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==
+Incorrect Base64 encoded parameter (includes the data: prefix):
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==
+Please provide only the Base64-encoded string portion so that the system can correctly process and parse your data.
+● Supported image formats include.jpg / .jpeg / .png
+● The image file size cannot exceed 10MB, and the width and height dimensions of the image shall not be less than 300px, and the aspect ratio of the image should be between 1:2.5 ~ 2.5:1
+up_expansion_ratio float Required 0 Expand upwards range; calculated based on multiples of the original image height.
+● Value range: [0, 2]. The total area of the new image must not exceed 3 times that of the original image.
+● Example: If the original image height is 20 and the current parameter value is 0.1, then:
+○ The distance from the top edge of the original image to the top edge of the new image is 20 × 0.1 = 2, and the expanded area within this region is entirely part of the upscaled image.
+bottom_expansion_ratio float Required 0 Expand downwards range; calculated based on multiples of the original image height.
+● Value range: [0, 2]. The total area of the new image must not exceed 3 times that of the original image.
+● Example: If the original image height is 20 and the current parameter value is 0.2, then:
+○ The distance from the bottom edge of the original image to the bottom edge of the new image is 20 × 0.2 = 4, and the expanded area within this region is entirely part of the downscaled image.
+left_expansion_ratio float Required 0 Expand leftwards range; calculated based on multiples of the original image width.
+● Value range: [0, 2]. The total area of the new image must not exceed 3 times that of the original image.
+● Example: If the original image width is 30 and the current parameter value is 0.3, then:
+○ The distance from the left edge of the original image to the left edge of the new image is 30 × 0.3 = 9, and the expanded area within this region is entirely part of the left-scaled image.
+right_expansion_ratio float Required 0 Expand rightwards range; calculated based on multiples of the original image width.
+● Value range: [0, 2]. The total area of the new image must not exceed 3 times that of the original image.
+● Example: If the original image width is 30 and the current parameter value is 0.4, then:
+○ The distance from the right edge of the original image to the right edge of the new image is 30 × 0.4 = 12, and the expanded area within this region is entirely part of the right-scaled image.
+prompt string Optional None Positive text prompt
+● Cannot exceed 2500 characters
+n int Optional 1 Number of generated images
+● Value range：[1,9]
+callback_url string Optional None The callback notification address for the result of this task. If configured, the server will actively notify when the task status changes
+● The specific message schema of the notification can be found in "Callback Protocol"
+external_task_id string Optional None Customized Task ID
+● Users can provide a customized task ID, which will not overwrite the system-generated task ID but can be used for task queries.
+● Please note that the customized task ID must be unique within a single user account.Response Body
+{
+"code": 0, //Error Codes；Specific definitions can be found in Error codes
+"message": "string", //Error information
+"request_id": "string", //Request ID, generated by the system, is used to track requests and troubleshoot problems
+"data":{
+"task_id": "string", //Task ID, generated by the system
+"task_info":{ //Task creation parameters
+"external_task_id": "string" //Customer-defined task ID
+},
+"task_status": "string", //Task status, Enum values：submitted、processing、succeed、failed
+"created_at": 1722769557708, //Task creation time, Unix timestamp, unit ms
+"updated_at": 1722769557708 //Task update time, Unix timestamp, unit ms
+}
+}
+Example code
+import math
+
+def calculate_expansion_ratios(width, height, area_multiplier, aspect_ratio):
+"""
+Calculate top/bottom/left/right expansion ratios for image outpainting.
+
+    Parameters:
+    - width: Original image width
+    - height: Original image height
+    - area_multiplier: Multiplier for the outpainted area relative to original image
+    - aspect_ratio: Width/height ratio for the outpainted area（width/height）
+
+    Returns:
+    - Formatted string with 4 decimal places, e.g."0.1495,0.1495,0.6547,0.6547"
+    """
+    # Calculate target total area
+    target_area = area_multiplier * width * height
+
+    # Calculate target height and width (maintaining aspect ratio)
+    target_height = math.sqrt(target_area / aspect_ratio)
+    target_width = target_height * aspect_ratio
+
+    # Calculate expansion pixels
+    expand_top = (target_height - height) / 2
+    expand_bottom = expand_top
+    expand_left = (target_width - width) / 2
+    expand_right = expand_left
+
+    # Calculate relative ratios
+    top_ratio = expand_top / height
+    bottom_ratio = expand_bottom / height
+    left_ratio = expand_left / width
+    right_ratio = expand_right / width
+
+    # Format to 4 decimal places
+    return f"{top_ratio:.4f},{bottom_ratio:.4f},{left_ratio:.4f},{right_ratio:.4f}"
+
+# Example: Original 100x100, 3x area multiplier, 16:9 aspect ratio
+
+print(calculate_expansion_ratios(100, 100, 3, 16/9))
+
+# Output: "0.1495,0.1495,0.6547,0.6547"
+
+2-5【Image Expansion】Query Task（Single）Protocol https
+Request URL /v1/images/editing/expand/{id}
+Request Method GET
+Request Format application/json
+Response Format application/jsonRequest HeaderField Value Description
+Content-Type application/json Data Exchange Format
+Authorization Authentication information, refer to API authentication Authentication information, refer to API authenticationRequest Path ParametersField Type Required Field DefaultValue Description
+task_id string Required None The task ID generated by images
+● Request Path Parameters，directly fill the Value in the request pathRequest Body
+无
+Response Body
+{
+"code": 0, //Error codes；Specific definitions can be found in Error codes
+"message": "string", //Error information
+"request_id": "string", //Request ID, generated by the system, is used to track requests and troubleshoot problems
+"data":{
+"task_id": "string", //Task ID, generated by the system
+"task_status": "string", //Task status, Enum values：submitted、processing、succeed、failed
+"task_status_msg": "string", //Task status information, displaying the failure reason when the task fails (such as triggering the content risk control of the platform, etc.)
+"task_info":{ //Task creation parameters
+"external_task_id": "string" //Customer-defined task ID
+},
+"created_at": 1722769557708, //Task creation time, Unix timestamp, unit ms
+"updated_at": 1722769557708, //Task update time, Unix timestamp, unit ms
+"task_result":{
+"images":[
+{
+"index": int, //Image Number，0-9
+"url": "string" //URL for generating images，such as：https://h1.inkwai.com/bs2/upload-ylab-stunt/1fa0ac67d8ce6cd55b50d68b967b3a59.png(To ensure information security, generated images/videos will be cleared after 30 days. Please make sure to save them promptly.)
+}
+]
+}
+}
+}
+
+2-6【Image Expansion】Query Task (List)Protocol https
+Request URL /v1/images/editing/expand
+Request Method GET
+Request Format application/json
+Response Format application/jsonRequest HeaderField Value Description
+Content-Type application/json Data Exchange Format
+Authorization Authentication information, refer to API authentication Authentication information, refer to API authenticationRequest Path ParametersField Type Required Field Default Value Description
+pageNum int Optional 1 Page number
+● Value range：[1,1000]
+pageSize int Optional 30 Data volume per page
+● Value range：[1,500]Request Body
+None
+Response Body
+{
+"code": 0, //Error codes；Specific definitions can be found in Error codes
+"message": "string", //Error information
+"request_id": "string", //Request ID, generated by the system, is used to track requests and troubleshoot problems
+"data":{
+"task_id": "string", //Task ID, generated by the system
+"task_status": "string", //Task status, Enum values：submitted、processing、succeed、failed
+"task_status_msg": "string", //Task status information, displaying the failure reason when the task fails (such as triggering the content risk control of the platform, etc.)
+"task_info":{ //Task creation parameters
+"external_task_id": "string" //Customer-defined task ID
+},
+"created_at": 1722769557708, //Task creation time, Unix timestamp, unit ms
+"updated_at": 1722769557708, //Task update time, Unix timestamp, unit ms
+"task_result":{
+"images":[
+{
+"index": int, //Image Number，0-9
+"url": "string" //URL for generating images，such as：https://h1.inkwai.com/bs2/upload-ylab-stunt/1fa0ac67d8ce6cd55b50d68b967b3a59.png(To ensure information security, generated images/videos will be cleared after 30 days. Please make sure to save them promptly.)
+}
+]
+}
+}
+}
+
+III. Video Generation

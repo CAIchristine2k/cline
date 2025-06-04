@@ -23,26 +23,47 @@ const requestHandler = createRequestHandler(
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     try {
-      // Create Hydrogen's app load context (includes storefront, session, etc.)
-      const hydrogenContext = await createAppLoadContext(request, env, ctx);
+      // Create a timeout for the entire request
+      const timeout = 10000; // 10 second timeout
 
-      // Merge with Cloudflare context
-      const appLoadContext = {
-        ...hydrogenContext,
-        cloudflare: {env, ctx},
-      };
+      // Create a promise that resolves with the response
+      const responsePromise = (async () => {
+        // Create Hydrogen's app load context (includes storefront, session, etc.)
+        const hydrogenContext = await createAppLoadContext(request, env, ctx);
 
-      const response = await requestHandler(request, appLoadContext);
+        // Merge with Cloudflare context
+        const appLoadContext = {
+          ...hydrogenContext,
+          cloudflare: {env, ctx},
+        };
 
-      // Handle Hydrogen session commits
-      if (hydrogenContext.session.isPending) {
-        response.headers.set(
-          'Set-Cookie',
-          await hydrogenContext.session.commit(),
-        );
-      }
+        const response = await requestHandler(request, appLoadContext);
 
-      return response;
+        // Handle Hydrogen session commits
+        if (hydrogenContext.session.isPending) {
+          response.headers.set(
+            'Set-Cookie',
+            await hydrogenContext.session.commit(),
+          );
+        }
+
+        return response;
+      })();
+
+      // Create a timeout promise
+      const timeoutPromise = new Promise<Response>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error(`Request timeout after ${timeout}ms`));
+        }, timeout);
+      });
+
+      // Race the response against the timeout
+      return await Promise.race([responsePromise, timeoutPromise]).catch(
+        (error) => {
+          console.error('Worker error:', error);
+          return new Response('Request timed out or failed', {status: 500});
+        },
+      );
     } catch (error) {
       console.error('Worker error:', error);
       return new Response('Internal Server Error', {status: 500});

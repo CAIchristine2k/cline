@@ -6,6 +6,8 @@ import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
 import {useConfig} from '~/utils/themeContext';
 import {ShoppingBag} from 'lucide-react';
+import {PrepareDesignsForCheckout} from './PrepareDesignsForCheckout';
+import {useMemo} from 'react';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -27,10 +29,50 @@ export function CartMain({
   const config = useConfig();
   const {close} = useAside();
 
-  // The useOptimisticCart hook applies pending actions to the cart
-  const cart = useOptimisticCart(originalCart);
+  // Enhanced optimistic cart with safety checks
+  // Use the useOptimisticCart hook for type consistency
+  const optimisticCart = useOptimisticCart(originalCart);
+  
+  // Create a safe version that adds missing data where needed
+  const cart = useMemo(() => {
+    try {
+      if (!optimisticCart) return optimisticCart;
+      
+      // Create a shallow copy to avoid mutating the optimistic cart directly
+      const safeCart = {...optimisticCart};
+      
+      // Fix for missing variant data
+      if (safeCart?.lines?.nodes) {
+        safeCart.lines = {...safeCart.lines};
+                 safeCart.lines.nodes = safeCart.lines.nodes.map((line: any) => {
+           // Skip lines with complete merchandise data
+           if (line && line.merchandise?.product) return line;
+           
+           // Clone the line to avoid mutations
+           const fixedLine = {...line};
+          
+          // Try to find matching line in original cart
+          if (originalCart?.lines?.nodes && line) {
+            const originalLine = originalCart.lines.nodes.find(ol => ol.id === line.id);
+            if (originalLine?.merchandise?.product) {
+              if (!fixedLine.merchandise) fixedLine.merchandise = {...originalLine.merchandise};
+              else fixedLine.merchandise = {
+                ...fixedLine.merchandise,
+                product: originalLine.merchandise.product
+              };
+            }
+          }
+          return fixedLine;
+        });
+      }
+      return safeCart;
+    } catch (error) {
+      console.error('Error creating safe cart:', error);
+      return optimisticCart || originalCart;
+    }
+  }, [optimisticCart, originalCart]);
 
-  // Debug the cart structure
+  // Debug the cart structure and custom designs
   console.log('CartMain - Original cart:', originalCart);
   console.log('CartMain - Optimistic cart:', cart);
 
@@ -44,6 +86,21 @@ export function CartMain({
       'CartMain - First line product:',
       cart.lines.nodes[0]?.merchandise?.product,
     );
+    
+    // Debug custom design attributes
+    cart.lines.nodes.forEach((line, index) => {
+      const hasCustomDesign = line.attributes?.some(
+        attr => attr.key === '_custom_design' && attr.value === 'true'
+      );
+      
+      if (hasCustomDesign) {
+        console.log(`🎨 CartMain - Line ${index} has custom design:`, {
+          lineId: line.id,
+          attributes: line.attributes,
+          attributeCount: line.attributes?.length || 0,
+        });
+      }
+    });
   }
 
   // Cart calculations
@@ -117,11 +174,22 @@ export function CartMain({
           {/* Cart Summary - Compact bottom */}
           <div className="cart-summary-container">
             <div className="border-t border-white/10 bg-black/40 backdrop-blur-xl">
-              <CartSummary
-                cart={cart}
-                layout={layout}
-                checkoutDomain={checkoutDomain}
-              />
+                          {/* Prepare designs for checkout */}
+            <PrepareDesignsForCheckout 
+              cart={cart} 
+              onComplete={() => {
+                console.log('✅ Designs prepared for checkout');
+              }}
+              onError={(error) => {
+                console.error('❌ Error preparing designs:', error);
+              }}
+            />
+            
+            <CartSummary
+              cart={cart}
+              layout={layout}
+              checkoutDomain={checkoutDomain}
+            />
             </div>
           </div>
         </div>

@@ -21,6 +21,7 @@ import {AIMediaGeneration} from '~/components/AIMediaGeneration';
 import {CustomizableProductGrid} from '~/components/CustomizableProductGrid';
 import Testimonials from '~/components/Testimonials';
 import NewsletterSignup from '~/components/NewsletterSignup';
+import FeaturedProducts from '~/components/FeaturedProducts';
 
 export const meta: MetaFunction = () => {
   return [
@@ -74,44 +75,40 @@ export default function Home() {
     // Debug logging for products
     console.log('Index: Total products loaded:', products?.length || 0);
 
-    // Log each product's variants
-    products?.forEach((product: any, i: number) => {
-      console.log(`Product ${i + 1}: ${product.title}`);
-
-      // Log variants
-      const variants = product.variants?.nodes || [];
-      console.log('  Variants:', variants.length);
-      variants.forEach((variant: any, j: number) => {
-        console.log(`    Variant ${j + 1}: ${variant.title}`);
-      });
-
-      // Check for custom variants
-      const hasCustomVariant = variants.some(
-        (variant: any) => variant?.title?.toLowerCase() === 'custom',
-      );
-
-      if (hasCustomVariant) {
-        console.log('  ✓ HAS CUSTOM VARIANT');
-      } else {
-        console.log('  ✗ NO CUSTOM VARIANT');
-      }
-    });
-
-    // Count products with custom variants
-    const customizableCount =
+    // Count customizable and non-customizable products
+    const customizableProducts =
       products?.filter((product: any) =>
         product.variants?.nodes?.some(
           (variant: any) => variant?.title?.toLowerCase() === 'custom',
         ),
-      ).length || 0;
+      ) || [];
 
-    console.log('Products with custom variants:', customizableCount);
+    const nonCustomizableProducts =
+      products?.filter(
+        (product: any) =>
+          !product.variants?.nodes?.some(
+            (variant: any) => variant?.title?.toLowerCase() === 'custom',
+          ),
+      ) || [];
+
+    console.log('Products with custom variants:', customizableProducts.length);
+    console.log(
+      'Products without custom variants:',
+      nonCustomizableProducts.length,
+    );
 
     // Update debug info
     setDebugLog([
       `Total products: ${products?.length || 0}`,
-      `Products with custom variants: ${customizableCount}`,
+      `Exclusive products: ${nonCustomizableProducts.length}`,
+      `Customizable products: ${customizableProducts.length}`,
     ]);
+
+    // Log the titles of customizable products
+    console.log('Customizable product titles:');
+    customizableProducts.forEach((product: any) => {
+      console.log(`- ${product.title}`);
+    });
   }, [products]);
 
   return (
@@ -128,14 +125,23 @@ export default function Home() {
         </div>
       )}
 
-      {/* Product showcase section */}
-      <ProductShowcase products={products} title="EXCLUSIVE MERCHANDISE" />
+      {/* Product showcase section - EXCLUSIVE MERCHANDISE (non-customizable products only) */}
+      <ProductShowcase
+        products={products.filter(
+          (product: any) =>
+            !product.variants?.nodes?.some(
+              (variant: any) => variant?.title?.toLowerCase() === 'custom',
+            ),
+        )}
+        title="EXCLUSIVE MERCHANDISE"
+      />
 
-      {/* Customizable Products Section */}
+      {/* Customizable Products Section - Show all customizable products */}
       <CustomizableProductGrid
         products={products}
-        title="CUSTOMIZE YOUR OWN"
+        title="CREATE CUSTOM PRODUCTS YOUR WAY"
         subtitle={`Create one-of-a-kind products featuring your own photos, text, and designs with ${appConfig.influencerName}.`}
+        maxProducts={8} // Show more customizable products
       />
 
       {/* Limited Edition section */}
@@ -144,17 +150,20 @@ export default function Home() {
       {/* Career Highlights section */}
       {appConfig.showCareerHighlights && <CareerHighlights />}
 
-      {/* Testimonials section */}
-      {appConfig.showTestimonials && <Testimonials />}
+      {/* Featured Products section (renamed from Train with the Champ) */}
+      {/* {appConfig.showTrainingSection && <FeaturedProducts />} */}
 
-      {/* Social Feed section */}
-      {appConfig.showSocialFeed && <SocialFeed />}
+      {/* Testimonials section - Commented out for initial launch */}
+      {/* {appConfig.showTestimonials && <Testimonials />} */}
+
+      {/* Social Feed section - Commented out for initial launch */}
+      {/* {appConfig.showSocialFeed && <SocialFeed />} */}
 
       {/* AI Media Generation section */}
       {appConfig.showAIMediaGeneration && <AIMediaGeneration />}
 
-      {/* Newsletter signup section */}
-      <NewsletterSignup />
+      {/* Newsletter signup section - Commented out for initial launch */}
+      {/* <NewsletterSignup /> */}
     </main>
   );
 }

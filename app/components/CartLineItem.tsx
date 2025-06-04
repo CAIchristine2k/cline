@@ -4,6 +4,7 @@ import {useConfig} from '~/utils/themeContext';
 import type {CartLineFragment} from 'storefrontapi.generated';
 import type {CartLayout} from './CartMain';
 import {Trash2, Plus, Minus} from 'lucide-react';
+import {useEffect, useState} from 'react';
 
 /**
  * Modern cart line item with clean design and proper theme integration.
@@ -32,51 +33,370 @@ export function CartLineItem({
   const isGiftCard = product.handle === 'gift-card';
   const lineItemUrl = `/products/${product.handle}`;
 
-  // Debug all attributes
-  console.log('🔍 CartLineItem Debug for product:', product.title, {
-    lineId: id,
-    allAttributes: attributes,
-    attributeCount: attributes?.length || 0,
-  });
-
-  // Check for custom design image in attributes
-  const customDesignImage = attributes?.find(
+  // Find the custom design attributes for this line item (with null safety)
+  const lineAttributes = line.attributes || [];
+  
+  const customDesignImage = lineAttributes.find(
     (attr) => attr.key === '_design_image_url',
   )?.value;
-  const isCustomDesign = attributes?.some(
-    (attr) => attr.key === '_custom_design' && attr.value === 'true',
-  );
 
-  // Check if custom design image is a valid image (URL or base64) vs a placeholder
-  const isValidCustomImage =
-    customDesignImage &&
-    (customDesignImage.startsWith('http') ||
-      customDesignImage.startsWith('data:'));
-  const shouldShowCustomImage = isCustomDesign && isValidCustomImage;
+  const isCustomDesign =
+    lineAttributes.find(
+      (attr) => attr.key === '_custom_design'
+    )?.value === 'true';
 
-  // Debug logging for custom design
-  console.log('🎨 CartLineItem: Custom design analysis', {
+  const customizedImage = lineAttributes.find(
+    (attr) => attr.key === '_customized_image',
+  )?.value;
+  
+  // Look for designs in multiple locations
+  const allDesignedImagesAttr = lineAttributes.find(
+    (attr) => attr.key === '_all_designed_images',
+  )?.value;
+
+  const designCloudUrls = lineAttributes.find(
+    (attr) => attr.key === '_design_cloud_urls',
+  )?.value;
+  
+  const designStorageKey = lineAttributes.find(
+    (attr) => attr.key === '_design_storage_key',
+  )?.value;
+  
+  // State to store local design images
+  const [localDesignUrl, setLocalDesignUrl] = useState<string | null>(null);
+  
+  // Parse cloud URLs if available
+  const [cloudUrls, setCloudUrls] = useState<string[]>([]);
+  
+  // Add loading state with timeout
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadingTimedOut, setLoadingTimedOut] = useState<boolean>(false);
+  
+  // Handle loading timeout - after 3 seconds, stop showing loading indicator
+  useEffect(() => {
+    if (isLoading) {
+      const timeoutId = setTimeout(() => {
+        setLoadingTimedOut(true);
+      }, 3000);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isLoading]);
+  
+  // First, parse _all_designed_images, as this is the most reliable source
+  useEffect(() => {
+    if (allDesignedImagesAttr && typeof allDesignedImagesAttr === 'string') {
+      try {
+        const parsedImages = JSON.parse(allDesignedImagesAttr);
+        if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+          const validUrls = parsedImages.filter((url): url is string => 
+            typeof url === 'string' && url.startsWith('http')
+          );
+          
+          if (validUrls.length > 0) {
+            // Use the first image URL directly
+            setLocalDesignUrl(validUrls[0]);
+            setIsLoading(false);
+            
+            // Also cache all URLs
+            setCloudUrls(validUrls);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse all designed images:', e);
+      }
+    }
+  }, [allDesignedImagesAttr]);
+  
+  // Next, try to parse _design_cloud_urls if we haven't found an image yet
+  useEffect(() => {
+    if (!localDesignUrl && designCloudUrls && typeof designCloudUrls === 'string') {
+      // Skip parsing if the value is "STORED_IN_LOCAL_STORAGE", this is a marker, not actual JSON
+      if (designCloudUrls === 'STORED_IN_LOCAL_STORAGE') {
+        console.log('⚠️ Found placeholder "STORED_IN_LOCAL_STORAGE" value - will check other sources');
+        // Skip parsing and try the next method
+      } else {
+        try {
+          const parsed = JSON.parse(designCloudUrls);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const validUrls = parsed.filter((url): url is string => 
+              typeof url === 'string' && url.startsWith('http')
+            );
+            
+            if (validUrls.length > 0) {
+              setLocalDesignUrl(validUrls[0]);
+              setIsLoading(false);
+              setCloudUrls(validUrls);
+              return;
+            }
+          }
+        } catch (e) {
+          console.error('Failed to parse design cloud URLs:', e);
+        }
+      }
+    }
+  }, [designCloudUrls, localDesignUrl]);
+  
+  // Special handling for customizedImage URL
+  useEffect(() => {
+    if (!localDesignUrl && customizedImage && typeof customizedImage === 'string' && customizedImage.startsWith('http')) {
+      setLocalDesignUrl(customizedImage);
+      setIsLoading(false);
+      return;
+    }
+  }, [customizedImage, localDesignUrl]);
+
+  // If we still don't have a design URL and the loading has timed out, mark as not loading
+  useEffect(() => {
+    if (loadingTimedOut) {
+      setIsLoading(false);
+    }
+  }, [loadingTimedOut]);
+  
+  // Effect to load designs using the smart storage manager - lowest priority but still try
+  useEffect(() => {
+    // Only run this if we don't already have a URL from attributes
+    if (isCustomDesign && !localDesignUrl) {
+      async function loadDesignImage() {
+        try {
+          // First check if we have cloud URLs available from previous parsing
+          if (cloudUrls.length > 0) {
+            console.log('📊 Using design from cloud URLs array:', cloudUrls[0]);
+            setLocalDesignUrl(cloudUrls[0]);
+            setIsLoading(false);
+            return;
+          }
+
+          // Import the storage manager
+          const { retrieveData } = await import('~/utils/storageManager');
+          
+          // First check if the customDesignImage itself is a storage reference
+          if (isCustomDesign && customDesignImage) {
+            // If it's already a URL, use it directly
+            if (customDesignImage.startsWith('http')) {
+              console.log('🔗 Using direct design image URL', customDesignImage);
+              setLocalDesignUrl(customDesignImage);
+              setIsLoading(false);
+              return;
+            }
+            
+            // Check if it's a storage reference (storageType://key)
+            if (customDesignImage.match(/^(localStorage|indexedDB|cloudinary):\/\//)) {
+              console.log('🔍 Found storage reference:', customDesignImage);
+              
+              // Try to retrieve the design from the appropriate storage
+              const imageData = await retrieveData(customDesignImage);
+              
+              if (imageData) {
+                console.log('✅ Successfully retrieved design from storage');
+                setLocalDesignUrl(imageData);
+                setIsLoading(false);
+                return;
+              } else {
+                console.warn('❌ Design not found in storage:', customDesignImage);
+                // If the reference is a cloudinary URL, we can use it directly
+                if (customDesignImage.startsWith('cloudinary://')) {
+                  const cloudinaryUrl = customDesignImage.replace('cloudinary://', '');
+                  if (cloudinaryUrl.startsWith('http')) {
+                    setLocalDesignUrl(cloudinaryUrl);
+                    setIsLoading(false);
+                    return;
+                  }
+                }
+              }
+            }
+          }
+          
+          // Then check multi-design storage
+          if (isCustomDesign && designStorageKey) {
+            try {
+              // Get the design URLs from localStorage
+              const storedDesigns = localStorage.getItem(designStorageKey);
+              
+              if (storedDesigns) {
+                // Parse with proper typing
+                const designUrls = JSON.parse(storedDesigns) as Record<string, string>;
+                console.log('📦 Retrieved design URLs from storage:', designUrls);
+                
+                // If we have customizedImage, use it as a key to find the right design
+                if (customizedImage && designUrls[customizedImage]) {
+                  const designRef = designUrls[customizedImage];
+                  
+                  // Check if this is a storage reference
+                  if (designRef.match(/^(localStorage|indexedDB|cloudinary):\/\//)) {
+                    // Retrieve from appropriate storage
+                    const imageData = await retrieveData(designRef);
+                    
+                    if (imageData) {
+                      console.log('✅ Successfully retrieved multi-design from storage');
+                      setLocalDesignUrl(imageData);
+                      setIsLoading(false);
+                      return;
+                    } else if (designRef.startsWith('cloudinary://')) {
+                      // For cloudinary, the key might actually be the URL
+                      const cloudinaryUrl = designRef.replace('cloudinary://', '');
+                      if (cloudinaryUrl.startsWith('http')) {
+                        setLocalDesignUrl(cloudinaryUrl);
+                        setIsLoading(false);
+                        return;
+                      }
+                    }
+                  } else if (designRef.startsWith('http')) {
+                    // It's a direct URL
+                    setLocalDesignUrl(designRef);
+                    setIsLoading(false);
+                    return;
+                  }
+                } else if (Object.keys(designUrls).length > 0) {
+                  // Otherwise, just use the first design
+                  const firstKey = Object.keys(designUrls)[0];
+                  const designRef = designUrls[firstKey];
+                  
+                  // Same logic as above for storage references
+                  if (designRef.match(/^(localStorage|indexedDB|cloudinary):\/\//)) {
+                    const imageData = await retrieveData(designRef);
+                    
+                    if (imageData) {
+                      console.log('✅ Successfully retrieved first multi-design from storage');
+                      setLocalDesignUrl(imageData);
+                      setIsLoading(false);
+                      return;
+                    } else if (designRef.startsWith('cloudinary://')) {
+                      // For cloudinary, the key might actually be the URL
+                      const cloudinaryUrl = designRef.replace('cloudinary://', '');
+                      if (cloudinaryUrl.startsWith('http')) {
+                        setLocalDesignUrl(cloudinaryUrl);
+                        setIsLoading(false);
+                        return;
+                      }
+                    }
+                  } else if (designRef.startsWith('http')) {
+                    // It's a direct URL
+                    setLocalDesignUrl(designRef);
+                    setIsLoading(false);
+                    return;
+                  }
+                }
+              }
+            } catch (storageError) {
+              console.error('Error accessing localStorage:', storageError);
+            }
+          }
+          
+          // If we reach here, we've tried everything but still failed
+          // Mark loading as complete and let the UI show a fallback
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error retrieving designs from storage:', error);
+          setIsLoading(false);
+          // If storage fails, just use the fallback image
+          if (customizedImage) {
+            setLocalDesignUrl(customizedImage);
+          }
+        }
+      }
+      
+      // Call the async function
+      loadDesignImage();
+    }
+  }, [isCustomDesign, customDesignImage, designStorageKey, customizedImage, cloudUrls, localDesignUrl]);
+
+  // Analyze the custom design status for debugging
+  console.log(`🔍 CartLineItem Debug for product: ${product?.title}`, {
+    lineId: line.id,
+    allAttributes: lineAttributes,
+    attributeCount: lineAttributes.length,
+    merchandiseImage: merchandise?.image?.url || 'NO_IMAGE',
+  });
+
+  // Debug custom design information
+  console.log(`🎨 CartLineItem: Custom design analysis`, {
     isCustomDesign,
     hasCustomDesignImage: !!customDesignImage,
     customDesignImagePreview: customDesignImage
-      ? `${customDesignImage.substring(0, 50)}...`
+      ? customDesignImage.startsWith('http')
+        ? 'URL'
+        : customDesignImage.startsWith('data:')
+        ? 'BASE64'
+        : 'STORAGE_REF'
       : 'MISSING',
     imageLength: customDesignImage?.length,
-    isCloudinaryURL: customDesignImage?.startsWith('http'),
-    isBase64: customDesignImage?.startsWith('data:'),
-    isValidImage: isValidCustomImage,
-    shouldShowCustomImage: shouldShowCustomImage,
-    originalProductImage: image?.url || 'NO PRODUCT IMAGE',
+    isCloudinaryURL: customDesignImage?.includes('cloudinary'),
+    customizedImage: customizedImage ? 'PRESENT' : 'MISSING',
+    hasMultipleDesigns: !!allDesignedImagesAttr,
+    localDesignUrl: localDesignUrl ? 'LOADED' : 'NOT_LOADED',
   });
 
-  // Use custom design image if available, otherwise use product image
-  const displayImage = shouldShowCustomImage ? customDesignImage : image;
+  // Determine what image to display
+  let displayImageUrl = merchandise?.image?.url || '';
+  let displayImageType = 'PRODUCT';
+  
+  // For custom designs, use the local design URL if available
+  if (isCustomDesign && localDesignUrl) {
+    if (localDesignUrl.startsWith('data:') || localDesignUrl.startsWith('http')) {
+      displayImageUrl = localDesignUrl;
+      displayImageType = 'CUSTOM_DESIGN';
+    }
+  }
 
-  console.log('🖼️ CartLineItem: Final image decision', {
-    displayImageType: shouldShowCustomImage ? 'CUSTOM' : 'PRODUCT',
-    displayImageUrl: shouldShowCustomImage
-      ? `${customDesignImage?.substring(0, 50)}...`
-      : image?.url,
+  // Prioritize displaying custom designs
+  if (isCustomDesign) {
+    // Priority 1: Local design URL from localStorage/storage
+    if (localDesignUrl) {
+      displayImageUrl = localDesignUrl;
+      displayImageType = 'CUSTOM_DESIGN';
+    } 
+    // Priority 2: Direct design image from cart attributes
+    else if (customDesignImage) {
+      if (customDesignImage.startsWith('http')) {
+        displayImageUrl = customDesignImage;
+        displayImageType = 'CUSTOM_DESIGN';
+      } else if (customDesignImage.startsWith('data:image')) {
+        displayImageUrl = customDesignImage;
+        displayImageType = 'CUSTOM_DESIGN';
+      } else if (customDesignImage === 'multi_design') {
+        // When it's a multi-design product, look for a URL in allDesignedImagesAttr
+        if (allDesignedImagesAttr && typeof allDesignedImagesAttr === 'string') {
+          try {
+            const imageUrls = JSON.parse(allDesignedImagesAttr);
+            if (Array.isArray(imageUrls) && imageUrls.length > 0 && 
+                typeof imageUrls[0] === 'string' && imageUrls[0].startsWith('http')) {
+              displayImageUrl = imageUrls[0];
+              displayImageType = 'MULTI_DESIGN';
+            }
+          } catch (e) {
+            console.error('Error parsing _all_designed_images', e);
+          }
+        }
+        
+        // If still no URL, use customizedImage as fallback
+        if (displayImageType !== 'MULTI_DESIGN' && customizedImage && customizedImage.startsWith('http')) {
+          displayImageUrl = customizedImage;
+          displayImageType = 'CUSTOMIZED_BASE';
+        }
+      }
+    }
+    // Priority 3: Customized base image
+    else if (customizedImage && customizedImage.startsWith('http')) {
+      displayImageUrl = customizedImage;
+      displayImageType = 'CUSTOMIZED_BASE';
+    }
+    // Fallback: Product image with custom design indicator
+    else if (merchandise?.image?.url) {
+      displayImageUrl = merchandise.image.url;
+      displayImageType = isLoading ? 'LOADING_DESIGN' : 'VARIANT_WITH_CUSTOM_LABEL';
+    }
+  } else if (merchandise?.image?.url) {
+    // Standard product without customization
+    displayImageUrl = merchandise.image.url;
+    displayImageType = 'VARIANT';
+  }
+
+  // Log the final image decision
+  console.log(`🖼️ CartLineItem: Final image decision`, {
+    displayImageType,
+    displayImageUrl,
   });
 
   return (
@@ -85,40 +405,45 @@ export function CartLineItem({
         {/* Product Image - Slightly smaller for more text space */}
         <div className="relative flex-shrink-0">
           <Link to={lineItemUrl} prefetch="intent" className="block">
-            <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 group-hover:border-primary/30">
-              {displayImage ? (
-                shouldShowCustomImage ? (
-                  // Custom design image - could be URL or base64
-                  <img
-                    src={customDesignImage}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    alt={`Custom ${title || product.title || 'Product design'}`}
-                    onError={(e) => {
-                      console.error(
-                        '🚨 Custom design image failed to load:',
-                        customDesignImage?.substring(0, 100),
-                      );
-                      // Hide the image on error
-                      e.currentTarget.style.display = 'none';
-                    }}
-                    onLoad={() => {
-                      console.log('✅ Custom design image loaded successfully');
-                    }}
-                  />
-                ) : image ? (
-                  // Standard Shopify product image object
-                  <Image
-                    data={image!}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    alt={title || product.title || 'Product image'}
-                    sizes="64px"
-                  />
-                ) : (
-                  // No image available
-                  <div className="w-full h-full flex items-center justify-center text-white/40 text-xs font-medium">
-                    {isCustomDesign ? '🎨' : 'No Image'}
-                  </div>
-                )
+            <div className="group w-[90px] h-[90px] overflow-hidden bg-black rounded-md flex items-center justify-center">
+              {displayImageUrl ? (
+                <img
+                  src={displayImageUrl}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  alt={`Custom ${title || product.title || 'Product design'}`}
+                  onError={(e) => {
+                    console.error(
+                      '🚨 Custom design image failed to load:',
+                      displayImageUrl?.substring(0, 100),
+                    );
+                    // If the custom design image fails to load, try using cloudUrls first
+                    if (cloudUrls.length > 0 && cloudUrls[0] !== displayImageUrl) {
+                      console.log('♻️ Falling back to cloud URL:', cloudUrls[0].substring(0, 100));
+                      (e.target as HTMLImageElement).src = cloudUrls[0];
+                    } 
+                    // Try all_designed_images next
+                    else if (allDesignedImagesAttr) {
+                      try {
+                        const imageUrls = JSON.parse(allDesignedImagesAttr);
+                        if (Array.isArray(imageUrls) && imageUrls.length > 0 && 
+                            typeof imageUrls[0] === 'string' && imageUrls[0].startsWith('http')) {
+                          console.log('♻️ Falling back to designed image URL:', imageUrls[0].substring(0, 100));
+                          (e.target as HTMLImageElement).src = imageUrls[0];
+                        }
+                      } catch {}
+                    }
+                    // Else try the customized base image 
+                    else if (customizedImage && customizedImage.startsWith('http')) {
+                      console.log('♻️ Falling back to customized image URL:', customizedImage.substring(0, 100));
+                      (e.target as HTMLImageElement).src = customizedImage;
+                    }
+                    // Last resort: fall back to the variant image if available
+                    else if (merchandise?.image?.url) {
+                      console.log('♻️ Falling back to variant image URL');
+                      (e.target as HTMLImageElement).src = merchandise.image.url;
+                    }
+                  }}
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/40 text-xs font-medium">
                   No Image
@@ -133,7 +458,11 @@ export function CartLineItem({
           )}
 
           {/* Custom design indicator */}
-          {shouldShowCustomImage && (
+          {(displayImageType === 'CUSTOM_DESIGN' || 
+            displayImageType === 'CUSTOMIZED_BASE' || 
+            displayImageType === 'MULTI_DESIGN' ||
+            displayImageType === 'LOADING_DESIGN' ||
+            displayImageType === 'VARIANT_WITH_CUSTOM_LABEL') && (
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 border-2 border-white/20 rounded-full flex items-center justify-center">
               <span className="text-xs">🎨</span>
             </div>
@@ -178,9 +507,26 @@ export function CartLineItem({
             {/* Custom Design Badge */}
             {isCustomDesign && (
               <div className="flex items-center gap-1">
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium">
-                  🎨 Custom Design{shouldShowCustomImage ? '' : ' (Processing)'}
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${
+                  displayImageType === 'CUSTOM_DESIGN' || displayImageType === 'MULTI_DESIGN'
+                    ? 'bg-green-500/20 border border-green-500/30 text-green-300' 
+                    : displayImageType === 'CUSTOMIZED_BASE' 
+                      ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300'
+                      : displayImageType === 'LOADING_DESIGN' && !loadingTimedOut
+                        ? 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
+                        : 'bg-red-500/20 border border-red-500/30 text-red-300'
+                }`}>
+                  {displayImageType === 'CUSTOM_DESIGN' || displayImageType === 'MULTI_DESIGN'
+                    ? '🎨 Your Custom Design' 
+                    : displayImageType === 'CUSTOMIZED_BASE' 
+                      ? '🎨 Customized Design'
+                      : displayImageType === 'LOADING_DESIGN' && !loadingTimedOut
+                        ? '🔄 Loading Design...'
+                        : '🎨 Custom Design'}
                 </span>
+                {displayImageType === 'LOADING_DESIGN' && !loadingTimedOut && (
+                  <div className="animate-pulse w-4 h-4 bg-yellow-500/30 rounded-full"></div>
+                )}
               </div>
             )}
 

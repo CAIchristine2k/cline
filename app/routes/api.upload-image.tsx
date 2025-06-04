@@ -42,31 +42,50 @@ export async function action({request, context}: ActionFunctionArgs) {
   try {
     const {cloudName, apiKey, apiSecret} = getCloudinaryConfig(context.env);
 
-    const formData = await request.formData();
-    const imageFile = formData.get('image') as File;
-    const folder = formData.get('folder') as string;
+    // Check content type
+    const contentType = request.headers.get('content-type');
+    let dataURI: string;
+    let folder: string = 'product-customization';
 
-    if (!imageFile) {
-      return new Response(JSON.stringify({error: 'No image file provided'}), {
-        status: 400,
-        headers: {'Content-Type': 'application/json'},
-      });
+    if (contentType?.includes('application/json')) {
+      // Handle JSON request with base64 image
+      const json = await request.json() as {image?: string, folder?: string};
+      if (!json.image) {
+        return new Response(JSON.stringify({error: 'No image data provided'}), {
+          status: 400,
+          headers: {'Content-Type': 'application/json'},
+        });
+      }
+      dataURI = json.image;
+      folder = json.folder || folder;
+    } else {
+      // Handle FormData request
+      const formData = await request.formData();
+      const imageFile = formData.get('image') as File;
+      folder = (formData.get('folder') as string) || folder;
+
+      if (!imageFile) {
+        return new Response(JSON.stringify({error: 'No image file provided'}), {
+          status: 400,
+          headers: {'Content-Type': 'application/json'},
+        });
+      }
+
+      // Convert file to base64 for upload (safe for large files)
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+
+      // Convert to base64 in chunks to avoid stack overflow
+      let binaryString = '';
+      const chunkSize = 8192; // Process in 8KB chunks
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.slice(i, i + chunkSize);
+        binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+      }
+
+      const base64String = btoa(binaryString);
+      dataURI = `data:${imageFile.type};base64,${base64String}`;
     }
-
-    // Convert file to base64 for upload (safe for large files)
-    const arrayBuffer = await imageFile.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-
-    // Convert to base64 in chunks to avoid stack overflow
-    let binaryString = '';
-    const chunkSize = 8192; // Process in 8KB chunks
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.slice(i, i + chunkSize);
-      binaryString += String.fromCharCode.apply(null, Array.from(chunk));
-    }
-
-    const base64String = btoa(binaryString);
-    const dataURI = `data:${imageFile.type};base64,${base64String}`;
 
     // Prepare upload parameters
     const timestamp = Math.round(Date.now() / 1000).toString();
@@ -75,7 +94,7 @@ export async function action({request, context}: ActionFunctionArgs) {
     const uploadParams: Record<string, string> = {
       timestamp,
       public_id: publicId,
-      folder: folder || 'product-customization',
+      folder: folder,
     };
 
     // Generate signature
@@ -91,7 +110,7 @@ export async function action({request, context}: ActionFunctionArgs) {
     cloudinaryFormData.append('timestamp', timestamp);
     cloudinaryFormData.append('signature', signature);
     cloudinaryFormData.append('public_id', publicId);
-    cloudinaryFormData.append('folder', folder || 'product-customization');
+    cloudinaryFormData.append('folder', folder);
 
     // Upload to Cloudinary via HTTP API
     const uploadResponse = await fetch(

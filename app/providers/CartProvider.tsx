@@ -1,4 +1,11 @@
-import {createContext, useContext, useEffect, useCallback} from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useCallback,
+  useState,
+  useRef,
+} from 'react';
 import {useLoaderData, useFetcher} from 'react-router';
 import {useOptimisticCart} from '@shopify/hydrogen';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
@@ -20,6 +27,7 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   refreshCart: () => void;
+  isLoading: boolean;
 }
 
 export const CartContext = createContext<CartContextType | null>(null);
@@ -30,6 +38,10 @@ export function CartProvider({children}: {children: React.ReactNode}) {
 
   // Create a fetcher to handle cart operations
   const cartFetcher = useFetcher<{cart: CartApiQueryFragment | null}>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Use refs to track and cleanup ongoing requests
+  const fetchControllerRef = useRef<AbortController | null>(null);
 
   // Access the aside context for managing the cart drawer
   const {open, close} = useAside();
@@ -44,9 +56,44 @@ export function CartProvider({children}: {children: React.ReactNode}) {
 
   // Function to refresh the cart data
   const refreshCart = useCallback(() => {
+    // Abort any existing requests
+    if (fetchControllerRef.current) {
+      fetchControllerRef.current.abort();
+    }
+
+    // Create a new abort controller
+    fetchControllerRef.current = new AbortController();
+
     console.log('Refreshing cart data...');
-    cartFetcher.load('/cart?cartOnly=true');
+    setIsLoading(true);
+
+    try {
+      cartFetcher.load('/cart?cartOnly=true');
+    } catch (error) {
+      console.error('Error refreshing cart:', error);
+    } finally {
+      // Set a maximum loading time
+      setTimeout(() => setIsLoading(false), 3000);
+    }
   }, [cartFetcher]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (fetchControllerRef.current) {
+        fetchControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  // Update loading state when fetcher state changes
+  useEffect(() => {
+    if (cartFetcher.state === 'loading') {
+      setIsLoading(true);
+    } else if (cartFetcher.state === 'idle' && cartFetcher.data) {
+      setIsLoading(false);
+    }
+  }, [cartFetcher.state, cartFetcher.data]);
 
   // Calculate total quantity of items in cart from the original cart
   const totalQuantity = originalCart?.totalQuantity || 0;
@@ -110,6 +157,7 @@ export function CartProvider({children}: {children: React.ReactNode}) {
     openCart,
     closeCart,
     refreshCart,
+    isLoading,
   };
 
   return (

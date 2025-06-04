@@ -40,6 +40,7 @@ export default defineConfig({
         'react',
         'react-dom',
         'react-dom/server',
+        'konva',
       ],
     },
   },

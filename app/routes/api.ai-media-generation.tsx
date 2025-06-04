@@ -412,22 +412,13 @@ export async function action({request, context}: ActionFunctionArgs) {
 
       apiEndpoint = `${KLING_API_BASE}/v1/images/kolors-virtual-try-on`;
     } else if (generationType === 'fan-together') {
-      // Fan together: Only use expensive kling-v1-5 if specific subject/face targeting is needed
-      // kling-v1 supports basic image-to-image without subject/face targeting
-      const needsSubjectFaceTargeting =
-        imageReference &&
-        (imageReference === 'subject' || imageReference === 'face');
-      const modelName = needsSubjectFaceTargeting ? 'kling-v1-5' : 'kling-v1';
+      // Always use v1 model as requested
+      const modelName = 'kling-v1';
 
-      console.log(`🤝 Fan-together generation config (COST-OPTIMIZED):`, {
+      console.log(`🤝 Fan-together generation config:`, {
         hasReferenceImage: !!referenceImageUrl,
         imageReference,
-        needsSubjectFaceTargeting,
         modelName,
-        costLevel: modelName === 'kling-v1' ? 'CHEAPEST' : 'EXPENSIVE',
-        reason: needsSubjectFaceTargeting
-          ? 'subject/face targeting required - needs kling-v1-5'
-          : 'basic image-to-image with kling-v1 (cheapest)',
       });
 
       klingRequest = {
@@ -441,11 +432,7 @@ export async function action({request, context}: ActionFunctionArgs) {
       if (referenceImageUrl) {
         try {
           klingRequest.image = await fetchImageAsBase64(referenceImageUrl);
-          // Only set image_reference if using kling-v1-5 (which supports subject/face targeting)
-          if (modelName === 'kling-v1-5' && needsSubjectFaceTargeting) {
-            klingRequest.image_reference = imageReference;
-          }
-          // kling-v1 will use the image as basic reference without specific targeting
+          // Note: v1 model will use the image as basic reference without specific targeting
         } catch (error) {
           console.error('Failed to fetch reference image:', error);
         }
@@ -453,21 +440,13 @@ export async function action({request, context}: ActionFunctionArgs) {
 
       apiEndpoint = `${KLING_API_BASE}/v1/images/generations`;
     } else if (generationType === 'image-reference') {
-      // Image reference: Use kling-v1 for basic reference, kling-v1-5 only for subject/face targeting
-      const needsSubjectFaceTargeting =
-        imageReference &&
-        (imageReference === 'subject' || imageReference === 'face');
-      const modelName = needsSubjectFaceTargeting ? 'kling-v1-5' : 'kling-v1';
+      // Always use v1 model as requested
+      const modelName = 'kling-v1';
 
-      console.log(`🖼️ Image-reference generation config (COST-OPTIMIZED):`, {
+      console.log(`🖼️ Image-reference generation config:`, {
         hasReferenceImage: !!referenceImageUrl,
         imageReference,
-        needsSubjectFaceTargeting,
         modelName,
-        costLevel: modelName === 'kling-v1' ? 'CHEAPEST' : 'EXPENSIVE',
-        reason: needsSubjectFaceTargeting
-          ? 'subject/face targeting required - needs kling-v1-5'
-          : 'basic image reference with kling-v1 (cheapest)',
       });
 
       klingRequest = {
@@ -477,15 +456,11 @@ export async function action({request, context}: ActionFunctionArgs) {
         n: numberOfImages,
       };
 
-      // Use the reference image (both models support this)
+      // Use the reference image
       if (referenceImageUrl) {
         try {
           klingRequest.image = await fetchImageAsBase64(referenceImageUrl);
-          // Only set image_reference if using kling-v1-5 and specifically requested
-          if (modelName === 'kling-v1-5' && needsSubjectFaceTargeting) {
-            klingRequest.image_reference = imageReference;
-          }
-          // kling-v1 will use the image as basic style/content reference
+          // Note: v1 model will use the image as basic style/content reference
         } catch (error) {
           console.error('Failed to fetch reference image:', error);
           return new Response(
@@ -502,16 +477,14 @@ export async function action({request, context}: ActionFunctionArgs) {
 
       apiEndpoint = `${KLING_API_BASE}/v1/images/generations`;
     } else {
-      // Text-only generation - CHEAPEST option
-      console.log(`💭 Text-only generation config (COST-OPTIMIZED):`, {
+      // Text-only generation
+      console.log(`💭 Text-only generation config:`, {
         hasNegativePrompt: !!negativePrompt,
         modelName: 'kling-v1',
-        costLevel: 'CHEAPEST',
-        reason: 'text-only generation - no images needed, maximum cost savings',
       });
 
       klingRequest = {
-        model_name: 'kling-v1', // Always use cheapest for text-only
+        model_name: 'kling-v1',
         prompt: prompt,
         aspect_ratio: aspectRatio,
         n: numberOfImages,

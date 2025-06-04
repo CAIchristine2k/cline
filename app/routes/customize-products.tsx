@@ -124,6 +124,27 @@ const PRODUCTS_QUERY = `#graphql
           width
           height
         }
+        images(first: 5) {
+          nodes {
+            url
+            altText
+            width
+            height
+          }
+        }
+        media(first: 20) {
+          nodes {
+            id
+            ... on MediaImage {
+              image {
+                url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
         priceRange {
           minVariantPrice {
             amount
@@ -152,6 +173,11 @@ const PRODUCTS_QUERY = `#graphql
             compareAtPrice {
               amount
               currencyCode
+            }
+            metafields(identifiers: [{namespace: "custom", key: "variant_imgs"}]) {
+              key
+              value
+              namespace
             }
           }
         }

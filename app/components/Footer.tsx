@@ -44,21 +44,17 @@ export function Footer() {
 
   const quickLinks = [
     'Shop All',
-    'Boxing Equipment',
-    'Apparel',
-    'Limited Editions',
+    'Products',
+    'Customize',
     `About ${config.influencerName.split(' ')[0]}`,
     'Career Highlights',
-    'Training Tips',
   ];
 
   const supportLinks = [
     'Contact Us',
-    'FAQs',
-    'Shipping & Returns',
-    'Size Guide',
-    'Privacy Policy',
-    'Terms of Service',
+    'Search',
+    'Cart',
+    'Privacy Policy & Terms', // Combined Privacy Policy and Terms
   ];
 
   const contactInfo = [
@@ -71,31 +67,25 @@ export function Footer() {
     {icon: Phone, text: config.contactInfo?.phone || '+1 (800) CHAMPION'},
     {
       icon: Mail,
-      text:
-        config.contactInfo?.email ||
-        `contact@${config.brandName.toLowerCase().replace(/\s+/g, '')}.store`,
+      text: 'contact@xavvi.com', // Updated email address
     },
   ];
 
-  const policies = ['Privacy Policy', 'Terms of Service', 'Sitemap'];
+  const policies = ['Privacy Policy & Terms', 'Sitemap']; // Updated policies array
 
   // Map the quick links to appropriate routes
   const getQuickLinkRoute = (link: string) => {
     switch (link) {
       case 'Shop All':
         return '/collections/all';
-      case 'Boxing Equipment':
-        return '/collections/equipment';
-      case 'Apparel':
-        return '/collections/apparel';
-      case 'Limited Editions':
-        return '/collections/limited-editions';
+      case 'Products':
+        return '/products';
+      case 'Customize':
+        return '/customize-products';
       case `About ${config.influencerName.split(' ')[0]}`:
         return '/about';
       case 'Career Highlights':
         return '/about#highlights';
-      case 'Training Tips':
-        return '/blogs/training';
       default:
         return '/';
     }
@@ -106,16 +96,12 @@ export function Footer() {
     switch (link) {
       case 'Contact Us':
         return '/pages/contact';
-      case 'FAQs':
-        return '/pages/faqs';
-      case 'Shipping & Returns':
-        return '/pages/shipping-returns';
-      case 'Size Guide':
-        return '/pages/size-guide';
-      case 'Privacy Policy':
-        return '/pages/privacy-policy';
-      case 'Terms of Service':
-        return '/pages/terms-of-service';
+      case 'Search':
+        return '/search';
+      case 'Cart':
+        return '/cart';
+      case 'Privacy Policy & Terms':
+        return '/policies/privacy-terms';
       default:
         return '/';
     }
@@ -124,10 +110,8 @@ export function Footer() {
   // Map the policy links to appropriate routes
   const getPolicyRoute = (policy: string) => {
     switch (policy) {
-      case 'Privacy Policy':
-        return '/pages/privacy-policy';
-      case 'Terms of Service':
-        return '/pages/terms-of-service';
+      case 'Privacy Policy & Terms':
+        return '/policies/privacy-terms';
       case 'Sitemap':
         return '/sitemap.xml';
       default:

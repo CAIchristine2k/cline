@@ -101,6 +101,7 @@ export interface LandingPageConfig {
   showTestimonials: boolean;
   showSocialFeed: boolean;
   showAIMediaGeneration: boolean;
+  showTrainingSection: boolean;
 
   // Customizable Products
   customizableProducts?: {
@@ -187,6 +188,10 @@ export interface LandingPageConfig {
     loginPromptMessage: string;
     limitReachedTitle: string;
     limitReachedMessage: string;
+    // Photo ordering features
+    enablePrinting?: boolean;
+    printProductId?: string;
+    printProductName?: string;
   };
 
   // Limited Edition
@@ -205,6 +210,15 @@ export interface LandingPageConfig {
     title: string;
     description: string;
     image?: string;
+  }>;
+
+  // Training Programs
+  trainingPrograms?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    link: string;
+    icon?: string;
   }>;
 
   // Shopify Configuration
@@ -262,8 +276,9 @@ export const defaultConfig: LandingPageConfig = {
     {name: 'Home', href: '/'},
     {name: 'Shop', href: '/collections/all'},
     {name: 'About', href: '/about'},
-    {name: 'Career', href: '#career'},
-    {name: 'Contact', href: '#newsletter'},
+    {name: 'Career', href: '/about#highlights'},
+    {name: 'Customize', href: '/customize-products'},
+    {name: 'Contact', href: '/pages/contact'},
   ],
 
   // Product Information
@@ -355,6 +370,7 @@ export const defaultConfig: LandingPageConfig = {
   showTestimonials: true,
   showSocialFeed: true,
   showAIMediaGeneration: true,
+  showTrainingSection: true,
 
   // Customizable Products
   customizableProducts: {
@@ -413,11 +429,11 @@ export const defaultConfig: LandingPageConfig = {
 
   // AI Media Generation
   aiMediaGeneration: {
-    title: 'TRAIN WITH THE CHAMP',
+    title: 'CHAMPION PHOTO EXPERIENCE',
     subtitle: 'AI-Powered Fan Experience',
     description:
-      'Upload your photo and see yourself training alongside Sugar Shane Mosley using cutting-edge AI technology. Create your own championship moment!',
-    buttonText: 'Generate My Training Photo',
+      'Upload your photo and see yourself alongside Sugar Shane Mosley using cutting-edge AI technology. Create your own championship moment!',
+    buttonText: 'Generate My Photo',
     influencerReferenceImage: '/images/influencer.jpeg',
     placeholderText: 'Upload your photo to get started',
     successMessage: 'Your training photo is ready! Check it out below.',
@@ -438,10 +454,10 @@ export const defaultConfig: LandingPageConfig = {
     // Pose options
     poseOptions: [
       {
-        id: 'training',
-        name: 'Training Session',
-        description: 'Train with the champion',
-        icon: 'dumbbell',
+        id: 'celebrity',
+        name: 'Celebrity Style',
+        description: 'Photo with Sugar Shane Mosley',
+        icon: 'users',
       },
       {
         id: 'hugging',
@@ -462,6 +478,10 @@ export const defaultConfig: LandingPageConfig = {
         icon: 'shirt',
       },
     ],
+    // Photo ordering features
+    enablePrinting: true,
+    printProductId: 'ai-photo-print',
+    printProductName: 'AI Photo Print',
     // Product try-on options
     productOptions: [
       {
@@ -606,6 +626,34 @@ export const defaultConfig: LandingPageConfig = {
       description:
         'Made professional boxing debut, winning by TKO in the first round.',
       image: '/images/product-4.png',
+    },
+  ],
+
+  // Training Programs
+  trainingPrograms: [
+    {
+      id: 'personal',
+      title: 'PERSONAL TRAINING',
+      description:
+        'One-on-one sessions with championship techniques and personalized feedback',
+      icon: 'dumbbell',
+      link: '/collections/training',
+    },
+    {
+      id: 'masterclass',
+      title: 'BOXING MASTERCLASS',
+      description:
+        'Learn the strategies and techniques that made Sugar Shane a 9-time world champion',
+      icon: 'medal',
+      link: '/collections/masterclass',
+    },
+    {
+      id: 'community',
+      title: 'CHAMPION COMMUNITY',
+      description:
+        'Join an exclusive community of fighters and fans with special events and content',
+      icon: 'users',
+      link: '/collections/community',
     },
   ],
 

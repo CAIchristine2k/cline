@@ -6,6 +6,7 @@ export async function uploadCanvasToCloudinary(
   options: {
     filename?: string;
     folder?: string;
+    baseUrl?: string;
   } = {},
 ): Promise<{
   success: boolean;
@@ -17,9 +18,39 @@ export async function uploadCanvasToCloudinary(
   error?: string;
 }> {
   try {
-    // Convert data URL to blob
-    const response = await fetch(canvasDataURL);
-    const blob = await response.blob();
+    console.log(`🖼️ uploadCanvasToCloudinary called with ${canvasDataURL.substring(0, 50)}...`);
+    
+    // Safe way to convert data URL to blob without triggering a CSP violation
+    let blob: Blob;
+    
+    if (canvasDataURL.startsWith('data:')) {
+      // Convert data URL to blob without using fetch on the data URL
+      const arr = canvasDataURL.split(',');
+      const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      
+      blob = new Blob([u8arr], { type: mime });
+      console.log(`✅ Successfully converted data URL to blob (${blob.size} bytes)`);
+    } else {
+      // It's a URL, we need to fetch it
+      try {
+        const response = await fetch(canvasDataURL);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+        }
+        blob = await response.blob();
+        console.log(`✅ Successfully fetched image as blob (${blob.size} bytes)`);
+      } catch (fetchError) {
+        console.error('Failed to fetch image from URL:', fetchError);
+        throw new Error(`Failed to fetch image: ${fetchError instanceof Error ? fetchError.message : 'Network error'}`);
+      }
+    }
 
     // Create form data
     const formData = new FormData();
@@ -30,31 +61,73 @@ export async function uploadCanvasToCloudinary(
       formData.append('folder', options.folder);
     }
 
-    // Upload via our edge-compatible API endpoint
-    const uploadResponse = await fetch('/api/upload-image', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!uploadResponse.ok) {
-      const errorData = (await uploadResponse
-        .json()
-        .catch(() => ({error: 'Unknown error'}))) as {error?: string};
-      throw new Error(
-        errorData.error || `Upload failed with status ${uploadResponse.status}`,
-      );
+    // Determine the correct URL to use for uploads
+    let uploadUrl: string;
+    
+    // Check if in browser context
+    const isBrowser = typeof window !== 'undefined';
+    
+    if (isBrowser) {
+      // Browser context - use relative URL
+      uploadUrl = '/api/upload-image';
+      console.log(`🌐 Using client-side upload URL: ${uploadUrl}`);
+    } else {
+      // Server context - need absolute URL
+      // Use the provided baseUrl or default to localhost:3000
+      const baseUrl = options.baseUrl || 'http://localhost:3000';
+      uploadUrl = `${baseUrl}/api/upload-image`;
+      console.log(`🌐 Using server-side upload URL: ${uploadUrl}`);
     }
 
-    const result = (await uploadResponse.json()) as {
-      success: boolean;
-      url?: string;
-      publicId?: string;
-      width?: number;
-      height?: number;
-      bytes?: number;
-      error?: string;
-    };
-    return result;
+    // Upload via our edge-compatible API endpoint
+    try {
+      console.log(`📤 Uploading image to ${uploadUrl} (${blob.size} bytes)`);
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+        // Add cache control headers to prevent caching
+        headers: {
+          'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        let errorMessage: string;
+        
+        try {
+          const errorData = JSON.parse(errorText) as {error?: string};
+          errorMessage = errorData.error || `HTTP error: ${uploadResponse.status} ${uploadResponse.statusText}`;
+        } catch (e) {
+          errorMessage = `HTTP error: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText.substring(0, 200)}`;
+        }
+        
+        console.error(`❌ Upload failed: ${errorMessage}`);
+        throw new Error(errorMessage);
+      }
+
+      const result = (await uploadResponse.json()) as {
+        success: boolean;
+        url?: string;
+        publicId?: string;
+        width?: number;
+        height?: number;
+        bytes?: number;
+        error?: string;
+      };
+      
+      if (result.success && result.url) {
+        console.log(`✅ Successfully uploaded to Cloudinary: ${result.url}`);
+      } else {
+        console.error(`❌ Upload returned success: false - ${result.error || 'Unknown error'}`);
+      }
+      
+      return result;
+    } catch (uploadError) {
+      console.error('Upload request failed:', uploadError);
+      throw new Error(`Upload request failed: ${uploadError instanceof Error ? uploadError.message : 'Network error'}`);
+    }
   } catch (error) {
     console.error('Error uploading to Cloudinary:', error);
     return {
@@ -71,6 +144,7 @@ export async function uploadFileToCloudinary(
   file: File,
   options: {
     folder?: string;
+    baseUrl?: string;
   } = {},
 ): Promise<{
   success: boolean;
@@ -89,7 +163,23 @@ export async function uploadFileToCloudinary(
       formData.append('folder', options.folder);
     }
 
-    const uploadResponse = await fetch('/api/upload-image', {
+    // Determine the correct URL to use for uploads
+    let uploadUrl: string;
+    
+    // Check if in browser context
+    const isBrowser = typeof window !== 'undefined';
+    
+    if (isBrowser) {
+      // Browser context - use relative URL
+      uploadUrl = '/api/upload-image';
+    } else {
+      // Server context - need absolute URL
+      // Use the provided baseUrl or default to localhost:3000
+      const baseUrl = options.baseUrl || 'http://localhost:3000';
+      uploadUrl = `${baseUrl}/api/upload-image`;
+    }
+
+    const uploadResponse = await fetch(uploadUrl, {
       method: 'POST',
       body: formData,
     });
@@ -130,6 +220,7 @@ export async function saveDesignToCloudinary(
   options: {
     productId?: string;
     customizations?: Record<string, any>;
+    baseUrl?: string;
   } = {},
 ): Promise<{
   success: boolean;
@@ -158,8 +249,24 @@ export async function saveDesignToCloudinary(
       formData.append('customizations', JSON.stringify(options.customizations));
     }
 
+    // Determine the correct URL to use for saving design
+    let saveUrl: string;
+    
+    // Check if in browser context
+    const isBrowser = typeof window !== 'undefined';
+    
+    if (isBrowser) {
+      // Browser context - use relative URL
+      saveUrl = '/api/save-design';
+    } else {
+      // Server context - need absolute URL
+      // Use the provided baseUrl or default to localhost:3000
+      const baseUrl = options.baseUrl || 'http://localhost:3000';
+      saveUrl = `${baseUrl}/api/save-design`;
+    }
+
     // Save design via our edge-compatible API endpoint
-    const saveResponse = await fetch('/api/save-design', {
+    const saveResponse = await fetch(saveUrl, {
       method: 'POST',
       body: formData,
     });
@@ -203,6 +310,7 @@ export async function downloadAndReuploadToCloudinary(
   options: {
     folder?: string;
     filename?: string;
+    baseUrl?: string;
   } = {},
 ): Promise<{
   success: boolean;
@@ -230,31 +338,63 @@ export async function downloadAndReuploadToCloudinary(
       throw new Error('Downloaded content is not an image');
     }
 
-    console.log('📥 Image downloaded, size:', blob.size, 'bytes');
+    // Create form data
+    const formData = new FormData();
+    const filename = options.filename || `reupload-${Date.now()}.jpg`;
+    formData.append('image', blob, filename);
 
-    // Create a File object from the blob
-    const filename =
-      options.filename || `downloaded-${Date.now()}.${blob.type.split('/')[1]}`;
-    const file = new File([blob], filename, {type: blob.type});
-
-    // Re-upload to Cloudinary using existing function
-    const uploadResult = await uploadFileToCloudinary(file, {
-      folder: options.folder || 'downloaded-images',
-    });
-
-    if (uploadResult.success) {
-      console.log('☁️ Image re-uploaded to Cloudinary:', uploadResult.url);
+    if (options.folder) {
+      formData.append('folder', options.folder);
     }
 
-    return uploadResult;
+    // Determine the correct URL to use for uploads
+    let uploadUrl: string;
+    
+    // Check if in browser context
+    const isBrowser = typeof window !== 'undefined';
+    
+    if (isBrowser) {
+      // Browser context - use relative URL
+      uploadUrl = '/api/upload-image';
+    } else {
+      // Server context - need absolute URL
+      // Use the provided baseUrl or default to localhost:3000
+      const baseUrl = options.baseUrl || 'http://localhost:3000';
+      uploadUrl = `${baseUrl}/api/upload-image`;
+    }
+
+    // Upload to Cloudinary
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      const errorData = (await uploadResponse
+        .json()
+        .catch(() => ({error: 'Unknown error'}))) as {error?: string};
+      throw new Error(
+        errorData.error || `Upload failed with status ${uploadResponse.status}`,
+      );
+    }
+
+    const result = (await uploadResponse.json()) as {
+      success: boolean;
+      url?: string;
+      publicId?: string;
+      width?: number;
+      height?: number;
+      bytes?: number;
+      error?: string;
+    };
+
+    console.log('📤 Reuploaded image to:', result.url);
+    return result;
   } catch (error) {
-    console.error('Error downloading and re-uploading image:', error);
+    console.error('Error reuploading to Cloudinary:', error);
     return {
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : 'Download and re-upload failed',
+      error: error instanceof Error ? error.message : 'Reupload failed',
     };
   }
 }

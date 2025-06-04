@@ -28,11 +28,13 @@ export default function LimitedEdition() {
   useEffect(() => {
     if (!config.limitedEdition) return;
 
-    const endDate = new Date(config.limitedEdition.endDate);
+    // Instead of using the config end date, set timer to 12 hours from now
+    const now = new Date();
+    const endDate = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours from now
 
     const updateTimer = () => {
-      const now = new Date();
-      const difference = endDate.getTime() - now.getTime();
+      const currentTime = new Date();
+      const difference = endDate.getTime() - currentTime.getTime();
 
       if (difference <= 0) {
         setTimeLeft({days: 0, hours: 0, minutes: 0, seconds: 0});

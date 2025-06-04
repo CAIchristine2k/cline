@@ -23,6 +23,11 @@ type SelectedVariant = {
   [key: string]: any; // Allow additional fields
 };
 
+// Extended CartLineInput to include selectedVariant for optimistic cart
+type ExtendedCartLineInput = CartLineInput & {
+  selectedVariant?: SelectedVariant;
+};
+
 export function AddToCartButton({
   children,
   disabled,
@@ -75,11 +80,56 @@ export function AddToCartButton({
     ? lines.map((line) => ({...line, selectedVariant}))
     : lines;
 
+  // Create properly typed lines for CartForm inputs
+  const cartFormLines = enhancedLines.map((line) => {
+    const baseInput = {
+      merchandiseId: line.merchandiseId,
+      quantity: line.quantity,
+      attributes: line.attributes,
+    };
+    
+    // Add selectedVariant for optimistic cart functionality
+    // selectedVariant is required by useOptimisticCart but not in CartLineInput types
+    if (selectedVariant) {
+      // @ts-ignore
+      baseInput.selectedVariant = selectedVariant;
+    }
+    
+    return baseInput;
+  });
+
+  // Debug any custom attributes being added and selectedVariant
+  useEffect(() => {
+    if (lines.some((line) => line.attributes && line.attributes.length > 0)) {
+      console.log(
+        '🔍 AddToCartButton - Custom attributes detected:',
+        lines.map((line) => ({
+          merchandiseId: line.merchandiseId,
+          quantity: line.quantity,
+          attributeCount: line.attributes?.length || 0,
+          attributes: line.attributes || [],
+        })),
+      );
+    }
+    
+    if (selectedVariant) {
+      console.log('✅ AddToCartButton - selectedVariant provided:', {
+        id: selectedVariant.id,
+        title: selectedVariant.title,
+        availableForSale: selectedVariant.availableForSale,
+      });
+    } else {
+      console.warn('⚠️ AddToCartButton - No selectedVariant provided for optimistic cart');
+    }
+  }, [lines, selectedVariant]);
+
   return (
     <CartForm
       route="/cart"
       action={CartForm.ACTIONS.LinesAdd}
-      inputs={{lines: enhancedLines}}
+      inputs={{
+        lines: cartFormLines,
+      }}
     >
       {(fetcher) => {
         const isSubmitting = fetcher.state === 'submitting';
@@ -96,7 +146,16 @@ export function AddToCartButton({
             'data:',
             fetcher.data,
           );
-        }, [fetcher.state, fetcher.data]);
+
+          // Log form data being submitted
+          if (fetcher.formData) {
+            const formDataEntries = Array.from(fetcher.formData.entries());
+            console.log(
+              'AddToCartButton form data being submitted:',
+              Object.fromEntries(formDataEntries),
+            );
+          }
+        }, [fetcher.state, fetcher.data, fetcher.formData]);
 
         // Handle successful cart addition
         useEffect(() => {
