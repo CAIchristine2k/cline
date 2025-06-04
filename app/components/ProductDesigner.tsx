@@ -206,186 +206,188 @@ export function ProductDesigner({
   }
 
   return (
-    <Stage
-      ref={stageRef}
-      width={stageSize.width}
-      height={stageSize.height}
-      onMouseDown={checkDeselect}
-      onTouchStart={checkDeselect}
-      className="bg-neutral-800"
-    >
-      <Layer>
-        {/* Background Product Image */}
-        <KonvaImage
-          image={backgroundImage}
-          width={stageSize.width}
-          height={stageSize.height}
-          listening={false}
-        />
-
-        {/* User Elements - Sorted by zIndex (lowest to highest) */}
-        {elements
-          .sort((a, b) => a.zIndex - b.zIndex)
-          .map((element) => {
-            // Ensure coordinates are valid numbers
-            const safeX = getSafeNumber(element.x, stageSize.width / 2);
-            const safeY = getSafeNumber(element.y, stageSize.height / 2);
-            const safeRotation = getSafeNumber(element.rotation, 0);
-            const safeScaleX = getSafeNumber(element.scaleX, 1);
-            const safeScaleY = getSafeNumber(element.scaleY, 1);
-            
-            if (element.type === 'image' && element.src) {
-              return (
-                <Group
-                  key={element.id}
-                  id={element.id}
-                  x={safeX}
-                  y={safeY}
-                  rotation={safeRotation}
-                  scaleX={safeScaleX}
-                  scaleY={safeScaleY}
-                  draggable
-                  onClick={() => onElementSelect(element.id)}
-                  onTap={() => onElementSelect(element.id)}
-                  onDragEnd={(e) => {
-                    const node = e.target;
-                    const newX = node.x();
-                    const newY = node.y();
-                    
-                    // Only update if values are valid
-                    if (isValidNumber(newX) && isValidNumber(newY)) {
-                    onElementTransform(element.id, {
-                        x: newX,
-                        y: newY,
-                    });
-                    }
-                  }}
-                  onTransformEnd={(e) => {
-                    const node = e.target;
-
-                    // Get new position and scale values
-                    const newX = node.x();
-                    const newY = node.y();
-                    const newRotation = node.rotation();
-                    const newScaleX = Math.abs(node.scaleX());
-                    const newScaleY = Math.abs(node.scaleY());
-                    
-                    // Only update if all values are valid
-                    if (
-                      isValidNumber(newX) && 
-                      isValidNumber(newY) && 
-                      isValidNumber(newRotation) && 
-                      isValidNumber(newScaleX) && 
-                      isValidNumber(newScaleY)
-                    ) {
-                    onElementTransform(element.id, {
-                        x: newX,
-                        y: newY,
-                        rotation: newRotation,
-                        scaleX: newScaleX,
-                        scaleY: newScaleY,
-                    });
-                    }
-                  }}
-                >
-                  <KonvaImage
-                    image={getImage(element.src) || undefined}
-                    width={element.width}
-                    height={element.height}
-                    opacity={element.opacity}
-                  />
-                </Group>
-              );
-            } else if (element.type === 'text') {
-              return (
-                <Text
-                  key={element.id}
-                  id={element.id}
-                  x={safeX}
-                  y={safeY}
-                  text={element.text || ''}
-                  fontSize={element.fontSize}
-                  fontFamily={element.fontFamily}
-                  fill={element.fill}
-                  rotation={safeRotation}
-                  scaleX={safeScaleX}
-                  scaleY={safeScaleY}
-                  opacity={element.opacity}
-                  draggable
-                  onClick={() => onElementSelect(element.id)}
-                  onTap={() => onElementSelect(element.id)}
-                  onDragEnd={(e) => {
-                    const node = e.target;
-                    const newX = node.x();
-                    const newY = node.y();
-                    
-                    // Only update if values are valid
-                    if (isValidNumber(newX) && isValidNumber(newY)) {
-                    onElementTransform(element.id, {
-                        x: newX,
-                        y: newY,
-                    });
-                    }
-                  }}
-                  onTransformEnd={(e) => {
-                    const node = e.target;
-
-                    // Get new values
-                    const newX = node.x();
-                    const newY = node.y();
-                    const newRotation = node.rotation();
-                    const newScaleX = Math.abs(node.scaleX());
-                    const newScaleY = Math.abs(node.scaleY());
-                    
-                    // Only update if all values are valid
-                    if (
-                      isValidNumber(newX) && 
-                      isValidNumber(newY) && 
-                      isValidNumber(newRotation) && 
-                      isValidNumber(newScaleX) && 
-                      isValidNumber(newScaleY)
-                    ) {
-                    onElementTransform(element.id, {
-                        x: newX,
-                        y: newY,
-                        rotation: newRotation,
-                        scaleX: newScaleX,
-                        scaleY: newScaleY,
-                    });
-                    }
-                  }}
-                />
-              );
-            }
-            return null;
-          })}
-
-        {/* Transformer for selected elements */}
-        <Transformer
-          ref={transformerRef}
-          boundBoxFunc={(oldBox, newBox) => {
-            // Prevent scaling to zero or negative
-            if (newBox.width < 5 || newBox.height < 5) {
-              return oldBox;
-            }
-
-            // Honor aspect ratio if needed
-            if (keepAspectRatio) {
-              const aspect = oldBox.width / oldBox.height;
+    <div className="w-full flex justify-center">
+      <Stage
+        ref={stageRef}
+        width={stageSize.width}
+        height={stageSize.height}
+        onMouseDown={checkDeselect}
+        onTouchStart={checkDeselect}
+        className="bg-neutral-800 max-w-full"
+      >
+        <Layer>
+          {/* First layer: User Elements - Sorted by zIndex (lowest to highest) */}
+          {elements
+            .sort((a, b) => a.zIndex - b.zIndex)
+            .map((element) => {
+              // Ensure coordinates are valid numbers
+              const safeX = getSafeNumber(element.x, stageSize.width / 2);
+              const safeY = getSafeNumber(element.y, stageSize.height / 2);
+              const safeRotation = getSafeNumber(element.rotation, 0);
+              const safeScaleX = getSafeNumber(element.scaleX, 1);
+              const safeScaleY = getSafeNumber(element.scaleY, 1);
               
-              // If width changes more than height, adjust height to match aspect ratio
-              if (Math.abs(newBox.width - oldBox.width) > Math.abs(newBox.height - oldBox.height)) {
-                newBox.height = newBox.width / aspect;
-              } else {
-                // Otherwise, adjust width to match aspect ratio
-                newBox.width = newBox.height * aspect;
-              }
-            }
+              if (element.type === 'image' && element.src) {
+                return (
+                  <Group
+                    key={element.id}
+                    id={element.id}
+                    x={safeX}
+                    y={safeY}
+                    rotation={safeRotation}
+                    scaleX={safeScaleX}
+                    scaleY={safeScaleY}
+                    draggable
+                    onClick={() => onElementSelect(element.id)}
+                    onTap={() => onElementSelect(element.id)}
+                    onDragEnd={(e) => {
+                      const node = e.target;
+                      const newX = node.x();
+                      const newY = node.y();
+                      
+                      // Only update if values are valid
+                      if (isValidNumber(newX) && isValidNumber(newY)) {
+                      onElementTransform(element.id, {
+                          x: newX,
+                          y: newY,
+                      });
+                      }
+                    }}
+                    onTransformEnd={(e) => {
+                      const node = e.target;
 
-            return newBox;
-          }}
-        />
-      </Layer>
-    </Stage>
+                      // Get new position and scale values
+                      const newX = node.x();
+                      const newY = node.y();
+                      const newRotation = node.rotation();
+                      const newScaleX = Math.abs(node.scaleX());
+                      const newScaleY = Math.abs(node.scaleY());
+                      
+                      // Only update if all values are valid
+                      if (
+                        isValidNumber(newX) && 
+                        isValidNumber(newY) && 
+                        isValidNumber(newRotation) && 
+                        isValidNumber(newScaleX) && 
+                        isValidNumber(newScaleY)
+                      ) {
+                      onElementTransform(element.id, {
+                          x: newX,
+                          y: newY,
+                          rotation: newRotation,
+                          scaleX: newScaleX,
+                          scaleY: newScaleY,
+                      });
+                      }
+                    }}
+                  >
+                    <KonvaImage
+                      image={getImage(element.src) || undefined}
+                      width={element.width}
+                      height={element.height}
+                      opacity={element.opacity}
+                    />
+                  </Group>
+                );
+              } else if (element.type === 'text') {
+                return (
+                  <Text
+                    key={element.id}
+                    id={element.id}
+                    x={safeX}
+                    y={safeY}
+                    text={element.text || ''}
+                    fontSize={element.fontSize}
+                    fontFamily={element.fontFamily}
+                    fill={element.fill}
+                    rotation={safeRotation}
+                    scaleX={safeScaleX}
+                    scaleY={safeScaleY}
+                    opacity={element.opacity}
+                    draggable
+                    onClick={() => onElementSelect(element.id)}
+                    onTap={() => onElementSelect(element.id)}
+                    onDragEnd={(e) => {
+                      const node = e.target;
+                      const newX = node.x();
+                      const newY = node.y();
+                      
+                      // Only update if values are valid
+                      if (isValidNumber(newX) && isValidNumber(newY)) {
+                      onElementTransform(element.id, {
+                          x: newX,
+                          y: newY,
+                      });
+                      }
+                    }}
+                    onTransformEnd={(e) => {
+                      const node = e.target;
+
+                      // Get new values
+                      const newX = node.x();
+                      const newY = node.y();
+                      const newRotation = node.rotation();
+                      const newScaleX = Math.abs(node.scaleX());
+                      const newScaleY = Math.abs(node.scaleY());
+                      
+                      // Only update if all values are valid
+                      if (
+                        isValidNumber(newX) && 
+                        isValidNumber(newY) && 
+                        isValidNumber(newRotation) && 
+                        isValidNumber(newScaleX) && 
+                        isValidNumber(newScaleY)
+                      ) {
+                      onElementTransform(element.id, {
+                          x: newX,
+                          y: newY,
+                          rotation: newRotation,
+                          scaleX: newScaleX,
+                          scaleY: newScaleY,
+                      });
+                      }
+                    }}
+                  />
+                );
+              }
+              return null;
+            })}
+
+          {/* Top layer: Background Product Image with transparent cutouts */}
+          <KonvaImage
+            image={backgroundImage}
+            width={stageSize.width}
+            height={stageSize.height}
+            listening={false}
+          />
+          
+          {/* Transformer for selected elements */}
+          <Transformer
+            ref={transformerRef}
+            boundBoxFunc={(oldBox, newBox) => {
+              // Prevent scaling to zero or negative
+              if (newBox.width < 5 || newBox.height < 5) {
+                return oldBox;
+              }
+
+              // Honor aspect ratio if needed
+              if (keepAspectRatio) {
+                const aspect = oldBox.width / oldBox.height;
+                
+                // If width changes more than height, adjust height to match aspect ratio
+                if (Math.abs(newBox.width - oldBox.width) > Math.abs(newBox.height - oldBox.height)) {
+                  newBox.height = newBox.width / aspect;
+                } else {
+                  // Otherwise, adjust width to match aspect ratio
+                  newBox.width = newBox.height * aspect;
+                }
+              }
+
+              return newBox;
+            }}
+          />
+        </Layer>
+      </Stage>
+    </div>
   );
 }

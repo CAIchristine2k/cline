@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useCallback} from 'react';
 import {useLoaderData, useParams, type LoaderFunctionArgs, useNavigate, useRevalidator, useSubmit, useFetcher} from 'react-router';
 import {
   Upload,
@@ -51,7 +51,8 @@ import {
   storeCartLineDesigns,
   storeLatestDesign,
 } from '~/utils/designStorage';
-import {useCart} from '~/hooks/useCart';
+import {useCart} from '~/providers/CartProvider';
+import {useAside} from '~/components/Aside';
 
 // Extend StoredDesign type locally to include cloudinaryUrl
 type ExtendedStoredDesign = StoredDesign & {
@@ -929,7 +930,10 @@ export default function ProductCustomizer() {
   const {product, customVariant, isOutOfStock, isLoggedIn, customer} = 
     useLoaderData<LoaderData>();
   const config = useConfig();
-  const {openCart} = useCart(); // Get openCart function from hook
+  const {cart, openCart} = useCart();
+  const {type: asideType, isOpen: isAsideOpen} = useAside();
+  const [cartTransitionComplete, setCartTransitionComplete] = useState(false);
+  const lastCartOpenTimeRef = useRef<number>(0);
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const submit = useSubmit();
@@ -1011,7 +1015,11 @@ export default function ProductCustomizer() {
   const [uploadedImages, setUploadedImages] = useState<
     {id: string; src: string; name: string}[]
   >([]);
-  const [stageSize, setStageSize] = useState({width: 500, height: 500});
+  // Use smaller width for better proportions with client-side guard
+  const [stageSize, setStageSize] = useState({
+    width: typeof window !== 'undefined' ? Math.min(window.innerWidth - 40, 650) : 650, 
+    height: 500
+  });
   const [backgroundImage, setBackgroundImage] =
     useState<HTMLImageElement | null>(null);
   const [showAIPrompt, setShowAIPrompt] = useState(false);
@@ -1066,6 +1074,51 @@ export default function ProductCustomizer() {
   // Add a state to track reset operation
   const [isResetting, setIsResetting] = useState(false);
 
+  // Listen for cart open state changes to coordinate with the loading states
+  useEffect(() => {
+    if (asideType === 'cart' && isAsideOpen) {
+      lastCartOpenTimeRef.current = Date.now();
+      // Allow a small delay for the cart animation to complete
+      const timer = setTimeout(() => {
+        setCartTransitionComplete(true);
+      }, 350); // Animation takes about 350ms
+      
+      return () => clearTimeout(timer);
+    } else {
+      setCartTransitionComplete(false);
+    }
+  }, [asideType, isAsideOpen]);
+  
+  // Helper function to coordinate loading state with cart open state
+  const finishLoadingWhenCartOpens = useCallback(() => {
+    const cartJustOpened = asideType === 'cart' && isAsideOpen;
+    const cartOpenedRecently = Date.now() - lastCartOpenTimeRef.current < 500;
+    
+    if (cartJustOpened && cartTransitionComplete) {
+      // Cart is fully open and transition animation is complete
+      setIsCapturingDesign(false);
+    } else if (cartJustOpened && cartOpenedRecently) {
+      // Cart just opened but animation might not be complete
+      setTimeout(() => setIsCapturingDesign(false), 300);
+    } else {
+      // Cart isn't open yet, schedule a check
+      const checkInterval = setInterval(() => {
+        if ((asideType === 'cart' && isAsideOpen) || Date.now() - lastCartOpenTimeRef.current < 1000) {
+          clearInterval(checkInterval);
+          setTimeout(() => setIsCapturingDesign(false), 300);
+        }
+      }, 100);
+      
+      // Safety timeout - don't keep spinner forever
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        setIsCapturingDesign(false);
+      }, 2000);
+      
+      return () => clearInterval(checkInterval);
+    }
+  }, [asideType, isAsideOpen, cartTransitionComplete]);
+
   // Function to change the background image when a customizable image is selected
   const changeBackgroundImage = (imageUrl: string) => {
     // First save the current design if we're switching away from something
@@ -1076,13 +1129,29 @@ export default function ProductCustomizer() {
     
     setSelectedCustomImage(imageUrl);
 
+    // Skip image loading during SSR
+    if (typeof window === 'undefined') return;
+
     // Load the new image
     const img = new window.Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       setBackgroundImage(img);
       // Adjust stage size based on image dimensions
-      const containerWidth = Math.min(window.innerWidth - 40, 600);
+      // Get the container's width but make it smaller for better design proportions
+      // Safely access DOM elements with SSR check
+      let fullContainerWidth = 650; // Default fallback for SSR
+      
+      if (typeof window !== 'undefined') {
+        const designContainer = document.querySelector('.design-container') as HTMLElement;
+        fullContainerWidth = designContainer ? 
+          designContainer.clientWidth - 32 : // Account for padding
+          Math.min(window.innerWidth - 40, 700); // Fallback with moderate max-width
+      }
+      
+      // Use 80% of the available width to make it more compact
+      const containerWidth = Math.min(fullContainerWidth * 0.7, 650);
+        
       const scale = containerWidth / img.width;
       setStageSize({
         width: containerWidth,
@@ -1131,6 +1200,9 @@ export default function ProductCustomizer() {
 
   // Load product image
   useEffect(() => {
+    // Skip during SSR
+    if (typeof window === 'undefined') return;
+    
     if (customVariant && customVariant.image?.url) {
       const img = new window.Image();
       img.crossOrigin = 'anonymous'; // Fix for tainted canvas issue
@@ -2229,21 +2301,41 @@ export default function ProductCustomizer() {
       const pollForResult = async (taskId: string) => {
           let pollInterval: NodeJS.Timeout;
 
+        // Maximum polling attempts before giving up (10 minutes / 3 seconds = 200 attempts max)
+        const MAX_POLL_ATTEMPTS = 200;
+        let pollAttempts = 0;
+        
         const poll = async (): Promise<void> => {
           try {
+            pollAttempts++;
             const statusResponse = await fetch(
               `/api/ai-media-generation/${taskId}`,
             );
               const statusResult = await statusResponse.json() as AIStatusResponse;
-
-              console.log(
-                `🔄 AI task status (${taskId}):`,
-                statusResult.status,
-              );
-
-              if (statusResult.status === 'completed') {
+              
+              // If we've been polling for too long, give up
+              if (pollAttempts > MAX_POLL_ATTEMPTS) {
                 clearInterval(pollInterval);
                 setIsAIGenerating(false);
+                throw new Error("Image generation is taking too long. The KlingAI service might be experiencing high demand. Please try again later.");
+              }
+
+              console.log(
+                `🔄 AI task status (${taskId}) [Attempt ${pollAttempts}]:`,
+                statusResult.status,
+                statusResult.message || ''
+              );
+              
+              // Update the UI with more info on long-running tasks
+              if (pollAttempts % 5 === 0 && pollAttempts > 5) {
+                showInfo(`Still processing your design... (${Math.floor(pollAttempts * 3)} seconds elapsed)`);
+              }
+
+                              // KlingAI uses "succeed" instead of "completed" status
+                if (statusResult.status === 'completed' || statusResult.status === 'succeed') {
+                  console.log('✅ AI generation completed successfully!');
+                  clearInterval(pollInterval);
+                  setIsAIGenerating(false);
 
               // Helper function to process and add image to canvas
               const processAndAddImage = async (url: string) => {
@@ -2337,17 +2429,18 @@ export default function ProductCustomizer() {
           }
         };
 
-          // Start polling every 5 seconds
+          // Start polling every 3 seconds (improved from 5 seconds)
           await poll();
-          pollInterval = setInterval(poll, 5000);
+          // Set a shorter polling interval to get updates more frequently
+          pollInterval = setInterval(poll, 3000);
       };
 
         // Start polling for the result
         pollForResult(data.taskId);
 
-      // Show progress message
+      // Show more detailed progress message
       showInfo(
-        `Print design generation started! This usually takes 1-3 minutes. The generated image will be automatically added to your design when ready.`,
+        `Print design generation started! This usually takes 30-90 seconds. We'll check for your design every 3 seconds. The generated image will be automatically added to your design when ready.`,
       );
       } else {
         throw new Error('No task ID returned from API');
@@ -2478,6 +2571,39 @@ export default function ProductCustomizer() {
     return stageRef.current.toDataURL();
   };
 
+  // Update canvas size on window resize
+  useEffect(() => {
+    // Skip during server-side rendering
+    if (typeof window === 'undefined') return;
+    
+    const handleResize = () => {
+      if (backgroundImage) {
+        const designContainer = document.querySelector('.design-container') as HTMLElement;
+        const fullContainerWidth = designContainer ? 
+          designContainer.clientWidth - 32 : // Account for padding
+          Math.min(window.innerWidth - 40, 700); // Fallback with moderate max-width
+        
+        // Use 80% of the available width to make it more compact
+        const containerWidth = Math.min(fullContainerWidth * 0.7, 650);
+        
+        const scale = containerWidth / backgroundImage.width;
+        setStageSize({
+          width: containerWidth,
+          height: backgroundImage.height * scale,
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    // Initial check after rendering
+    setTimeout(handleResize, 100);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [backgroundImage]);
+
   return (
     <div className="pt-30 pb-10 bg-secondary/80 backdrop-blur-sm min-h-screen">
       {/* Toast Notifications */}
@@ -2518,7 +2644,7 @@ export default function ProductCustomizer() {
           >
             ← Back to Product
           </a>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 mt-6">
             Customize Your {product.title}
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto mb-4">
@@ -2526,7 +2652,7 @@ export default function ProductCustomizer() {
             product.
           </p>
           {/* Add Reset Design Button */}
-          <button
+          {/* <button
             onClick={handleResetAllDesigns}
             disabled={isResetting}
             className="text-red-400 hover:text-red-300 text-sm mx-auto bg-secondary/50 px-4 py-2 rounded-md border border-red-500/30 mt-2 flex items-center justify-center transition-colors"
@@ -2536,12 +2662,12 @@ export default function ProductCustomizer() {
             ) : (
               <><Trash2 className="w-4 h-4 mr-2" /> Reset All Designs</>
             )}
-          </button>
+          </button> */}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Clean Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                      {/* Clean Sidebar */}
+          <div className="lg:col-span-1 space-y-3">
             {/* Add Elements Section */}
             <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-xl overflow-hidden shadow-lg">
               <div className="px-4 py-2 border-b border-primary/10">
@@ -2551,278 +2677,242 @@ export default function ProductCustomizer() {
               <div className="p-4">
                 {/* Design Tools */}
                 <div className="grid grid-cols-3 gap-2 mb-4">
-                  {/* Upload Button */}
+                  {/* Upload Button - Enhanced */}
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="bg-primary/90 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 px-2 rounded-lg transition-all flex flex-col items-center justify-center h-14"
+                    className="bg-gradient-to-br from-blue-600 to-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-700 disabled:to-gray-600 text-white py-2 px-2 rounded-lg transition-all flex flex-col items-center justify-center h-14 shadow-sm shadow-primary/20 group"
                   >
-                    {isUploading ? (
+                    <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 group-hover:scale-110 transition-transform">
+                      {isUploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      ) : (
+                        <Upload className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                    <span className="text-xs mt-1">{isUploading ? "Uploading" : "Photo"}</span>
+                  </button>
+
+                  {/* Text Button - Enhanced */}
+                  <button
+                    onClick={() => setShowTextControls(true)}
+                    className="bg-gradient-to-br from-green-600 to-emerald-800 text-white py-2 px-2 rounded-lg transition-all flex flex-col items-center justify-center h-14 shadow-sm shadow-emerald-900/20 group"
+                  >
+                    <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 group-hover:scale-110 transition-transform">
+                      <Type className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-xs mt-1">Text</span>
+                  </button>
+
+                  {/* AI Button */}
+                  <button
+                    onClick={() => setShowAIModal(true)}
+                    disabled={isAIGenerating}
+                    className="bg-gradient-to-br from-purple-700 to-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-700 disabled:to-gray-600 text-white py-2 px-2 rounded-lg transition-all flex flex-col items-center justify-center h-14 shadow-sm shadow-primary/20"
+                  >
+                    {isAIGenerating ? (
                       <>
                         <Loader2 className="w-4 h-4 mb-0.5 animate-spin" />
-                        <span className="text-xs">Uploading</span>
+                        <span className="text-xs">Generating</span>
                       </>
                     ) : (
                       <>
-                        <Upload className="w-4 h-4 mb-0.5" />
-                        <span className="text-xs">Photo</span>
+                        <Sparkles className="w-4 h-4 mb-0.5" />
+                        <span className="text-xs">AI Design</span>
                       </>
                     )}
                   </button>
-
-                  {/* Text Button */}
-                  <button
-                    onClick={() => setShowTextControls(true)}
-                    className="bg-secondary/70 hover:bg-secondary/90 text-white border border-primary/20 py-2 px-2 rounded-lg transition-all flex flex-col items-center justify-center h-14"
-                  >
-                    <Type className="w-4 h-4 mb-0.5" />
-                    <span className="text-xs">Text</span>
-                  </button>
-                  
-                  {/* Undo Button */}
-                  <button
-                    onClick={undo}
-                    disabled={history.length <= 1}
-                    className="bg-secondary/70 hover:bg-secondary/90 disabled:opacity-40 text-white border border-primary/20 py-2 px-2 rounded-lg transition-all flex flex-col items-center justify-center h-14"
-                  >
-                    <Undo className="w-4 h-4 mb-0.5" />
-                    <span className="text-xs">Undo</span>
-                  </button>
                 </div>
 
-                {/* AI Generation - Simplified */}
-                <button
-                  onClick={generateWithAI}
-                  disabled={isAIGenerating || isProcessingAIImages}
-                  className="w-full bg-gradient-to-r from-purple-600 to-primary hover:from-purple-700 hover:to-primary/80 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-all flex items-center justify-center"
-                >
-                  {isAIGenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : isProcessingAIImages ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      AI Design Studio
-                    </>
-                  )}
-                </button>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </div>
-
-              {/* Simplified Text Controls */}
-              {showTextControls && (
-                <div className="mt-4 p-4 bg-white/5 rounded-lg border border-primary/10">
-                  <input
-                    type="text"
-                    value={textInput}
-                    onChange={(e) => setTextInput(e.target.value)}
-                    placeholder="Enter your text..."
-                    className="w-full mb-3 px-3 py-2 bg-secondary/80 border border-primary/20 rounded-lg text-white placeholder:text-gray-400 text-sm"
-                    onKeyPress={(e) => e.key === 'Enter' && addTextToCanvas()}
-                  />
-
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    <select
-                      value={selectedFont}
-                      onChange={(e) => setSelectedFont(e.target.value)}
-                      className="px-2 py-1.5 bg-secondary/80 border border-primary/20 rounded text-white text-sm"
-                    >
-                      <option value="Arial">Arial</option>
-                      <option value="Impact">Bold</option>
-                      <option value="Times New Roman">Serif</option>
-                      <option value="Comic Sans MS">Fun</option>
-                    </select>
-                    
-                    <input
-                      type="color"
-                      value={selectedColor}
-                      onChange={(e) => setSelectedColor(e.target.value)}
-                      className="w-full h-8 rounded border border-white/20"
-                    />
-                    
-                    <div className="flex items-center">
-                      <input
-                        type="range"
-                        value={fontSize}
-                        onChange={(e) => setFontSize(Number(e.target.value))}
-                        min="12"
-                        max="48"
-                        className="accent-primary w-full"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={addTextToCanvas}
-                      className="flex-1 bg-primary hover:bg-primary/80 text-white font-medium py-2 px-3 rounded-lg transition-all"
-                    >
-                      Add
-                    </button>
-                    <button
-                      onClick={() => setShowTextControls(false)}
-                      className="px-3 py-2 text-gray-400 hover:text-white transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Design Areas */}
-              {customizableImages.length > 1 && (
-                <div className="mt-4 bg-secondary/30 border border-primary/10 rounded-xl overflow-hidden">
+                {/* Updated Design Tools */}
+                <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-xl overflow-hidden shadow-lg mt-3">
                   <div className="px-4 py-2 border-b border-primary/10 flex items-center justify-between">
-                    <h4 className="text-sm text-white flex items-center">
-                      <Images className="w-4 h-4 mr-2 text-primary" />
-                      Design Areas
-                    </h4>
-                    <span className="text-xs text-green-400">
-                      {Object.keys(designedImages).length}/{customizableImages.length}
-                    </span>
+                    <h3 className="text-white font-medium text-sm flex items-center">
+                      <Sliders className="w-4 h-4 mr-2 text-primary" />
+                      Actions
+                    </h3>
                   </div>
                   
                   <div className="p-3">
+                    {/* Action Buttons in a nicer layout */}
                     <div className="grid grid-cols-4 gap-2">
-                      {customizableImages.map((img, index) => {
-                        const isCustomized = Boolean(designedImages[img.url]);
-                        const isSelected = selectedCustomImage === img.url;
+                      {/* Undo */}
+                      <button
+                        onClick={undo}
+                        disabled={history.length <= 1}
+                        className="aspect-square bg-secondary/70 hover:bg-secondary disabled:opacity-40 text-white border border-primary/10 rounded-lg transition-colors flex flex-col items-center justify-center"
+                        title="Undo last action"
+                      >
+                        <Undo className="w-4 h-4 mb-0.5" />
+                        <span className="text-[10px]">Undo</span>
+                      </button>
+                      
+                      {/* Clear */}
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to clear the canvas?')) {
+                            clearCanvas();
+                          }
+                        }}
+                        disabled={elements.length === 0}
+                        className="aspect-square bg-secondary/70 hover:bg-secondary disabled:opacity-40 text-white border border-primary/10 rounded-lg transition-colors flex flex-col items-center justify-center"
+                        title="Clear all elements"
+                      >
+                        <Trash2 className="w-4 h-4 mb-0.5" />
+                        <span className="text-[10px]">Clear</span>
+                      </button>
+                      
+                      {/* Bring Forward */}
+                      <button 
+                        onClick={bringForward}
+                        disabled={!selectedId}
+                        className="aspect-square bg-secondary/70 hover:bg-secondary disabled:opacity-40 text-white border border-primary/10 rounded-lg transition-colors flex flex-col items-center justify-center"
+                        title="Bring selected element forward"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="mb-0.5">
+                          <path d="M9 16V8a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z" />
+                          <path d="M5 20V12a1 1 0 0 1 1-1h9" />
+                        </svg>
+                        <span className="text-[10px]">Forward</span>
+                      </button>
+                      
+                      {/* Send Backward */}
+                      <button 
+                        onClick={sendBackward}
+                        disabled={!selectedId}
+                        className="aspect-square bg-secondary/70 hover:bg-secondary disabled:opacity-40 text-white border border-primary/10 rounded-lg transition-colors flex flex-col items-center justify-center"
+                        title="Send selected element backward"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="mb-0.5">
+                          <path d="M14 8V16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1z" />
+                          <path d="M5 12V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6" />
+                          <path d="M5 18v-6h6" />
+                          <path d="M5 15h6" />
+                        </svg>
+                        <span className="text-[10px]">Back</span>
+                      </button>
+                    </div>
 
-                        return (
-                          <button
-                            key={img.id}
-                            onClick={async () => {
-                              // Don't do anything if clicking the already selected image or if currently capturing
-                              if (isSelected || isCapturingDesign) return;
-                              
-                              try {
-                                let shouldProceed = true;
-                                
-                                // First, check if we need to mark the current design as complete
-                                if (selectedCustomImage && elements.length > 0) {
-                                  console.log('📸 Marking design as complete before switching...');
-                                  
-                                  // Simply mark it as complete without waiting for image capture
-                                  setDesignedImages((prev) => ({
-                                    ...prev,
-                                    [selectedCustomImage]: 'has_elements',
-                                  }));
-                                  console.log(`✅ Marked design as complete for ${selectedCustomImage}`);
-                                }
-                                
-                                if (shouldProceed) {
-                                  // Now let's check if we have a saved design for the target image
-                                  const existingSavedDesign = designedImages[img.url];
-                                  
-                                  // Clear canvas first
-                                setElements([]);
-                                  setSelectedId(null);
-                                setFinalDesignImage(null);
-
-                              // Change to the selected image
-                              changeBackgroundImage(img.url);
-                                  
-                                  // Update the progress tracker
-                                  setCustomizationProgress((prev) => ({
-                                    ...prev,
-                                    current: customizableImages.findIndex((image) => image.url === img.url),
-                                  }));
-                                }
-                              } catch (error) {
-                                console.error('Error during image switch:', error);
-                              }
-                            }}
-                            className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all ${
-                              isSelected
-                                ? 'border-primary scale-105 shadow-glow z-10'
-                                : isCustomized
-                                  ? 'border-green-500 hover:border-green-400'
-                                  : 'border-primary/20 hover:border-primary/50'
-                              }`}
-                          >
-                            <img
-                              src={img.url}
-                              alt={`Area ${index + 1}`}
-                              className="w-full h-full object-cover"
+                    {/* Show text controls panel when active */}
+                    {showTextControls && (
+                      <div className="mt-3 pt-3 border-t border-primary/10">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-xs text-gray-300 block mb-1.5">
+                              Text Content
+                            </label>
+                            <input
+                              type="text"
+                              value={textInput}
+                              onChange={(e) => setTextInput(e.target.value)}
+                              placeholder="Enter your text"
+                              className="w-full bg-secondary/60 border border-primary/20 rounded-lg px-3 py-2 text-white placeholder:text-gray-400 text-sm"
                             />
-                            <div
-                              className={`absolute inset-0 flex items-center justify-center ${
-                                isSelected
-                                  ? 'bg-black/30'
-                                  : isCustomized
-                                    ? 'bg-green-900/30'
-                                    : 'bg-black/50'
-                              }`}
-                            >
-                              {/* Status indicators */}
-                              {isCustomized && !isSelected && (
-                                <div className="absolute bottom-1 right-1 bg-green-500 rounded-full w-5 h-5 flex items-center justify-center shadow-lg">
-                                  <div className="text-xs text-white">✓</div>
-                                </div>
-                              )}
-                              
-                              {/* Area number badge */}
-                              <div className="absolute top-1 left-1 bg-black/60 rounded-full w-5 h-5 flex items-center justify-center">
-                                <div className="text-xs text-white font-bold">
-                                  {index + 1}
-                                </div>
+                          </div>
+                          
+                          <div className="flex gap-3">
+                            {/* Font Size Slider with label and value */}
+                            <div className="flex-1">
+                              <div className="flex justify-between mb-1.5">
+                                <label className="text-xs text-gray-300">Font Size</label>
+                                <span className="text-xs text-primary">{fontSize}px</span>
+                              </div>
+                              <input
+                                type="range"
+                                min="12"
+                                max="72"
+                                step="2"
+                                value={fontSize}
+                                onChange={(e) => setFontSize(parseInt(e.target.value))}
+                                className="w-full accent-primary"
+                              />
+                            </div>
+                            
+                            {/* Color Picker */}
+                            <div className="w-24">
+                              <label className="text-xs text-gray-300 block mb-1.5">
+                                Color
+                              </label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={selectedColor}
+                                  onChange={(e) => setSelectedColor(e.target.value)}
+                                  className="rounded w-8 h-8 cursor-pointer"
+                                />
+                                <span className="text-xs text-white">{selectedColor}</span>
                               </div>
                             </div>
+                          </div>
+                        </div>
+                      
+                        <div className="flex space-x-2 mt-3">
+                          <button
+                            onClick={addTextToCanvas}
+                            className="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-2 px-3 rounded-lg transition-all flex items-center justify-center text-sm"
+                          >
+                            <Type className="w-4 h-4 mr-2" />
+                            Add Text
                           </button>
-                        );
-                      })}
+                          <button
+                            onClick={() => setShowTextControls(false)}
+                            className="px-2 py-1 rounded-lg text-gray-400 hover:text-white hover:bg-secondary/80 transition-colors"
+                            aria-label="Close"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File input for image upload */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+                
+                {/* User Images Gallery - Improved UI */}
+                {uploadedImages.length > 0 && (
+                  <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-xl overflow-hidden shadow-lg mt-3">
+                    <div className="px-4 py-2 border-b border-primary/10 flex items-center justify-between">
+                      <h4 className="text-white font-medium text-sm flex items-center">
+                        <Image className="w-4 h-4 mr-2 text-primary" />
+                        Your Photos
+                      </h4>
+                      <span className="text-xs text-gray-300">
+                        {uploadedImages.length} item{uploadedImages.length !== 1 ? 's' : ''}
+                      </span>
                     </div>
                     
-                    <div className="mt-3 mb-1">
-                      <div className="w-full bg-gray-700 rounded-full h-1.5">
-                        <div
-                          className="bg-primary h-1.5 rounded-full transition-all"
-                          style={{
-                            width: `${(Object.keys(designedImages).length / customizableImages.length) * 100}%`,
-                          }}
-                        />
+                    <div className="p-3">
+                      <div className="grid grid-cols-4 gap-2">
+                        {uploadedImages.map((img) => (
+                          <button
+                            key={img.id}
+                            onClick={() => addImageToCanvas(img.src)}
+                            className="aspect-square rounded-lg overflow-hidden border-2 border-primary/20 hover:border-primary/60 transition-all hover:scale-105 shadow-sm relative group"
+                            title="Click to add to design"
+                          >
+                            <img
+                              src={img.src}
+                              alt={img.name}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                              <span className="text-white text-xs">Add</span>
+                            </div>
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-
-              {/* Your Photos */}
-              {uploadedImages.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-sm text-white mb-3">Your Photos</h4>
-                  <div className="grid grid-cols-4 gap-2">
-                    {uploadedImages.map((img) => (
-                      <button
-                        key={img.id}
-                        onClick={() => addImageToCanvas(img.src)}
-                        className="relative rounded-lg overflow-hidden h-16 border-2 border-primary/20 hover:border-primary/60 transition-all hover:scale-105"
-                        title="Click to add to design"
-                      >
-                        <img
-                          src={img.src}
-                          alt={img.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Simplified Controls - Only show when something is selected */}
@@ -3045,13 +3135,9 @@ export default function ProductCustomizer() {
                           console.log('✅ Design URL stored in localStorage for persistence');
                           showSuccess('Custom design added to cart!');
                           
-                          // Open cart drawer/sidebar
+                          // Open cart drawer/sidebar and coordinate loading state with cart opening
                           openCart();
-                          
-                          // Only turn off loading state after everything completes
-                          setTimeout(() => {
-                            setIsCapturingDesign(false);
-                          }, 200);
+                          finishLoadingWhenCartOpens();
                           
                         } catch (submitError) {
                           console.error('Submit failed, falling back to fetch:', submitError);
@@ -3072,8 +3158,9 @@ export default function ProductCustomizer() {
                             // Manually revalidate cart data
                             revalidator.revalidate();
                             
-                            // Open cart
+                            // Open cart and coordinate loading state with cart opening
                             openCart();
+                            finishLoadingWhenCartOpens();
                           } else {
                             throw new Error(`Cart submission failed: ${response.status}`);
                           }
@@ -3279,13 +3366,9 @@ export default function ProductCustomizer() {
                           console.log('✅ Design URLs stored in localStorage for persistence');
                           showSuccess(`${allDesignUrls.length} custom design(s) added to cart!`);
                           
-                          // Open cart drawer/sidebar
+                          // Open cart drawer/sidebar and coordinate loading state with cart opening
                           openCart();
-                          
-                          // Only turn off loading state after everything completes
-                          setTimeout(() => {
-                            setIsCapturingDesign(false);
-                          }, 200);
+                          finishLoadingWhenCartOpens();
                           
                         } catch (submitError) {
                           console.error('Submit failed, falling back to fetch:', submitError);
@@ -3306,13 +3389,12 @@ export default function ProductCustomizer() {
                             // Manually revalidate cart data
                             revalidator.revalidate();
                             
-                            // Open cart
+                            // Open cart and coordinate loading state with cart opening
                             openCart();
+                            finishLoadingWhenCartOpens();
                           } else {
                             throw new Error(`Cart submission failed: ${response.status}`);
                           }
-                          
-                          setIsCapturingDesign(false);
                         }
 
                       } catch (error) {
@@ -3352,10 +3434,10 @@ export default function ProductCustomizer() {
             </div>
 
           {/* Main Canvas Area */}
-          <div className="lg:col-span-2">
-            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-xl overflow-hidden shadow-lg mb-4">
+          <div className="lg:col-span-2 design-container">
+            <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-xl overflow-hidden shadow-lg mb-2 max-w-2xl mx-auto">
               {/* Canvas header with autosave indicator */}
-              <div className="px-4 py-2 border-b border-primary/10 flex items-center justify-between">
+              <div className="px-3 py-1.5 border-b border-primary/10 flex items-center justify-between">
                 <h3 className="text-sm text-white font-medium">Design Canvas</h3>
                 <div className="flex items-center space-x-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
@@ -3363,8 +3445,8 @@ export default function ProductCustomizer() {
                 </div>
               </div>
               
-              <div className="p-4">
-                <div className="w-full relative rounded-md overflow-hidden shadow-inner bg-black/20">
+              <div className="p-3 md:px-6">
+                <div className="w-full relative rounded-md overflow-hidden shadow-inner bg-black/20 flex justify-center">
                   <ProductDesigner
                     backgroundImage={backgroundImage}
                     stageSize={stageSize}

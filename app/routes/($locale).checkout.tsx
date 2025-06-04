@@ -393,6 +393,8 @@ export default function Checkout() {
   const [isPreparingOrder, setIsPreparingOrder] = useState(false);
   const [prepareError, setPrepareError] = useState<string | null>(null);
   const [checkoutReady, setCheckoutReady] = useState(false);
+  // Add state for customized designs
+  const [customizedDesigns, setCustomizedDesigns] = useState<string[]>([]);
 
   // Check if any items have custom designs
   const hasCustomDesigns = cart?.lines?.nodes?.some((line) =>
@@ -400,6 +402,82 @@ export default function Checkout() {
       (attr) => attr.key === '_custom_design' && attr.value === 'true',
     ),
   ) || false;
+
+  // Function to collect all customized design images from cart
+  const collectCustomizedDesigns = useCallback(() => {
+    if (!cart?.lines?.nodes) return [];
+    
+    const designs: string[] = [];
+    
+    cart.lines.nodes.forEach(line => {
+      // Check for _design_image_url attribute
+      const designUrl = line.attributes?.find(
+        attr => attr.key === '_design_image_url' && attr.value?.startsWith('http')
+      )?.value;
+      
+      // Check for _checkout_image or _checkout_display_image attribute
+      const checkoutImage = line.attributes?.find(
+        attr => (attr.key === '_checkout_image' || attr.key === '_checkout_display_image') && 
+               attr.value?.startsWith('http')
+      )?.value;
+
+      // Check for _customized_image attribute
+      const customizedImage = line.attributes?.find(
+        attr => attr.key === '_customized_image' && attr.value?.startsWith('http')
+      )?.value;
+
+      // Check for array of all designed images
+      const allDesignedImagesAttr = line.attributes?.find(
+        attr => (attr.key === '_all_designed_images' || attr.key === '_all_design_images')
+      )?.value;
+      
+      let allDesignedImages: string[] = [];
+      if (allDesignedImagesAttr) {
+        try {
+          const parsed = JSON.parse(allDesignedImagesAttr);
+          if (Array.isArray(parsed)) {
+            allDesignedImages = parsed.filter((url): url is string => 
+              typeof url === 'string' && url.startsWith('http')
+            );
+          }
+        } catch (e) {
+          console.error('[Checkout] Error parsing all_designed_images', e);
+        }
+      }
+      
+      // Try to get from localStorage as well
+      let localDesign: string | null = null;
+      try {
+        const lineIdMatch = line.id?.match(/gid:\/\/shopify\/CartLine\/([^?]+)/);
+        const lineId = lineIdMatch ? lineIdMatch[1] : null;
+        if (lineId) {
+          localDesign = localStorage.getItem(`cart-line-design-${lineId}`);
+        }
+      } catch (e) {
+        console.error('[Checkout] Error reading from localStorage', e);
+      }
+      
+      // Add all valid URLs to our designs array, ensuring uniqueness
+      [designUrl, checkoutImage, customizedImage, localDesign, ...allDesignedImages]
+        .filter((url): url is string => typeof url === 'string' && url.startsWith('http'))
+        .forEach(url => {
+          if (url && !designs.includes(url)) {
+            designs.push(url);
+          }
+        });
+    });
+    
+    return designs;
+  }, [cart?.lines?.nodes]);
+
+  // Effect to collect custom designs when cart changes
+  useEffect(() => {
+    if (hasCustomDesigns) {
+      const designs = collectCustomizedDesigns();
+      console.log(`🎨 [Checkout] Found ${designs.length} customized designs:`, designs);
+      setCustomizedDesigns(designs);
+    }
+  }, [hasCustomDesigns, collectCustomizedDesigns, cart?.id]);
 
   // Function to prepare cart for checkout by ensuring all design images are uploaded
   const prepareCartForCheckout = useCallback(async () => {
@@ -514,7 +592,45 @@ export default function Checkout() {
                 )) || []}
               </div>
 
+              {/* Customized Designs */}
+              {customizedDesigns.length > 0 && (
+                <div className="border-t border-white/10 pt-6 mb-6">
+                  <h3 className="font-semibold text-white mb-4">
+                    All Customized Designs
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {customizedDesigns.map((designUrl, index) => (
+                      <div key={index} className="relative overflow-hidden rounded-lg aspect-square bg-black/30">
+                        <img
+                          src={designUrl}
+                          alt={`Custom Design ${index + 1}`}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            console.error('Failed to load design image:', designUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Security Features */}
+              <div className="border-t border-white/10 pt-6">
+                <h3 className="font-semibold text-white mb-4 flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-green-400" />
+                  Customized Designs
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {customizedDesigns.map((design, index) => (
+                    <div key={index} className="flex items-center space-x-2 text-white/70 text-sm">
+                      <span>{design.substring(0, 50)}...</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="border-t border-white/10 pt-6">
                 <h3 className="font-semibold text-white mb-4 flex items-center">
                   <Shield className="w-5 h-5 mr-2 text-green-400" />
