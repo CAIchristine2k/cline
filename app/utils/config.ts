@@ -247,119 +247,118 @@ export interface LandingPageConfig {
   }>;
 }
 
-// Shane Mosley specific configuration
+// Cline store configuration
 export const defaultConfig: LandingPageConfig = {
   // Brand & Influencer Details
-  influencerName: 'Shane Mosley',
-  influencerTitle: 'Boxing Legend & 9-Time World Champion',
+  influencerName: 'Cline',
+  influencerTitle: 'Créatrice & Designer',
   influencerBio:
-    "Known as 'Sugar' Shane Mosley, one of boxing's most decorated champions with titles in three weight divisions and a legacy of spectacular performances against the sport's greatest names.",
-  influencerImage: '/images/influencer.jpeg',
-  brandName: 'SUGAR SHANE',
-  brandLogo: '/images/logo.png',
-  industry: 'boxing',
+    "Créatrice passionnée proposant des produits personnalisés et uniques pour célébrer vos moments spéciaux.",
+  influencerImage: '/images/cline.jpg',
+  brandName: 'CLINE',
+  brandLogo: '/images/cline.jpg',
+  industry: 'lifestyle',
 
-  // Visual Theme - Boxing champions typically go with luxury styling
+  // Visual Theme
   brandStyle: 'luxury',
-  heroBackgroundImage: '/images/hero-background.jpg',
-  heroVideoUrl: '/videos/boxing-hero.mp4',
+  heroBackgroundImage: '/images/cline5.jpg',
+  heroVideoUrl: '/videos/vid.mp4',
 
   // Content
-  heroTitle: 'CHAMPIONSHIP LEGACY',
+  heroTitle: 'CRÉATIONS PERSONNALISÉES',
   heroSubtitle:
-    'Premium boxing equipment and apparel from a 9-time world champion',
-  ctaText: 'SHOP THE COLLECTION',
+    'Des produits uniques et personnalisés pour vos moments spéciaux',
+  ctaText: 'DÉCOUVRIR LA COLLECTION',
   ctaLink: '/collections/all',
 
   // Navigation
   navigation: [
-    {name: 'Home', href: '/'},
-    {name: 'Shop', href: '/collections/all'},
-    {name: 'About', href: '/about'},
-    {name: 'Career', href: '/about#highlights'},
+    {name: 'Accueil', href: '/'},
+    {name: 'Boutique', href: '/collections/all'},
+    {name: 'À Propos', href: '/about'},
     {name: 'Contact', href: '/pages/contact'},
   ],
 
   // Product Information
   mainProduct: {
-    name: 'Champion Gloves',
+    name: 'Produit Personnalisé',
     description:
-      'Professional-grade boxing gloves designed by Shane Mosley. Ideal for training and competition.',
-    price: '$149.99',
+      'Créez votre propre produit unique avec nos options de personnalisation.',
+    price: '$49.99',
     image: '/images/product-1.png',
-    handle: 'champion-gloves',
+    handle: 'custom-product',
     features: [
-      'Premium leather construction',
-      'Perfect weight distribution',
-      'Pro-level wrist support',
-      'Sweat-resistant lining',
+      'Personnalisation complète',
+      'Qualité premium',
+      'Design unique',
+      'Livraison rapide',
     ],
   },
   additionalProducts: [
     {
-      name: 'Sugar Shane Hoodie',
+      name: 'Décoration Murale',
       description:
-        'Comfortable and stylish hoodie featuring the Sugar Shane logo. Perfect for pre and post workout.',
-      price: '$89.99',
+        'Décorations murales personnalisées pour embellir votre intérieur.',
+      price: '$39.99',
       image: '/images/product-2.png',
-      handle: 'sugar-shane-hoodie',
+      handle: 'wall-decoration',
       features: [
-        'Premium cotton blend',
-        'Embroidered logo',
-        'Comfortable fit',
-        'Available in multiple sizes',
+        'Impression haute qualité',
+        'Différentes tailles disponibles',
+        'Installation facile',
+        'Résistant aux UV',
       ],
     },
     {
-      name: 'Training DVD Set',
+      name: 'Carte Personnalisée',
       description:
-        "Complete training program featuring Shane's signature techniques and workout routines.",
-      price: '$49.99',
+        'Cartes de vœux personnalisées pour toutes les occasions.',
+      price: '$9.99',
       image: '/images/product-3.png',
-      handle: 'training-dvd-set',
+      handle: 'custom-card',
       features: [
-        'Over 10 hours of content',
-        'Beginner to advanced techniques',
-        'Fitness and conditioning routines',
-        'Strategy and mental preparation',
+        'Design sur mesure',
+        'Papier premium',
+        'Enveloppe incluse',
+        'Livraison rapide',
       ],
     },
     {
-      name: 'Pro Hand Wraps',
+      name: 'Cadeau Photo',
       description:
-        'Professional hand wraps used by Shane throughout his championship career.',
-      price: '$24.99',
+        'Transformez vos photos en cadeaux mémorables.',
+      price: '$29.99',
       image: '/images/product-4.png',
-      handle: 'pro-hand-wraps',
+      handle: 'photo-gift',
       features: [
-        'Perfect length and elasticity',
-        'Secure thumb loop',
-        'Machine washable',
-        'Prevents injuries',
+        'Plusieurs formats disponibles',
+        'Qualité professionnelle',
+        'Emballage soigné',
+        'Idéal pour offrir',
       ],
     },
   ],
 
-  // Social Media - using Shane's actual handles where possible
-  instagramHandle: 'sugarshanemosley',
-  twitterHandle: 'ShaneMosley_',
-  youtubeChannel: '@SugarShaneM',
-  tiktokHandle: 'sugarshanemosley',
+  // Social Media
+  instagramHandle: 'cline_shop',
+  twitterHandle: '',
+  youtubeChannel: '',
+  tiktokHandle: '',
 
   // Social Links
   socialLinks: {
-    instagram: 'https://instagram.com/sugarshanemosley',
-    twitter: 'https://twitter.com/ShaneMosley_',
-    youtube: 'https://youtube.com/@SugarShaneM',
-    tiktok: 'https://tiktok.com/@sugarshanemosley',
+    instagram: 'https://instagram.com/cline_shop',
+    twitter: undefined,
+    youtube: undefined,
+    tiktok: undefined,
   },
 
   // Contact Information
-  contactEmail: 'team@sugarshanemosley.com',
+  contactEmail: 'contact@clineshop.com',
   contactInfo: {
-    address: '123 Main St, Anytown, USA',
-    phone: '(555) 123-4567',
-    email: 'team@sugarshanemosley.com',
+    address: '',
+    phone: '',
+    email: 'contact@clineshop.com',
   },
   newsletterEnabled: true,
 
@@ -428,20 +427,20 @@ export const defaultConfig: LandingPageConfig = {
 
   // AI Media Generation
   aiMediaGeneration: {
-    title: 'CHAMPION PHOTO EXPERIENCE',
-    subtitle: 'AI-Powered Fan Experience',
+    title: 'EXPÉRIENCE PHOTO IA',
+    subtitle: 'Création photo avec Intelligence Artificielle',
     description:
-      'Upload your photo and see yourself alongside Sugar Shane Mosley using cutting-edge AI technology. Create your own championship moment!',
-    buttonText: 'Generate My Photo',
-    influencerReferenceImage: '/images/influencer.jpeg',
-    placeholderText: 'Upload your photo to get started',
-    successMessage: 'Your training photo is ready! Check it out below.',
+      'Téléchargez votre photo et créez des moments uniques avec la technologie IA de pointe.',
+    buttonText: 'Générer Ma Photo',
+    influencerReferenceImage: '/images/cline.jpg',
+    placeholderText: 'Téléchargez votre photo pour commencer',
+    successMessage: 'Votre photo est prête ! Découvrez le résultat ci-dessous.',
     errorMessage:
-      'Something went wrong generating your photo. Please try again.',
+      'Une erreur s\'est produite lors de la génération. Veuillez réessayer.',
     processingMessage:
-      'Creating your championship moment... This may take a few minutes.',
+      'Création de votre photo en cours... Cela peut prendre quelques minutes.',
     shareText:
-      'Check out my AI-generated training photo with Sugar Shane Mosley! 🥊✨',
+      'Découvrez ma photo générée par IA ! ✨',
     maxFileSize: 10,
     allowedFormats: ['jpg', 'jpeg', 'png'],
     features: [
@@ -454,26 +453,26 @@ export const defaultConfig: LandingPageConfig = {
     poseOptions: [
       {
         id: 'celebrity',
-        name: 'Celebrity Style',
-        description: 'Photo with Sugar Shane Mosley',
+        name: 'Style Célébrité',
+        description: 'Photo avec effet professionnel',
         icon: 'users',
       },
       {
         id: 'hugging',
-        name: 'Meet & Greet',
-        description: 'Photo with Sugar Shane Mosley',
+        name: 'Rencontre',
+        description: 'Photo de rencontre conviviale',
         icon: 'users',
       },
       {
         id: 'heart',
-        name: 'Fan Love',
-        description: 'Show your support with a heart gesture',
+        name: 'Avec Cœur',
+        description: 'Affichez votre style avec un geste de cœur',
         icon: 'heart',
       },
       {
         id: 'try-on',
-        name: 'Virtual Try-On',
-        description: 'Try on official merchandise',
+        name: 'Essayage Virtuel',
+        description: 'Essayez des produits virtuellement',
         icon: 'shirt',
       },
     ],
@@ -485,29 +484,29 @@ export const defaultConfig: LandingPageConfig = {
     productOptions: [
       {
         id: 'product-1',
-        name: 'Championship Tee',
-        description: 'Official championship t-shirt',
+        name: 'T-Shirt Premium',
+        description: 'T-shirt de qualité supérieure',
         imagePath: '/images/product-1.png',
         price: '$39.99',
       },
       {
         id: 'product-2',
-        name: 'Training Hoodie',
-        description: 'Premium training hoodie',
+        name: 'Sweat à Capuche',
+        description: 'Sweat confortable et élégant',
         imagePath: '/images/product-2.png',
         price: '$59.99',
       },
       {
         id: 'product-3',
-        name: 'Elite Jersey',
-        description: 'Elite fighter jersey',
+        name: 'Vêtement Personnalisé',
+        description: 'Vêtement unique personnalisé',
         imagePath: '/images/product-3.png',
         price: '$79.99',
       },
       {
         id: 'product-4',
-        name: 'Limited Cap',
-        description: 'Limited edition cap',
+        name: 'Casquette',
+        description: 'Casquette édition limitée',
         imagePath: '/images/product-4.png',
         price: '$34.99',
       },
@@ -525,73 +524,73 @@ export const defaultConfig: LandingPageConfig = {
 
   // Limited Edition
   limitedEdition: {
-    title: 'CHAMPIONSHIP COLLECTION',
+    title: 'COLLECTION LIMITÉE',
     description:
-      'Exclusive limited edition gloves signed by Shane Mosley. Only 100 pairs available. Each pair includes a certificate of authenticity.',
-    productHandle: 'championship-signed-gloves',
-    originalPrice: '$249.99',
-    salePrice: '$199.99',
-    endDate: '2024-12-31T23:59:59', // ISO date string
+      'Produits exclusifs en édition limitée. Quantité limitée disponible. Chaque produit inclut un certificat d\'authenticité.',
+    productHandle: 'limited-edition-product',
+    originalPrice: '$99.99',
+    salePrice: '$79.99',
+    endDate: '2025-12-31T23:59:59', // ISO date string
   },
 
   // Products
   products: [
     {
-      name: 'Champion Gloves',
+      name: 'Produit Personnalisé Premium',
       description:
-        'Professional-grade boxing gloves designed by Shane Mosley. Ideal for training and competition.',
-      price: '$149.99',
+        'Créez votre produit unique avec nos options de personnalisation complètes.',
+      price: '$49.99',
       image: '/images/product-1.png',
-      handle: 'champion-gloves',
+      handle: 'custom-product-premium',
       label: 'Bestseller',
       features: [
-        'Premium leather construction',
-        'Perfect weight distribution',
-        'Pro-level wrist support',
-        'Sweat-resistant lining',
+        'Personnalisation complète',
+        'Qualité supérieure',
+        'Design sur mesure',
+        'Livraison rapide',
       ],
     },
     {
-      name: 'Sugar Shane Hoodie',
+      name: 'Décoration Murale',
       description:
-        'Comfortable and stylish hoodie featuring the Sugar Shane logo. Perfect for pre and post workout.',
-      price: '$89.99',
+        'Décorations murales personnalisées pour embellir votre intérieur.',
+      price: '$39.99',
       image: '/images/product-2.png',
-      handle: 'sugar-shane-hoodie',
-      label: 'New',
+      handle: 'wall-decoration',
+      label: 'Nouveau',
       features: [
-        'Premium cotton blend',
-        'Embroidered logo',
-        'Comfortable fit',
-        'Available in multiple sizes',
+        'Impression haute qualité',
+        'Différentes tailles',
+        'Installation facile',
+        'Résistant aux UV',
       ],
     },
     {
-      name: 'Training DVD Set',
+      name: 'Carte Personnalisée',
       description:
-        "Complete training program featuring Shane's signature techniques and workout routines.",
-      price: '$49.99',
+        'Cartes de vœux personnalisées pour toutes vos occasions spéciales.',
+      price: '$9.99',
       image: '/images/product-3.png',
-      handle: 'training-dvd-set',
+      handle: 'custom-card',
       features: [
-        'Over 10 hours of content',
-        'Beginner to advanced techniques',
-        'Fitness and conditioning routines',
-        'Strategy and mental preparation',
+        'Design sur mesure',
+        'Papier premium',
+        'Enveloppe incluse',
+        'Livraison rapide',
       ],
     },
     {
-      name: 'Pro Hand Wraps',
+      name: 'Cadeau Photo',
       description:
-        'Professional hand wraps used by Shane throughout his championship career.',
-      price: '$24.99',
+        'Transformez vos photos préférées en cadeaux mémorables et uniques.',
+      price: '$29.99',
       image: '/images/product-4.png',
-      handle: 'pro-hand-wraps',
+      handle: 'photo-gift',
       features: [
-        'Perfect length and elasticity',
-        'Secure thumb loop',
-        'Machine washable',
-        'Prevents injuries',
+        'Plusieurs formats',
+        'Qualité professionnelle',
+        'Emballage soigné',
+        'Idéal pour offrir',
       ],
     },
   ],
@@ -599,32 +598,32 @@ export const defaultConfig: LandingPageConfig = {
   // Career Highlights
   careerHighlights: [
     {
-      year: '2000',
-      title: 'WBC Welterweight Champion',
+      year: '2024',
+      title: 'Lancement Cline Shop',
       description:
-        'Defeated Oscar De La Hoya to capture the WBC welterweight title in a stunning upset victory.',
-      image: '/images/product-1.png',
+        'Ouverture de la boutique en ligne avec une collection de produits personnalisés uniques.',
+      image: '/images/cline1.jpg',
     },
     {
-      year: '2001',
-      title: 'Unified Welterweight Champion',
+      year: '2024',
+      title: 'Collection Naissance',
       description:
-        'Added the WBA and IBF welterweight titles to become the undisputed champion.',
-      image: '/images/product-2.png',
+        'Lancement de notre collection spéciale naissance pour célébrer les nouveaux arrivés.',
+      image: '/images/naissance.png',
     },
     {
-      year: '2003',
-      title: 'Light Middleweight Champion',
+      year: '2024',
+      title: 'Collection Fêtes',
       description:
-        'Moved up in weight to capture the WBA and WBC light middleweight titles.',
-      image: '/images/product-3.png',
+        'Introduction de produits personnalisés pour toutes vos célébrations.',
+      image: '/images/bgfete.png',
     },
     {
-      title: 'Professional Debut',
-      year: '1993',
+      title: '50K Clients Satisfaits',
+      year: '2025',
       description:
-        'Made professional boxing debut, winning by TKO in the first round.',
-      image: '/images/product-4.png',
+        'Plus de 50 000 clients ont fait confiance à nos créations personnalisées.',
+      image: '/images/50kclient.png',
     },
   ],
 
@@ -632,27 +631,27 @@ export const defaultConfig: LandingPageConfig = {
   trainingPrograms: [
     {
       id: 'personal',
-      title: 'PERSONAL TRAINING',
+      title: 'PERSONNALISATION',
       description:
-        'One-on-one sessions with championship techniques and personalized feedback',
-      icon: 'dumbbell',
-      link: '/collections/training',
+        'Créez vos produits uniques avec notre outil de personnalisation complet',
+      icon: 'palette',
+      link: '/customize-products',
     },
     {
       id: 'masterclass',
-      title: 'BOXING MASTERCLASS',
+      title: 'COLLECTIONS SPÉCIALES',
       description:
-        'Learn the strategies and techniques that made Sugar Shane a 9-time world champion',
-      icon: 'medal',
-      link: '/collections/masterclass',
+        'Découvrez nos collections thématiques pour toutes vos occasions',
+      icon: 'gift',
+      link: '/collections/all',
     },
     {
       id: 'community',
-      title: 'CHAMPION COMMUNITY',
+      title: 'COMMUNAUTÉ CLINE',
       description:
-        'Join an exclusive community of fighters and fans with special events and content',
+        'Rejoignez notre communauté et accédez à des offres et événements exclusifs',
       icon: 'users',
-      link: '/collections/community',
+      link: '/about',
     },
   ],
 
@@ -660,31 +659,31 @@ export const defaultConfig: LandingPageConfig = {
   shopify: {
     featuredCollections: [
       {
-        handle: 'boxing-gloves',
-        title: 'Boxing Gloves',
+        handle: 'personnalisation',
+        title: 'Personnalisation',
         featured: true,
       },
       {
-        handle: 'training-equipment',
-        title: 'Training Equipment',
+        handle: 'naissance',
+        title: 'Naissance',
         featured: true,
       },
       {
-        handle: 'apparel',
-        title: 'Apparel',
+        handle: 'fetes',
+        title: 'Fêtes',
         featured: true,
       },
       {
-        handle: 'accessories',
-        title: 'Accessories',
+        handle: 'accessoires',
+        title: 'Accessoires',
         featured: false,
       },
     ],
     featuredProducts: [
-      'champion-gloves',
-      'sugar-shane-hoodie',
-      'pro-hand-wraps',
-      'training-dvd-set',
+      'custom-product-premium',
+      'wall-decoration',
+      'custom-card',
+      'photo-gift',
     ],
     mainCollectionHandle: 'featured',
     limitedEditionCollectionHandle: 'limited-edition',
@@ -696,26 +695,26 @@ export const defaultConfig: LandingPageConfig = {
   // Testimonials
   testimonials: [
     {
-      name: 'Marcus Rodriguez',
-      role: 'Amateur Boxer',
+      name: 'Marie Dubois',
+      role: 'Cliente Fidèle',
       content:
-        "Training with Shane's techniques has completely transformed my boxing game. The AI photo feature is incredible - seeing myself train alongside the champ is pure motivation!",
+        "Les produits personnalisés de Cline sont incroyables ! J'ai commandé plusieurs créations pour ma famille et la qualité est toujours au rendez-vous. Le service client est exceptionnel.",
       image: '/images/testimonial-2.jpeg',
       rating: 5,
     },
     {
-      name: 'Sarah Johnson',
-      role: 'Fitness Enthusiast',
+      name: 'Sophie Martin',
+      role: 'Maman Comblée',
       content:
-        "The Sugar Shane gear is top quality, and the AI training photos are such a unique experience. It's like having a personal session with a legend!",
+        "J'ai adoré personnaliser les faire-part de naissance de mon bébé avec Cline. Le rendu est magnifique et l'outil de personnalisation est très facile à utiliser !",
       image: '/images/testimonial-3.jpeg',
       rating: 5,
     },
     {
-      name: 'Tony Martinez',
-      role: 'Boxing Coach',
+      name: 'Lucas Petit',
+      role: 'Client Satisfait',
       content:
-        "My students love generating AI photos with Shane. It's become a huge motivation tool in our gym. The quality is incredible and it brings real excitement to training.",
+        "Service impeccable et produits de qualité supérieure. J'ai commandé des décorations murales personnalisées et je suis ravi du résultat. Je recommande vivement !",
       image: '/images/social-feed-1.jpeg',
       rating: 5,
     },
@@ -766,11 +765,11 @@ export function initConfig(
 }
 
 /**
- * Get the current configuration - can be extended to support multiple influencers
+ * Get the current configuration - can be extended to support multiple stores
  */
-export function getConfig(influencerId?: string): LandingPageConfig {
-  // For now, return default Shane Mosley config
-  // Later this can be extended to support multiple influencers
+export function getConfig(storeId?: string): LandingPageConfig {
+  // For now, return default Cline config
+  // Later this can be extended to support multiple stores
   return defaultConfig;
 }
 

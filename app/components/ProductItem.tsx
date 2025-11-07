@@ -68,16 +68,16 @@ export function ProductItem({
   // Get product label based on tags or sale status
   const getProductLabel = () => {
     if (isOnSale)
-      return {text: 'Sale', color: 'bg-gradient-to-r from-red-500 to-red-600'};
-    if (isFeatured) return {text: 'Featured', color: 'bg-primary'};
+      return {text: 'Promo', color: 'bg-gradient-to-r from-red-500 to-red-600'};
+    if (isFeatured) return {text: 'Vedette', color: 'bg-primary'};
     if (tags.includes('new'))
       return {
-        text: 'New',
+        text: 'Nouveau',
         color: 'bg-gradient-to-r from-green-500 to-green-600',
       };
     if (tags.includes('bestseller'))
       return {
-        text: 'Bestseller',
+        text: 'Best-Seller',
         color: 'bg-gradient-to-r from-purple-500 to-purple-600',
       };
     return null;
@@ -101,7 +101,7 @@ export function ProductItem({
       <Link
         to={variantUrl}
         prefetch="intent"
-        className="block rounded-lg overflow-hidden bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-sm border border-gray-700/50 hover:border-primary/50 transition-all duration-500 shadow-lg hover:shadow-2xl hover:shadow-primary/20 transform hover:-translate-y-2 hover:scale-[1.02]"
+        className="block rounded-sm overflow-hidden bg-white/60 backdrop-blur-sm border border-primary/30 hover:border-primary transition-all duration-500 shadow-md hover:shadow-xl hover:shadow-primary/20 transform hover:-translate-y-2 hover:scale-[1.02]"
       >
         <div className="relative h-80 overflow-hidden">
           {featuredImage ? (
@@ -113,19 +113,16 @@ export function ProductItem({
               loading={loading}
             />
           ) : (
-            <div className="h-full w-full bg-gray-800 flex items-center justify-center">
-              <span className="text-gray-400">No image</span>
+            <div className="h-full w-full bg-gray-100 flex items-center justify-center">
+              <span className="text-gray-500">Pas d'image</span>
             </div>
           )}
-
-          {/* Subtle overlay on hover */}
-          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           {/* Product label badge */}
           {productLabel && (
             <div className="absolute top-4 left-4">
               <div
-                className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20`}
+                className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm shadow-lg backdrop-blur-sm border border-white/20`}
               >
                 {productLabel.text}
               </div>
@@ -133,15 +130,15 @@ export function ProductItem({
           )}
 
           {/* Quick shop overlay */}
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div className="bg-primary hover:bg-primary-600 text-black text-center py-3 px-6 rounded-lg font-bold transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 uppercase text-sm tracking-wider shadow-lg">
-              Quick View
+          <div className="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <div className="bg-white hover:bg-white/90 text-black text-center py-3 px-6 rounded-sm font-bold transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 uppercase text-sm tracking-wider shadow-lg">
+              Voir le Produit
             </div>
           </div>
         </div>
 
         <div className="p-6 space-y-4">
-          <h3 className="text-white font-bold text-lg leading-tight line-clamp-2">
+          <h3 className="text-black font-bold text-lg leading-tight line-clamp-2">
             {title}
           </h3>
 
@@ -161,7 +158,7 @@ export function ProductItem({
                 />
               ))}
             </div>
-            <span className="text-sm text-gray-400 font-medium price-no-hover">
+            <span className="text-sm text-gray-600 font-medium price-no-hover">
               ({reviews})
             </span>
           </div>
@@ -170,13 +167,13 @@ export function ProductItem({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               {price && (
-                <div className="font-bold text-primary text-xl price-no-hover">
+                <div className="font-bold text-black text-xl price-no-hover">
                   <Money data={price} />
                 </div>
               )}
 
               {isOnSale && comparePrice && (
-                <div className="text-sm text-gray-400 line-through font-medium price-no-hover">
+                <div className="text-sm text-gray-500 line-through font-medium price-no-hover">
                   <Money data={comparePrice} />
                 </div>
               )}
@@ -196,7 +193,7 @@ export function ProductItem({
                     },
                   ]}
                   selectedVariant={firstVariant}
-                  className="bg-primary hover:bg-primary-600 text-black rounded-lg p-3 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl"
+                  className="bg-primary hover:bg-primary-400 text-black rounded-sm p-3 transition-all duration-300 transform hover:scale-110 shadow-glow"
                 >
                   <ShoppingCart className="w-4 h-4" />
                 </AddToCartButton>
@@ -208,12 +205,12 @@ export function ProductItem({
           <div className="flex justify-between items-center">
             <div className="text-sm">
               {isAvailable ? (
-                <span className="text-green-400 font-semibold bg-green-400/10 px-2 py-1 rounded-full">
-                  In Stock
+                <span className="text-primary font-semibold bg-primary/10 px-3 py-1 rounded-full">
+                  En Stock
                 </span>
               ) : (
-                <span className="text-red-400 font-semibold bg-red-400/10 px-2 py-1 rounded-full">
-                  Sold Out
+                <span className="text-amber-700 font-semibold bg-amber-100 px-3 py-1 rounded-full">
+                  Rupture
                 </span>
               )}
             </div>

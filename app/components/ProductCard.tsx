@@ -128,7 +128,7 @@ export function ProductCard({
   }
 
   return (
-    <div className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1 hover:scale-[1.01]">
+    <div className="group relative bg-white backdrop-blur-sm border border-primary/30 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-primary hover:-translate-y-1 hover:scale-[1.01]">
       {/* Image Container */}
       <div className="relative h-80 overflow-hidden">
         <Link
@@ -140,7 +140,7 @@ export function ProductCard({
           {featuredImage ? (
             <div className="relative w-full h-full">
               {imageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                   <LoadingSpinner size="lg" color="primary" />
                 </div>
               )}
@@ -156,8 +156,8 @@ export function ProductCard({
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
           ) : (
-            <div className="h-full w-full bg-gray-800 flex items-center justify-center">
-              <span className="text-gray-400 text-sm">No image available</span>
+            <div className="h-full w-full bg-gray-100 flex items-center justify-center">
+              <span className="text-gray-500 text-sm">No image available</span>
             </div>
           )}
         </Link>
@@ -265,7 +265,7 @@ export function ProductCard({
           prefetch="intent"
           className="block group"
         >
-          <h3 className="text-white font-bold text-lg leading-tight line-clamp-2">
+          <h3 className="text-black font-bold text-lg leading-tight line-clamp-2">
             {title}
           </h3>
         </Link>
@@ -290,7 +290,7 @@ export function ProductCard({
               />
             ))}
           </div>
-          <span className="text-sm text-gray-400 font-medium price-no-hover">
+          <span className="text-sm text-gray-600 font-medium price-no-hover">
             ({reviews})
           </span>
         </div>
@@ -305,7 +305,7 @@ export function ProductCard({
             )}
 
             {isOnSale && compareAtPrice && (
-              <span className="text-sm text-gray-400 line-through font-medium price-no-hover">
+              <span className="text-sm text-gray-500 line-through font-medium price-no-hover">
                 <Money data={compareAtPrice} />
               </span>
             )}
@@ -314,8 +314,8 @@ export function ProductCard({
           {/* Availability Status */}
           <div className="text-right">
             {isAvailable ? (
-              <span className="text-green-400 text-sm font-semibold bg-green-400/10 px-2 py-1 rounded-full">
-                In Stock
+              <span className="text-amber-700 text-sm font-semibold bg-amber-100 px-2 py-1 rounded-full">
+                Rupture
               </span>
             ) : (
               <span className="text-red-400 text-sm font-semibold bg-red-400/10 px-2 py-1 rounded-full">

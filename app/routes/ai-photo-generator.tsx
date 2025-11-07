@@ -18,11 +18,12 @@ import {useConfig} from '~/utils/themeContext';
 import {AuthPrompt} from '~/components/AuthPrompt';
 
 /*
- * AI Photo Generator using KlingAI's V1 model
- * Cost optimization:
- * - Using V1 model ($0.0035 per generation)
- * - Removed Virtual Try-On feature for now
- * - Each image generation costs $0.0035 whether using a reference image or not
+ * AI Photo Generator using KlingAI's V2 model
+ * Enhanced capabilities:
+ * - Using V2 model for superior image quality and face preservation
+ * - Enhanced face reference capabilities with image_reference='face'
+ * - Better prompt understanding and scene generation
+ * - V2's built-in quality optimization (no manual fidelity parameter needed)
  */
 
 interface AITask {
@@ -108,51 +109,57 @@ export default function AIPhotoGenerator() {
     const presetImages: PresetImage[] = [
       {
         id: 'celebrity-style',
-        name: 'Celebrity Style',
-        description: 'Photo with Sugar Shane Mosley',
+        name: 'Style Célébrité',
+        description: 'Photo avec effet professionnel',
         imagePath: '/images/preset/celebrity-style.png',
       },
       {
         id: 'meet-greet',
-        name: 'Meet & Greet',
-        description: 'Photo with Sugar Shane Mosley',
+        name: 'Rencontre',
+        description: 'Photo de rencontre conviviale',
         imagePath: '/images/preset/meet-greet.png',
       },
       {
         id: 'fan-love',
-        name: 'Fan Love',
-        description: 'Show your support with a heart gesture',
+        name: 'Avec Cœur',
+        description: 'Affichez votre style avec un geste de cœur',
         imagePath: '/images/preset/fan-love.png',
       },
       {
-        id: 'boxing-ring',
-        name: 'Boxing Ring',
-        description: 'Face off in the boxing ring',
-        imagePath: '/images/preset/boxing-ring.png',
+        id: 'event-photo',
+        name: 'Photo Événement',
+        description: 'Photo souvenir d\'événement',
+        imagePath: '/images/preset/event.png',
       },
       {
-        id: 'championship',
-        name: 'Championship',
-        description: 'Celebrate a title win together',
-        imagePath: '/images/preset/championship.png',
+        id: 'celebration',
+        name: 'Célébration',
+        description: 'Célébrez ensemble un moment spécial',
+        imagePath: '/images/preset/celebration.png',
       },
       {
-        id: 'training-session',
-        name: 'Training Session',
-        description: 'Get coached by Sugar Shane',
-        imagePath: '/images/preset/training-session.png',
+        id: 'photo-session',
+        name: 'Séance Photo',
+        description: 'Séance photo professionnelle',
+        imagePath: '/images/preset/photo-session.png',
       },
       {
         id: 'red-carpet',
-        name: 'Red Carpet',
-        description: 'Attend a gala event together',
+        name: 'Tapis Rouge',
+        description: 'Participez à un événement gala',
         imagePath: '/images/preset/red-carpet.png',
       },
       {
-        id: 'autograph',
-        name: 'Autograph',
-        description: 'Get a virtual autograph',
-        imagePath: '/images/preset/autograph.png',
+        id: 'memory',
+        name: 'Souvenir',
+        description: 'Créez un souvenir virtuel',
+        imagePath: '/images/preset/memory.png',
+      },
+      {
+        id: 'cline-special',
+        name: 'Cline Spécial',
+        description: 'Pose spéciale avec Cline',
+        imagePath: '/images/preset/shane1.jpg',
       },
     ];
 
@@ -584,7 +591,7 @@ export default function AIPhotoGenerator() {
         }
 
         if (!selectedPreset) {
-          throw new Error('Please select a pose with Sugar Shane Mosley');
+          throw new Error('Veuillez sélectionner une pose');
         }
 
         // Get user uploaded image as base64
@@ -598,83 +605,102 @@ export default function AIPhotoGenerator() {
           throw new Error('Invalid preset selected');
         }
 
-        // Load the preset image and convert to base64
-        const presetImageBase64 = await loadImageAsBase64(
-          presetImage.imagePath,
-        );
+        // Determine which reference image to use based on preset
+        // Use preset image for specific presets, otherwise use the default influencer image
+        let referenceImagePath = config.aiMediaGeneration.influencerReferenceImage;
+
+        // Use preset image for these specific presets
+        if (['cline-special', 'celebrity-style', 'meet-greet', 'event-photo'].includes(selectedPreset)) {
+          referenceImagePath = '/images/preset/shane1.jpg'; // Use the specific reference image
+          console.log(`✨ Using preset image for: ${selectedPreset}`);
+        } else {
+          console.log(`✨ Using default influencer image for preset: ${selectedPreset}`);
+        }
+
+        // Load the reference image
+        const influencerImageBase64 = await loadImageAsBase64(referenceImagePath);
 
         // Map the selected preset to a pose
         let poseName = 'default';
         if (selectedPreset === 'celebrity-style') {
-          poseName = 'training'; // Match existing pose name
+          poseName = 'professional'; // Professional pose
         } else if (selectedPreset === 'meet-greet') {
-          poseName = 'hugging'; // Match existing pose name
+          poseName = 'hugging'; // Friendly pose
         } else if (selectedPreset === 'fan-love') {
-          poseName = 'heart'; // Match existing pose name
-        } else if (selectedPreset === 'boxing-ring') {
-          poseName = 'boxing'; // New pose name
-        } else if (selectedPreset === 'championship') {
-          poseName = 'celebrating'; // New pose name
-        } else if (selectedPreset === 'training-session') {
-          poseName = 'coaching'; // New pose name
+          poseName = 'heart'; // Heart gesture
+        } else if (selectedPreset === 'event-photo') {
+          poseName = 'event'; // Event photo
+        } else if (selectedPreset === 'celebration') {
+          poseName = 'celebrating'; // Celebration
+        } else if (selectedPreset === 'photo-session') {
+          poseName = 'session'; // Photo session
         } else if (selectedPreset === 'red-carpet') {
-          poseName = 'formal'; // New pose name
-        } else if (selectedPreset === 'autograph') {
-          poseName = 'signing'; // New pose name
+          poseName = 'formal'; // Formal event
+        } else if (selectedPreset === 'memory') {
+          poseName = 'memory'; // Memory creation
+        } else if (selectedPreset === 'cline-special') {
+          poseName = 'special'; // Special pose
         }
 
         // Create a specific prompt based on the selected pose
+        // For V2 with image_reference='face' for superior face preservation
+        // V2 offers superior face preservation and scene understanding
         let prompt = '';
         if (selectedPreset === 'celebrity-style') {
-          prompt = `A professional studio photograph of a fan training with ${config.influencerName} in a gym setting, boxing poses, wearing boxing gloves, professional lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
+          prompt = `A professional studio photograph showing two people in a professional setting, one person (keeping their original face) with another person (friendly smile), both standing together with professional poses, elegant background, professional lighting, photorealistic, high detail, 4K, sharp focus`;
         } else if (selectedPreset === 'meet-greet') {
-          prompt = `A professional photograph of a fan meeting ${config.influencerName} at a red carpet event, standing side by side, handshake or friendly embrace, smiling, professional lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
+          prompt = `A professional photograph of two people at a meet and greet event, one person (keeping their original face) meeting another person (friendly smile), both standing together and smiling, handshake or friendly pose, professional event lighting, photorealistic, high detail, 4K, sharp focus`;
         } else if (selectedPreset === 'fan-love') {
-          prompt = `A professional photograph of a fan with ${config.influencerName} making a heart gesture with hands together, smiling, friendly, professional lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
-        } else if (selectedPreset === 'boxing-ring') {
-          prompt = `A professional photograph of a fan in a boxing ring with ${config.influencerName}, both wearing boxing gloves in fighting stance, boxing ring background, ropes visible, professional sports lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
-        } else if (selectedPreset === 'championship') {
-          prompt = `A professional photograph of a fan celebrating with ${config.influencerName}, both holding a championship belt together, confetti falling, victory pose, excited expressions, arena background, professional lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
-        } else if (selectedPreset === 'training-session') {
-          prompt = `A professional photograph of ${config.influencerName} coaching a fan during a boxing training session, showing technique, focus mitts, gym equipment visible, intense training atmosphere, professional lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
+          prompt = `A professional photograph of two people, one person (keeping their original face) with another person (charismatic smile), both making a heart gesture together with their hands, smiling and looking at camera, friendly atmosphere, professional lighting, photorealistic, high detail, 4K, sharp focus`;
+        } else if (selectedPreset === 'event-photo') {
+          prompt = `A professional photograph of two people at an event, one person (keeping their original face) with another person (warm smile), standing together at the event, beautiful background, professional event lighting, photorealistic, high detail, 4K, sharp focus`;
+        } else if (selectedPreset === 'celebration') {
+          prompt = `A professional photograph of two people celebrating together, one person (keeping their original face) with another person (joyful expression), both celebrating a special moment, confetti falling around them, celebration atmosphere, professional lighting, photorealistic, high detail, 4K, sharp focus`;
+        } else if (selectedPreset === 'photo-session') {
+          prompt = `A professional photograph during a photo session, one person (keeping their original face) with another person (professional expression), both visible in frame, professional studio setting, elegant background, professional lighting, photorealistic, high detail, 4K, sharp focus`;
         } else if (selectedPreset === 'red-carpet') {
-          prompt = `A professional photograph of a fan with ${config.influencerName} at a formal gala event, both in elegant attire, red carpet, step-and-repeat background with logos, camera flashes, professional event lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
-        } else if (selectedPreset === 'autograph') {
-          prompt = `A professional photograph of ${config.influencerName} signing an autograph for a fan, boxing memorabilia, close-up shot of the signing, fan looking excited, authentic setting, professional lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
+          prompt = `A professional photograph of one person (keeping their original face) with another person (elegant smile) at a formal gala event, both dressed in elegant attire, standing together on red carpet, step-and-repeat background, camera flashes, professional event lighting, photorealistic, high detail, 4K, sharp focus`;
+        } else if (selectedPreset === 'memory') {
+          prompt = `A professional photograph creating a special memory, one person (keeping their original face) with another person (warm smile), both visible in the shot, creating a memorable moment, beautiful setting, professional lighting, photorealistic, high detail, 4K, sharp focus`;
+        } else if (selectedPreset === 'cline-special') {
+          prompt = `A professional photograph of two people, one person (keeping their original face) with another person (warm smile), standing together in a special pose, both smiling at camera, professional portrait style, excellent lighting, photorealistic, high detail, 4K, sharp focus`;
         } else {
-          prompt = `A professional photograph of a fan with ${config.influencerName}, standing together, smiling, friendly, professional lighting, high detail, realistic photograph, high quality, 4K, sharp focus`;
+          prompt = `A professional photograph of two people, one person (keeping their original face) with another person (friendly expression), standing together and smiling, friendly pose, professional lighting, photorealistic, high detail, 4K, sharp focus`;
         }
 
-        // Prepare data for API request
+        // Prepare data for API request - Use fan-together with V2 for superior quality
         const data = {
           // Core parameters required by the API
-          model_name: 'kling-v1', // Use V1 model to reduce costs
-          prompt: prompt, // Detailed prompt for the specific pose
+          model_name: 'kling-v2', // Use V2 model for superior face reference and image quality
+          prompt: prompt, // Detailed prompt for the scene
 
-          // Image-to-Image parameters (for fan-together)
-          image: presetImageBase64, // KlingAI expects base64 without data URL prefix for reference image
-          userImageUrl: `data:image/jpeg;base64,${userImageBase64}`, // For our custom API parameter
+          // Fan-together parameters with V2 enhanced capabilities
+          image: userImageBase64, // User's photo as the primary image (face will be preserved)
+          image_reference: 'face', // V2 parameter for superior face preservation
 
-          // Optional parameters with appropriate values for V1 model
+          // Optional parameters with appropriate values for V2 model
           aspect_ratio: '3:2', // Better for photos with two people standing side by side
           n: 1, // Generate a single image
-          image_fidelity: 0.65, // Higher fidelity for better subject recognition (range 0-1)
 
-          // Custom parameters for our API layer
-          generationType: 'fan-together', // Our API's custom parameter
-          referenceImageUrl: `data:image/jpeg;base64,${presetImageBase64}`, // For our custom API parameter
-          imageReference: 'subject', // For our custom API parameter
+          // Custom parameters for our API layer - Use fan-together with V2
+          generationType: 'fan-together', // Use fan-together with V2's superior capabilities
+          referenceImageUrl: `data:image/jpeg;base64,${influencerImageBase64}`, // Reference image
+          userImageUrl: `data:image/jpeg;base64,${userImageBase64}`, // User's image as primary
+          influencerImage: `data:image/jpeg;base64,${influencerImageBase64}`, // Reference image for context
         };
 
         // Log the request parameters (with sensitive data truncated)
-        console.log('🚀 AI Generation Request:', {
+        console.log('🚀 AI Generation Request (Fan-Together V2):', {
           model: data.model_name,
           generationType: data.generationType,
           promptLength: data.prompt.length,
           aspectRatio: data.aspect_ratio,
           hasUserImage: !!data.userImageUrl,
+          hasInfluencerImage: !!data.influencerImage,
           hasReferenceImage: !!data.referenceImageUrl,
-          imageFidelity: data.image_fidelity,
+          imageReference: data.image_reference,
+          selectedPreset: selectedPreset,
+          referenceImagePath: referenceImagePath,
         });
 
         // Create task
@@ -1082,12 +1108,11 @@ export default function AIPhotoGenerator() {
                   <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-6 shadow-md">
                     <h3 className="text-lg font-bold text-white mb-2 flex items-center">
                       <Users className="w-4 h-4 text-primary mr-2" />
-                      Step 1: Choose a Pose with Sugar Shane
+                      Étape 1: Choisissez une Pose
                     </h3>
 
                     <p className="text-gray-300 text-xs mb-4">
-                      Select how you want to appear with Sugar Shane Mosley in
-                      your AI-generated photo
+                      Sélectionnez comment vous voulez apparaître dans votre photo générée par IA
                     </p>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
@@ -1130,12 +1155,11 @@ export default function AIPhotoGenerator() {
                   <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-lg p-6 shadow-md">
                     <h3 className="text-lg font-bold text-white mb-2 flex items-center">
                       <Upload className="w-4 h-4 text-primary mr-2" />
-                      Step 2: Upload Your Photo
+                      Étape 2: Téléchargez Votre Photo
                     </h3>
 
                     <p className="text-gray-300 text-xs mb-4">
-                      Upload a clear photo of yourself to generate a picture
-                      with Sugar Shane Mosley
+                      Téléchargez une photo claire de vous-même pour générer votre image IA
                     </p>
 
                     {!selectedFile ? (
@@ -1208,7 +1232,7 @@ export default function AIPhotoGenerator() {
                     ) : (
                       <>
                         <Camera className="w-4 h-4 mr-2" />
-                        Generate Your Photo with Sugar Shane
+                        Générer Votre Photo IA
                       </>
                     )}
                   </button>
@@ -1218,7 +1242,7 @@ export default function AIPhotoGenerator() {
                     <div className="bg-secondary/40 backdrop-blur-md border border-primary/20 rounded-md p-4">
                       <h4 className="text-sm font-bold text-white mb-3 flex items-center">
                         <Users className="w-3 h-3 text-primary mr-2" />
-                        Your Usage
+                        Votre Utilisation
                       </h4>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
@@ -1260,46 +1284,51 @@ export default function AIPhotoGenerator() {
                       <div className="bg-secondary/30 rounded-md p-8 text-center border border-primary/10">
                         <Sparkles className="w-8 h-8 text-gray-500 mx-auto mb-3" />
                         <p className="text-gray-400 text-xs">
-                          Your AI photo with Sugar Shane Mosley will appear here
+                          Votre photo générée par IA apparaîtra ici
                         </p>
                         {selectedPreset === 'celebrity-style' && (
                           <p className="text-primary text-xs mt-2">
-                            Celebrity Style with Sugar Shane Mosley
+                            Style Célébrité
                           </p>
                         )}
                         {selectedPreset === 'meet-greet' && (
                           <p className="text-primary text-xs mt-2">
-                            Meet & Greet with Sugar Shane Mosley
+                            Rencontre
                           </p>
                         )}
                         {selectedPreset === 'fan-love' && (
                           <p className="text-primary text-xs mt-2">
-                            Fan Love with Sugar Shane Mosley
+                            Avec Cœur
                           </p>
                         )}
-                        {selectedPreset === 'boxing-ring' && (
+                        {selectedPreset === 'event-photo' && (
                           <p className="text-primary text-xs mt-2">
-                            Boxing Ring with Sugar Shane Mosley
+                            Photo Événement
                           </p>
                         )}
-                        {selectedPreset === 'championship' && (
+                        {selectedPreset === 'celebration' && (
                           <p className="text-primary text-xs mt-2">
-                            Championship with Sugar Shane Mosley
+                            Célébration
                           </p>
                         )}
-                        {selectedPreset === 'training-session' && (
+                        {selectedPreset === 'photo-session' && (
                           <p className="text-primary text-xs mt-2">
-                            Training Session with Sugar Shane Mosley
+                            Séance Photo
                           </p>
                         )}
                         {selectedPreset === 'red-carpet' && (
                           <p className="text-primary text-xs mt-2">
-                            Red Carpet with Sugar Shane Mosley
+                            Tapis Rouge
                           </p>
                         )}
-                        {selectedPreset === 'autograph' && (
+                        {selectedPreset === 'memory' && (
                           <p className="text-primary text-xs mt-2">
-                            Autograph with Sugar Shane Mosley
+                            Souvenir
+                          </p>
+                        )}
+                        {selectedPreset === 'cline-special' && (
+                          <p className="text-primary text-xs mt-2">
+                            Cline Spécial
                           </p>
                         )}
                       </div>

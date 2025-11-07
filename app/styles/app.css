@@ -123,8 +123,8 @@
   }
 }
 
-/* Theme override for specific influencer configurations */
-[data-theme="shane-mosley"] {
+/* Theme override for specific store configurations */
+[data-theme="cline"] {
   --color-primary-500: #E6B000;
   --color-primary-600: #CC9900;
   --color-primary-400: #FFC700;

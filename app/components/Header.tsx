@@ -106,8 +106,8 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
         isScrolled
-          ? 'bg-black/95 backdrop-blur-sm shadow-xl py-3'
-          : 'bg-gradient-to-b from-black/90 to-black/50 py-5'
+          ? 'bg-white/95 backdrop-blur-sm shadow-xl py-3'
+          : 'bg-white py-5'
       }`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
@@ -129,7 +129,7 @@ export function Header() {
                     handleNavClick(item.href);
                   }
                 }}
-                className="text-white hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-sm"
+                className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-sm"
               >
                 {item.name}
                 <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
@@ -143,7 +143,7 @@ export function Header() {
             className="ml-10 bg-primary hover:bg-primary-400 text-black font-bold py-2.5 px-5 rounded-sm transition-all duration-300 flex items-center text-sm uppercase shadow-glow relative"
           >
             <ShoppingBag className="mr-1.5 h-4 w-4" />
-            Cart
+            Panier
             {cartCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-black text-primary text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                 {cartCount > 99 ? '99+' : cartCount}
@@ -168,7 +168,7 @@ export function Header() {
           </button>
 
           <button
-            className="text-white focus:outline-none p-1.5 border border-white/20 rounded-sm hover:border-primary transition-all duration-300"
+            className="bg-primary text-white focus:outline-none p-1.5 border border-primary rounded-sm hover:bg-primary-400 transition-all duration-300"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle Menu"
           >
@@ -179,9 +179,9 @@ export function Header() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-sm shadow-xl border-t border-gray-800">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm shadow-xl border-t border-primary/20">
           <div className="container mx-auto py-4">
-            <nav className="flex flex-col divide-y divide-gray-800/50">
+            <nav className="flex flex-col divide-y divide-primary/10">
               {config.navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -195,24 +195,24 @@ export function Header() {
                       setIsOpen(false);
                     }
                   }}
-                  className="text-white hover:text-primary hover:bg-gray-900/30 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
+                  className="text-black hover:text-primary hover:bg-primary/5 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
                 >
                   {item.name}
-                  <ChevronRight className="h-4 w-4 text-gray-500" />
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
                 </Link>
               ))}
             </nav>
 
             {/* Social Icons (Mobile) - built from config */}
             {socialLinks.length > 0 && (
-              <div className="flex justify-center space-x-8 mt-6 pt-6 border-t border-gray-800/50">
+              <div className="flex justify-center space-x-8 mt-6 pt-6 border-t border-primary/20">
                 {socialLinks.map((social) => {
                   const IconComponent = social.icon;
                   return (
                     <a
                       key={social.name}
                       href={social.link as string}
-                      className="text-gray-400 hover:text-primary transition-all duration-300"
+                      className="text-gray-600 hover:text-primary transition-all duration-300"
                       aria-label={social.name}
                       target="_blank"
                       rel="noopener noreferrer"

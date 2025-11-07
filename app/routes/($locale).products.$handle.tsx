@@ -362,29 +362,33 @@ export default function Product() {
     customVariant && !customVariant.availableForSale;
 
   return (
-    <div className="py-24">
-      <div className="container mx-auto px-4">
+    <div className="py-24 bg-white min-h-screen">
+      {/* Background decorative elements */}
+      <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+      <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+
+      <div className="container mx-auto px-4 relative z-10">
         {/* Breadcrumb */}
         <div className="mb-8">
           <nav className="flex" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2">
               <li>
-                <Link to="/" className="text-primary hover:text-primary-600">
-                  Home
+                <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
+                  Accueil
                 </Link>
               </li>
               <li className="flex items-center space-x-2">
-                <span className="text-primary-700">/</span>
+                <span className="text-gray-400">/</span>
                 <Link
-                  to="/collections"
-                  className="text-primary hover:text-primary-600"
+                  to="/collections/all"
+                  className="text-gray-700 hover:text-primary transition-colors"
                 >
-                  Collections
+                  Boutique
                 </Link>
               </li>
               <li className="flex items-center space-x-2">
-                <span className="text-primary-700">/</span>
-                <span className="text-primary-800" aria-current="page">
+                <span className="text-gray-400">/</span>
+                <span className="text-black font-medium" aria-current="page">
                   {product.title}
                 </span>
               </li>
@@ -394,11 +398,11 @@ export default function Product() {
 
         {/* Out of Stock Banner */}
         {currentVariant && !currentVariant.availableForSale && (
-          <div className="mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-sm">
+          <div className="mb-8 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-sm">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-red-500"
+                  className="h-5 w-5 text-amber-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -411,13 +415,12 @@ export default function Product() {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-700 font-medium">
-                  This product is currently{' '}
-                  <span className="font-bold">out of stock</span>
+                <p className="text-sm text-amber-800 font-medium">
+                  Ce produit est actuellement{' '}
+                  <span className="font-bold">en rupture de stock</span>
                 </p>
-                <p className="text-xs text-red-600 mt-1">
-                  You can add it to your wishlist or check back later for
-                  availability
+                <p className="text-xs text-amber-700 mt-1">
+                  Vous pouvez l'ajouter à votre liste de souhaits ou revenir plus tard
                 </p>
               </div>
             </div>
@@ -428,7 +431,7 @@ export default function Product() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-sm border border-primary/10 relative">
+            <div className="aspect-square overflow-hidden rounded-lg border-2 border-primary/20 relative shadow-lg">
               {activeImage ? (
                 <>
                   <Image
@@ -438,8 +441,8 @@ export default function Product() {
                   />
                   {!currentVariant.availableForSale && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-red-500 text-white px-4 py-2 uppercase font-bold tracking-wider transform -rotate-12 text-lg shadow-lg">
-                        Out of Stock
+                      <div className="bg-amber-600 text-white px-6 py-3 uppercase font-bold tracking-wider transform -rotate-12 text-xl shadow-xl rounded">
+                        Rupture
                       </div>
                     </div>
                   )}
@@ -453,8 +456,8 @@ export default function Product() {
 
             {/* Display a note when showing variant-specific images */}
             {customVariantImages.length > 0 && (
-              <div className="text-sm text-primary/80 italic">
-                Images shown are specific to the selected variant
+              <div className="text-sm text-gray-600 italic">
+                Images spécifiques à la variante sélectionnée
               </div>
             )}
 
@@ -463,10 +466,10 @@ export default function Product() {
                 {displayImages.map((image: any) => (
                   <div
                     key={image.id}
-                    className={`aspect-square overflow-hidden rounded-sm border cursor-pointer transition-all duration-300 ${
+                    className={`aspect-square overflow-hidden rounded-lg border-2 cursor-pointer transition-all duration-300 ${
                       activeImage?.id === image.id
-                        ? 'border-primary scale-105'
-                        : 'border-primary/10 hover:border-primary/50'
+                        ? 'border-primary scale-105 shadow-md'
+                        : 'border-gray-200 hover:border-primary/50'
                     }`}
                     onClick={() => setActiveImage(image)}
                     role="button"
@@ -486,13 +489,13 @@ export default function Product() {
           {/* Product Info */}
           <div>
             {product.vendor && (
-              <div className="text-primary-700 mb-2">{product.vendor}</div>
+              <div className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-semibold mb-4">{product.vendor}</div>
             )}
 
-            <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
+            <h1 className="text-4xl font-bold mb-6 text-black">{product.title}</h1>
 
-            <div className="flex items-center gap-4 mb-4">
-              <div className="text-2xl font-bold text-primary">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="text-3xl font-bold text-primary">
                 <Money data={currentVariant.price} />
               </div>
 
@@ -505,14 +508,14 @@ export default function Product() {
 
             <div className="flex items-center gap-2 mb-6">
               <div
-                className={`h-3 w-3 rounded-full ${currentVariant.availableForSale ? 'bg-green-500' : 'bg-red-500'}`}
+                className={`h-3 w-3 rounded-full ${currentVariant.availableForSale ? 'bg-green-500' : 'bg-amber-500'}`}
               ></div>
-              <span className="text-sm">
-                {currentVariant.availableForSale ? 'In stock' : 'Out of stock'}
+              <span className="text-sm font-medium text-gray-700">
+                {currentVariant.availableForSale ? 'En stock' : 'Rupture de stock'}
               </span>
             </div>
 
-            <div className="prose prose-sm max-w-none mb-8">
+            <div className="prose prose-sm max-w-none mb-8 text-gray-700">
               <div
                 dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
               />
@@ -537,34 +540,33 @@ export default function Product() {
             {/* Customize Button */}
             {hasCustomVariant && (
               <div
-                className={`mt-6 p-4 rounded-sm relative ${isCustomVariantOutOfStock ? 'bg-red-50 border border-red-200' : 'bg-blue-500/10 border border-blue-500/30'}`}
+                className={`mt-6 p-6 rounded-lg relative ${isCustomVariantOutOfStock ? 'bg-amber-50 border border-amber-200' : 'bg-primary/10 border-2 border-primary/30'}`}
               >
                 {isCustomVariantOutOfStock && (
-                  <div className="absolute -top-3 -right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase shadow-md">
-                    Unavailable
+                  <div className="absolute -top-3 -right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase shadow-md">
+                    Indisponible
                   </div>
                 )}
 
                 <div className="flex items-start">
                   <div className="flex-1">
                     <h3
-                      className={`text-lg font-bold mb-2 flex items-center ${isCustomVariantOutOfStock ? 'text-gray-500' : 'text-blue-400'}`}
+                      className={`text-lg font-bold mb-2 flex items-center ${isCustomVariantOutOfStock ? 'text-gray-500' : 'text-primary'}`}
                     >
-                      🎨 Create Custom Products Your Way
+                      🎨 Personnalisez Votre Produit
                     </h3>
                     <p
-                      className={`text-sm mb-4 ${isCustomVariantOutOfStock ? 'text-gray-400' : 'text-blue-300'}`}
+                      className={`text-sm mb-4 ${isCustomVariantOutOfStock ? 'text-gray-500' : 'text-gray-700'}`}
                     >
-                      Customize this product with your own images, text, and
-                      designs to create something truly unique!
+                      Personnalisez ce produit avec vos propres images, textes et designs pour créer quelque chose d'unique !
                     </p>
 
                     {isCustomVariantOutOfStock ? (
-                      <div className="bg-red-600/20 border border-red-600/30 rounded-md p-4">
+                      <div className="bg-amber-100 border border-amber-300 rounded-lg p-4">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
                             <svg
-                              className="h-5 w-5 text-red-500"
+                              className="h-5 w-5 text-amber-600"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               xmlns="http://www.w3.org/2000/svg"
@@ -577,26 +579,24 @@ export default function Product() {
                             </svg>
                           </div>
                           <div className="ml-3">
-                            <p className="text-red-400 text-sm font-bold">
-                              Custom product creation is currently unavailable
+                            <p className="text-amber-800 text-sm font-bold">
+                              La personnalisation est actuellement indisponible
                             </p>
-                            <p className="text-red-300 text-xs mt-1">
-                              Please check back later or contact us for
-                              availability.
+                            <p className="text-amber-700 text-xs mt-1">
+                              Revenez plus tard ou contactez-nous pour plus d'informations.
                             </p>
                           </div>
                         </div>
 
-                        <div className="mt-3 border-t border-red-300/30 pt-3 text-center">
-                          <p className="text-red-400 text-xs">
-                            Want to be notified when custom products are
-                            available?
+                        <div className="mt-3 border-t border-amber-300 pt-3 text-center">
+                          <p className="text-amber-700 text-xs">
+                            Souhaitez-vous être averti lorsque la personnalisation sera disponible ?
                           </p>
                           <button
-                            className="mt-2 text-red-100 bg-red-500 hover:bg-red-600 px-4 py-2 rounded-sm text-xs font-medium inline-flex items-center"
+                            className="mt-2 text-white bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors"
                             onClick={() =>
                               alert(
-                                'This would sign you up for stock notifications',
+                                'Inscription aux notifications de disponibilité',
                               )
                             }
                           >
@@ -613,7 +613,7 @@ export default function Product() {
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                               />
                             </svg>
-                            Notify Me
+                            Me Prévenir
                           </button>
                         </div>
                       </div>
@@ -622,7 +622,7 @@ export default function Product() {
                         <div className="flex flex-col sm:flex-row gap-3">
                           <Link
                             to={`/customize-product/${product.handle}`}
-                            className="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-md transition-colors flex-1"
+                            className="inline-flex items-center justify-center bg-primary hover:bg-primary-400 text-black font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl flex-1"
                           >
                             <svg
                               className="mr-2 h-5 w-5"
@@ -637,13 +637,13 @@ export default function Product() {
                                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                               />
                             </svg>
-                            Start Customizing
+                            Commencer la Personnalisation
                           </Link>
                           <button
                             onClick={() =>
-                              alert('This would show custom product examples')
+                              alert('Exemples de produits personnalisés')
                             }
-                            className="inline-flex items-center justify-center bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-3 px-6 rounded-md transition-colors"
+                            className="inline-flex items-center justify-center bg-white border-2 border-primary hover:bg-primary/10 text-primary font-medium py-3 px-6 rounded-lg transition-all"
                           >
                             <svg
                               className="mr-2 h-5 w-5"
@@ -658,11 +658,11 @@ export default function Product() {
                                 d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
                               />
                             </svg>
-                            See Examples
+                            Voir des Exemples
                           </button>
                         </div>
-                        <p className="text-xs text-blue-300 italic text-center">
-                          Custom products ship within 5-7 business days
+                        <p className="text-xs text-gray-600 italic text-center">
+                          Les produits personnalisés sont expédiés sous 5-7 jours ouvrables
                         </p>
                       </div>
                     )}

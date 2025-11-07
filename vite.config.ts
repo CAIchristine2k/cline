@@ -22,6 +22,9 @@ export default defineConfig({
     // without inlining assets as base64:
     assetsInlineLimit: 0,
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react/jsx-runtime'],
+  },
   ssr: {
     optimizeDeps: {
       /**
@@ -48,6 +51,7 @@ export default defineConfig({
     alias: {
       canvas: resolve('./utils/canvas-mock.js'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(

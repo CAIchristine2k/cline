@@ -40,98 +40,55 @@ export function Footer() {
   }
 
   const quickLinks = [
-    'Shop All',
-    'Products',
-    'Customize',
-    `About ${config.influencerName.split(' ')[0]}`,
-    'Career Highlights',
+    {name: 'Boutique', href: '/collections/all'},
+    {name: 'Best Sellers', href: '/collections/best-sellers'},
+    {name: 'Nouveautés', href: '/collections/nouveautes'},
+    {name: 'À Propos', href: '/about'},
+    {name: 'Notre Histoire', href: '/#brand-story'},
   ];
 
   const supportLinks = [
-    'Contact Us',
-    'Search',
-    'Cart',
-    'Privacy Policy & Terms', // Combined Privacy Policy and Terms
+    {name: 'Contactez-nous', href: '/pages/contact'},
+    {name: 'FAQ', href: '/pages/faq'},
+    {name: 'Livraison & Retours', href: '/pages/shipping'},
+    {name: 'Guide des Tailles', href: '/pages/size-guide'},
   ];
 
-  const policies = ['Privacy Policy & Terms', 'Sitemap']; // Updated policies array
-
-  // Map the quick links to appropriate routes
-  const getQuickLinkRoute = (link: string) => {
-    switch (link) {
-      case 'Shop All':
-        return '/collections/all';
-      case 'Products':
-        return '/products';
-      case 'Customize':
-        return '/customize-products';
-      case `About ${config.influencerName.split(' ')[0]}`:
-        return '/about';
-      case 'Career Highlights':
-        return '/about#highlights';
-      default:
-        return '/';
-    }
-  };
-
-  // Map the support links to appropriate routes
-  const getSupportLinkRoute = (link: string) => {
-    switch (link) {
-      case 'Contact Us':
-        return '/pages/contact';
-      case 'Search':
-        return '/search';
-      case 'Cart':
-        return '/cart';
-      case 'Privacy Policy & Terms':
-        return '/policies/privacy-terms';
-      default:
-        return '/';
-    }
-  };
-
-  // Map the policy links to appropriate routes
-  const getPolicyRoute = (policy: string) => {
-    switch (policy) {
-      case 'Privacy Policy & Terms':
-        return '/policies/privacy-terms';
-      case 'Sitemap':
-        return '/sitemap.xml';
-      default:
-        return '/';
-    }
-  };
+  const legalLinks = [
+    {name: 'Mentions Légales', href: '/pages/mentions-legales'},
+    {name: 'CGV', href: '/pages/cgv'},
+    {name: 'Politique de Confidentialité', href: '/pages/privacy-policy'},
+    {name: 'Cookies', href: '/pages/cookies'},
+  ];
 
   return (
-    <footer className="bg-gray-950 pt-20 pb-10">
-      <div className="container mx-auto px-4">
+    <footer className="bg-white border-t border-primary/20">
+      <div className="container mx-auto px-4 py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          {/* Brand Column */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+
+          {/* Column 1: About */}
           <div>
-            <Link to="/">
-              <FooterLogo />
-            </Link>
-            <p className="text-gray-400 mt-6 mb-8 leading-relaxed text-sm text-center">
-              The official brand of{' '}
-              {config.influencerBio || `boxing legend ${config.influencerName}`}
-              . Exclusive merchandise, training resources, and premium content
-              for champions.
+            <FooterLogo />
+            <p className="text-gray-700 text-sm leading-relaxed mb-6 mt-4">
+              Depuis plus de 20 ans, C'Line Hair sublime la beauté des femmes avec des perruques et extensions éthiques, durables et accessibles.
             </p>
+
+            {/* Social Links */}
             {socialLinks.length > 0 && (
-              <div className="flex space-x-5 justify-center">
-                {socialLinks.map((social, index) => {
+              <div className="flex space-x-4">
+                {socialLinks.map((social) => {
                   const IconComponent = social.icon;
                   return (
                     <a
-                      key={index}
+                      key={social.label}
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-sm bg-gray-900 hover:bg-primary flex items-center justify-center text-white hover:text-black transition-all duration-300 transform hover:scale-105"
+                      className="text-gray-600 hover:text-primary transition-colors duration-300"
                       aria-label={social.label}
                     >
-                      <IconComponent className="h-5 w-5" />
+                      <IconComponent className="w-5 h-5" />
                     </a>
                   );
                 })}
@@ -139,42 +96,51 @@ export function Footer() {
             )}
           </div>
 
-          {/* Quick Links Column */}
+          {/* Column 2: Quick Links */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6 relative inline-block">
-              Quick Links
-              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-primary"></span>
-            </h4>
+            <h3 className="text-black font-bold text-lg mb-4 uppercase tracking-wider">Navigation</h3>
             <ul className="space-y-3">
-              {quickLinks.map((link, index) => (
-                <li key={index}>
+              {quickLinks.map((link) => (
+                <li key={link.name}>
                   <Link
-                    to={getQuickLinkRoute(link)}
-                    className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
+                    to={link.href}
+                    className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm"
                   >
-                    <span className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                    {link}
+                    {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Support Column */}
+          {/* Column 3: Support */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6 relative inline-block">
-              Support
-              <span className="absolute left-0 bottom-0 w-1/2 h-0.5 bg-primary"></span>
-            </h4>
+            <h3 className="text-black font-bold text-lg mb-4 uppercase tracking-wider">Service Client</h3>
             <ul className="space-y-3">
-              {supportLinks.map((link, index) => (
-                <li key={index}>
+              {supportLinks.map((link) => (
+                <li key={link.name}>
                   <Link
-                    to={getSupportLinkRoute(link)}
-                    className="text-gray-400 hover:text-primary transition-all duration-300 text-sm flex items-center group"
+                    to={link.href}
+                    className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm"
                   >
-                    <span className="w-1 h-1 bg-primary rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                    {link}
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Legal */}
+          <div>
+            <h3 className="text-black font-bold text-lg mb-4 uppercase tracking-wider">Informations Légales</h3>
+            <ul className="space-y-3">
+              {legalLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm"
+                  >
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -182,25 +148,72 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Copyright Section */}
-        <div className="border-t border-gray-800/50 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm mb-6 md:mb-0">
-              &copy; {new Date().getFullYear()} {config.brandName} Enterprises.
-              All rights reserved.
-            </p>
-
-            <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2">
-              {policies.map((policy, index) => (
-                <Link
-                  key={index}
-                  to={getPolicyRoute(policy)}
-                  className="text-gray-500 hover:text-primary text-sm transition-all duration-300"
-                >
-                  {policy}
-                </Link>
-              ))}
+        {/* Payment Methods */}
+        <div className="border-t border-primary/20 pt-8 mb-8">
+          <p className="text-gray-600 text-sm text-center mb-4">Moyens de paiement acceptés</p>
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+            {/* Klarna */}
+            <div className="h-10 px-4 flex items-center justify-center bg-[#FFB3C7] rounded-md">
+              <span className="font-bold text-black text-base">klarna</span>
             </div>
+            {/* American Express */}
+            <div className="h-10 px-4 flex items-center justify-center bg-[#006FCF] rounded-md">
+              <span className="font-bold text-white text-sm tracking-wide">AMERICAN EXPRESS</span>
+            </div>
+            {/* Apple Pay */}
+            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
+              <svg className="h-6 w-auto" viewBox="0 0 65 25" fill="none">
+                <g>
+                  <path d="M11.5 5.5c.7-1 1.2-2.3 1-3.7-1 0-2.2.7-2.9 1.5-.7.7-1.2 1.9-1.1 3 1.1.1 2.3-.6 3-1.8z" fill="black"/>
+                  <path d="M12.5 6.2c-1.7-.1-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.3 2.5 1.3 0 1.8-.8 3.4-.8 1.5 0 2 .8 3.3.8 1.4 0 2.3-1.2 3.2-2.4.5-.7.9-1.4 1.2-2.2-2.5-1-2.9-4.4-.3-5.5-.9-1.3-2.3-2-3.9-2.1z" fill="black"/>
+                </g>
+                <text x="22" y="17" fill="black" fontSize="10" fontWeight="500" fontFamily="-apple-system, BlinkMacSystemFont, sans-serif">Pay</text>
+              </svg>
+            </div>
+            {/* Google Pay */}
+            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
+              <svg className="h-5 w-auto" viewBox="0 0 50 20" fill="none">
+                <text x="0" y="14" fill="#5F6368" fontSize="11" fontWeight="500" fontFamily="system-ui">G Pay</text>
+              </svg>
+            </div>
+            {/* Maestro */}
+            <div className="h-10 px-3 flex items-center justify-center bg-white rounded-md border border-gray-200">
+              <svg className="h-6 w-10" viewBox="0 0 40 24">
+                <circle cx="12" cy="12" r="10" fill="#0099DF"/>
+                <circle cx="28" cy="12" r="10" fill="#ED0006" fillOpacity="0.85"/>
+              </svg>
+            </div>
+            {/* Mastercard */}
+            <div className="h-10 px-3 flex items-center justify-center bg-white rounded-md border border-gray-200">
+              <svg className="h-6 w-10" viewBox="0 0 40 24">
+                <circle cx="12" cy="12" r="10" fill="#EB001B"/>
+                <circle cx="28" cy="12" r="10" fill="#FF5F00" fillOpacity="0.8"/>
+              </svg>
+            </div>
+            {/* PayPal */}
+            <div className="h-10 px-4 flex items-center justify-center bg-[#0070BA] rounded-md">
+              <span className="font-bold text-white text-sm">PayPal</span>
+            </div>
+            {/* Shop Pay */}
+            <div className="h-10 px-4 flex items-center justify-center bg-[#5A31F4] rounded-md">
+              <span className="font-bold text-white text-sm">Shop Pay</span>
+            </div>
+            {/* Visa */}
+            <div className="h-10 px-4 flex items-center justify-center bg-[#1A1F71] rounded-md">
+              <span className="font-bold text-white text-lg" style={{fontFamily: 'serif'}}>VISA</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="border-t border-primary/20 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-gray-600 text-sm text-center md:text-left">
+              © {new Date().getFullYear()} C'Line Hair. Tous droits réservés.
+            </p>
+            <p className="text-gray-500 text-xs text-center md:text-right">
+              Développé avec passion pour sublimer votre beauté
+            </p>
           </div>
         </div>
       </div>

@@ -226,32 +226,34 @@ export function Layout({children}: {children?: React.ReactNode}) {
             __html: `
               /* Theme CSS Variables - matches Vue template approach */
               :root {
-                --color-primary: #D4AF37;
-                --color-secondary: #1F1F1F;
-                --color-accent: #FFFFFF;
-                --color-background: #000000;
-                --color-text: #FFFFFF;
-                
+                --color-primary: #FFB6C1;
+                --color-secondary: #FFFFFF;
+                --color-accent: #FFD1DC;
+                --color-gold: #e6b000;
+                --color-background: #FFFFFF;
+                --color-text: #000000;
+
                 /* RGB versions for opacity/shadows */
-                --color-primary-rgb: 212, 175, 55;
-                --color-secondary-rgb: 31, 31, 31;
-                
-                /* Gold color theme variables - Vue template compatibility */
-                --color-gold-400: #E5C158;
-                --color-gold-500: #D4AF37;
-                --color-gold-600: #BF9B2F;
-                
+                --color-primary-rgb: 255, 182, 193;
+                --color-secondary-rgb: 255, 255, 255;
+                --color-gold-rgb: 230, 176, 0;
+
+                /* Pink color theme variables */
+                --color-gold-400: #FFD1DC;
+                --color-gold-500: #FFB6C1;
+                --color-gold-600: #FFA0AB;
+
                 /* Primary color variants */
-                --color-primary-50: #F9F7F0;
-                --color-primary-100: #F3EFE1;
-                --color-primary-200: #E7DFC3;
-                --color-primary-300: #DBCFA5;
-                --color-primary-400: #CFBF87;
-                --color-primary-500: #D4AF37;
-                --color-primary-600: #AA8C2C;
-                --color-primary-700: #806921;
-                --color-primary-800: #554616;
-                --color-primary-900: #2B230B;
+                --color-primary-50: #FFF5F7;
+                --color-primary-100: #FFE8ED;
+                --color-primary-200: #FFD1DC;
+                --color-primary-300: #FFB6C1;
+                --color-primary-400: #FFA0AB;
+                --color-primary-500: #FFB6C1;
+                --color-primary-600: #FF8FA1;
+                --color-primary-700: #FF7A91;
+                --color-primary-800: #FF6581;
+                --color-primary-900: #FF5071;
                 
                 /* Typography - use system fonts instead of Google Fonts */
                 --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
@@ -283,8 +285,8 @@ export function Layout({children}: {children?: React.ReactNode}) {
               /* Dark theme support */
               @media (prefers-color-scheme: dark) {
                 :root {
-                  --color-background: #000000;
-                  --color-text: #FFFFFF;
+                  --color-background: #e6d0d1;
+                  --color-text: #000000;
                 }
               }
             `,

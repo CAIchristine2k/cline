@@ -1,13 +1,71 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "shane-hydrogen",
-  "main": "./workers/app.ts",
-  "compatibility_date": "2025-05-23",
-  "compatibility_flags": ["no_handle_cross_request_promise_resolution"],
-  // — observability —
-  "observability": {
-    "logs": {
-      "enabled": true
-    }
+  // Cloudflare Workers configuration for Cline Shopify Store
+  "name": "cline-shopify",
+  "compatibility_date": "2025-01-01",
+  "main": "workers/app.ts",
+  "node_compat": true,
+
+  // Environment variables (sensitive values should be in .env or .dev.vars)
+  "vars": {
+    "APP_NAME": "Cline Shop",
+    "ENVIRONMENT": "production"
   },
+
+  // Bindings for Cloudflare services
+  "kv_namespaces": [
+    // Add KV namespaces here if needed for caching or sessions
+    // {
+    //   "binding": "CLINE_CACHE",
+    //   "id": "your-kv-namespace-id"
+    // }
+  ],
+
+  // R2 buckets for file storage (if needed)
+  "r2_buckets": [
+    // {
+    //   "binding": "CLINE_ASSETS",
+    //   "bucket_name": "cline-assets"
+    // }
+  ],
+
+  // Durable Objects (if needed for real-time features)
+  "durable_objects": {
+    "bindings": []
+  },
+
+  // Build configuration
+  "build": {
+    "command": "npm run build"
+  },
+
+  // Routes configuration
+  "routes": [
+    {
+      "pattern": "*",
+      "zone_name": ""  // Add your custom domain here
+    }
+  ],
+
+  // Limits and performance
+  "limits": {
+    "cpu_ms": 50
+  },
+
+  // Development configuration
+  "dev": {
+    "port": 5174,
+    "local_protocol": "http"
+  },
+
+  // Account info (add your Cloudflare account ID)
+  "account_id": "",
+
+  // Preserve file path for backwards compatibility
+  "preserve_file_names": true,
+
+  // Worker environment compatibility
+  "compatibility_flags": [
+    "nodejs_compat",
+    "streams_enable_constructors"
+  ]
 }

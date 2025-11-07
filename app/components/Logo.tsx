@@ -14,17 +14,10 @@ export function Logo({isScrolled = false}: LogoProps) {
         <img
           src={config.brandLogo}
           alt={`${config.brandName} Logo`}
-          className={`transition-all duration-500 ease-in-out filter drop-shadow-glow ${
-            isScrolled ? 'h-10 w-auto logo-scrolled' : 'h-14 w-auto'
+          className={`transition-all duration-500 ease-in-out ${
+            isScrolled ? 'h-10 w-auto' : 'h-14 w-auto'
           }`}
         />
-        <span
-          className={`ml-3 text-xl font-bold tracking-wider transition-all duration-500 ${
-            !isScrolled ? 'text-white' : 'text-primary'
-          }`}
-        >
-          {config.brandName}
-        </span>
       </Link>
     </div>
   );

@@ -1,12 +1,12 @@
 # Images Directory
 
-This directory contains all the images used for the Shane Mosley landing page.
+This directory contains all the images used for the Cline Shop landing page.
 
 ## Usage Instructions
 
 1. Replace these placeholder images with your own images while keeping the same filenames:
 
-   - career-highlight.jpeg: Boxing career highlight image (1200×800px recommended)
+   - career-highlight.jpeg: Store milestone image (1200×800px recommended)
    - limited-edition-bg.jpeg: Background for limited edition section (1920×1080px recommended)
    - product-1.jpeg through product-4.jpeg: Product images (1200×1200px recommended)
    - social-feed-1.jpeg through social-feed-4.jpeg: Social media post preview images (600×600px recommended)
@@ -20,4 +20,4 @@ This directory contains all the images used for the Shane Mosley landing page.
    - Use WebP format when possible for better compression
    - Maintain consistent aspect ratios for similar image types
 
-4. For product photos, use consistent lighting and composition to maintain a cohesive look that reflects Shane Mosley's premium boxing brand
+4. For product photos, use consistent lighting and composition to maintain a cohesive look that reflects Cline's premium personalized products brand

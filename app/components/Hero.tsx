@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {ShoppingBag, Trophy} from 'lucide-react';
+import {ShoppingBag, Leaf} from 'lucide-react';
 import {Link} from 'react-router';
 import {useConfig} from '~/utils/themeContext';
 
@@ -31,111 +31,64 @@ export function Hero() {
     >
       {/* Video/Image Background with Overlay - follows Vue template structure */}
       <div className="absolute inset-0 z-0">
-        {config.heroVideoUrl ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={config.heroBackgroundImage}
-            className="w-full h-full object-cover"
-          >
-            <source src={config.heroVideoUrl} type="video/mp4" />
-            {/* Fallback to image if video doesn't load */}
-            <img
-              src={config.heroBackgroundImage}
-              alt={config.influencerName}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          </video>
-        ) : (
-          <img
-            src={config.heroBackgroundImage}
-            alt={config.influencerName}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10"></div>
+        <img
+          src="/images/cline7.jpg"
+          alt="cline"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/90 z-10"></div>
       </div>
 
       {/* Hero Content - closely matches Vue template structure */}
       <div className="relative container mx-auto px-4 z-20 py-20">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl mx-auto bg-white/40 p-8 rounded-lg">
+
           <div className="inline-block bg-primary text-black font-bold py-1 px-4 mb-6 tracking-wider rounded-sm">
-            {config.influencerTitle}
+            20 Ans d'Excellence Capillaire & Beauté Éthique
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            <span className="text-white">THE LEGACY OF</span>
-            <br />
-            <span className="text-primary tracking-wider hero-title-glow">
-              {config.brandName}
-            </span>
+            <span className="text-black">L'HISTOIRE DE</span><br />
+            <span className="tracking-wider hero-title-glow" style={{color: '#e6b000'}}>C'LINE HAIR</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-xl leading-relaxed">
-            {config.heroSubtitle}
+          <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-xl leading-relaxed">
+            Depuis plus de 20 ans, C'Line Hair sublime la beauté des femmes avec des perruques et extensions éthiques, durables et accessibles.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5">
             <Link
-              to={config.ctaLink}
+              to="/collections/all"
               className="group bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center sm:justify-start shadow-glow"
             >
-              {config.ctaText}
+              DÉCOUVRIR LA COLLECTION
               <ShoppingBag className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
-
-            <Link
-              to="#career"
-              className="group bg-transparent border-2 border-white hover:border-primary text-white hover:text-primary font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center sm:justify-start"
-            >
-              EXPLORE CAREER
-              <Trophy className="ml-2 h-5 w-5 transition-transform group-hover:translate-y-[-2px]" />
-            </Link>
           </div>
 
-          {/* Boxing statistics badges - directly from Vue template */}
           <div className="mt-16 mb-16 md:mb-24 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <div className="text-primary text-3xl font-bold hero-stat-glow">
-                49
-              </div>
-              <div className="text-white text-sm tracking-wider">
-                CAREER WINS
-              </div>
+            <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+              <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>20+</div>
+              <div className="text-gray-800 text-sm tracking-wider">ANNÉES D'EXPERTISE</div>
             </div>
-            <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <div className="text-primary text-3xl font-bold hero-stat-glow">
-                41
-              </div>
-              <div className="text-white text-sm tracking-wider">KOs</div>
+            <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+              <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>0</div>
+              <div className="text-gray-800 text-sm tracking-wider">COMPROMIS SUR LA QUALITÉ</div>
             </div>
-            <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <div className="text-primary text-3xl font-bold hero-stat-glow">
-                9
-              </div>
-              <div className="text-white text-sm tracking-wider">
-                WORLD TITLES
-              </div>
+            <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+              <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>+50K</div>
+              <div className="text-gray-800 text-sm tracking-wider">CLIENTES SATISFAITES</div>
             </div>
-            <div className="bg-black/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <div className="text-primary text-3xl font-bold hero-stat-glow">
-                3
-              </div>
-              <div className="text-white text-sm tracking-wider">
-                WEIGHT DIVISIONS
-              </div>
+            <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+              <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>+300</div>
+              <div className="text-gray-800 text-sm tracking-wider">PRODUITS</div>
             </div>
           </div>
+
         </div>
 
-        {/* Scroll Indicator */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
-          <span className="text-white text-xs mb-2 tracking-widest">
-            SCROLL DOWN
-          </span>
+          <span className="text-gray-800 text-xs mb-2 tracking-widest">FAITES DÉFILER</span>
           <div className="w-0.5 h-12 bg-primary"></div>
         </div>
       </div>

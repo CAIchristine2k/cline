@@ -9,7 +9,7 @@ import {getConfig} from '~/utils/config';
 
 export const meta: MetaFunction<typeof loader> = () => {
   const config = getConfig();
-  return [{title: `${config.brandName} | All Products`}];
+  return [{title: `C'Line Hair | Tous Nos Produits`}];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -64,31 +64,34 @@ export default function Collection() {
   const {products, config} = useLoaderData<typeof loader>();
 
   return (
-    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-24">
+    <div data-theme={config.theme} className="min-h-screen bg-white">
+      {/* Background decorative elements */}
+      <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+      <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+
+      <div className="container mx-auto px-4 py-24 relative z-10">
         {/* Back Navigation */}
         <div className="mb-8">
           <Link
             to="/"
-            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
+            className="inline-flex items-center text-black hover:text-primary transition-colors duration-300 font-medium"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
+            Retour à l'accueil
           </Link>
         </div>
 
         {/* Page Header */}
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
-            All Products
+        <div className="text-center mb-16 max-w-3xl mx-auto">
+          <div className="inline-block px-4 py-1 bg-primary text-black text-sm font-bold tracking-wider uppercase mb-6 rounded-sm">
+            Tous Nos Produits
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="text-primary">CHAMPIONSHIP</span> COLLECTION
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <span className="text-black">LA COLLECTION</span><br />
+            <span className="text-primary tracking-wider">C'LINE HAIR</span>
           </h1>
-          <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Explore our complete collection of premium{' '}
-            {config.industry || 'sports'} equipment and exclusive merchandise
-            inspired by {config.influencerName}'s legendary career.
+          <p className="text-lg text-gray-700 leading-relaxed">
+            Découvrez notre collection complète d'extensions, perruques et lace wigs de qualité professionnelle. Chaque produit est conçu pour sublimer votre beauté naturelle avec élégance et durabilité.
           </p>
         </div>
 
@@ -113,24 +116,33 @@ export default function Collection() {
           </PaginatedResourceSection>
         </div>
 
-        {/* Championship Banner */}
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/30 rounded-sm p-8 text-center">
-          <h3 className="text-2xl font-bold text-primary mb-4">
-            Train Like a Champion
+        {/* Banner */}
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/30 rounded-lg p-12 text-center shadow-lg">
+          <h3 className="text-3xl font-bold text-primary mb-4">
+            Qualité & Élégance Garanties
           </h3>
-          <p className="text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Every product in our collection is crafted to championship standards
-            and designed for those who refuse to settle for anything less than
-            excellence.
+          <p className="text-gray-700 mb-6 max-w-2xl mx-auto leading-relaxed text-lg">
+            Chaque produit C'Line Hair est soigneusement sélectionné pour vous offrir le meilleur de la qualité professionnelle. Sublimez votre beauté avec confiance.
           </p>
           <Link
             to="/"
-            className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
+            className="inline-flex items-center bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow"
           >
-            Explore {config.influencerName}'s Story
+            Découvrir Notre Histoire
           </Link>
         </div>
       </div>
+
+      {/* Add the CSS styles */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+          .shadow-glow {
+            box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.25);
+          }
+        `,
+        }}
+      />
     </div>
   );
 }
