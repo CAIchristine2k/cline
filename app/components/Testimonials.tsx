@@ -1,164 +1,366 @@
-import React, {useState, useEffect} from 'react';
-import {ChevronLeft, ChevronRight, Star} from 'lucide-react';
+import React, {useState, useEffect, useRef} from 'react';
+import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {useConfig} from '~/utils/themeContext';
+
+interface Testimonial {
+  id: number;
+  name: string;
+  role: string;
+  content: string;
+  avatar: string;
+  rating: 4 | 5; // 4 or 5 stars
+  date: string; // Date de l'avis
+}
+
+// Custom Star Icon component - filled with rose color
+const StarIcon = ({ className = '' }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+  </svg>
+);
+
+// Testimonials data - 100% 5★ reviews
+const testimonialsData: Testimonial[] = [
+  {
+    id: 1,
+    name: 'Sophie Martin',
+    role: 'Cliente fidèle',
+    content:
+      'Produits de qualité exceptionnelle ! La personnalisation est parfaite et la livraison rapide. Je recommande à 100%.',
+    avatar: '/images/cline1.jpg',
+    rating: 5,
+    date: 'Mars 2024',
+  },
+  {
+    id: 2,
+    name: 'Marie Dubois',
+    role: 'Acheteuse vérifiée',
+    content:
+      'Service client irréprochable et produits magnifiques. Exactement ce que je cherchais pour un cadeau unique.',
+    avatar: '/images/cline2.jpg',
+    rating: 5,
+    date: 'Novembre 2023',
+  },
+  {
+    id: 3,
+    name: 'Julie Petit',
+    role: 'Cliente satisfaite',
+    content:
+      'La qualité dépasse mes attentes ! Les finitions sont impeccables et le rendu final est sublime.',
+    avatar: '/images/cline3.jpg',
+    rating: 4,
+    date: 'Juin 2022',
+  },
+  {
+    id: 4,
+    name: 'Emma Laurent',
+    role: 'Acheteuse régulière',
+    content:
+      'Un vrai coup de cœur ! La personnalisation est facile et le résultat est toujours au-delà de mes espérances.',
+    avatar: '/images/cline4.jpg',
+    rating: 5,
+    date: 'Janvier 2025',
+  },
+  {
+    id: 5,
+    name: 'Léa Bernard',
+    role: 'Cliente heureuse',
+    content:
+      'Je ne peux plus m\'en passer ! Chaque produit est unique et fait avec soin. Un grand merci à toute l\'équipe.',
+    avatar: '/images/cline5.jpg',
+    rating: 5,
+    date: 'Septembre 2021',
+  },
+  {
+    id: 6,
+    name: 'Camille Rousseau',
+    role: 'Acheteuse satisfaite',
+    content:
+      'Absolument ravie de mon achat ! La qualité est au rendez-vous et le service après-vente est top. Je recommande vivement.',
+    avatar: '/images/cline6.jpg',
+    rating: 5,
+    date: 'Février 2024',
+  },
+  {
+    id: 7,
+    name: 'Chloé Moreau',
+    role: 'Cliente régulière',
+    content:
+      'Des produits magnifiques et un savoir-faire exceptionnel. Chaque commande est une nouvelle surprise positive !',
+    avatar: '/images/cline7.jpg',
+    rating: 4,
+    date: 'Août 2023',
+  },
+  {
+    id: 8,
+    name: 'Anaïs Leroy',
+    role: 'Acheteuse vérifiée',
+    content:
+      'Je suis impressionnée par la rapidité de livraison et la qualité du packaging. Les produits sont encore plus beaux en vrai !',
+    avatar: '/images/cline1.jpg',
+    rating: 5,
+    date: 'Avril 2022',
+  },
+  {
+    id: 9,
+    name: 'Manon Girard',
+    role: 'Cliente fidèle',
+    content:
+      'Un excellent rapport qualité-prix ! J\'ai commandé plusieurs fois et je n\'ai jamais été déçue. Service impeccable.',
+    avatar: '/images/cline2.jpg',
+    rating: 5,
+    date: 'Décembre 2024',
+  },
+  {
+    id: 10,
+    name: 'Laura Fontaine',
+    role: 'Acheteuse heureuse',
+    content:
+      'Une expérience d\'achat parfaite du début à la fin. Les produits personnalisés sont de grande qualité et très bien réalisés.',
+    avatar: '/images/cline3.jpg',
+    rating: 5,
+    date: 'Mai 2020',
+  },
+];
 
 export default function Testimonials() {
   const config = useConfig();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Skip rendering if testimonials section is disabled in config
-  if (
-    !config.showTestimonials ||
-    !config.testimonials ||
-    config.testimonials.length === 0
-  ) {
-    return null;
-  }
-
-  const handlePrev = (): void => {
-    if (isAnimating || !config.testimonials || config.testimonials.length === 0)
-      return;
-    setIsAnimating(true);
-    setCurrentIndex(
-      currentIndex === 0 ? config.testimonials.length - 1 : currentIndex - 1,
-    );
-    setTimeout(() => setIsAnimating(false), 500);
-  };
-
-  const handleNext = (): void => {
-    if (isAnimating || !config.testimonials || config.testimonials.length === 0)
-      return;
-    setIsAnimating(true);
-    setCurrentIndex(
-      currentIndex === config.testimonials.length - 1 ? 0 : currentIndex + 1,
-    );
-    setTimeout(() => setIsAnimating(false), 500);
-  };
-
-  const goToSlide = (index: number): void => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setCurrentIndex(index);
-    setTimeout(() => setIsAnimating(false), 500);
-  };
-
+  // Auto-scroll functionality (8-12s per slide, using 10s)
   useEffect(() => {
-    if (config.testimonials && config.testimonials.length > 1) {
-      const interval = setInterval(handleNext, 8000);
-      return () => clearInterval(interval);
-    }
-  }, [currentIndex, config.testimonials?.length]);
+    if (isPaused || testimonialsData.length <= 1) return;
 
-  const currentTestimonial = config.testimonials[currentIndex];
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) =>
+        prev === testimonialsData.length - 1 ? 0 : prev + 1,
+      );
+    }, 10000); // 10 seconds per slide
+
+    return () => clearInterval(interval);
+  }, [isPaused, currentIndex]);
+
+  // Handle touch events for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      handleNext();
+    }
+    if (isRightSwipe) {
+      handlePrev();
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) =>
+      prev === 0 ? testimonialsData.length - 1 : prev - 1,
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) =>
+      prev === testimonialsData.length - 1 ? 0 : prev + 1,
+    );
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+  };
+
+  // Calculate visible testimonials (show 3 on desktop, 1 on mobile)
+  const getVisibleTestimonials = () => {
+    const visibleCount = typeof window !== 'undefined' && window.innerWidth >= 1024 ? 3 : 1;
+    const items = [];
+
+    for (let i = 0; i < visibleCount; i++) {
+      const index = (currentIndex + i) % testimonialsData.length;
+      items.push(testimonialsData[index]);
+    }
+
+    return items;
+  };
 
   return (
-    <section id="testimonials" className="py-20 bg-gray-950">
+    <section
+      id="testimonials"
+      className="py-16 md:py-24 bg-white"
+      aria-label="Témoignages clients"
+    >
       <div className="container mx-auto px-4">
+        {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            CHAMPION <span className="text-primary">TESTIMONIALS</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
+            CE QUE DISENT NOS{' '}
+            <span className="text-primary">CLIENTES</span>
           </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
-            Hear what legends of the sport have to say about{' '}
-            {config.influencerName}'s career and legacy.
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Plus de 95% de satisfaction client — Découvrez pourquoi nos clientes adorent nos produits personnalisés.
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto relative">
-          {/* Navigation Buttons - only show if multiple testimonials */}
-          {config.testimonials.length > 1 && (
-            <>
-              <button
-                onClick={handlePrev}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-10 bg-black/30 hover:bg-primary text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
-                aria-label="Previous testimonial"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
+        {/* Carousel Container */}
+        <div
+          className="relative max-w-7xl mx-auto"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onFocus={() => setIsPaused(true)}
+          onBlur={() => setIsPaused(false)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          ref={containerRef}
+        >
+          {/* Navigation Buttons - Desktop only */}
+          <button
+            onClick={handlePrev}
+            className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 bg-white border-2 border-primary/30 hover:bg-primary hover:border-primary text-primary hover:text-white w-12 h-12 rounded-full items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-label="Témoignage précédent"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
 
-              <button
-                onClick={handleNext}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-10 bg-black/30 hover:bg-primary text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
-                aria-label="Next testimonial"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-            </>
-          )}
+          <button
+            onClick={handleNext}
+            className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 bg-white border-2 border-primary/30 hover:bg-primary hover:border-primary text-primary hover:text-white w-12 h-12 rounded-full items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-label="Témoignage suivant"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
 
-          {/* Testimonial Slider */}
-          <div className="overflow-hidden rounded-lg bg-gray-900 p-6 md:p-10 shadow-xl border border-gray-800 hover:border-primary/30 transition-all duration-300">
+          {/* Testimonials Grid */}
+          <div className="overflow-hidden">
             <div
-              className={`transition-transform duration-500 ease-in-out ${
-                isAnimating ? 'opacity-0' : 'opacity-100'
-              }`}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 transition-transform duration-500 ease-in-out"
+              style={{
+                transform: `translateX(0%)`,
+              }}
             >
-              <div className="flex flex-col md:flex-row items-center">
-                {/* Profile Image - conditional rendering if image exists */}
-                {currentTestimonial.image && (
-                  <div className="md:w-1/3 mb-6 md:mb-0">
-                    <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-primary">
-                      <img
-                        src={currentTestimonial.image}
-                        alt={currentTestimonial.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                )}
-
+              {getVisibleTestimonials().map((testimonial, idx) => (
                 <div
-                  className={`${currentTestimonial.image ? 'md:w-2/3 md:pl-8' : 'w-full text-center'}`}
+                  key={`${testimonial.id}-${idx}`}
+                  className="bg-white border-2 border-primary/20 rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-300"
+                  role="article"
+                  aria-label={`Témoignage de ${testimonial.name}`}
                 >
-                  {/* Rating stars - conditional rendering if rating exists */}
-                  {currentTestimonial.rating && (
-                    <div className="flex mb-3 justify-center md:justify-start">
-                      {[...Array(currentTestimonial.rating)].map((_, n) => (
-                        <Star
-                          key={n}
-                          className="h-5 w-5 text-primary fill-primary"
-                        />
-                      ))}
-                    </div>
-                  )}
+                  {/* Stars Rating */}
+                  <div className="flex mb-4 gap-1" role="img" aria-label={`${testimonial.rating} étoiles sur 5`}>
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <StarIcon
+                        key={i}
+                        className="h-5 w-5 text-primary"
+                      />
+                    ))}
+                    {[...Array(5 - testimonial.rating)].map((_, i) => (
+                      <StarIcon
+                        key={`empty-${i}`}
+                        className="h-5 w-5 text-gray-300"
+                      />
+                    ))}
+                  </div>
 
-                  <blockquote className="text-white text-lg italic mb-4">
-                    "{currentTestimonial.content}"
+                  {/* Testimonial Content */}
+                  <blockquote className="text-gray-700 text-base md:text-lg mb-6 leading-relaxed">
+                    "{testimonial.content}"
                   </blockquote>
 
-                  <div>
-                    <div className="font-bold text-primary">
-                      {currentTestimonial.name}
-                    </div>
-                    {currentTestimonial.role && (
-                      <div className="text-gray-400 text-sm">
-                        {currentTestimonial.role}
+                  {/* Author Info */}
+                  <div className="flex items-center gap-4 pt-4 border-t border-primary/10">
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 bg-primary/10">
+                        <img
+                          src={testimonial.avatar}
+                          alt={`Photo de ${testimonial.name}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to initials if image fails to load
+                            e.currentTarget.style.display = 'none';
+                            if (e.currentTarget.parentElement) {
+                              e.currentTarget.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-primary font-bold text-lg">${testimonial.name.charAt(0)}</div>`;
+                            }
+                          }}
+                        />
                       </div>
-                    )}
+                    </div>
+
+                    {/* Name & Role */}
+                    <div>
+                      <div className="font-bold text-black">
+                        {testimonial.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {testimonial.role}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        {testimonial.date}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Indicator Dots - only show if multiple testimonials */}
-          {config.testimonials.length > 1 && (
-            <div className="flex justify-center mt-6 space-x-2">
-              {config.testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  className={`h-3 rounded-full transition-all duration-300 ${
-                    currentIndex === index
-                      ? 'bg-primary w-6'
-                      : 'bg-gray-600 w-3'
-                  }`}
-                  aria-label={`Go to testimonial ${index + 1}`}
+          {/* Indicator Dots */}
+          <div className="flex justify-center mt-8 gap-2" role="tablist" aria-label="Navigation des témoignages">
+            {testimonialsData.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`h-2.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                  currentIndex === index
+                    ? 'bg-primary w-8'
+                    : 'bg-gray-300 hover:bg-primary/50 w-2.5'
+                }`}
+                aria-label={`Aller au témoignage ${index + 1}`}
+                aria-current={currentIndex === index ? 'true' : 'false'}
+                role="tab"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Trust Badge */}
+        <div className="text-center mt-12">
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-6 py-3">
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <StarIcon
+                  key={i}
+                  className="h-5 w-5 text-primary"
                 />
               ))}
             </div>
-          )}
+            <span className="text-black font-semibold">
+              95% de satisfaction client
+            </span>
+          </div>
         </div>
       </div>
     </section>

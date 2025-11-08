@@ -446,7 +446,7 @@ export function CartLineItem({
   });
 
   return (
-    <div className="cart-line-item group">
+    <div className="cart-line-item group" style={{backgroundColor: '#faa3ae'}}>
       <div className="flex items-start gap-3">
         {/* Product Image - Slightly smaller for more text space */}
         <div className="relative flex-shrink-0">
@@ -529,6 +529,13 @@ export function CartLineItem({
               </h3>
             </Link>
 
+            {/* Product Description */}
+            {product.description && (
+              <p className="text-white/50 text-xs leading-relaxed line-clamp-2 mt-1">
+                {product.description}
+              </p>
+            )}
+
             {/* Variant Details */}
             {title && title !== 'Default Title' && (
               <p className="text-white/60 text-xs font-medium">{title}</p>
@@ -600,7 +607,7 @@ export function CartLineItem({
       </div>
 
       {/* Actions Row - Compact */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+      <div className="flex items-center justify-between mt-3 border-t border-white/5">
         <CartLineQuantityAdjust line={line} />
         <CartLineRemoveButton lineId={id} disabled={!!line.isOptimistic} />
       </div>
@@ -684,11 +691,11 @@ function CartLineRemoveButton({
     >
       <button
         type="submit"
-        className="group/remove w-8 h-8 rounded-lg bg-red-500/10 backdrop-blur-sm border border-red-500/20 flex items-center justify-center transition-all duration-200 hover:bg-red-500/20 hover:border-red-500/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-red-500/10 disabled:hover:border-red-500/20"
+        className="group/remove w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-200 hover:bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 disabled:hover:border-white/20"
         disabled={disabled}
         aria-label="Remove from cart"
       >
-        <Trash2 className="w-4 h-4 text-red-400 group-hover/remove:text-red-300 transition-colors duration-200" />
+        <Trash2 className="w-4 h-4 text-white/70 group-hover/remove:text-white transition-colors duration-200" />
       </button>
     </CartForm>
   );

@@ -22,7 +22,7 @@ interface SearchBarProps {
 
 export function SearchBar({
   className = '',
-  placeholder = 'Search products...',
+  placeholder = 'Rechercher des produits...',
   autoFocus = false,
   onSearch,
 }: SearchBarProps) {
@@ -197,16 +197,17 @@ export function SearchBar({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="w-full bg-black/40 backdrop-blur-sm border border-primary/30 rounded-sm py-3 pl-4 pr-12 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-            aria-label="Search products"
+            className="w-full backdrop-blur-sm border border-white/30 rounded-lg py-2 pl-3 pr-10 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200"
+            style={{backgroundColor: '#ffb6c1'}}
+            aria-label="Rechercher des produits"
             autoComplete="off"
           />
 
           {/* Search Icon */}
           <button
             type="submit"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
-            aria-label="Submit search"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+            aria-label="Rechercher"
           >
             {isLoading ? (
               <LoadingSpinner size="sm" color="primary" />
@@ -299,7 +300,7 @@ export function SearchBar({
         suggestions.length === 0 &&
         query.trim().length > 1 && (
           <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-black/95 backdrop-blur-sm border border-primary/30 rounded-sm p-4 text-center">
-            <p className="text-gray-400">No results found for "{query}"</p>
+            <p className="text-gray-400">Aucun résultat trouvé pour "{query}"</p>
           </div>
         )}
     </div>
@@ -320,7 +321,7 @@ export function SearchOverlay({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm">
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-white">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-primary/30">
           <h2 className="text-lg font-bold text-white">

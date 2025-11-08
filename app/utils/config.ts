@@ -256,7 +256,7 @@ export const defaultConfig: LandingPageConfig = {
     "Créatrice passionnée proposant des produits personnalisés et uniques pour célébrer vos moments spéciaux.",
   influencerImage: '/images/cline.jpg',
   brandName: 'CLINE',
-  brandLogo: '/images/cline.jpg',
+  brandLogo: '/images/logo.png',
   industry: 'lifestyle',
 
   // Visual Theme

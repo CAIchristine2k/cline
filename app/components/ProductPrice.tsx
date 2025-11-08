@@ -18,16 +18,16 @@ export function ProductPrice({
       {compareAtPrice ? (
         <div className="flex items-center gap-2">
           {price ? (
-            <span className="font-medium text-primary">
+            <span className="font-medium text-black bg-[#ffa3ae] px-3 py-1 rounded-md">
               <Money data={price} />
             </span>
           ) : null}
-          <s className="text-sm text-primary-600">
+          <s className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
             <Money data={compareAtPrice} />
           </s>
         </div>
       ) : price ? (
-        <span className="font-medium text-primary">
+        <span className="font-medium text-black bg-[#ffa3ae] px-3 py-1 rounded-md">
           <Money data={price} />
         </span>
       ) : (

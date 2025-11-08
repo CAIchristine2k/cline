@@ -108,15 +108,13 @@ export function ProductDetail({
             {/* Price */}
             <div className="border-t border-gray-800 pt-6">
               <div className="flex items-center space-x-4 mb-6">
-                <span
-                  className={`text-3xl font-bold ${isOnSale ? 'text-red-500' : 'text-gold-500'}`}
-                >
+                <span className="text-3xl font-bold text-black bg-[#ffa3ae] px-4 py-2 rounded-md">
                   {selectedVariant?.price && (
                     <Money data={selectedVariant.price} />
                   )}
                 </span>
                 {selectedVariant?.compareAtPrice && (
-                  <span className="text-xl text-gray-500 line-through">
+                  <span className="text-xl text-gray-500 line-through bg-gray-100 px-3 py-1.5 rounded">
                     <Money data={selectedVariant.compareAtPrice} />
                   </span>
                 )}
@@ -281,7 +279,7 @@ export function ProductDetail({
                     {relatedProduct.title}
                   </h3>
                   {relatedProduct.variants?.nodes?.[0] && (
-                    <div className="mt-1 text-gray-300">
+                    <div className="mt-1 text-black bg-[#ffa3ae] px-2 py-1 rounded inline-block">
                       <Money data={relatedProduct.variants.nodes[0].price} />
                     </div>
                   )}

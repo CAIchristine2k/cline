@@ -41,25 +41,21 @@ export function Hero() {
 
       {/* Hero Content - closely matches Vue template structure */}
       <div className="relative container mx-auto px-4 z-20 py-20">
-        <div className="max-w-3xl mx-auto bg-white/40 p-8 rounded-lg">
-
-          <div className="inline-block bg-primary text-black font-bold py-1 px-4 mb-6 tracking-wider rounded-sm">
-            20 Ans d'Excellence Capillaire & Beauté Éthique
-          </div>
+        <div className="max-w-3xl mx-auto bg-white/40 p-8 rounded-lg mt-16 text-center">
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
             <span className="text-black">L'HISTOIRE DE</span><br />
-            <span className="tracking-wider hero-title-glow" style={{color: '#e6b000'}}>C'LINE HAIR</span>
+            <span className="tracking-wider hero-title-glow" style={{color: 'rgb(230, 176, 0)'}}>C'LINE HAIR</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-xl leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-xl leading-relaxed mx-auto">
             Depuis plus de 20 ans, C'Line Hair sublime la beauté des femmes avec des perruques et extensions éthiques, durables et accessibles.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-5">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <Link
               to="/collections/all"
-              className="group bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center sm:justify-start shadow-glow"
+              className="group bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow"
             >
               DÉCOUVRIR LA COLLECTION
               <ShoppingBag className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -88,7 +84,7 @@ export function Hero() {
         </div>
 
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
-          <span className="text-gray-800 text-xs mb-2 tracking-widest">FAITES DÉFILER</span>
+          <span className="text-xs mb-2 tracking-widest" style={{color: '#ffb6c1'}}>FAITES DÉFILER</span>
           <div className="w-0.5 h-12 bg-primary"></div>
         </div>
       </div>

@@ -117,13 +117,13 @@ export default function Product() {
   if (!product) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
-        <h1 className="text-3xl font-bold mb-6">Product not found</h1>
-        <p className="mb-8">The product you're looking for does not exist.</p>
+        <h1 className="text-3xl font-bold mb-6 text-gray-900">Produit non trouvé</h1>
+        <p className="mb-8 text-gray-600">Le produit que vous recherchez n'existe pas.</p>
         <Link
-          to="/collections"
-          className="bg-primary text-background px-6 py-3 rounded-sm"
+          to="/collections/all"
+          className="inline-flex items-center bg-primary hover:bg-primary-400 text-black font-bold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
         >
-          Back to Collections
+          Retour à la boutique
         </Link>
       </div>
     );
@@ -362,10 +362,10 @@ export default function Product() {
     customVariant && !customVariant.availableForSale;
 
   return (
-    <div className="py-24 bg-white min-h-screen">
-      {/* Background decorative elements */}
-      <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+    <div className="py-24 bg-gradient-to-b from-white via-white/95 to-white min-h-screen relative">
+      {/* Background decorative elements - modern style matching homepage */}
+      <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
+      <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Breadcrumb */}
@@ -428,10 +428,10 @@ export default function Product() {
         )}
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16 mt-16">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg border-2 border-primary/20 relative shadow-lg">
+            <div className="aspect-square overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white">
               {activeImage ? (
                 <>
                   <Image
@@ -449,15 +449,15 @@ export default function Product() {
                 </>
               ) : (
                 <div className="h-full w-full bg-primary/5 flex items-center justify-center">
-                  <span className="text-primary-700">No image</span>
+                  <span className="text-primary-700">Pas d'image</span>
                 </div>
               )}
             </div>
 
             {/* Display a note when showing variant-specific images */}
             {customVariantImages.length > 0 && (
-              <div className="text-sm text-gray-600 italic">
-                Images spécifiques à la variante sélectionnée
+              <div className="text-sm text-gray-600 italic bg-primary/5 px-3 py-2 rounded-lg border border-primary/20">
+                ✨ Images spécifiques à la variante sélectionnée
               </div>
             )}
 
@@ -488,11 +488,7 @@ export default function Product() {
 
           {/* Product Info */}
           <div>
-            {product.vendor && (
-              <div className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-semibold mb-4">{product.vendor}</div>
-            )}
-
-            <h1 className="text-4xl font-bold mb-6 text-black">{product.title}</h1>
+            <h1 className="text-4xl font-bold mb-6 text-black leading-tight">{product.title}</h1>
 
             <div className="flex items-center gap-4 mb-6">
               <div className="text-3xl font-bold text-primary">
@@ -676,19 +672,19 @@ export default function Product() {
               <div className="border-t border-primary/10 mt-8 pt-6 text-sm">
                 {product.productType && (
                   <div className="flex mb-2">
-                    <span className="w-32 font-medium">Product Type:</span>
+                    <span className="w-32 font-medium">Type de produit :</span>
                     <span>{product.productType}</span>
                   </div>
                 )}
 
                 {product.tags && product.tags.length > 0 && (
                   <div className="flex">
-                    <span className="w-32 font-medium">Tags:</span>
+                    <span className="w-32 font-medium">Catégories :</span>
                     <div className="flex flex-wrap gap-2">
                       {product.tags.map((tag: string) => (
                         <span
                           key={tag}
-                          className="bg-primary/10 px-2 py-1 rounded-sm text-xs"
+                          className="bg-primary/10 px-2 py-1 rounded-lg text-xs border border-primary/20"
                         >
                           {tag}
                         </span>
@@ -699,16 +695,16 @@ export default function Product() {
               </div>
             )}
 
-            {/* Championship Guarantee */}
-            <div className="mt-8 bg-primary/10 border border-primary/30 rounded-sm p-4">
-              <h3 className="text-lg font-bold text-primary mb-2">
-                {config.influencerName}'s Guarantee
+            {/* Quality Guarantee */}
+            <div className="mt-8 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30 rounded-lg p-5 shadow-sm">
+              <h3 className="text-lg font-bold text-primary mb-2 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                Garantie {config.brandName}
               </h3>
-              <p className="text-sm text-text/80">
-                Every product is crafted to championship standards and backed by{' '}
-                {config.influencerName}'s legacy of excellence. Train like a
-                champion with gear approved by a{' '}
-                {config.influencerTitle.toLowerCase()}.
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Chaque produit est fabriqué avec le plus grand soin et soutenu par l'engagement de {config.brandName} pour l'excellence et la qualité. Nous garantissons votre satisfaction.
               </p>
             </div>
           </div>
@@ -716,40 +712,47 @@ export default function Product() {
 
         {/* Related Products Section */}
         {recommendedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-6 text-primary">
-              You Might Also Like
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="mt-20 pt-16 border-t border-primary/10">
+            <div className="text-center mb-12">
+              <div className="inline-block bg-primary/10 text-primary px-4 py-1 rounded-full text-sm font-semibold mb-4">
+                Découvrez également
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-black">
+                Vous aimerez <span className="text-primary">aussi</span>
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {recommendedProducts.map((relatedProduct: any) => (
                 <Link
                   key={relatedProduct.id}
                   to={`/products/${relatedProduct.handle}`}
                   className="group"
                 >
-                  <div className="border border-primary/10 rounded-sm overflow-hidden bg-background mb-3 relative">
+                  <div className="bg-white/60 backdrop-blur-sm border border-primary/20 rounded-xl overflow-hidden mb-3 relative shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                     {relatedProduct.featuredImage && (
                       <Image
                         data={relatedProduct.featuredImage}
-                        className="w-full h-auto object-cover aspect-square group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-auto object-cover aspect-square group-hover:scale-110 transition-transform duration-500"
                         sizes="(min-width: 768px) 25vw, 50vw"
                       />
                     )}
                     {relatedProduct.variants?.nodes[0] &&
                       !relatedProduct.variants.nodes[0].availableForSale && (
-                        <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 m-2 rounded-sm">
-                          Out of Stock
+                        <div className="absolute top-2 right-2 bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                          Rupture
                         </div>
                       )}
                   </div>
-                  <h3 className="font-medium text-primary group-hover:text-primary-600">
-                    {relatedProduct.title}
-                  </h3>
-                  {relatedProduct.variants?.nodes[0] && (
-                    <div className="mt-1 text-primary-700">
-                      <Money data={relatedProduct.variants.nodes[0].price} />
-                    </div>
-                  )}
+                  <div className="px-2">
+                    <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors mb-2 line-clamp-2">
+                      {relatedProduct.title}
+                    </h3>
+                    {relatedProduct.variants?.nodes[0] && (
+                      <div className="text-primary font-bold text-lg">
+                        <Money data={relatedProduct.variants.nodes[0].price} />
+                      </div>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>

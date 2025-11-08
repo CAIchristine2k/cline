@@ -167,13 +167,13 @@ export function ProductItem({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               {price && (
-                <div className="font-bold text-black text-xl price-no-hover">
+                <div className="font-bold text-black text-xl price-no-hover bg-[#ffa3ae] px-3 py-1.5 rounded-md">
                   <Money data={price} />
                 </div>
               )}
 
               {isOnSale && comparePrice && (
-                <div className="text-sm text-gray-500 line-through font-medium price-no-hover">
+                <div className="text-sm text-gray-500 line-through font-medium price-no-hover bg-gray-100 px-2 py-1 rounded">
                   <Money data={comparePrice} />
                 </div>
               )}

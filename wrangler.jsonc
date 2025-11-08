@@ -2,8 +2,7 @@
   // Cloudflare Workers configuration for Cline Shopify Store
   "name": "cline-shopify",
   "compatibility_date": "2025-01-01",
-  "main": "workers/app.ts",
-  "node_compat": true,
+  "main": "./workers/app.ts",
 
   // Environment variables (sensitive values should be in .env or .dev.vars)
   "vars": {
@@ -33,23 +32,18 @@
     "bindings": []
   },
 
-  // Build configuration
-  "build": {
-    "command": "npm run build"
-  },
+  // Routes configuration (optional - for custom domains)
+  // "routes": [
+  //   {
+  //     "pattern": "cline.shop/*",
+  //     "zone_name": "cline.shop"
+  //   }
+  // ],
 
-  // Routes configuration
-  "routes": [
-    {
-      "pattern": "*",
-      "zone_name": ""  // Add your custom domain here
-    }
-  ],
-
-  // Limits and performance
-  "limits": {
-    "cpu_ms": 50
-  },
+  // Limits and performance (CPU limits require paid plan)
+  // "limits": {
+  //   "cpu_ms": 50
+  // },
 
   // Development configuration
   "dev": {
@@ -57,15 +51,12 @@
     "local_protocol": "http"
   },
 
-  // Account info (add your Cloudflare account ID)
-  "account_id": "",
-
-  // Preserve file path for backwards compatibility
-  "preserve_file_names": true,
+  // Account info - Get this from: https://dash.cloudflare.com/
+  // Run: npx wrangler whoami
+  "account_id": "22a4a61e2774b2079bd41ff9ca804772",
 
   // Worker environment compatibility
   "compatibility_flags": [
-    "nodejs_compat",
-    "streams_enable_constructors"
+    "nodejs_compat"
   ]
 }

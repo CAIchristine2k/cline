@@ -299,13 +299,13 @@ export function ProductCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {price && (
-              <span className="font-bold text-primary text-xl price-no-hover">
+              <span className="font-bold text-black text-xl price-no-hover bg-[#ffa3ae] px-3 py-1.5 rounded-md">
                 <Money data={price} />
               </span>
             )}
 
             {isOnSale && compareAtPrice && (
-              <span className="text-sm text-gray-500 line-through font-medium price-no-hover">
+              <span className="text-sm text-gray-500 line-through font-medium price-no-hover bg-gray-100 px-2 py-1 rounded">
                 <Money data={compareAtPrice} />
               </span>
             )}
@@ -343,12 +343,12 @@ export function ProductCard({
               {isAddingToCart ? (
                 <div className="flex items-center justify-center gap-3">
                   <LoadingSpinner size="sm" color="white" />
-                  Adding...
+                  Ajout en cours...
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-3">
                   <ShoppingCart className="w-4 h-4" />
-                  Add to Cart
+                  Ajouter au panier
                 </div>
               )}
             </AddToCartButton>

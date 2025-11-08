@@ -211,7 +211,7 @@ export function ProductForm({
   const isAvailable = selectedVariant?.availableForSale || false;
 
   if (!selectedVariant) {
-    return <div>Loading variant options...</div>;
+    return <div>Chargement des options...</div>;
   }
 
   return (
@@ -271,7 +271,7 @@ export function ProductForm({
                       {isAvailableOption && value}
                       {!isAvailableOption && (
                         <span className="absolute inset-0 flex items-center justify-center text-xs">
-                          Sold out
+                          Épuisé
                         </span>
                       )}
                     </button>
@@ -285,12 +285,12 @@ export function ProductForm({
 
       {/* Price display */}
       <div className="flex items-center mt-2">
-        <span className="text-xl font-bold text-primary">
+        <span className="text-xl font-bold text-black bg-[#ffa3ae] px-3 py-1.5 rounded-md">
           <Money data={selectedVariant.price} />
         </span>
 
         {selectedVariant.compareAtPrice && (
-          <span className="ml-2 text-base text-red-500 line-through">
+          <span className="ml-2 text-base text-gray-500 line-through bg-gray-100 px-2 py-1 rounded">
             <Money data={selectedVariant.compareAtPrice} />
           </span>
         )}
@@ -298,7 +298,7 @@ export function ProductForm({
         {selectedVariant.compareAtPrice &&
           Number(selectedVariant.compareAtPrice.amount) > 0 && (
             <span className="ml-2 text-sm bg-red-500 text-white px-2 py-1 rounded-sm">
-              Save{' '}
+              Économisez{' '}
               {Math.round(
                 (1 -
                   Number(selectedVariant.price.amount) /
@@ -319,14 +319,33 @@ export function ProductForm({
 
       {/* Quantity Selector */}
       <div>
-        <label htmlFor="quantity" className="block text-sm font-medium mb-2">
-          Quantity
+        <label htmlFor="quantity" className="block text-sm font-medium mb-2 text-black">
+          Quantité
         </label>
         <div className="flex items-center max-w-[140px]">
           <button
             onClick={decrementQuantity}
             disabled={quantity <= 1 || !isAvailable}
-            className="w-10 h-10 flex items-center justify-center border border-primary/20 hover:border-primary/50 rounded-l-sm disabled:opacity-50"
+            className="w-10 h-10 flex items-center justify-center rounded-l-sm disabled:opacity-50 transition-colors"
+            style={{
+              borderWidth: '1px',
+              borderColor: '#ffb6c1',
+              color: '#ffb6c1',
+            }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.borderColor = '#ff8fa3';
+                e.currentTarget.style.backgroundColor = '#ffb6c1';
+                e.currentTarget.style.color = 'white';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.borderColor = '#ffb6c1';
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#ffb6c1';
+              }
+            }}
             aria-label="Decrease quantity"
           >
             −
@@ -339,12 +358,38 @@ export function ProductForm({
             value={quantity}
             onChange={handleQuantityChange}
             disabled={!isAvailable}
-            className="w-16 h-10 text-center border-y border-primary/20 bg-transparent focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-16 h-10 text-center bg-transparent focus:outline-none focus:ring-1"
+            style={{
+              borderTop: '1px solid #ffb6c1',
+              borderBottom: '1px solid #ffb6c1',
+              borderLeft: '0',
+              borderRight: '0',
+              color: '#ffb6c1',
+            }}
           />
           <button
             onClick={incrementQuantity}
             disabled={!isAvailable}
-            className="w-10 h-10 flex items-center justify-center border border-primary/20 hover:border-primary/50 rounded-r-sm disabled:opacity-50"
+            className="w-10 h-10 flex items-center justify-center rounded-r-sm disabled:opacity-50 transition-colors"
+            style={{
+              borderWidth: '1px',
+              borderColor: '#ffb6c1',
+              color: '#ffb6c1',
+            }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.borderColor = '#ff8fa3';
+                e.currentTarget.style.backgroundColor = '#ffb6c1';
+                e.currentTarget.style.color = 'white';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.borderColor = '#ffb6c1';
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#ffb6c1';
+              }
+            }}
             aria-label="Increase quantity"
           >
             +
@@ -387,7 +432,7 @@ export function ProductForm({
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Adding...
+              Ajout en cours...
             </div>
           ) : addedToCart ? (
             <div className="flex items-center justify-center">
@@ -404,12 +449,12 @@ export function ProductForm({
                   clipRule="evenodd"
                 />
               </svg>
-              Added to cart!
+              Ajouté au panier !
             </div>
           ) : isAvailable ? (
-            'Add to Cart'
+            'Ajouter au panier'
           ) : (
-            'Sold Out'
+            'Rupture de stock'
           )}
         </AddToCartButton>
       </div>
@@ -417,7 +462,7 @@ export function ProductForm({
       {/* Shop Pay Button - Express Checkout */}
       {isAvailable && selectedVariant && (
         <div className="mt-3">
-          <div className="text-center text-sm text-gray-500 mb-2">— or —</div>
+          <div className="text-center text-sm text-gray-500 mb-2">— ou —</div>
           <ShopPayButton
             variantIdsAndQuantities={[
               {
@@ -433,7 +478,7 @@ export function ProductForm({
       )}
 
       {/* Secure checkout */}
-      <div className="mt-4 text-sm text-center flex items-center justify-center text-primary-700">
+      <div className="mt-4 text-sm text-center flex items-center justify-center text-black">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-4 w-4 mr-1"
@@ -446,7 +491,7 @@ export function ProductForm({
             clipRule="evenodd"
           />
         </svg>
-        Secure checkout powered by Shopify
+        Paiement sécurisé par Shopify
       </div>
     </div>
   );

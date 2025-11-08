@@ -57,7 +57,7 @@ export function ProductShowcase({
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-5 justify-center mt-16">
+        <div className="flex flex-col sm:flex-row gap-5 justify-center mt-8">
           <Link
             to="/collections/best-sellers"
             className="group bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow"
@@ -67,7 +67,7 @@ export function ProductShowcase({
           </Link>
 
           <Link
-            to="/#reviews"
+            to="/#testimonials"
             className="group bg-white border-2 border-primary hover:bg-primary text-primary hover:text-white font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center"
           >
             VOIR LES AVIS CLIENTES

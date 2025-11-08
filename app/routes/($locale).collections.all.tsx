@@ -64,10 +64,10 @@ export default function Collection() {
   const {products, config} = useLoaderData<typeof loader>();
 
   return (
-    <div data-theme={config.theme} className="min-h-screen bg-white">
-      {/* Background decorative elements */}
-      <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+    <div data-theme={config.theme} className="min-h-screen bg-gradient-to-b from-white via-white/95 to-white relative">
+      {/* Background decorative elements - modern style matching homepage */}
+      <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
+      <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
 
       <div className="container mx-auto px-4 py-24 relative z-10">
         {/* Back Navigation */}
@@ -82,7 +82,7 @@ export default function Collection() {
         </div>
 
         {/* Page Header */}
-        <div className="text-center mb-16 max-w-3xl mx-auto">
+        <div className="text-center mb-16 max-w-3xl mx-auto mt-8">
           <div className="inline-block px-4 py-1 bg-primary text-black text-sm font-bold tracking-wider uppercase mb-6 rounded-sm">
             Tous Nos Produits
           </div>
@@ -99,7 +99,7 @@ export default function Collection() {
         <div className="mb-16">
           <PaginatedResourceSection
             connection={products}
-            resourcesClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+            resourcesClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
           >
             {({node: product, index}) => {
               const typedProduct =
@@ -126,7 +126,7 @@ export default function Collection() {
           </p>
           <Link
             to="/"
-            className="inline-flex items-center bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow"
+            className="inline-flex items-center bg-[#ffa3ae] hover:bg-[#ff8a96] text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow"
           >
             Découvrir Notre Histoire
           </Link>

@@ -1,6 +1,7 @@
 import {useConfig} from '~/utils/themeContext';
 import {type MetaFunction, Link} from 'react-router';
 import {getConfig} from '~/utils/config';
+import CareerHighlights from '~/components/CareerHighlights';
 
 export const meta: MetaFunction = () => {
   const config = getConfig();
@@ -18,8 +19,8 @@ export default function About() {
 
       {/* Section 1: À propos */}
       <section id="about" className="py-16 md:py-24 relative z-10">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="inline-block px-4 py-1 bg-primary text-black text-sm font-bold tracking-wider uppercase mb-6 rounded-sm">
+        <div className="container mx-auto px-4 max-w-5xl text-center">
+          <div className="inline-block px-4 py-1 text-black text-sm font-bold tracking-wider uppercase mb-6 rounded-sm" style={{backgroundColor: '#e6b000'}}>
             À propos
           </div>
 
@@ -36,7 +37,7 @@ export default function About() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Bloc 1 */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <h3 className="text-lg font-bold text-black mb-3">Le parcours</h3>
+              <h3 className="text-lg font-bold mb-3" style={{color: '#ffb6c1'}}>Le parcours</h3>
               <p className="text-gray-700 text-sm leading-relaxed">
                 D'un atelier parisien à une référence de confiance : sélection de cheveux 100 % traçables,
                 finitions soignées et contrôle qualité strict à chaque étape.
@@ -45,7 +46,7 @@ export default function About() {
 
             {/* Bloc 2 */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <h3 className="text-lg font-bold text-black mb-3">Savoir-faire & innovation</h3>
+              <h3 className="text-lg font-bold mb-3" style={{color: '#ffb6c1'}}>Savoir-faire & innovation</h3>
               <p className="text-gray-700 text-sm leading-relaxed">
                 Finitions <strong>HD Lace</strong> invisibles, <strong>InvisiFit 360°</strong>, lignes naturelles et confort
                 longue durée — un rendu réaliste, sans compromis entre qualité, éthique et style.
@@ -54,7 +55,7 @@ export default function About() {
 
             {/* Bloc 3 */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <h3 className="text-lg font-bold text-black mb-3">Au-delà du produit</h3>
+              <h3 className="text-lg font-bold mb-3" style={{color: '#ffb6c1'}}>Au-delà du produit</h3>
               <p className="text-gray-700 text-sm leading-relaxed">
                 Conseils personnalisés, service de pose pro et guide d'entretien. Notre collection exclusive
                 est pensée pour la confiance au quotidien.
@@ -66,13 +67,25 @@ export default function About() {
           <div className="mt-10 flex flex-col sm:flex-row gap-5 justify-center">
             <Link
               to="/collections/all"
-              className="group bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow uppercase tracking-wider text-sm"
+              className="group text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow uppercase tracking-wider text-sm"
+              style={{backgroundColor: '#e6b000'}}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d4a000'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e6b000'}
             >
               Découvrir la collection
             </Link>
             <Link
               to="/conseils"
-              className="group bg-white border-2 border-primary hover:bg-primary text-primary hover:text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center uppercase tracking-wider text-sm"
+              className="group bg-white border-2 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center uppercase tracking-wider text-sm"
+              style={{borderColor: '#e6b000', color: '#e6b000'}}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#e6b000';
+                e.currentTarget.style.color = 'black';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'white';
+                e.currentTarget.style.color = '#e6b000';
+              }}
             >
               Nos conseils d'entretien
             </Link>
@@ -82,7 +95,7 @@ export default function About() {
 
       {/* Section 2: Valeurs C'Line Hair */}
       <section className="py-16 relative z-10">
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="container mx-auto px-4 max-w-5xl text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">
             <span className="text-black">NOS </span>
             <span className="text-primary">VALEURS</span>
@@ -118,6 +131,9 @@ export default function About() {
           </div>
         </div>
       </section>
+
+      {/* Section 3: Histoire de C'Line Hair (Career Highlights) */}
+      <CareerHighlights />
 
       {/* Add the CSS styles */}
       <style

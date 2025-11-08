@@ -16,7 +16,7 @@ import {Hero} from '~/components/Hero';
 import {ProductShowcase} from '~/components/ProductShowcase';
 import LimitedEdition from '~/components/LimitedEdition';
 import TrustBadges from '~/components/TrustBadges';
-// import CareerHighlights from '~/components/CareerHighlights';
+import CareerHighlights from '~/components/CareerHighlights';
 import {SocialFeed} from '~/components/SocialFeed';
 import {AIMediaGeneration} from '~/components/AIMediaGeneration';
 import {CustomizableProductGrid} from '~/components/CustomizableProductGrid';
@@ -101,8 +101,11 @@ export default function Home() {
       {/* Trust Badges section - Garanties et réassurance */}
       <TrustBadges />
 
-      {/* Career Highlights section - Commented out */}
-      {/* {appConfig.showCareerHighlights && <CareerHighlights />} */}
+      {/* Career Highlights section - Histoire de C'Line Hair */}
+      <CareerHighlights />
+
+      {/* Testimonials section - Avis clients 5★ */}
+      <Testimonials />
 
       {/* Featured Products Section - New elegant product showcase */}
       <FeaturedProductsSection products={products} />

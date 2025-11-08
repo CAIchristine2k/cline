@@ -20,10 +20,10 @@ export function CartSummary({cart, layout, checkoutDomain}: CartSummaryProps) {
       aria-labelledby="cart-summary"
       className={`p-6 ${layout === 'page' ? 'max-w-md ml-auto' : ''}`}
     >
-      <h4 className="text-lg font-bold text-white mb-6">Order Summary</h4>
+      <h4 className="text-lg font-bold text-white mb-6">Résumé de la commande</h4>
       <dl className="space-y-4">
         <div className="flex justify-between items-center">
-          <dt className="text-white/70 font-medium">Subtotal</dt>
+          <dt className="text-white/70 font-medium">Sous-total</dt>
           <dd className="font-bold text-white">
             {cart.cost?.subtotalAmount?.amount ? (
               <Money data={cart.cost?.subtotalAmount} />
@@ -35,7 +35,7 @@ export function CartSummary({cart, layout, checkoutDomain}: CartSummaryProps) {
 
         {cart.cost?.totalTaxAmount?.amount ? (
           <div className="flex justify-between items-center">
-            <dt className="text-white/70 font-medium">Tax (estimated)</dt>
+            <dt className="text-white/70 font-medium">Taxe (estimée)</dt>
             <dd className="font-bold text-white">
               <Money data={cart.cost.totalTaxAmount} />
             </dd>
@@ -44,7 +44,7 @@ export function CartSummary({cart, layout, checkoutDomain}: CartSummaryProps) {
 
         <div className="flex justify-between items-center pt-4 mt-4 border-t border-white/10">
           <dt className="text-white font-bold text-lg">Total</dt>
-          <dd className="text-primary font-bold text-xl">
+          <dd className="text-white font-bold text-xl">
             {cart.cost?.totalAmount?.amount ? (
               <Money data={cart.cost?.totalAmount} />
             ) : (
@@ -103,11 +103,11 @@ function CartCheckoutActions({
           onClick={close}
           className="block w-full bg-primary hover:bg-primary-600 text-black text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
         >
-          Review & Checkout →
+          Vérifier et Payer →
         </Link>
         <div className="mt-4 flex items-center justify-center">
           <p className="text-xs text-white/50 text-center">
-            Review your designs, then secure checkout
+            Vérifiez vos achats, puis procédez au paiement sécurisé
           </p>
         </div>
       </div>
@@ -144,16 +144,16 @@ function CartCheckoutActions({
 
   return (
     <div className="mt-8">
-      <Link
-        to="/checkout"
+      <a
+        href={finalCheckoutUrl}
         onClick={close}
-        className="block w-full bg-primary hover:bg-primary-600 text-black text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
+        className="block w-full bg-black hover:bg-black/80 text-white text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg"
       >
-        Review & Checkout →
-      </Link>
+        Payer maintenant →
+      </a>
       <div className="mt-4 flex items-center justify-center">
-        <p className="text-xs text-white/50 text-center">
-          Review your designs, then secure checkout
+        <p className="text-xs text-white text-center">
+          Vous serez redirigé vers le paiement sécurisé Shopify
         </p>
       </div>
     </div>

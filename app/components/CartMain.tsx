@@ -123,21 +123,21 @@ export function CartMain({
       <CartEmpty hidden={cartHasItems} layout={layout} />
 
       {cartHasItems && (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full bg-white">
           {/* Header - Minimal padding for maximum content space */}
           <div className="flex-shrink-0 p-3 pb-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">Cart</h2>
+              <h2 className="text-lg font-bold text-black">Panier</h2>
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 text-xs text-white/70">
+                <div className="flex items-center gap-1 text-xs text-black/70">
                   <span>{cart?.totalQuantity || 0}</span>
                   <span>
-                    {(cart?.totalQuantity || 0) === 1 ? 'item' : 'items'}
+                    {(cart?.totalQuantity || 0) === 1 ? 'article' : 'articles'}
                   </span>
                 </div>
                 {layout === 'aside' && (
                   <button
-                    className="w-6 h-6 flex items-center justify-center text-white/70 hover:text-white rounded-sm hover:bg-white/10 transition-all duration-200"
+                    className="w-6 h-6 flex items-center justify-center text-black/70 hover:text-black rounded-sm hover:bg-white/10 transition-all duration-200"
                     onClick={close}
                     aria-label="Close cart"
                   >
@@ -158,6 +158,9 @@ export function CartMain({
                 )}
               </div>
             </div>
+
+            {/* Free Shipping Progress Bar */}
+            <FreeShippingProgress cart={cart} />
           </div>
 
           {/* Cart Items - Maximized scrollable area */}
@@ -173,7 +176,7 @@ export function CartMain({
 
           {/* Cart Summary - Compact bottom */}
           <div className="cart-summary-container">
-            <div className="border-t border-white/10 bg-black/40 backdrop-blur-xl">
+            <div className="border-t border-white/10 backdrop-blur-xl" style={{backgroundColor: '#ffb6c1'}}>
                           {/* Prepare designs for checkout */}
             <PrepareDesignsForCheckout 
               cart={cart} 
@@ -194,6 +197,85 @@ export function CartMain({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Free Shipping Progress Bar Component
+ * Shows progress towards free shipping threshold (100€)
+ */
+function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null}) {
+  const FREE_SHIPPING_THRESHOLD = 100;
+
+  // Get current cart total in euros
+  const currentAmount = parseFloat(cart?.cost?.subtotalAmount?.amount || '0');
+  const currencyCode = cart?.cost?.subtotalAmount?.currencyCode || 'EUR';
+
+  // Calculate progress percentage (capped at 100%)
+  const progressPercentage = Math.min((currentAmount / FREE_SHIPPING_THRESHOLD) * 100, 100);
+
+  // Calculate amount remaining to reach free shipping
+  const amountRemaining = Math.max(FREE_SHIPPING_THRESHOLD - currentAmount, 0);
+
+  // Determine if free shipping is unlocked
+  const isFreeShippingUnlocked = currentAmount >= FREE_SHIPPING_THRESHOLD;
+
+  // Format currency for display
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
+
+  return (
+    <div className="px-3 py-3 border-t border-black/5" role="region" aria-label="Progression vers la livraison gratuite">
+      {/* Progress message */}
+      <div className="flex items-center justify-center mb-2">
+        <p className="text-xs font-medium text-black/70 text-center">
+          {isFreeShippingUnlocked ? (
+            <span className="text-green-600 font-semibold flex items-center gap-1">
+              <span>Livraison gratuite</span>
+              <span role="img" aria-label="celebration">🎉</span>
+            </span>
+          ) : (
+            <span>
+              Encore <span className="font-bold text-black">{formatCurrency(amountRemaining)}</span> pour obtenir la livraison gratuite
+            </span>
+          )}
+        </p>
+      </div>
+
+      {/* Progress bar */}
+      <div
+        className="relative w-full h-2 bg-black/10 rounded-xl overflow-hidden shadow-inner"
+        role="progressbar"
+        aria-valuenow={progressPercentage}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Progression: ${progressPercentage.toFixed(0)}%`}
+      >
+        <div
+          className="absolute top-0 left-0 h-full transition-all duration-500 ease-out rounded-xl"
+          style={{
+            width: `${progressPercentage}%`,
+            background: isFreeShippingUnlocked
+              ? 'linear-gradient(to right, #b25662, #b25662)'
+              : 'linear-gradient(to right, #faa3ae, #faa3ae)',
+            boxShadow: isFreeShippingUnlocked
+              ? '0 8px 16px -2px rgba(178, 86, 98, 0.3)'
+              : '0 4px 6px -1px rgba(250, 163, 174, 0.2)',
+          }}
+        />
+      </div>
+
+      {/* Threshold info */}
+      <p className="text-[10px] text-black/50 mt-1.5 text-center">
+        Livraison gratuite à partir de {formatCurrency(FREE_SHIPPING_THRESHOLD)}
+      </p>
     </div>
   );
 }
@@ -219,9 +301,9 @@ function CartEmpty({
         <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-primary/20 to-primary/5 blur-sm -z-10"></div>
       </div>
 
-      <h3 className="text-2xl font-bold text-white mb-3">Your cart is empty</h3>
+      <h3 className="text-2xl font-bold text-white mb-3">Votre panier est vide</h3>
       <p className="text-white/60 mb-8 max-w-sm text-sm leading-relaxed">
-        Discover amazing products and start building your collection today.
+        Découvrez des produits incroyables et commencez votre collection dès aujourd'hui.
       </p>
 
       <Link
@@ -231,7 +313,7 @@ function CartEmpty({
         className="inline-flex items-center gap-2 bg-primary hover:bg-primary-600 text-black font-bold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
       >
         <ShoppingBag className="w-4 h-4" />
-        Start Shopping
+        Commencer mes achats
       </Link>
     </div>
   );
