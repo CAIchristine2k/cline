@@ -1,7 +1,8 @@
 import React from 'react';
 import {Star, ShoppingCart} from 'lucide-react';
 import {Link} from 'react-router';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import type {
   ProductItemFragment,
   CollectionItemFragment,

@@ -221,14 +221,18 @@ function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null}) {
   // Determine if free shipping is unlocked
   const isFreeShippingUnlocked = currentAmount >= FREE_SHIPPING_THRESHOLD;
 
-  // Format currency for display
+  // Format currency for display with € at the end (French format)
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: currencyCode,
+    const formatted = new Intl.NumberFormat('fr-FR', {
+      style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+
+    // Get currency symbol (€ for EUR)
+    const currencySymbol = currencyCode === 'EUR' ? '€' : currencyCode;
+
+    return `${formatted}${currencySymbol}`;
   };
 
   return (

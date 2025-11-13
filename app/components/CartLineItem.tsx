@@ -1,4 +1,5 @@
-import {CartForm, Image, Money} from '@shopify/hydrogen';
+import {CartForm, Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {Link} from 'react-router';
 import {useConfig} from '~/utils/themeContext';
 import type {CartLineFragment} from 'storefrontapi.generated';

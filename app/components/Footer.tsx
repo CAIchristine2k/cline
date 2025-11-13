@@ -70,9 +70,6 @@ export function Footer() {
           {/* Column 1: About */}
           <div>
             <FooterLogo />
-            <p className="text-gray-700 text-sm leading-relaxed mb-6 mt-4">
-              Depuis plus de 20 ans, C'Line Hair sublime la beauté des femmes avec des perruques et extensions éthiques, durables et accessibles.
-            </p>
 
             {/* Social Links */}
             {socialLinks.length > 0 && (
@@ -157,24 +154,28 @@ export function Footer() {
               <span className="font-bold text-black text-base">klarna</span>
             </div>
             {/* American Express */}
-            <div className="h-10 px-4 flex items-center justify-center bg-[#006FCF] rounded-md">
-              <span className="font-bold text-white text-sm tracking-wide">AMERICAN EXPRESS</span>
+            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
+              <img
+                src="/images/amexnew.png"
+                alt="American Express"
+                className="h-full w-auto object-contain py-1"
+              />
             </div>
             {/* Apple Pay */}
             <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <svg className="h-6 w-auto" viewBox="0 0 65 25" fill="none">
-                <g>
-                  <path d="M11.5 5.5c.7-1 1.2-2.3 1-3.7-1 0-2.2.7-2.9 1.5-.7.7-1.2 1.9-1.1 3 1.1.1 2.3-.6 3-1.8z" fill="black"/>
-                  <path d="M12.5 6.2c-1.7-.1-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.3 2.5 1.3 0 1.8-.8 3.4-.8 1.5 0 2 .8 3.3.8 1.4 0 2.3-1.2 3.2-2.4.5-.7.9-1.4 1.2-2.2-2.5-1-2.9-4.4-.3-5.5-.9-1.3-2.3-2-3.9-2.1z" fill="black"/>
-                </g>
-                <text x="22" y="17" fill="black" fontSize="10" fontWeight="500" fontFamily="-apple-system, BlinkMacSystemFont, sans-serif">Pay</text>
-              </svg>
+              <img
+                src="/images/apple-pay.png"
+                alt="Apple Pay"
+                className="h-6 w-auto object-contain"
+              />
             </div>
             {/* Google Pay */}
             <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <svg className="h-5 w-auto" viewBox="0 0 50 20" fill="none">
-                <text x="0" y="14" fill="#5F6368" fontSize="11" fontWeight="500" fontFamily="system-ui">G Pay</text>
-              </svg>
+              <img
+                src="/images/google-pay.png"
+                alt="Google Pay"
+                className="h-6 w-auto object-contain"
+              />
             </div>
             {/* Maestro */}
             <div className="h-10 px-3 flex items-center justify-center bg-white rounded-md border border-gray-200">
@@ -184,23 +185,32 @@ export function Footer() {
               </svg>
             </div>
             {/* Mastercard */}
-            <div className="h-10 px-3 flex items-center justify-center bg-white rounded-md border border-gray-200">
-              <svg className="h-6 w-10" viewBox="0 0 40 24">
-                <circle cx="12" cy="12" r="10" fill="#EB001B"/>
-                <circle cx="28" cy="12" r="10" fill="#FF5F00" fillOpacity="0.8"/>
-              </svg>
+            <div className="h-10 px-4 flex items-center justify-center bg-white rounded-md border border-gray-300">
+              <img
+                src="/images/mastercard.png"
+                alt="Mastercard"
+                className="h-6 w-auto object-contain"
+              />
             </div>
             {/* PayPal */}
             <div className="h-10 px-4 flex items-center justify-center bg-[#0070BA] rounded-md">
               <span className="font-bold text-white text-sm">PayPal</span>
             </div>
             {/* Shop Pay */}
-            <div className="h-10 px-4 flex items-center justify-center bg-[#5A31F4] rounded-md">
-              <span className="font-bold text-white text-sm">Shop Pay</span>
+            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
+              <img
+                src="/images/shopp.webp"
+                alt="Shop Pay"
+                className="h-full w-auto object-contain py-1"
+              />
             </div>
             {/* Visa */}
-            <div className="h-10 px-4 flex items-center justify-center bg-[#1A1F71] rounded-md">
-              <span className="font-bold text-white text-lg" style={{fontFamily: 'serif'}}>VISA</span>
+            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
+              <img
+                src="/images/visaa.webp"
+                alt="Visa"
+                className="h-full w-auto object-contain py-1"
+              />
             </div>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {Star, ShoppingCart, Eye, Heart} from 'lucide-react';
 import {Link} from 'react-router';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import {WishlistButton} from '~/components/WishlistButton';
 import {LoadingSpinner} from '~/components/LoadingSpinner';
@@ -31,6 +32,7 @@ interface ProductCardProps {
   showQuickView?: boolean;
   showWishlist?: boolean;
   customizable?: boolean;
+  compact?: boolean;
 }
 
 export function ProductCard({
@@ -39,6 +41,7 @@ export function ProductCard({
   showQuickView = true,
   showWishlist = true,
   customizable = false,
+  compact = false,
 }: ProductCardProps) {
   const config = useConfig();
   const [imageLoading, setImageLoading] = useState(true);
@@ -128,9 +131,9 @@ export function ProductCard({
   }
 
   return (
-    <div className="group relative bg-white backdrop-blur-sm border border-primary/30 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-primary hover:-translate-y-1 hover:scale-[1.01]">
+    <div className={`group relative bg-white backdrop-blur-sm border border-primary/30 rounded-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-primary hover:-translate-y-1 hover:scale-[1.01] ${compact ? 'max-w-[200px] mx-auto' : 'max-w-[280px] mx-auto'}`}>
       {/* Image Container */}
-      <div className="relative h-80 overflow-hidden">
+      <div className={`relative overflow-hidden ${compact ? 'aspect-square' : 'h-48'}`}>
         <Link
           to={`/products/${handle}`}
           prefetch="intent"
@@ -152,8 +155,6 @@ export function ProductCard({
                 onLoad={() => setImageLoading(false)}
                 onError={() => setImageLoading(false)}
               />
-              {/* Subtle overlay on hover */}
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
           ) : (
             <div className="h-full w-full bg-gray-100 flex items-center justify-center">
@@ -259,13 +260,13 @@ export function ProductCard({
       </div>
 
       {/* Product Info */}
-      <div className="p-6 space-y-4">
+      <div className={`space-y-4 ${compact ? 'p-4' : 'p-6'}`}>
         <Link
           to={`/products/${handle}`}
           prefetch="intent"
           className="block group"
         >
-          <h3 className="text-black font-bold text-lg leading-tight line-clamp-2">
+          <h3 className={`text-black font-bold leading-tight line-clamp-2 ${compact ? 'text-base' : 'text-lg'}`}>
             {title}
           </h3>
         </Link>
@@ -311,12 +312,26 @@ export function ProductCard({
             )}
           </div>
 
-          {/* Availability Status */}
+          {/* Add to Cart Icon */}
           <div className="text-right">
             {isAvailable ? (
-              <span className="text-amber-700 text-sm font-semibold bg-amber-100 px-2 py-1 rounded-full">
-                Rupture
-              </span>
+              <AddToCartButton
+                lines={[
+                  {
+                    merchandiseId: formatVariantId(variantId),
+                    quantity: 1,
+                  },
+                ]}
+                disabled={isAddingToCart || !isAvailable}
+                onClick={handleAddToCart}
+                className="!p-2 !w-auto !min-w-0 bg-primary hover:bg-primary/90 text-black rounded-full transition-all duration-300 hover:scale-110 flex items-center gap-1"
+              >
+                {isAddingToCart ? (
+                  <span className="text-xs font-semibold">Ajouté</span>
+                ) : (
+                  <ShoppingCart className="w-5 h-5" />
+                )}
+              </AddToCartButton>
             ) : (
               <span className="text-red-400 text-sm font-semibold bg-red-400/10 px-2 py-1 rounded-full">
                 Sold Out

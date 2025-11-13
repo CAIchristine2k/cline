@@ -27,19 +27,13 @@ export default function LimitedEdition() {
   useEffect(() => {
     if (!config.limitedEdition) return;
 
-    // Set timer to December 24th of current year (or next year if past)
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    let endDate = new Date(currentYear, 11, 24, 23, 59, 59); // December 24th at 23:59:59
-
-    // If December 24th has passed this year, set to next year
-    if (now > endDate) {
-      endDate = new Date(currentYear + 1, 11, 24, 23, 59, 59);
-    }
-
+    // Set timer to midnight (24h countdown that resets daily)
     const updateTimer = () => {
-      const currentTime = new Date();
-      const difference = endDate.getTime() - currentTime.getTime();
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0);
+
+      const difference = midnight.getTime() - now.getTime();
 
       if (difference <= 0) {
         setTimeLeft({days: 0, hours: 0, minutes: 0, seconds: 0});
@@ -47,10 +41,8 @@ export default function LimitedEdition() {
       }
 
       setTimeLeft({
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor(
-          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-        ),
+        days: 0, // Always 0 for 24h timer
+        hours: Math.floor(difference / (1000 * 60 * 60)),
         minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((difference % (1000 * 60)) / 1000),
       });
@@ -97,17 +89,10 @@ export default function LimitedEdition() {
           <p className="text-lg md:text-xl opacity-90 mb-8 max-w-xl mx-auto text-black">
             Offrez-vous la chevelure de vos rêves à prix magique ✨
             Jusqu'à <span className="text-primary font-semibold">-30%</span> sur nos extensions, perruques et bundles 100% naturels.
-            Une beauté responsable, pour briller tout en douceur pendant les Fêtes.
           </p>
 
-          {/* Timer */}
+          {/* Timer - 24h countdown */}
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 mb-10">
-            <div className="bg-white/80 backdrop-blur-sm border border-primary/30 rounded-sm p-4 text-center">
-              <div className="text-primary text-3xl font-bold drop-shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.5)]">
-                {String(timeLeft.days).padStart(2, '0')}
-              </div>
-              <div className="text-black text-sm tracking-wider">JOURS</div>
-            </div>
             <div className="bg-white/80 backdrop-blur-sm border border-primary/30 rounded-sm p-4 text-center">
               <div className="text-primary text-3xl font-bold drop-shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.5)]">
                 {String(timeLeft.hours).padStart(2, '0')}

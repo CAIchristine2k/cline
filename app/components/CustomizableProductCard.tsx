@@ -1,7 +1,8 @@
 import React from 'react';
 import {Link} from 'react-router';
 import {Image as ImageIcon, Pencil, Sparkles} from 'lucide-react';
-import {Image as ShopifyImage, Money} from '@shopify/hydrogen';
+import {Image as ShopifyImage} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {useConfig} from '~/utils/themeContext';
 
 // Internal components

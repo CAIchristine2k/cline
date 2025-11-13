@@ -2,7 +2,8 @@ import {useState, useEffect} from 'react';
 import {useConfig} from '~/utils/themeContext';
 import {AddToCartButton} from './AddToCartButton';
 import {useAside} from './Aside';
-import {Money, ShopPayButton} from '@shopify/hydrogen';
+import {ShopPayButton} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import type {ProductDetailsQuery} from 'storefrontapi.generated';
 import {useCart} from '~/providers/CartProvider';
 import {useLoaderData} from 'react-router';
@@ -221,7 +222,7 @@ export function ProductForm({
         <div className="space-y-4">
           {options.map((option) => (
             <div key={option.name}>
-              <h3 className="text-sm font-medium mb-2">
+              <h3 className="text-sm font-medium mb-2 text-black">
                 {option.name}
                 {selectedOptions[option.name] &&
                   (() => {
@@ -237,7 +238,7 @@ export function ProductForm({
                       currentOptionVariant?.availableForSale || false;
 
                     return isCurrentOptionAvailable ? (
-                      <span className="ml-1 font-normal text-primary-700">
+                      <span className="ml-1 font-normal text-black">
                         - {selectedOptions[option.name]}
                       </span>
                     ) : null;
@@ -259,11 +260,11 @@ export function ProductForm({
                     <button
                       key={value}
                       onClick={() => updateSelectedVariant(option.name, value)}
-                      className={`px-4 py-2 border text-sm rounded-sm relative ${
+                      className={`min-w-[80px] px-4 py-2 border text-sm rounded-sm relative ${
                         isSelected
-                          ? 'border-primary bg-primary text-background'
+                          ? 'border-primary bg-primary text-black'
                           : isAvailableOption
-                            ? 'border-primary/20 hover:border-primary/50'
+                            ? 'border-primary/20 hover:border-primary/50 text-black'
                             : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
                       }`}
                       disabled={!isAvailableOption}
@@ -283,36 +284,9 @@ export function ProductForm({
         </div>
       )}
 
-      {/* Price display */}
-      <div className="flex items-center mt-2">
-        <span className="text-xl font-bold text-black bg-[#ffa3ae] px-3 py-1.5 rounded-md">
-          <Money data={selectedVariant.price} />
-        </span>
-
-        {selectedVariant.compareAtPrice && (
-          <span className="ml-2 text-base text-gray-500 line-through bg-gray-100 px-2 py-1 rounded">
-            <Money data={selectedVariant.compareAtPrice} />
-          </span>
-        )}
-
-        {selectedVariant.compareAtPrice &&
-          Number(selectedVariant.compareAtPrice.amount) > 0 && (
-            <span className="ml-2 text-sm bg-red-500 text-white px-2 py-1 rounded-sm">
-              Économisez{' '}
-              {Math.round(
-                (1 -
-                  Number(selectedVariant.price.amount) /
-                    Number(selectedVariant.compareAtPrice.amount)) *
-                  100,
-              )}
-              %
-            </span>
-          )}
-      </div>
-
       {/* SKU display */}
       {selectedVariant?.sku && (
-        <div className="text-sm text-primary-700">
+        <div className="text-sm text-black">
           SKU: {selectedVariant.sku}
         </div>
       )}
@@ -326,70 +300,20 @@ export function ProductForm({
           <button
             onClick={decrementQuantity}
             disabled={quantity <= 1 || !isAvailable}
-            className="w-10 h-10 flex items-center justify-center rounded-l-sm disabled:opacity-50 transition-colors"
-            style={{
-              borderWidth: '1px',
-              borderColor: '#ffb6c1',
-              color: '#ffb6c1',
-            }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.borderColor = '#ff8fa3';
-                e.currentTarget.style.backgroundColor = '#ffb6c1';
-                e.currentTarget.style.color = 'white';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.borderColor = '#ffb6c1';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#ffb6c1';
-              }
-            }}
+            className="w-10 h-10 flex items-center justify-center rounded-l-sm disabled:opacity-50 transition-colors border border-primary text-primary hover:bg-primary hover:text-black"
             aria-label="Decrease quantity"
           >
             −
           </button>
-          <input
-            id="quantity"
-            name="quantity"
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={handleQuantityChange}
-            disabled={!isAvailable}
-            className="w-16 h-10 text-center bg-transparent focus:outline-none focus:ring-1"
-            style={{
-              borderTop: '1px solid #ffb6c1',
-              borderBottom: '1px solid #ffb6c1',
-              borderLeft: '0',
-              borderRight: '0',
-              color: '#ffb6c1',
-            }}
-          />
+          <div
+            className="w-16 h-10 flex items-center justify-center border-t border-b border-primary text-primary font-medium"
+          >
+            {quantity}
+          </div>
           <button
             onClick={incrementQuantity}
             disabled={!isAvailable}
-            className="w-10 h-10 flex items-center justify-center rounded-r-sm disabled:opacity-50 transition-colors"
-            style={{
-              borderWidth: '1px',
-              borderColor: '#ffb6c1',
-              color: '#ffb6c1',
-            }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.borderColor = '#ff8fa3';
-                e.currentTarget.style.backgroundColor = '#ffb6c1';
-                e.currentTarget.style.color = 'white';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.borderColor = '#ffb6c1';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#ffb6c1';
-              }
-            }}
+            className="w-10 h-10 flex items-center justify-center rounded-r-sm disabled:opacity-50 transition-colors border border-primary text-primary hover:bg-primary hover:text-black"
             aria-label="Increase quantity"
           >
             +
@@ -406,7 +330,7 @@ export function ProductForm({
           onClick={handleAddToCart}
           className={`w-full py-3 px-6 rounded-sm flex items-center justify-center relative ${
             isAvailable
-              ? 'bg-primary hover:bg-primary-600 text-background'
+              ? 'bg-primary hover:bg-black text-black hover:text-primary'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           } transition-all duration-300 uppercase tracking-wider font-bold`}
         >
@@ -458,24 +382,6 @@ export function ProductForm({
           )}
         </AddToCartButton>
       </div>
-
-      {/* Shop Pay Button - Express Checkout */}
-      {isAvailable && selectedVariant && (
-        <div className="mt-3">
-          <div className="text-center text-sm text-gray-500 mb-2">— ou —</div>
-          <ShopPayButton
-            variantIdsAndQuantities={[
-              {
-                id: formatVariantId(selectedVariant.id),
-                quantity: quantity,
-              },
-            ]}
-            storeDomain={storeDomain}
-            className="w-full"
-            width="100%"
-          />
-        </div>
-      )}
 
       {/* Secure checkout */}
       <div className="mt-4 text-sm text-center flex items-center justify-center text-black">

@@ -24,6 +24,8 @@ import Testimonials from '~/components/Testimonials';
 import NewsletterSignup from '~/components/NewsletterSignup';
 import FeaturedProducts from '~/components/FeaturedProducts';
 import {FeaturedProductsSection} from '~/components/FeaturedProductsSection';
+import {ComparisonTable} from '~/components/ComparisonTable';
+import {CategoryGrid} from '~/components/CategoryGrid';
 
 export const meta: MetaFunction = () => {
   return [
@@ -76,6 +78,9 @@ export default function Home() {
     <main>
       <Hero />
 
+      {/* Category Grid - 6 catégories */}
+      <CategoryGrid />
+
       {/* Product showcase section - EXCLUSIVE MERCHANDISE (non-customizable products only) */}
       <ProductShowcase
         products={products.filter(
@@ -98,17 +103,17 @@ export default function Home() {
       {/* Limited Edition section */}
       {appConfig.showLimitedEdition && <LimitedEdition />}
 
-      {/* Trust Badges section - Garanties et réassurance */}
-      <TrustBadges />
-
       {/* Career Highlights section - Histoire de C'Line Hair */}
-      <CareerHighlights />
+      {/* <CareerHighlights /> */}
 
       {/* Testimonials section - Avis clients 5★ */}
       <Testimonials />
 
       {/* Featured Products Section - New elegant product showcase */}
       <FeaturedProductsSection products={products} />
+
+      {/* Comparison Table - Nous VS Concurrents */}
+      <ComparisonTable />
 
       {/* Featured Products section (renamed from Train with the Champ) */}
       {/* {appConfig.showTrainingSection && <FeaturedProducts />} */}
@@ -124,6 +129,9 @@ export default function Home() {
 
       {/* Newsletter signup section - Commented out for initial launch */}
       {/* <NewsletterSignup /> */}
+
+      {/* Trust Badges section - Garanties et réassurance */}
+      <TrustBadges />
     </main>
   );
 }

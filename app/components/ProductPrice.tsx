@@ -1,4 +1,4 @@
-import {Money} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {useConfig} from '~/utils/themeContext';
 

@@ -20,11 +20,12 @@ export function CartAside({
     <div
       aria-modal
       aria-hidden={!expanded}
-      className={`fixed inset-0 z-50 transition-all duration-500 ease-out ${
+      className={`fixed inset-0 transition-all duration-500 ease-out ${
         expanded
           ? 'opacity-100 pointer-events-auto'
           : 'opacity-0 pointer-events-none'
       }`}
+      style={{zIndex: 9999}}
       role="dialog"
     >
       {/* Background overlay */}
@@ -37,12 +38,12 @@ export function CartAside({
 
       {/* CART PANEL - FORCED RIGHT SIDE POSITIONING WITH PROPER HEADER CLEARANCE */}
       <div
-        className={`fixed right-0 
-          bg-background/95 backdrop-blur-xl shadow-2xl 
+        className={`fixed right-0
+          bg-background/95 backdrop-blur-xl shadow-2xl
           transition-all duration-500 ease-out
           flex flex-col ${expanded ? 'translate-x-0' : 'translate-x-full'}`}
         style={{
-          zIndex: 100,
+          zIndex: 10000,
           top: 'var(--header-height-desktop)',
           height: 'calc(100vh - var(--header-height-desktop))',
           width: 'var(--cart-width-desktop)',

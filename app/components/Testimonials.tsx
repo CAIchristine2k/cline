@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {ChevronLeft, ChevronRight} from 'lucide-react';
+import {ChevronLeft, ChevronRight, BadgeCheck} from 'lucide-react';
 import {useConfig} from '~/utils/themeContext';
 
 interface Testimonial {
@@ -220,7 +220,7 @@ export default function Testimonials() {
             <span className="text-primary">CLIENTES</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Plus de 95% de satisfaction client — Découvrez pourquoi nos clientes adorent nos produits personnalisés.
+            4,8/5 de satisfaction — la qualité avant tout
           </p>
         </div>
 
@@ -264,36 +264,36 @@ export default function Testimonials() {
               {getVisibleTestimonials().map((testimonial, idx) => (
                 <div
                   key={`${testimonial.id}-${idx}`}
-                  className="bg-white border-2 border-primary/20 rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-300"
+                  className="bg-white border-2 border-primary/20 rounded-2xl p-4 md:p-6 shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-300"
                   role="article"
                   aria-label={`Témoignage de ${testimonial.name}`}
                 >
                   {/* Stars Rating */}
-                  <div className="flex mb-4 gap-1" role="img" aria-label={`${testimonial.rating} étoiles sur 5`}>
+                  <div className="flex mb-3 gap-1" role="img" aria-label={`${testimonial.rating} étoiles sur 5`}>
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <StarIcon
                         key={i}
-                        className="h-5 w-5 text-primary"
+                        className="h-4 w-4 text-primary"
                       />
                     ))}
                     {[...Array(5 - testimonial.rating)].map((_, i) => (
                       <StarIcon
                         key={`empty-${i}`}
-                        className="h-5 w-5 text-gray-300"
+                        className="h-4 w-4 text-gray-300"
                       />
                     ))}
                   </div>
 
                   {/* Testimonial Content */}
-                  <blockquote className="text-gray-700 text-base md:text-lg mb-6 leading-relaxed">
+                  <blockquote className="text-gray-700 text-sm md:text-base mb-4 leading-relaxed">
                     "{testimonial.content}"
                   </blockquote>
 
                   {/* Author Info */}
-                  <div className="flex items-center gap-4 pt-4 border-t border-primary/10">
+                  <div className="flex items-center gap-3 pt-3 border-t border-primary/10">
                     {/* Avatar */}
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 bg-primary/10">
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30 bg-primary/10">
                         <img
                           src={testimonial.avatar}
                           alt={`Photo de ${testimonial.name}`}
@@ -311,14 +311,18 @@ export default function Testimonials() {
 
                     {/* Name & Role */}
                     <div>
-                      <div className="font-bold text-black">
+                      <div className="font-bold text-black text-sm flex items-center gap-1.5">
                         {testimonial.name}
+                        <BadgeCheck className="h-4 w-4 text-green-500" />
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs text-gray-500">
                         {testimonial.role}
                       </div>
                       <div className="text-xs text-gray-400 mt-0.5">
                         {testimonial.date}
+                      </div>
+                      <div className="text-xs text-green-600 mt-0.5 font-medium">
+                        Avis vérifié
                       </div>
                     </div>
                   </div>
@@ -358,7 +362,7 @@ export default function Testimonials() {
               ))}
             </div>
             <span className="text-black font-semibold">
-              95% de satisfaction client
+              4,8/5 de satisfaction — la qualité avant tout
             </span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import {Star, Truck, Shield, ArrowLeft} from 'lucide-react';
-import {Image, Money, type MappedProductOptions} from '@shopify/hydrogen';
+import {Image, type MappedProductOptions} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {ProductForm} from './ProductForm';
 import {Link, useLocation} from 'react-router';
 import type {ProductDetailsQuery} from 'storefrontapi.generated';

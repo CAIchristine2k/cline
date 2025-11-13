@@ -2,59 +2,95 @@ import React, {useState, useEffect} from 'react';
 import {
   Menu,
   X,
-  ChevronRight,
+  ChevronDown,
   ShoppingBag,
-  Instagram,
-  Twitter,
-  Youtube,
-  Facebook,
-  Music,
   User,
+  Search,
 } from 'lucide-react';
 import {Link, useLocation} from 'react-router';
 import {Logo} from './Logo';
 import {SearchBar} from './SearchBar';
+import {PromoBanner} from './PromoBanner';
 import {useConfig} from '~/utils/themeContext';
 import {useCart} from '~/providers/CartProvider';
-import {useAside} from './Aside';
+
+// Types pour les menus
+interface SubMenuItem {
+  name: string;
+  link: string;
+  description?: string;
+  image?: string;
+}
+
+interface MenuItem {
+  name: string;
+  link?: string;
+  submenu?: SubMenuItem[];
+  megaMenu?: boolean;
+  premium?: boolean;
+}
 
 export function Header() {
   const config = useConfig();
   const {totalQuantity, openCart} = useCart();
-  const {open} = useAside();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [mobileActiveMenu, setMobileActiveMenu] = useState<string | null>(null);
   const location = useLocation();
 
   // Get cart count
   const cartCount = totalQuantity || 0;
 
-  // Build social links from config
-  const socialLinks = Object.entries(config.socialLinks || {})
-    .filter(([_, url]) => url) // Only include links that have URLs
-    .map(([platform, url]) => ({
-      name: platform.charAt(0).toUpperCase() + platform.slice(1),
-      icon: getSocialIcon(platform),
-      link: url,
-    }));
-
-  function getSocialIcon(platform: string) {
-    switch (platform) {
-      case 'instagram':
-        return Instagram;
-      case 'twitter':
-        return Twitter;
-      case 'youtube':
-        return Youtube;
-      case 'facebook':
-        return Facebook;
-      case 'tiktok':
-        return Music;
-      default:
-        return Instagram;
-    }
-  }
+  // Configuration des menus principaux (header secondaire)
+  const menuItems: MenuItem[] = [
+    {
+      name: 'NATUREL',
+      megaMenu: true,
+      premium: true,
+      submenu: [
+        {name: 'Perruques naturelles', link: '/collections/perruques-naturelles'},
+        {name: 'Bundles', link: '/collections/tissages-naturels'},
+        {name: 'Bulk', link: '/collections/bulk-naturel'},
+        {name: 'Ponytails', link: '/collections/ponytails-naturels'},
+        {name: 'Closures & Frontals', link: '/collections/closures-frontals'},
+      ],
+    },
+    {
+      name: 'SEMI-NATUREL',
+      megaMenu: true,
+      submenu: [
+        {name: 'Perruques semi-naturelles', link: '/collections/perruques-semi-naturelles'},
+        {name: 'Bundles', link: '/collections/tissages-semi-naturels'},
+        {name: 'Bulk', link: '/collections/bulk-semi-naturel'},
+        {name: 'Ponytails', link: '/collections/ponytails-semi-naturels'},
+        {name: 'Closures', link: '/collections/closures-semi-naturels'},
+      ],
+    },
+    {
+      name: 'ACCESSOIRES',
+      megaMenu: true,
+      submenu: [
+        {name: 'Soins capillaires', link: '/collections/soins-capillaires'},
+        {name: 'Brosses et peignes', link: '/collections/brosses-peignes'},
+        {name: 'Bonnets et filets', link: '/collections/bonnets-filets'},
+        {name: 'Pinces & élastiques', link: '/collections/pinces-elastiques'},
+      ],
+    },
+    {
+      name: 'CONSEILS',
+      submenu: [
+        {name: "Guide d'achat", link: '/pages/guide-achat'},
+        {name: "Guide d'entretien", link: '/pages/guide-entretien'},
+        {name: 'FAQ produits', link: '/pages/faq-produits'},
+        {name: 'Blog / Inspiration', link: '/pages/blog'},
+      ],
+    },
+    {
+      name: 'BEST SELLERS',
+      link: '/collections/best-sellers',
+    },
+  ];
 
   const handleScroll = () => {
     setIsScrolled(window.scrollY > 30);
@@ -62,375 +98,324 @@ export function Header() {
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
-    // Set initial scroll state
     handleScroll();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleNavClick = (link: string) => {
-    setIsOpen(false);
-    // Handle hash links with smooth scrolling
-    if (link.startsWith('#')) {
-      // If we're on homepage, scroll to section
-      if (location.pathname === '/') {
-        const id = link.replace('#', '');
-        const element = document.getElementById(id);
-        if (element) {
-          const header = document.querySelector('header');
-          const headerHeight = header ? header.offsetHeight : 80;
-          const elementPosition =
-            element.getBoundingClientRect().top + window.pageYOffset;
-          const offsetPosition = elementPosition - headerHeight - 20;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth',
-          });
-        }
-      } else {
-        // If not on homepage, redirect to homepage with hash
-        window.location.href = `/${link}`;
-      }
-    }
-    // For regular links, React Router will handle them naturally
-  };
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Use the openCart method from CartProvider
     openCart();
+  };
+
+  const handleMenuHover = (menuName: string | null) => {
+    setActiveMenu(menuName);
+  };
+
+  const toggleMobileMenu = (menuName: string) => {
+    setMobileActiveMenu(mobileActiveMenu === menuName ? null : menuName);
   };
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-sm shadow-xl'
+          ? 'bg-white/95 backdrop-blur-md shadow-xl'
           : 'bg-white'
       }`}
     >
-      {/* Rangée 1 : Header principal */}
-      <div className={`border-b border-primary/10 transition-all duration-300 ${
-        isScrolled ? 'py-2 lg:py-3' : 'py-4 lg:py-5'
-      }`}>
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-        {/* Desktop Header */}
-        <div className="hidden lg:grid lg:grid-cols-3 lg:gap-4 xl:gap-8 items-center">
-          {/* Left: Search Bar */}
-          <div className="flex items-center">
-            <div className="w-full lg:max-w-[200px] xl:max-w-sm">
-              <SearchBar />
+      {/* Promo Banner */}
+      <PromoBanner />
+
+      {/* Header principal */}
+      <div
+        className={`border-b border-gray-200 transition-all duration-300 ${
+          isScrolled ? 'py-3' : 'py-4'
+        }`}
+      >
+        <div className="w-full md:container mx-auto px-4 lg:px-6">
+          {/* Desktop Header */}
+          <div className="hidden lg:grid lg:grid-cols-[1fr_auto_1fr] gap-8 items-center">
+            {/* Left: Search Bar (plus discrète) */}
+            <div className="flex items-center">
+              <div className="w-full max-w-xs">
+                <SearchBar />
+              </div>
+            </div>
+
+            {/* Center: Navigation with Logo */}
+            <nav className="flex items-center justify-center gap-3 flex-shrink-0">
+              <Link
+                to="/"
+                className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-xs whitespace-nowrap"
+              >
+                Accueil
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+
+              {/* Logo au centre */}
+              <div className="mx-4 flex-shrink-0">
+                <Logo isScrolled={isScrolled} />
+              </div>
+
+              <Link
+                to="/collections/all"
+                className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-xs whitespace-nowrap"
+              >
+                Boutique
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+
+              <Link
+                to="/pages/about"
+                className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-xs whitespace-nowrap"
+              >
+                À propos
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            </nav>
+
+            {/* Right: Account & Cart */}
+            <div className="flex items-center justify-end gap-4">
+              {/* Account Button */}
+              <Link
+                to="/account"
+                className="text-gray-700 hover:text-black transition-all duration-300 flex items-center gap-2"
+                aria-label="Mon compte"
+              >
+                <User className="h-5 w-5" />
+              </Link>
+
+              {/* Cart Button */}
+              <button
+                onClick={handleCartClick}
+                className="bg-black hover:bg-gray-800 text-white font-semibold py-2.5 px-5 rounded-md transition-all duration-300 flex items-center text-sm uppercase tracking-wide shadow-lg relative"
+                aria-label="Panier"
+              >
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                <span>Panier</span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Center: Navigation with Logo */}
-          <nav className="flex items-center justify-center lg:gap-2 xl:gap-4 flex-shrink-0">
-            <Link
-              to="/"
-              className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider lg:text-[10px] xl:text-xs whitespace-nowrap flex-shrink-0"
-            >
-              Accueil
-              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
+          {/* Mobile Header */}
+          <div className="lg:hidden flex justify-between items-center">
+            <Logo isScrolled={isScrolled} />
 
-            {/* Logo au centre */}
-            <div className="lg:mx-1 xl:mx-3 flex-shrink-0">
-              <Logo isScrolled={isScrolled} />
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleCartClick}
+                className="bg-black text-white p-2 rounded-md transition-all duration-300 relative"
+                aria-label="Panier"
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                className="bg-black text-white p-2 rounded-md hover:bg-gray-800 transition-all duration-300"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle Menu"
+              >
+                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
             </div>
-
-            <Link
-              to="/collections/all"
-              className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider lg:text-[10px] xl:text-xs whitespace-nowrap flex-shrink-0"
-            >
-              Boutique
-              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-
-            <Link
-              to="/about"
-              className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider lg:text-[10px] xl:text-xs whitespace-nowrap flex-shrink-0"
-            >
-              À propos
-              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          </nav>
-
-          {/* Right: Account & Cart */}
-          <div className="flex items-center justify-end lg:gap-2 xl:gap-4">
-            {/* Account Button */}
-            <Link
-              to="/account"
-              className="text-black hover:text-primary transition-all duration-300 flex items-center gap-2"
-            >
-              <User className="h-5 w-5" />
-            </Link>
-
-            {/* Cart Button */}
-            <button
-              onClick={handleCartClick}
-              className="bg-primary hover:bg-primary-400 text-black font-bold lg:py-2 lg:px-3 xl:py-2.5 xl:px-5 rounded-sm transition-all duration-300 flex items-center lg:text-xs xl:text-sm uppercase shadow-glow relative whitespace-nowrap"
-            >
-              <ShoppingBag className="lg:mr-1 xl:mr-1.5 h-4 w-4" />
-              <span className="hidden xl:inline">Panier</span>
-              <span className="lg:inline xl:hidden">Cart</span>
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-black text-primary text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount > 99 ? '99+' : cartCount}
-                </span>
-              )}
-            </button>
           </div>
-        </div>
-
-        {/* Mobile/Tablet Header */}
-        <div className="lg:hidden flex justify-between items-center">
-          <Logo isScrolled={isScrolled} />
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleCartClick}
-              className="bg-primary hover:bg-primary-400 text-black p-2 rounded-sm transition-all duration-300 shadow-glow relative"
-              aria-label="Cart"
-            >
-              <ShoppingBag className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-black text-primary text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount > 99 ? '99+' : cartCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              className="bg-primary text-white focus:outline-none p-1.5 border border-primary rounded-sm hover:bg-primary-400 transition-all duration-300"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle Menu"
-            >
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
         </div>
       </div>
 
-      {/* Rangée 2 : Sous-header navigation catégories (toujours visible) */}
-      <div className="hidden lg:block border-b border-primary/10" style={{backgroundColor: 'rgb(255, 234, 191)'}}>
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-          <nav className="flex items-center justify-center gap-1 py-3 overflow-x-auto scrollbar-hide">
-            <a
-              href="#"
-              onMouseEnter={() => setActiveCategory('nouvelle-collection')}
-              onMouseLeave={() => setActiveCategory(null)}
-              className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Nouvelle collection
-            </a>
-            <span className="text-black/30">|</span>
-            <a
-              href="#"
-              onMouseEnter={() => setActiveCategory('perruques')}
-              onMouseLeave={() => setActiveCategory(null)}
-              className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Perruques
-            </a>
-            <span className="text-black/30">|</span>
-            <a
-              href="#"
-              onMouseEnter={() => setActiveCategory('extensions')}
-              onMouseLeave={() => setActiveCategory(null)}
-              className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Extensions
-            </a>
-            <span className="text-black/30">|</span>
-            <a
-              href="#"
-              onMouseEnter={() => setActiveCategory('lots')}
-              onMouseLeave={() => setActiveCategory(null)}
-              className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Lots & frontales
-            </a>
-            <span className="text-black/30">|</span>
-            <a
-              href="#"
-              onMouseEnter={() => setActiveCategory('queues')}
-              onMouseLeave={() => setActiveCategory(null)}
-              className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Coiffures
-            </a>
-            <span className="text-black/30">|</span>
-            <a
-              href="#"
-              onMouseEnter={() => setActiveCategory('accessoires')}
-              onMouseLeave={() => setActiveCategory(null)}
-              className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Accessoires & entretien
-            </a>
-            <span className="text-black/30">|</span>
-            <a
-              href="#"
-              onMouseEnter={() => setActiveCategory('conseils')}
-              onMouseLeave={() => setActiveCategory(null)}
-              className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Conseils
-            </a>
-            <span className="text-black/30">|</span>
-            <a href="#" className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Centre d'aide
-            </a>
-            <span className="text-black/30">|</span>
-            <a href="#" className="text-black hover:text-black/80 hover:bg-black/10 transition-all duration-200 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap uppercase tracking-wide">
-              Contact
-            </a>
+      {/* Menu de navigation principal (desktop) */}
+      <div className="hidden lg:block border-b border-gray-100" style={{backgroundColor: '#111111'}}>
+        <div className="w-full md:container mx-auto px-4 lg:px-6">
+          <nav className="flex items-center justify-center gap-1">
+            {menuItems.map((item, index) => (
+              <React.Fragment key={item.name}>
+                {index > 0 && <span className="text-gray-500 px-1">·</span>}
+                <div
+                  className="relative"
+                  onMouseEnter={() => handleMenuHover(item.name)}
+                  onMouseLeave={() => handleMenuHover(null)}
+                >
+                  {item.link ? (
+                    <Link
+                      to={item.link}
+                      className="text-white hover:text-gray-300 transition-all duration-200 px-4 py-3 text-xs font-medium whitespace-nowrap uppercase tracking-wider inline-flex items-center gap-1"
+                    >
+                      {item.name}
+                    </Link>
+                  ) : (
+                    <button
+                      className="text-white hover:text-gray-300 transition-all duration-200 px-4 py-3 text-xs font-medium whitespace-nowrap uppercase tracking-wider inline-flex items-center gap-1"
+                    >
+                      {item.name}
+                      {item.submenu && <ChevronDown className="h-3 w-3" />}
+                    </button>
+                  )}
+                </div>
+              </React.Fragment>
+            ))}
           </nav>
         </div>
       </div>
 
-      {/* Rangée 3 : Sous-catégories contextuelles - affichée au survol de la catégorie correspondante */}
-      {activeCategory === 'perruques' && (
+      {/* Mega Menus / Dropdown (desktop) */}
+      {activeMenu && (
         <div
-          className="hidden lg:block bg-primary/5 border-b border-primary/10"
-          onMouseEnter={() => setActiveCategory('perruques')}
-          onMouseLeave={() => setActiveCategory(null)}
+          className="hidden lg:block absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-2xl"
+          onMouseEnter={() => handleMenuHover(activeMenu)}
+          onMouseLeave={() => handleMenuHover(null)}
         >
-          <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-            <nav className="flex items-center justify-center flex-wrap gap-2 py-3">
-            <a href="#" className="text-black hover:text-primary hover:bg-white/60 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white/40 backdrop-blur-sm">
-              Wear & Go
-            </a>
-            <span className="text-primary/20">·</span>
-            <a href="#" className="text-black hover:text-primary hover:bg-white/60 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white/40 backdrop-blur-sm">
-              HD Lace 9×6
-            </a>
-            <span className="text-primary/20">·</span>
-            <a href="#" className="text-black hover:text-primary hover:bg-white/60 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white/40 backdrop-blur-sm">
-              360° InvisiFit
-            </a>
-            <span className="text-primary/20">·</span>
-            <a href="#" className="text-black hover:text-primary hover:bg-white/60 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white/40 backdrop-blur-sm">
-              Raie U
-            </a>
-            <span className="text-primary/20">·</span>
-            <a href="#" className="text-black hover:text-primary hover:bg-white/60 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white/40 backdrop-blur-sm">
-              Bob
-            </a>
-            <span className="text-primary/20">·</span>
-            <a href="#" className="text-black hover:text-primary hover:bg-white/60 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white/40 backdrop-blur-sm">
-              Bouclées/Deep Wave
-            </a>
-            <span className="text-primary/20">·</span>
-            <a href="#" className="text-black hover:text-primary hover:bg-white/60 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white/40 backdrop-blur-sm">
-              Colorées
-            </a>
-          </nav>
-        </div>
+          <div className="container mx-auto px-4 lg:px-6 py-8">
+            {(() => {
+              const activeItem = menuItems.find((item) => item.name === activeMenu);
+              if (!activeItem?.submenu) return null;
+
+              // Mega menu avec grille (pour Naturel, Semi-Naturel, Accessoires)
+              if (activeItem.megaMenu) {
+                return (
+                  <div className="max-w-3xl mx-auto">
+                    <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {activeItem.submenu.map((subItem) => (
+                        <li key={subItem.name}>
+                          <Link
+                            to={subItem.link}
+                            className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                            onClick={() => setActiveMenu(null)}
+                          >
+                            {subItem.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              }
+
+              // Menu simple liste (pour Conseils, Centre d'Aide)
+              return (
+                <div className="max-w-2xl mx-auto">
+                  <ul className="grid grid-cols-2 gap-4">
+                    {activeItem.submenu.map((subItem) => (
+                      <li key={subItem.name}>
+                        <Link
+                          to={subItem.link}
+                          className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                          onClick={() => setActiveMenu(null)}
+                        >
+                          {subItem.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
+          </div>
         </div>
       )}
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm shadow-xl border-t border-primary/20 z-50">
-          <div className="container mx-auto py-4">
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-gray-200 z-50 max-h-[80vh] overflow-y-auto">
+          <div className="py-4">
             {/* Search Bar Mobile */}
-            <div className="px-4 pb-4 border-b border-primary/10">
+            <div className="px-4 pb-4 border-b border-gray-100">
               <SearchBar />
             </div>
 
-            <nav className="flex flex-col divide-y divide-primary/10">
+            <nav className="flex flex-col">
+              {/* Liens principaux */}
               <Link
                 to="/"
                 onClick={() => setIsOpen(false)}
-                className="text-black hover:text-primary hover:bg-primary/5 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
+                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
               >
                 Accueil
-                <ChevronRight className="h-4 w-4 text-gray-400" />
               </Link>
 
               <Link
                 to="/collections/all"
                 onClick={() => setIsOpen(false)}
-                className="text-black hover:text-primary hover:bg-primary/5 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
+                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
               >
                 Boutique
-                <ChevronRight className="h-4 w-4 text-gray-400" />
               </Link>
 
               <Link
-                to="/about"
+                to="/pages/about"
                 onClick={() => setIsOpen(false)}
-                className="text-black hover:text-primary hover:bg-primary/5 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
+                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
               >
                 À propos
-                <ChevronRight className="h-4 w-4 text-gray-400" />
               </Link>
 
-              <Link
-                to="/pages/contact"
-                onClick={() => setIsOpen(false)}
-                className="text-black hover:text-primary hover:bg-primary/5 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
-              >
-                Contact
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </Link>
+              {/* Menus avec sous-menus */}
+              {menuItems.map((item) => (
+                <div key={item.name} className="border-b border-gray-100">
+                  {item.link ? (
+                    <Link
+                      to={item.link}
+                      onClick={() => setIsOpen(false)}
+                      className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between"
+                    >
+                      {item.name}
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => toggleMobileMenu(item.name)}
+                        className="w-full text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between"
+                      >
+                        {item.name}
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform duration-300 ${
+                            mobileActiveMenu === item.name ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+                      {mobileActiveMenu === item.name && item.submenu && (
+                        <div className="bg-gray-50 py-2">
+                          {item.submenu.map((subItem) => (
+                            <Link
+                              key={subItem.name}
+                              to={subItem.link}
+                              onClick={() => {
+                                setIsOpen(false);
+                                setMobileActiveMenu(null);
+                              }}
+                              className="block py-3 px-6 text-sm text-gray-700 hover:text-black hover:bg-white transition-all duration-200"
+                            >
+                              {subItem.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
 
+              {/* Account link in mobile */}
               <Link
                 to="/account"
                 onClick={() => setIsOpen(false)}
-                className="text-black hover:text-primary hover:bg-primary/5 transition-all duration-300 py-4 px-4 text-sm uppercase font-medium tracking-wider flex items-center justify-between"
+                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center gap-2"
               >
+                <User className="h-4 w-4" />
                 Mon compte
-                <ChevronRight className="h-4 w-4 text-gray-400" />
               </Link>
             </nav>
-
-            {/* Social Icons (Mobile) - built from config */}
-            {socialLinks.length > 0 && (
-              <div className="flex justify-center space-x-8 mt-6 pt-6 border-t border-primary/20">
-                {socialLinks.map((social) => {
-                  const IconComponent = social.icon;
-                  return (
-                    <a
-                      key={social.name}
-                      href={social.link as string}
-                      className="text-gray-600 hover:text-primary transition-all duration-300"
-                      aria-label={social.name}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <IconComponent className="h-5 w-5" />
-                    </a>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </div>
       )}
-
-      {/* Add the subtle gold underline animation and shadow-glow effects */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-          .group:hover span {
-            box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.5);
-          }
-
-          .shadow-glow {
-            box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.2);
-          }
-
-          /* Hide scrollbar for navigation overflow */
-          .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-        `,
-        }}
-      />
     </header>
   );
 }

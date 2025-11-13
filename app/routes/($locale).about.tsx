@@ -2,6 +2,7 @@ import {useConfig} from '~/utils/themeContext';
 import {type MetaFunction, Link} from 'react-router';
 import {getConfig} from '~/utils/config';
 import CareerHighlights from '~/components/CareerHighlights';
+import {ShoppingBag} from 'lucide-react';
 
 export const meta: MetaFunction = () => {
   const config = getConfig();
@@ -17,6 +18,56 @@ export default function About() {
       <div className="absolute -right-20 top-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute -left-40 bottom-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
 
+      {/* Section Hero - Nouvelle première section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-10 bg-white">
+        <div className="relative container mx-auto px-4 z-20 py-20">
+          <div className="max-w-3xl mx-auto bg-white/40 p-8 rounded-lg text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              <span className="text-black">L'HISTOIRE DE</span><br />
+              <span className="tracking-wider hero-title-glow" style={{color: '#e6b000'}}>C'LINE HAIR</span>
+            </h1>
+
+            <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-xl leading-relaxed mx-auto">
+              Depuis plus de 20 ans, C'Line Hair sublime la beauté des femmes avec des perruques et extensions éthiques, durables et accessibles.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-5 justify-center">
+              <Link
+                to="/collections/all"
+                className="group bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow"
+              >
+                DÉCOUVRIR LA COLLECTION
+                <ShoppingBag className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+
+            <div className="mt-16 mb-16 md:mb-24 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>20+</div>
+                <div className="text-gray-800 text-sm tracking-wider">ANNÉES D'EXPERTISE</div>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>0</div>
+                <div className="text-gray-800 text-sm tracking-wider">COMPROMIS SUR LA QUALITÉ</div>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>+50K</div>
+                <div className="text-gray-800 text-sm tracking-wider">CLIENTES SATISFAITES</div>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
+                <div className="text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>+300</div>
+                <div className="text-gray-800 text-sm tracking-wider">PRODUITS</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
+            <span className="text-xs mb-2 tracking-widest" style={{color: '#ffb6c1'}}>FAITES DÉFILER</span>
+            <div className="w-0.5 h-12 bg-primary"></div>
+          </div>
+        </div>
+      </section>
+
       {/* Section 1: À propos */}
       <section id="about" className="py-16 md:py-24 relative z-10">
         <div className="container mx-auto px-4 max-w-5xl text-center">
@@ -29,7 +80,7 @@ export default function About() {
             <span className="text-primary tracking-wider">C'LINE HAIR</span>
           </h1>
 
-          <p className="text-lg text-gray-700 leading-relaxed mb-10 max-w-3xl">
+          <p className="text-lg text-gray-700 leading-relaxed mb-10 max-w-3xl mx-auto">
             Marque française née à Paris, C'Line Hair sublime depuis plus de 20 ans la beauté naturelle
             avec des perruques et extensions haut de gamme — éthiques, durables et accessibles.
           </p>

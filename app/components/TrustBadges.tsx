@@ -15,30 +15,10 @@ export default function TrustBadges() {
   const badges: Badge[] = [
     // Sécurité & paiement
     {
-      emoji: '🔒',
-      title: 'Paiement 100% Sécurisé',
-      description: 'SSL certifié · Données protégées',
-      category: 'security',
-    },
-    {
       emoji: '💳',
-      title: 'Tous moyens de paiement',
-      description: 'Visa · Mastercard · PayPal · Apple Pay',
+      title: 'Paiement sécurisé & tous moyens acceptés',
+      description: 'Visa · Mastercard · PayPal · Apple Pay · SSL certifié',
       category: 'security',
-    },
-
-    // Livraison & service
-    {
-      emoji: '🚚',
-      title: 'Livraison Rapide',
-      description: '48h France · Suivi en temps réel',
-      category: 'delivery',
-    },
-    {
-      emoji: '🔄',
-      title: 'Retours Faciles',
-      description: '14 jours satisfait ou remboursé',
-      category: 'delivery',
     },
 
     // Réputation & satisfaction
@@ -48,6 +28,15 @@ export default function TrustBadges() {
       description: 'Satisfaites depuis 2005',
       category: 'reputation',
     },
+
+    // Livraison & service
+    {
+      emoji: '🚚',
+      title: 'Livraison rapide & retours faciles',
+      description: '48h France · Suivi en temps réel · 14 jours satisfait ou remboursé',
+      category: 'delivery',
+    },
+
     {
       emoji: '🇫🇷',
       title: 'Marque Française',
@@ -71,29 +60,37 @@ export default function TrustBadges() {
         </div>
 
         {/* Grille de badges */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 max-w-7xl mx-auto">
           {badges.map((badge, index) => (
             <div
               key={index}
-              className="group relative bg-white rounded-2xl p-6 border-2 border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
+              className="relative group text-center"
             >
               {/* Emoji avec fond */}
-              <div className="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-pink-100 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl" role="img" aria-label={badge.title}>
-                  {badge.emoji}
-                </span>
+              <div className="mb-3 inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-primary/20 to-pink-100 group-hover:scale-110 transition-transform duration-300">
+                {badge.emoji === 'apple-pay-logo' ? (
+                  <img
+                    src="/images/apple-pay.png"
+                    alt="Apple Pay"
+                    className="h-8 w-auto object-contain"
+                  />
+                ) : (
+                  <span className="text-xl md:text-2xl" role="img" aria-label={badge.title}>
+                    {badge.emoji}
+                  </span>
+                )}
               </div>
 
               {/* Contenu */}
-              <h3 className="text-base md:text-lg font-bold text-gray-900 mb-2 leading-tight">
+              <h3 className="text-sm md:text-base font-bold text-gray-900 mb-1.5 leading-tight">
                 {badge.title}
               </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
+              <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
                 {badge.description}
               </p>
 
               {/* Accent décoratif */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           ))}
         </div>

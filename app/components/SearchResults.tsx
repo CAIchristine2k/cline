@@ -1,5 +1,6 @@
 import {Link} from 'react-router';
-import {Image, Money, Pagination} from '@shopify/hydrogen';
+import {Image, Pagination} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {urlWithTrackingParams, type RegularSearchReturn} from '~/lib/search';
 
 type SearchItems = RegularSearchReturn['result']['items'];

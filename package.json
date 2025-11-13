@@ -31,6 +31,7 @@
     "@shopify/hydrogen": "2025.5.0",
     "@shopify/hydrogen-react": "^2025.5.0",
     "clsx": "^2.1.1",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.12.2",
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",

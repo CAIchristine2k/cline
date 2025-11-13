@@ -16,6 +16,7 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {getConfig} from '~/utils/config';
 import {useConfig} from '~/utils/themeContext';
 import {ProductForm} from '~/components/ProductForm';
+import {ProductCarousel} from '~/components/ProductCarousel';
 import {Suspense} from 'react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
@@ -362,43 +363,15 @@ export default function Product() {
     customVariant && !customVariant.availableForSale;
 
   return (
-    <div className="py-24 bg-gradient-to-b from-white via-white/95 to-white min-h-screen relative">
+    <div className="pt-4 bg-gradient-to-b from-white via-white/95 to-white min-h-screen relative">
       {/* Background decorative elements - modern style matching homepage */}
       <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Breadcrumb */}
-        <div className="mb-8">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
-                  Accueil
-                </Link>
-              </li>
-              <li className="flex items-center space-x-2">
-                <span className="text-gray-400">/</span>
-                <Link
-                  to="/collections/all"
-                  className="text-gray-700 hover:text-primary transition-colors"
-                >
-                  Boutique
-                </Link>
-              </li>
-              <li className="flex items-center space-x-2">
-                <span className="text-gray-400">/</span>
-                <span className="text-black font-medium" aria-current="page">
-                  {product.title}
-                </span>
-              </li>
-            </ol>
-          </nav>
-        </div>
-
+      <div className="w-full mx-auto px-4 md:container relative z-10 mt-24 pt-8">
         {/* Out of Stock Banner */}
         {currentVariant && !currentVariant.availableForSale && (
-          <div className="mb-8 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-sm">
+          <div className="mb-8 mt-24 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-sm">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg
@@ -428,10 +401,37 @@ export default function Product() {
         )}
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16 mt-16">
+        <div className="space-y-8 mb-16 mt-8 lg:mt-32">
           {/* Image Gallery */}
-          <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white">
+          <div className="space-y-4 max-w-2xl mx-auto">
+            {/* Breadcrumb */}
+            <div className="mb-4">
+              <nav className="flex" aria-label="Breadcrumb">
+                <ol className="flex items-center space-x-2">
+                  <li>
+                    <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
+                      Accueil
+                    </Link>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="text-gray-400">/</span>
+                    <Link
+                      to="/collections/all"
+                      className="text-gray-700 hover:text-primary transition-colors"
+                    >
+                      Boutique
+                    </Link>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="text-gray-400">/</span>
+                    <span className="text-black font-medium" aria-current="page">
+                      {product.title}
+                    </span>
+                  </li>
+                </ol>
+              </nav>
+            </div>
+            <div className="aspect-square max-h-[270px] lg:max-h-[400px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white">
               {activeImage ? (
                 <>
                   <Image
@@ -441,7 +441,7 @@ export default function Product() {
                   />
                   {!currentVariant.availableForSale && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-amber-600 text-white px-6 py-3 uppercase font-bold tracking-wider transform -rotate-12 text-xl shadow-xl rounded">
+                      <div className="bg-primary text-white px-6 py-3 uppercase font-bold tracking-wider transform -rotate-12 text-xl shadow-xl rounded">
                         Rupture
                       </div>
                     </div>
@@ -487,11 +487,32 @@ export default function Product() {
           </div>
 
           {/* Product Info */}
-          <div>
-            <h1 className="text-4xl font-bold mb-6 text-black leading-tight">{product.title}</h1>
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-2xl font-bold mb-4 text-black leading-tight">{product.title}</h1>
+
+            {/* Reviews Section */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex text-primary" role="img" aria-label="Rating: 4.8 out of 5 stars">
+                {[...Array(4)].map((_, i) => (
+                  <svg key={`full-${i}`} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+                <svg className="w-5 h-5 fill-current opacity-50" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+              <span className="text-sm text-gray-600 font-medium">(127 avis)</span>
+              <div className="flex items-center gap-1 ml-2">
+                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-xs text-green-600 font-semibold">Avis vérifiés</span>
+              </div>
+            </div>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="text-3xl font-bold text-primary">
+              <div className="text-3xl font-bold text-black bg-[#ffa3ae] px-4 py-2 rounded-md">
                 <Money data={currentVariant.price} />
               </div>
 
@@ -500,18 +521,11 @@ export default function Product() {
                   <Money data={currentVariant.compareAtPrice} />
                 </div>
               )}
+
+              <img src="/images/rapidegratuit.png" alt="Livraison rapide gratuite" className="h-24 w-auto" />
             </div>
 
-            <div className="flex items-center gap-2 mb-6">
-              <div
-                className={`h-3 w-3 rounded-full ${currentVariant.availableForSale ? 'bg-green-500' : 'bg-amber-500'}`}
-              ></div>
-              <span className="text-sm font-medium text-gray-700">
-                {currentVariant.availableForSale ? 'En stock' : 'Rupture de stock'}
-              </span>
-            </div>
-
-            <div className="prose prose-sm max-w-none mb-8 text-gray-700">
+            <div className="prose prose-sm max-w-none mb-8 text-black">
               <div
                 dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
               />
@@ -708,56 +722,126 @@ export default function Product() {
               </p>
             </div>
           </div>
-        </div>
 
-        {/* Related Products Section */}
-        {recommendedProducts.length > 0 && (
-          <div className="mt-20 pt-16 border-t border-primary/10">
-            <div className="text-center mb-12">
-              <div className="inline-block bg-primary/10 text-primary px-4 py-1 rounded-full text-sm font-semibold mb-4">
-                Découvrez également
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-black">
-                Vous aimerez <span className="text-primary">aussi</span>
-              </h2>
+          {/* Collapsible Sections */}
+          <div className="max-w-2xl mx-auto">
+            <div className="space-y-4 mt-8">
+              {/* Section 1 - Conditions de retour */}
+              <details className="group border border-primary/30 rounded-lg overflow-hidden">
+                <summary className="flex items-center justify-between cursor-pointer bg-white hover:bg-primary/5 px-6 py-4 transition-colors">
+                  <h3 className="text-base font-bold text-black">Conditions de retour – 14 jours</h3>
+                  <svg className="w-5 h-5 text-primary transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="px-6 py-4 bg-white text-sm text-black leading-relaxed">
+                  <p className="mb-4">Vous disposez de <strong>14 jours</strong> après réception pour retourner ou échanger votre article. Pour être éligible au remboursement, le produit doit respecter les conditions suivantes :</p>
+                  <ul className="list-disc list-inside space-y-2 mb-4">
+                    <li>Perruque jamais portée</li>
+                    <li>Lace en parfait état (non coupée, non maquillée, non customisée)</li>
+                    <li>Fibres propres, sans odeur, sans traces de produits</li>
+                    <li>Accessoires et packaging d'origine inclus</li>
+                    <li>Étiquette intacte</li>
+                  </ul>
+                  <p className="mb-4">Les retours sont <strong>gratuits</strong> si le produit est conforme aux conditions ci-dessus. Une fois le colis reçu, le remboursement est effectué sous <strong>3 à 7 jours ouvrés</strong>.</p>
+                  <p className="text-primary font-semibold">❗ Tout article porté, altéré, abîmé ou présentant des traces de manipulation ne pourra pas être remboursé.</p>
+                </div>
+              </details>
+
+              {/* Section 2 - Entretien */}
+              <details className="group border border-primary/30 rounded-lg overflow-hidden">
+                <summary className="flex items-center justify-between cursor-pointer bg-white hover:bg-primary/5 px-6 py-4 transition-colors">
+                  <h3 className="text-base font-bold text-black">Conseils d'entretien essentiels</h3>
+                  <svg className="w-5 h-5 text-primary transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="px-6 py-4 bg-white text-sm text-black leading-relaxed">
+                  <p className="mb-4">Voici quelques gestes simples pour garder votre perruque belle plus longtemps :</p>
+
+                  <div className="mb-6">
+                    <h4 className="font-bold text-primary mb-2">Pour les perruques naturelles</h4>
+                    <ul className="list-disc list-inside space-y-2">
+                      <li>Lavez-la tous les 7 à 10 ports avec un shampoing doux</li>
+                      <li>Appliquez un soin hydratant et un conditionneur léger</li>
+                      <li>Brossez toujours des pointes vers les racines</li>
+                      <li>Utilisez un spray thermoprotecteur avant brushing ou lissage</li>
+                      <li>Laissez sécher à l'air libre de préférence</li>
+                    </ul>
+                  </div>
+
+                  <div className="mb-6">
+                    <h4 className="font-bold text-primary mb-2">Pour les perruques synthétiques</h4>
+                    <ul className="list-disc list-inside space-y-2">
+                      <li>Utilisez uniquement des produits adaptés aux fibres synthétiques</li>
+                      <li>Évitez la chaleur (sauf modèles heat resistant)</li>
+                      <li>Séchez toujours naturellement, sans sèche-cheveux</li>
+                      <li>Rangez sur un support pour conserver la forme</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-primary/10 border-l-4 border-primary px-4 py-3 rounded">
+                    <h4 className="font-bold text-primary mb-2">💡 Astuce générale</h4>
+                    <p>Gardez votre perruque dans un endroit sec, à l'écart du soleil direct pour éviter qu'elle ne s'assèche ou ne décolore.</p>
+                  </div>
+                </div>
+              </details>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {recommendedProducts.map((relatedProduct: any) => (
-                <Link
-                  key={relatedProduct.id}
-                  to={`/products/${relatedProduct.handle}`}
-                  className="group"
-                >
-                  <div className="bg-white/60 backdrop-blur-sm border border-primary/20 rounded-xl overflow-hidden mb-3 relative shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
-                    {relatedProduct.featuredImage && (
-                      <Image
-                        data={relatedProduct.featuredImage}
-                        className="w-full h-auto object-cover aspect-square group-hover:scale-110 transition-transform duration-500"
-                        sizes="(min-width: 768px) 25vw, 50vw"
-                      />
-                    )}
-                    {relatedProduct.variants?.nodes[0] &&
-                      !relatedProduct.variants.nodes[0].availableForSale && (
-                        <div className="absolute top-2 right-2 bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                          Rupture
-                        </div>
-                      )}
-                  </div>
-                  <div className="px-2">
-                    <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors mb-2 line-clamp-2">
-                      {relatedProduct.title}
-                    </h3>
-                    {relatedProduct.variants?.nodes[0] && (
-                      <div className="text-primary font-bold text-lg">
-                        <Money data={relatedProduct.variants.nodes[0].price} />
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
+
+            {/* Garantie Image */}
+            <div className="mt-8 flex justify-center">
+              <img src="/images/garantie.png" alt="Garantie" className="w-full max-w-md h-auto" />
             </div>
           </div>
+        </div>
+
+        {/* Best Sellers Section */}
+        {recommendedProducts && recommendedProducts.length > 0 && (
+          <>
+            {/* Section titre */}
+            <section className="py-16 bg-white mt-20 border-t border-primary/20">
+              <div className="container mx-auto px-4">
+                <div className="max-w-3xl mx-auto text-center">
+                  <div className="inline-block bg-primary text-black font-bold py-1 px-4 mb-6 tracking-wider rounded-sm">
+                    Nos Produits Iconiques & Recommandés par des Milliers de Femmes
+                  </div>
+
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                    <span className="text-black">LES BEST SELLERS</span><br />
+                    <span className="text-primary tracking-wider hero-title-glow">C'LINE HAIR</span>
+                  </h1>
+                </div>
+              </div>
+            </section>
+
+            {/* Section produits */}
+            <section className="relative py-20 bg-white">
+              {/* Background decorative elements */}
+              <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+              <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+
+              <div className="relative container mx-auto px-4 z-20">
+                <ProductCarousel products={recommendedProducts} loading="lazy" compact={true} />
+              </div>
+
+              {/* Add the CSS styles directly */}
+              <style
+                dangerouslySetInnerHTML={{
+                  __html: `
+                  .hero-title-glow {
+                    text-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.4);
+                  }
+
+                  .shadow-glow {
+                    box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.25);
+                  }
+                `,
+                }}
+              />
+            </section>
+          </>
         )}
+
       </div>
 
       {/* Analytics */}

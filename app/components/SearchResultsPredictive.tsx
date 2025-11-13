@@ -1,5 +1,6 @@
 import {Link, useFetcher, type Fetcher} from 'react-router';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import React, {useRef, useEffect} from 'react';
 import {
   getEmptyPredictiveSearchResult,
