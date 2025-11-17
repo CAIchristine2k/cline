@@ -88,7 +88,7 @@ export default function LimitedEdition() {
           {/* Sous-texte */}
           <p className="text-lg md:text-xl opacity-90 mb-8 max-w-xl mx-auto text-black">
             Offrez-vous la chevelure de vos rêves à prix magique ✨
-            Jusqu'à <span className="text-primary font-semibold">-30%</span> sur nos extensions, perruques et bundles 100% naturels.
+            Jusqu'à <span className="text-black font-bold">-30%</span> sur nos extensions, perruques et bundles 100% naturels.
           </p>
 
           {/* Timer - 24h countdown */}

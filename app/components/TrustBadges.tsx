@@ -16,7 +16,7 @@ export default function TrustBadges() {
     // Sécurité & paiement
     {
       emoji: '💳',
-      title: 'Paiement sécurisé & tous moyens acceptés',
+      title: 'Paiement sécurisé',
       description: 'Visa · Mastercard · PayPal · Apple Pay · SSL certifié',
       category: 'security',
     },
@@ -24,7 +24,7 @@ export default function TrustBadges() {
     // Réputation & satisfaction
     {
       emoji: '⭐',
-      title: '+500 000 Clientes',
+      title: '+500k Clients',
       description: 'Satisfaites depuis 2005',
       category: 'reputation',
     },
@@ -32,15 +32,15 @@ export default function TrustBadges() {
     // Livraison & service
     {
       emoji: '🚚',
-      title: 'Livraison rapide & retours faciles',
-      description: '48h France · Suivi en temps réel · 14 jours satisfait ou remboursé',
+      title: 'Livraison rapide',
+      description: '48h France · Retours faciles',
       category: 'delivery',
     },
 
     {
       emoji: '🇫🇷',
       title: 'Marque Française',
-      description: 'Service client réactif & bienveillant',
+      description: 'Service client réactif et bienveillant',
       category: 'reputation',
     },
   ];

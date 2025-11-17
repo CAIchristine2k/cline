@@ -53,7 +53,7 @@ export function CartAside({
           left: 'auto',
         }}
       >
-        <main className="flex-1 pt-4 overflow-hidden bg-gradient-to-b from-background/80 to-background text-text min-h-0 relative">
+        <main className="flex-1 overflow-hidden bg-gradient-to-b from-background/80 to-background text-text min-h-0 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-primary/5 pointer-events-none"></div>
           <div className="relative h-full overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
             {children}

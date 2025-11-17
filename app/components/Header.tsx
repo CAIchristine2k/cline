@@ -82,8 +82,7 @@ export function Header() {
       submenu: [
         {name: "Guide d'achat", link: '/pages/guide-achat'},
         {name: "Guide d'entretien", link: '/pages/guide-entretien'},
-        {name: 'FAQ produits', link: '/pages/faq-produits'},
-        {name: 'Blog / Inspiration', link: '/pages/blog'},
+        {name: 'FAQ', link: '/pages/faq-produits'},
       ],
     },
     {
@@ -129,10 +128,10 @@ export function Header() {
       {/* Header principal */}
       <div
         className={`border-b border-gray-200 transition-all duration-300 ${
-          isScrolled ? 'py-3' : 'py-4'
+          isScrolled ? 'py-2 md:py-3' : 'py-3 md:py-4'
         }`}
       >
-        <div className="w-full md:container mx-auto px-4 lg:px-6">
+        <div className="w-full md:container mx-auto px-3 md:px-4 lg:px-6">
           {/* Desktop Header */}
           <div className="hidden lg:grid lg:grid-cols-[1fr_auto_1fr] gap-8 items-center">
             {/* Left: Search Bar (plus discrète) */}
@@ -156,14 +155,6 @@ export function Header() {
               <div className="mx-4 flex-shrink-0">
                 <Logo isScrolled={isScrolled} />
               </div>
-
-              <Link
-                to="/collections/all"
-                className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-xs whitespace-nowrap"
-              >
-                Boutique
-                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary transform -translate-x-1/2 transition-all duration-300 group-hover:w-full"></span>
-              </Link>
 
               <Link
                 to="/pages/about"
@@ -206,26 +197,26 @@ export function Header() {
           <div className="lg:hidden flex justify-between items-center">
             <Logo isScrolled={isScrolled} />
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleCartClick}
-                className="bg-black text-white p-2 rounded-md transition-all duration-300 relative"
+                className="bg-black text-white p-1.5 md:p-2 rounded-md transition-all duration-300 relative"
                 aria-label="Panier"
               >
-                <ShoppingBag className="h-5 w-5" />
+                <ShoppingBag className="h-4 w-4 md:h-5 md:w-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 bg-primary text-black text-[10px] md:text-xs font-bold rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
               </button>
 
               <button
-                className="bg-black text-white p-2 rounded-md hover:bg-gray-800 transition-all duration-300"
+                className="bg-black text-white p-1.5 md:p-2 rounded-md hover:bg-gray-800 transition-all duration-300"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Toggle Menu"
               >
-                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isOpen ? <X className="h-4 w-4 md:h-5 md:w-5" /> : <Menu className="h-4 w-4 md:h-5 md:w-5" />}
               </button>
             </div>
           </div>
@@ -339,14 +330,6 @@ export function Header() {
                 className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
               >
                 Accueil
-              </Link>
-
-              <Link
-                to="/collections/all"
-                onClick={() => setIsOpen(false)}
-                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
-              >
-                Boutique
               </Link>
 
               <Link

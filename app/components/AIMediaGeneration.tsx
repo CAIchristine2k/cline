@@ -9,7 +9,7 @@ export function AIMediaGeneration() {
   }
 
   return (
-    <section id="tips" className="py-20 bg-white">
+    <section id="tips" className="pb-20 lg:py-20 bg-white">
       <div className="container mx-auto px-4 relative z-10">
         {/* En-tête */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -28,9 +28,8 @@ export function AIMediaGeneration() {
         <div className="max-w-6xl mx-auto bg-white border border-primary/20 rounded-xl overflow-hidden shadow-2xl">
           <div className="grid md:grid-cols-2 gap-0">
             {/* visuel */}
-            <div className="relative aspect-[4/3] md:aspect-auto">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-black/50"></div>
-              <img src="/images/cline3.jpg" alt="Astuces de pose C'Line Hair" className="w-full h-full object-cover" />
+            <div className="relative aspect-[4/3] md:aspect-auto p-4">
+              <img src="/images/astuce.png" alt="Astuces de pose C'Line Hair" className="w-full h-full object-contain" />
             </div>
 
             {/* contenu */}

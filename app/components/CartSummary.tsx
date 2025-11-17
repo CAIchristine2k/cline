@@ -21,11 +21,11 @@ export function CartSummary({cart, layout, checkoutDomain}: CartSummaryProps) {
       aria-labelledby="cart-summary"
       className={`p-6 ${layout === 'page' ? 'max-w-md ml-auto' : ''}`}
     >
-      <h4 className="text-lg font-bold text-white mb-6">Résumé de la commande</h4>
+      <h4 className="text-lg font-bold text-black mb-6">Résumé de la commande</h4>
       <dl className="space-y-4">
         <div className="flex justify-between items-center">
-          <dt className="text-white/70 font-medium">Sous-total</dt>
-          <dd className="font-bold text-white">
+          <dt className="text-black/70 font-medium">Sous-total</dt>
+          <dd className="font-bold text-black">
             {cart.cost?.subtotalAmount?.amount ? (
               <Money data={cart.cost?.subtotalAmount} />
             ) : (
@@ -36,16 +36,16 @@ export function CartSummary({cart, layout, checkoutDomain}: CartSummaryProps) {
 
         {cart.cost?.totalTaxAmount?.amount ? (
           <div className="flex justify-between items-center">
-            <dt className="text-white/70 font-medium">Taxe (estimée)</dt>
-            <dd className="font-bold text-white">
+            <dt className="text-black/70 font-medium">Taxe (estimée)</dt>
+            <dd className="font-bold text-black">
               <Money data={cart.cost.totalTaxAmount} />
             </dd>
           </div>
         ) : null}
 
-        <div className="flex justify-between items-center pt-4 mt-4 border-t border-white/10">
-          <dt className="text-white font-bold text-lg">Total</dt>
-          <dd className="text-white font-bold text-xl">
+        <div className="flex justify-between items-center pt-4 mt-4 border-t border-black/10">
+          <dt className="text-black font-bold text-lg">Total</dt>
+          <dd className="text-black font-bold text-xl">
             {cart.cost?.totalAmount?.amount ? (
               <Money data={cart.cost?.totalAmount} />
             ) : (
@@ -54,9 +54,9 @@ export function CartSummary({cart, layout, checkoutDomain}: CartSummaryProps) {
           </dd>
         </div>
       </dl>
-      {/*       
+
       <CartDiscounts discountCodes={cart.discountCodes} />
-      <CartGiftCard giftCardCodes={cart.appliedGiftCards} /> */}
+
       <CartCheckoutActions
         checkoutUrl={cart.checkoutUrl}
         checkoutDomain={checkoutDomain}
@@ -107,7 +107,7 @@ function CartCheckoutActions({
           Vérifier et Payer →
         </Link>
         <div className="mt-4 flex items-center justify-center">
-          <p className="text-xs text-white/50 text-center">
+          <p className="text-xs text-black/50 text-center">
             Vérifiez vos achats, puis procédez au paiement sécurisé
           </p>
         </div>
@@ -153,7 +153,7 @@ function CartCheckoutActions({
         Payer maintenant →
       </a>
       <div className="mt-4 flex items-center justify-center">
-        <p className="text-xs text-white text-center">
+        <p className="text-xs text-black text-center">
           Vous serez redirigé vers le paiement sécurisé Shopify
         </p>
       </div>
@@ -178,7 +178,7 @@ function CartDiscounts({
       <dl hidden={!codes.length} className="mb-4">
         <div>
           <dt className="text-white/70 font-medium mb-2">
-            Applied Discount(s)
+            Code(s) promo appliqué(s)
           </dt>
           <UpdateDiscountForm>
             <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
@@ -186,7 +186,7 @@ function CartDiscounts({
                 {codes?.join(', ')}
               </code>
               <button className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium">
-                Remove
+                Retirer
               </button>
             </div>
           </UpdateDiscountForm>
@@ -198,23 +198,23 @@ function CartDiscounts({
         <div className="space-y-2">
           <label
             htmlFor="discountCode"
-            className="block text-white/70 font-medium text-sm"
+            className="block text-black font-medium text-sm"
           >
-            Discount Code
+            Code promo
           </label>
           <div className="flex gap-2">
             <input
               id="discountCode"
               type="text"
               name="discountCode"
-              placeholder="Enter code"
+              placeholder="Entrez le code"
               className="flex-grow bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all duration-200"
             />
             <button
               type="submit"
               className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-primary/40 text-white px-6 py-3 rounded-lg transition-all duration-200 font-medium"
             >
-              Apply
+              Appliquer
             </button>
           </div>
         </div>

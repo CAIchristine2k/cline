@@ -17,22 +17,15 @@ export function ProductCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [itemsPerView, setItemsPerView] = useState(1);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
 
     const updateItemsPerView = () => {
-      if (window.innerWidth >= 1280) {
-        setItemsPerView(5);
-      } else if (window.innerWidth >= 1024) {
-        setItemsPerView(4);
-      } else if (window.innerWidth >= 768) {
-        setItemsPerView(3);
-      } else if (window.innerWidth >= 640) {
-        setItemsPerView(2);
-      } else {
-        setItemsPerView(1);
-      }
+      // Toujours afficher 1 produit à la fois pour un swipe fluide
+      setItemsPerView(1);
     };
 
     updateItemsPerView();
@@ -49,6 +42,34 @@ export function ProductCarousel({
   const scrollNext = useCallback(() => {
     setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
   }, [maxIndex]);
+
+  // Gestion du swipe tactile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && currentIndex < maxIndex) {
+      scrollNext();
+    }
+    if (isRightSwipe && currentIndex > 0) {
+      scrollPrev();
+    }
+
+    // Reset
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   if (!isClient) {
     // Server-side fallback: show grid
@@ -85,7 +106,12 @@ export function ProductCarousel({
       )}
 
       {/* Carousel */}
-      <div className="overflow-hidden px-1 sm:px-0">
+      <div
+        className="overflow-hidden px-1 sm:px-0"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div
           className="flex gap-3 sm:gap-2 transition-transform duration-500 ease-out"
           style={{
@@ -95,10 +121,7 @@ export function ProductCarousel({
           {products.map((product) => (
             <div
               key={product.id}
-              className={`flex-shrink-0`}
-              style={{
-                width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * (window.innerWidth < 640 ? 12 : 8) / itemsPerView}px)`,
-              }}
+              className={`flex-shrink-0 w-full`}
             >
               <ProductCard product={product} loading={loading} compact={compact} />
             </div>

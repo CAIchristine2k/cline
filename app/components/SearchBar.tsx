@@ -44,44 +44,24 @@ export function SearchBar({
     }
   }, [autoFocus]);
 
-  // Mock search suggestions - in a real app, this would call the Shopify API
+  // Fetch real search suggestions from Shopify API
   const fetchSuggestions = async (
     searchQuery: string,
   ): Promise<SearchSuggestion[]> => {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      const response = await fetch(
+        `/api/predictive-search?q=${encodeURIComponent(searchQuery)}`,
+      );
+      const data = await response.json();
 
-    // Mock suggestions based on the query
-    const mockSuggestions: SearchSuggestion[] = [
-      {
-        id: '1',
-        title: 'Boxing Gloves',
-        handle: 'boxing-gloves',
-        type: 'product' as const,
-        image: '/images/boxing-gloves.jpg',
-        price: '$89.99',
-      },
-      {
-        id: '2',
-        title: 'Training Collection',
-        handle: 'training',
-        type: 'collection' as const,
-      },
-      {
-        id: '3',
-        title: 'Championship Belt',
-        handle: 'championship-belt',
-        type: 'product' as const,
-        image: '/images/belt.jpg',
-        price: '$299.99',
-      },
-    ].filter(
-      (item) =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.handle.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-
-    return mockSuggestions;
+      if (data.success && data.suggestions) {
+        return data.suggestions;
+      }
+      return [];
+    } catch (error) {
+      console.error('Search error:', error);
+      return [];
+    }
   };
 
   // Handle search input changes
@@ -145,7 +125,7 @@ export function SearchBar({
         ? `/products/${suggestion.handle}`
         : suggestion.type === 'collection'
           ? `/collections/${suggestion.handle}`
-          : `/${suggestion.handle}`;
+          : `/pages/${suggestion.handle}`;
 
     navigate(path);
     setQuery('');

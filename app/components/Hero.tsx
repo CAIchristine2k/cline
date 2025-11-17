@@ -27,10 +27,10 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative w-full pt-16 mt-8"
+      className="relative w-full pt-12 md:pt-16 mt-2 md:mt-8"
     >
       {/* Full width image - visible en entier */}
-      <div className="w-full">
+      <div className="w-full pt-2 md:pt-8 lg:pt-0 mt-8 md:mt-12 lg:mt-16">
         <img
           src="/images/web.png"
           alt="cline"

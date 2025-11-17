@@ -72,7 +72,7 @@ export function AddToCartButton({
   // Determine the button text based on the current state
   let buttonContent = children || buttonText;
   if (addedToCart) {
-    buttonContent = 'Added to cart!';
+    buttonContent = 'Ajouté !';
   }
 
   // Enhance lines with selectedVariant for optimistic cart
@@ -178,7 +178,7 @@ export function AddToCartButton({
               typeof buttonContent === 'string' ? buttonContent : 'Add to cart'
             }
           >
-            {isSubmitting ? 'Adding...' : buttonContent}
+            {isSubmitting ? 'Ajout...' : buttonContent}
           </button>
         );
       }}

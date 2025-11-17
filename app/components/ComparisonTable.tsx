@@ -38,10 +38,10 @@ export function ComparisonTable() {
         {/* Heading */}
         <div className="mb-6">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2 text-black">
-            Nous vs Concurrents
+            Pourquoi nous choisir ?
           </h2>
           <p className="text-sm sm:text-base text-gray-600">
-            Pourquoi <strong>C'Line Hair</strong> fait la différence.
+            NOUS VS CONCURRENTS
           </p>
         </div>
 
@@ -55,8 +55,6 @@ export function ComparisonTable() {
               </div>
               <h3>C'Line Hair</h3>
             </div>
-
-            <div className="compare-vs">VS</div>
 
             <div className="compare-col compare-col--right">
               <h3>Concurrents</h3>
@@ -101,7 +99,7 @@ export function ComparisonTable() {
 
         .compare-header {
           display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          grid-template-columns: 1fr 1fr;
           align-items: center;
           text-align: center;
           margin-bottom: 20px;
@@ -138,20 +136,6 @@ export function ComparisonTable() {
 
         .compare-col--right h3 {
           color: #c0392b;
-        }
-
-        .compare-vs {
-          width: 48px;
-          height: 48px;
-          border-radius: 999px;
-          background: #000;
-          color: #fff;
-          font-weight: 600;
-          font-size: 0.9rem;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto;
         }
 
         .compare-rows {
@@ -213,49 +197,79 @@ export function ComparisonTable() {
 
         @media (max-width: 768px) {
           .compare-card {
-            padding: 20px 12px;
+            padding: 16px 10px;
+            border-radius: 16px;
           }
 
           .compare-header {
             padding-left: 0;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 8px;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+          }
+
+          .compare-col--left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+          }
+
+          .compare-col--right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
           }
 
           .compare-avatar {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+          }
+
+          .compare-avatar img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
           }
 
           .compare-col h3 {
-            font-size: 0.75rem;
-          }
-
-          .compare-vs {
-            width: 36px;
-            height: 36px;
-            font-size: 0.75rem;
+            font-size: 0.9rem;
+            margin-top: 0;
+            font-weight: 700;
           }
 
           .compare-row {
             grid-template-columns: 1fr;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
           }
 
           .compare-label {
             border-right: none;
             border-bottom: 1px solid rgba(255, 255, 255, 0.7);
-            font-weight: 600;
+            font-weight: 700;
             background: #f0f0f0;
+            padding: 10px 12px;
+            font-size: 0.8rem;
           }
 
           .compare-cell {
             justify-content: flex-start;
-            padding: 10px 12px;
+            padding: 12px;
+            gap: 6px;
           }
 
           .compare-cell span {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            line-height: 1.3;
+          }
+
+          .compare-cell .icon {
+            font-size: 1rem;
+            flex-shrink: 0;
           }
         }
       `}} />

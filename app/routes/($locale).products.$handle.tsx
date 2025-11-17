@@ -18,6 +18,123 @@ import {useConfig} from '~/utils/themeContext';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductCarousel} from '~/components/ProductCarousel';
 import {Suspense} from 'react';
+import {ChevronLeft, ChevronRight} from 'lucide-react';
+
+// Product Reviews Component
+const productReviews = [
+  { name: 'Marie D.', initial: 'M', rating: 5, comment: 'Qualité exceptionnelle ! Exactement ce que je cherchais. Très satisfaite de mon achat.', time: 'Il y a 2 jours' },
+  { name: 'Sophie L.', initial: 'S', rating: 5, comment: 'Livraison rapide et produit conforme. Je recommande vivement !', time: 'Il y a 5 jours' },
+  { name: 'Laura M.', initial: 'L', rating: 4, comment: 'Bon produit dans l\'ensemble. Correspond à la description.', time: 'Il y a 1 semaine' },
+  { name: 'Emma R.', initial: 'E', rating: 5, comment: 'Magnifique ! La qualité est au rendez-vous, je suis ravie.', time: 'Il y a 2 semaines' },
+  { name: 'Camille B.', initial: 'C', rating: 5, comment: 'Parfait pour mon usage. Très bon rapport qualité-prix.', time: 'Il y a 3 semaines' },
+  { name: 'Julie T.', initial: 'J', rating: 4, comment: 'Très satisfaite, correspond bien aux attentes.', time: 'Il y a 3 semaines' },
+  { name: 'Léa F.', initial: 'L', rating: 5, comment: 'Excellent produit, je recommande sans hésiter !', time: 'Il y a 1 mois' },
+  { name: 'Anna P.', initial: 'A', rating: 5, comment: 'Super qualité, conforme à la description. Ravie !', time: 'Il y a 1 mois' },
+  { name: 'Charlotte V.', initial: 'C', rating: 4, comment: 'Bonne qualité, livraison dans les temps.', time: 'Il y a 1 mois' },
+  { name: 'Manon G.', initial: 'M', rating: 5, comment: 'Produit de très bonne qualité. Je recommande.', time: 'Il y a 2 mois' },
+  { name: 'Sarah K.', initial: 'S', rating: 5, comment: 'Absolument parfait ! Dépasse mes attentes.', time: 'Il y a 2 mois' },
+  { name: 'Océane H.', initial: 'O', rating: 4, comment: 'Très bon achat, conforme à mes besoins.', time: 'Il y a 2 mois' },
+  { name: 'Chloé M.', initial: 'C', rating: 5, comment: 'Top qualité ! Je suis très contente de mon achat.', time: 'Il y a 3 mois' },
+  { name: 'Lucie D.', initial: 'L', rating: 5, comment: 'Excellente qualité, je rachèterai sans hésiter.', time: 'Il y a 3 mois' },
+  { name: 'Inès A.', initial: 'I', rating: 4, comment: 'Bon produit, conforme à la description.', time: 'Il y a 3 mois' },
+];
+
+function ProductReviews() {
+  const [currentPage, setCurrentPage] = useState(0);
+  const reviewsPerPage = 3;
+  const totalPages = Math.ceil(productReviews.length / reviewsPerPage);
+
+  const getCurrentReviews = () => {
+    const start = currentPage * reviewsPerPage;
+    return productReviews.slice(start, start + reviewsPerPage);
+  };
+
+  const handlePrev = () => {
+    setCurrentPage((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold text-black">Avis Clients</h3>
+        <div className="hidden lg:flex gap-2">
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 0}
+            className="p-1 rounded-full border border-primary/30 hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            aria-label="Avis précédents"
+          >
+            <ChevronLeft className="w-4 h-4 text-primary" />
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages - 1}
+            className="p-1 rounded-full border border-primary/30 hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            aria-label="Avis suivants"
+          >
+            <ChevronRight className="w-4 h-4 text-primary" />
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {getCurrentReviews().map((review, index) => (
+          <div key={index} className="bg-white border-2 border-primary/20 rounded-lg p-3 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="flex mb-2 gap-0.5">
+              {[...Array(review.rating)].map((_, i) => (
+                <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-primary">
+                  <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                </svg>
+              ))}
+              {[...Array(5 - review.rating)].map((_, i) => (
+                <svg key={`empty-${i}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-gray-300">
+                  <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                </svg>
+              ))}
+            </div>
+            <p className="text-gray-700 text-xs mb-2 leading-relaxed">
+              "{review.comment}"
+            </p>
+            <div className="flex items-center gap-2 pt-2 border-t border-primary/10">
+              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                {review.initial}
+              </div>
+              <div>
+                <div className="font-bold text-black text-xs flex items-center gap-1">
+                  {review.name}
+                  <span className="text-xs text-green-600 font-medium">Avis vérifié</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 text-green-500">
+                    <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path>
+                    <path d="m9 12 2 2 4-4"></path>
+                  </svg>
+                </div>
+                <div className="text-xs text-gray-400">{review.time}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination dots - Desktop only */}
+      <div className="hidden lg:flex justify-center gap-2 mt-4">
+        {Array.from({ length: totalPages }).map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentPage(idx)}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              currentPage === idx ? 'bg-primary w-8' : 'bg-gray-300 w-2'
+            }`}
+            aria-label={`Page ${idx + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const config = getConfig();
@@ -368,75 +485,45 @@ export default function Product() {
       <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
 
-      <div className="w-full mx-auto px-4 md:container relative z-10 mt-24 pt-8">
-        {/* Out of Stock Banner */}
-        {currentVariant && !currentVariant.availableForSale && (
-          <div className="mb-8 mt-24 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-sm">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5 text-amber-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-amber-800 font-medium">
-                  Ce produit est actuellement{' '}
-                  <span className="font-bold">en rupture de stock</span>
-                </p>
-                <p className="text-xs text-amber-700 mt-1">
-                  Vous pouvez l'ajouter à votre liste de souhaits ou revenir plus tard
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
+      <div className="w-full mx-auto px-4 md:container relative z-10 mt-24 pt-2 lg:pt-8">
         {/* Product Grid */}
-        <div className="space-y-8 mb-16 mt-8 lg:mt-32">
+        <div className="mb-16 mt-8 lg:mt-16 lg:grid lg:grid-cols-2 lg:gap-8 space-y-8 lg:space-y-0">
+          {/* Breadcrumb */}
+          <div className="hidden lg:block col-span-2 mb-6">
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol className="flex items-center space-x-2">
+                <li>
+                  <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
+                    Accueil
+                  </Link>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="text-gray-400">/</span>
+                  <Link
+                    to="/collections/all"
+                    className="text-gray-700 hover:text-primary transition-colors"
+                  >
+                    Boutique
+                  </Link>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className="text-gray-400">/</span>
+                  <span className="text-black font-medium text-xs lg:text-base" aria-current="page">
+                    {product.title}
+                  </span>
+                </li>
+              </ol>
+            </nav>
+          </div>
+
           {/* Image Gallery */}
-          <div className="space-y-4 max-w-2xl mx-auto">
-            {/* Breadcrumb */}
-            <div className="mb-4">
-              <nav className="flex" aria-label="Breadcrumb">
-                <ol className="flex items-center space-x-2">
-                  <li>
-                    <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
-                      Accueil
-                    </Link>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="text-gray-400">/</span>
-                    <Link
-                      to="/collections/all"
-                      className="text-gray-700 hover:text-primary transition-colors"
-                    >
-                      Boutique
-                    </Link>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="text-gray-400">/</span>
-                    <span className="text-black font-medium" aria-current="page">
-                      {product.title}
-                    </span>
-                  </li>
-                </ol>
-              </nav>
-            </div>
-            <div className="aspect-square max-h-[270px] lg:max-h-[400px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white">
+          <div className="space-y-4">
+            <div className="aspect-square max-h-[270px] lg:max-h-[400px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white mx-auto lg:mx-0">
               {activeImage ? (
                 <>
                   <Image
                     data={activeImage}
-                    className={`h-full w-full object-cover ${!currentVariant.availableForSale ? 'opacity-70' : ''}`}
+                    className={`h-full w-full object-cover object-center ${!currentVariant.availableForSale ? 'opacity-70' : ''}`}
                     sizes="(min-width: 1024px) 50vw, 100vw"
                   />
                   {!currentVariant.availableForSale && (
@@ -453,6 +540,42 @@ export default function Product() {
                 </div>
               )}
             </div>
+
+            {/* Customer Reviews Section - Desktop only */}
+            <div className="hidden lg:block">
+              <ProductReviews />
+            </div>
+
+            {/* Out of Stock Banner */}
+            {currentVariant && !currentVariant.availableForSale && (
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-sm">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-amber-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-amber-800 font-medium">
+                      Ce produit est actuellement{' '}
+                      <span className="font-bold">en rupture de stock</span>
+                    </p>
+                    <p className="text-xs text-amber-700 mt-1">
+                      Vous pouvez l'ajouter à votre liste de souhaits ou revenir plus tard
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Display a note when showing variant-specific images */}
             {customVariantImages.length > 0 && (
@@ -487,7 +610,7 @@ export default function Product() {
           </div>
 
           {/* Product Info */}
-          <div className="max-w-2xl mx-auto">
+          <div>
             <h1 className="text-2xl font-bold mb-4 text-black leading-tight">{product.title}</h1>
 
             {/* Reviews Section */}
@@ -721,10 +844,8 @@ export default function Product() {
                 Chaque produit est fabriqué avec le plus grand soin et soutenu par l'engagement de {config.brandName} pour l'excellence et la qualité. Nous garantissons votre satisfaction.
               </p>
             </div>
-          </div>
 
-          {/* Collapsible Sections */}
-          <div className="max-w-2xl mx-auto">
+            {/* Collapsible Sections */}
             <div className="space-y-4 mt-8">
               {/* Section 1 - Conditions de retour */}
               <details className="group border border-primary/30 rounded-lg overflow-hidden">
@@ -788,9 +909,9 @@ export default function Product() {
               </details>
             </div>
 
-            {/* Garantie Image */}
-            <div className="mt-8 flex justify-center">
-              <img src="/images/garantie.png" alt="Garantie" className="w-full max-w-md h-auto" />
+            {/* Customer Reviews Section - Mobile only */}
+            <div className="lg:hidden mt-8">
+              <ProductReviews />
             </div>
           </div>
         </div>
@@ -815,7 +936,7 @@ export default function Product() {
             </section>
 
             {/* Section produits */}
-            <section className="relative py-20 bg-white">
+            <section className="relative pb-20 lg:py-20 bg-white">
               {/* Background decorative elements */}
               <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
               <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>

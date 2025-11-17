@@ -63,34 +63,43 @@ export function Footer() {
 
   return (
     <footer className="bg-white border-t border-primary/20">
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-3 md:px-4 py-8 md:py-12 lg:py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
 
           {/* Column 1: About */}
           <div>
             <FooterLogo />
 
             {/* Social Links */}
-            {socialLinks.length > 0 && (
-              <div className="flex space-x-4">
-                {socialLinks.map((social) => {
-                  const IconComponent = social.icon;
-                  return (
-                    <a
-                      key={social.label}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-primary transition-colors duration-300"
-                      aria-label={social.label}
-                    >
-                      <IconComponent className="w-5 h-5" />
-                    </a>
-                  );
-                })}
-              </div>
-            )}
+            <div className="flex space-x-4 justify-center lg:justify-start">
+              {socialLinks.map((social) => {
+                const IconComponent = social.icon;
+                return (
+                  <a
+                    key={social.label}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-primary transition-colors duration-300"
+                    aria-label={social.label}
+                  >
+                    <IconComponent className="w-5 h-5" />
+                  </a>
+                );
+              })}
+
+              {/* TikTok - lien à compléter */}
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-primary transition-colors duration-300"
+                aria-label="TikTok"
+              >
+                <Music className="w-5 h-5" />
+              </a>
+            </div>
           </div>
 
           {/* Column 2: Quick Links */}

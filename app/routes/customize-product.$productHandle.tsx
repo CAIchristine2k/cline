@@ -3133,7 +3133,7 @@ export default function ProductCustomizer() {
                           
                           console.log('✅ Successfully added custom design to cart with fetcher');
                           console.log('✅ Design URL stored in localStorage for persistence');
-                          showSuccess('Custom design added to cart!');
+                          showSuccess('Ajouté !');
                           
                           // Open cart drawer/sidebar and coordinate loading state with cart opening
                           openCart();
@@ -3153,7 +3153,7 @@ export default function ProductCustomizer() {
 
                           if (response.ok) {
                             console.log('✅ Fallback fetch successful');
-                            showSuccess('Custom design added to cart!');
+                            showSuccess('Ajouté !');
                             
                             // Manually revalidate cart data
                             revalidator.revalidate();
@@ -3364,7 +3364,7 @@ export default function ProductCustomizer() {
                           
                           console.log('✅ Successfully added custom designs to cart with fetcher');
                           console.log('✅ Design URLs stored in localStorage for persistence');
-                          showSuccess(`${allDesignUrls.length} custom design(s) added to cart!`);
+                          showSuccess(`${allDesignUrls.length} design(s) ajouté(s) !`);
                           
                           // Open cart drawer/sidebar and coordinate loading state with cart opening
                           openCart();
@@ -3384,7 +3384,7 @@ export default function ProductCustomizer() {
 
                           if (response.ok) {
                             console.log('✅ Fallback fetch successful');
-                            showSuccess(`${allDesignUrls.length} custom design(s) added to cart!`);
+                            showSuccess(`${allDesignUrls.length} design(s) ajouté(s) !`);
                             
                             // Manually revalidate cart data
                             revalidator.revalidate();

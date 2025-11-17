@@ -256,7 +256,7 @@ export default function Testimonials() {
           {/* Testimonials Grid */}
           <div className="overflow-hidden">
             <div
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6 transition-transform duration-500 ease-in-out"
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 transition-transform duration-500 ease-in-out py-6"
               style={{
                 transform: `translateX(0%)`,
               }}
@@ -314,15 +314,13 @@ export default function Testimonials() {
                       <div className="font-bold text-black text-sm flex items-center gap-1.5">
                         {testimonial.name}
                         <BadgeCheck className="h-4 w-4 text-green-500" />
+                        <span className="text-xs text-green-600 font-medium">Avis vérifié</span>
                       </div>
                       <div className="text-xs text-gray-500">
                         {testimonial.role}
                       </div>
                       <div className="text-xs text-gray-400 mt-0.5">
                         {testimonial.date}
-                      </div>
-                      <div className="text-xs text-green-600 mt-0.5 font-medium">
-                        Avis vérifié
                       </div>
                     </div>
                   </div>
