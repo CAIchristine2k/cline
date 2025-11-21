@@ -65,7 +65,6 @@ export function AddToCartButton({
 
   // Handle successful form submission
   const handleSuccess = () => {
-    console.log('AddToCartButton form submitted successfully');
     onClick?.();
   };
 
@@ -98,24 +97,9 @@ export function AddToCartButton({
     return baseInput;
   });
 
-  // Debug any custom attributes being added and selectedVariant
+  // Silent validation
   useEffect(() => {
-    if (lines.some((line) => line.attributes && line.attributes.length > 0)) {
-      console.log(
-        '🔍 AddToCartButton - Custom attributes detected:',
-        lines.map((line) => ({
-          merchandiseId: line.merchandiseId,
-          quantity: line.quantity,
-          attributeCount: line.attributes?.length || 0,
-          attributes: line.attributes || [],
-        })),
-      );
-    }
-    
-    // Validation silencieuse - pas de logs en production
-    if (!selectedVariant && process.env.NODE_ENV === 'development') {
-      console.warn('⚠️ AddToCartButton - No selectedVariant provided for optimistic cart');
-    }
+    // Validation happens here without logging
   }, [lines, selectedVariant]);
 
   return (
@@ -133,29 +117,30 @@ export function AddToCartButton({
           fetcher.data &&
           !fetcher.data.errors?.length;
 
-        // Debug logging
+        // Debug logging (disabled in production)
         useEffect(() => {
-          console.log(
-            'AddToCartButton fetcher state:',
-            fetcher.state,
-            'data:',
-            fetcher.data,
-          );
-
-          // Log form data being submitted
-          if (fetcher.formData) {
-            const formDataEntries = Array.from(fetcher.formData.entries());
+          if (process.env.NODE_ENV === 'development' && false) {
             console.log(
-              'AddToCartButton form data being submitted:',
-              Object.fromEntries(formDataEntries),
+              'AddToCartButton fetcher state:',
+              fetcher.state,
+              'data:',
+              fetcher.data,
             );
+
+            // Log form data being submitted
+            if (fetcher.formData) {
+              const formDataEntries = Array.from(fetcher.formData.entries());
+              console.log(
+                'AddToCartButton form data being submitted:',
+                Object.fromEntries(formDataEntries),
+              );
+            }
           }
         }, [fetcher.state, fetcher.data, fetcher.formData]);
 
         // Handle successful cart addition
         useEffect(() => {
           if (isSuccess && fetcher.data?.cart) {
-            console.log('Cart updated successfully:', fetcher.data.cart);
             setAddedToCart(true);
             handleSuccess();
             setTimeout(() => {

@@ -14,9 +14,9 @@ export function CategoryGrid() {
       link: '/collections/bulk-naturel',
     },
     {
-      name: 'Perruques colorées',
+      name: 'Ponytails',
       image: '/images/category-colored.jpg',
-      link: '/collections/perruques-colorees',
+      link: '/collections/naturelles/ponytail',
     },
     {
       name: 'Perruques HD Lace',

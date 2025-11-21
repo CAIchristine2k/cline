@@ -1,46 +1,70 @@
-import {type LoaderFunctionArgs} from 'react-router';
+import {redirect, type LoaderFunctionArgs} from 'react-router';
 import {useLoaderData, type MetaFunction, Link} from 'react-router';
-import {ChevronRight, Sparkles, ShoppingBag} from 'lucide-react';
+import {ArrowLeft, Sparkles, ShoppingBag, ChevronRight} from 'lucide-react';
 import {ProductCard} from '~/components/ProductCard';
 import {ProductCarousel} from '~/components/ProductCarousel';
+import {resolveCollectionParams, getCollectionTitle} from '~/utils/collectionConfig';
 
-export const meta: MetaFunction<typeof loader> = ({data}) => {
-  const title = data?.collection?.title || 'Collection';
+export const meta: MetaFunction<typeof loader> = ({data, params}) => {
+  const title = data?.title || 'Collection';
   return [
     {title: `${title} | C'Line Hair`},
     {
       name: 'description',
-      content: data?.collection?.description || `Découvrez notre collection ${title}`,
+      content: `Découvrez notre collection ${title} - Cheveux de qualité premium`,
     },
   ];
 };
 
 export async function loader({params, context}: LoaderFunctionArgs) {
-  const {handle} = params;
+  const {main} = params;
 
-  if (!handle) {
-    throw new Response('Collection handle is required', {status: 400});
+  if (!main) {
+    throw new Response('Collection non trouvée', {status: 404});
   }
 
+  // Résoudre les paramètres de collection (hairType, query, etc.)
+  const collectionParams = resolveCollectionParams(main);
+
+  // 🐛 DEBUG: Log pour vérifier la query générée
+  console.log('🔍 [Collection Main] Params:', {
+    main,
+    handle: main,
+    hairType: collectionParams.hairType,
+    query: collectionParams.query,
+  });
+
+  // Query GraphQL pour récupérer la collection Shopify par son handle
   const {collection} = await context.storefront.query(COLLECTION_QUERY, {
     variables: {
-      handle: handle,
+      handle: main,
       first: 50,
     },
   });
 
+  console.log('📦 [Collection Main] Collection found:', collection ? 'Yes' : 'No');
+  console.log('📦 [Collection Main] Products found:', collection?.products?.nodes?.length || 0);
+
   if (!collection) {
+    console.warn(`⚠️ Collection not found: ${main}`);
     throw new Response('Collection non trouvée', {status: 404});
   }
 
+  if (!collection.products || collection.products.nodes.length === 0) {
+    console.warn(`⚠️ No products in collection: ${main}`);
+  }
+
   return {
-    collection,
+    products: collection.products.nodes,
+    title: collection.title,
+    handle: collection.handle,
+    hairType: collectionParams.hairType,
+    main,
   };
 }
 
-export default function Collection() {
-  const {collection} = useLoaderData<typeof loader>();
-  const products = collection.products.nodes;
+export default function CollectionMain() {
+  const {products, title, main} = useLoaderData<typeof loader>();
 
   return (
     <div className="min-h-screen bg-white">
@@ -65,7 +89,7 @@ export default function Collection() {
               Collections
             </Link>
             <ChevronRight className="w-3 h-3" />
-            <span className="text-black font-medium">{collection.title}</span>
+            <span className="text-black font-medium">{title}</span>
           </nav>
 
           {/* Compteur de produits */}
@@ -90,14 +114,14 @@ export default function Collection() {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-              {collection.title}
+              Collection{' '}
+              <span className="text-black">{title}</span>
             </h2>
 
-            {collection.description && (
-              <p className="text-lg text-black leading-relaxed">
-                {collection.description}
-              </p>
-            )}
+            <p className="text-lg text-black leading-relaxed">
+              Découvrez notre sélection exclusive de produits {title.toLowerCase()},
+              choisis avec soin pour sublimer votre beauté naturelle.
+            </p>
           </div>
 
           {/* Carousel */}
@@ -167,11 +191,11 @@ export default function Collection() {
       </section>
 
       {/* Grille complète de tous les produits */}
-      {products.length > 0 && (
-        <div id="all-products" className="container mx-auto px-4 py-12">
-          <h3 className="text-2xl font-bold text-black mb-6">
-            Tous les produits
-          </h3>
+      <div id="all-products" className="container mx-auto px-4 py-12">
+        <h3 className="text-2xl font-bold text-black mb-6">
+          Tous les produits {title.toLowerCase()}
+        </h3>
+        {products.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {products.map((product: any, index: number) => (
               <ProductCard
@@ -182,8 +206,39 @@ export default function Collection() {
               />
             ))}
           </div>
+        ) : null}
+      </div>
+
+      {/* Section de sous-catégories suggérées */}
+      <div className="bg-gray-50 border-t border-gray-200 py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-black mb-6">
+            Explorer par type de produit
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {['perruques', 'bundles', 'closure', 'ponytail', 'bulk'].map(
+              (sub) => (
+                <Link
+                  key={sub}
+                  to={`/collections/${main}/${sub}`}
+                  className="bg-white hover:bg-primary/10 border border-gray-200 hover:border-primary rounded-lg p-6 text-center transition-all duration-300 hover:shadow-lg group"
+                >
+                  <div className="text-3xl mb-2">
+                    {sub === 'perruques' && '👱‍♀️'}
+                    {sub === 'bundles' && '📦'}
+                    {sub === 'closure' && '✨'}
+                    {sub === 'ponytail' && '🎀'}
+                    {sub === 'bulk' && '💫'}
+                  </div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-primary capitalize">
+                    {sub}
+                  </h3>
+                </Link>
+              ),
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

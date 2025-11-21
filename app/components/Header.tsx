@@ -45,26 +45,33 @@ export function Header() {
   // Configuration des menus principaux (header secondaire)
   const menuItems: MenuItem[] = [
     {
-      name: 'NATUREL',
+      name: 'PERRUQUES',
+      link: '/collections/perruques',
+      premium: true,
+    },
+    {
+      name: 'NATURELLES',
       megaMenu: true,
       premium: true,
       submenu: [
-        {name: 'Perruques naturelles', link: '/collections/perruques-naturelles'},
-        {name: 'Bundles', link: '/collections/tissages-naturels'},
-        {name: 'Bulk', link: '/collections/bulk-naturel'},
-        {name: 'Ponytails', link: '/collections/ponytails-naturels'},
-        {name: 'Closures & Frontals', link: '/collections/closures-frontals'},
+        {name: 'Toutes les Naturelles', link: '/collections/naturelles'},
+        {name: 'Perruques', link: '/collections/naturelles-perruques'},
+        {name: 'Bundles', link: '/collections/naturelles-bundles'},
+        {name: 'Closures', link: '/collections/naturelles-closure'},
+        {name: 'Ponytails', link: '/collections/naturelles-ponytail'},
+        {name: 'Bulk', link: '/collections/naturelles-bulk'},
       ],
     },
     {
-      name: 'SEMI-NATUREL',
+      name: 'SYNTHÉTIQUE',
       megaMenu: true,
       submenu: [
-        {name: 'Perruques semi-naturelles', link: '/collections/perruques-semi-naturelles'},
-        {name: 'Bundles', link: '/collections/tissages-semi-naturels'},
-        {name: 'Bulk', link: '/collections/bulk-semi-naturel'},
-        {name: 'Ponytails', link: '/collections/ponytails-semi-naturels'},
-        {name: 'Closures', link: '/collections/closures-semi-naturels'},
+        {name: 'Toutes les Synthétiques', link: '/collections/synthetique'},
+        {name: 'Perruques', link: '/collections/synthetique-perruques'},
+        {name: 'Bundles', link: '/collections/synthetique-bundles'},
+        {name: 'Closures', link: '/collections/synthetique-closure'},
+        {name: 'Ponytails', link: '/collections/synthetique-ponytail'},
+        {name: 'Bulk', link: '/collections/synthetique-bulk'},
       ],
     },
     {
