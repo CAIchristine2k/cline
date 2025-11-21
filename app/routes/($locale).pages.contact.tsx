@@ -37,11 +37,11 @@ export async function action({request, context}: ActionFunctionArgs) {
   // Validate the form data
   const errors: Record<string, string> = {};
 
-  if (!name) errors.name = 'Name is required';
-  if (!email) errors.email = 'Email is required';
+  if (!name) errors.name = 'Le nom est requis';
+  if (!email) errors.email = "L'email est requis";
   if (email && !/^\S+@\S+\.\S+$/.test(email))
-    errors.email = 'Invalid email format';
-  if (!message) errors.message = 'Message is required';
+    errors.email = 'Format email invalide';
+  if (!message) errors.message = 'Le message est requis';
 
   if (Object.keys(errors).length > 0) {
     return data(
@@ -100,7 +100,7 @@ export async function action({request, context}: ActionFunctionArgs) {
     return data(
       {
         errors: {
-          form: 'Failed to send your message. Please try again later.',
+          form: "Échec de l'envoi de votre message. Veuillez réessayer plus tard.",
         },
         formData: Object.fromEntries(formData),
       },
@@ -141,24 +141,24 @@ export default function Contact() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-black mb-4">
-                  Message Sent!
+                  Message envoyé !
                 </h2>
                 <p className="text-gray-700 mb-6">
-                  Thank you for reaching out. We've received your message and
-                  will get back to you as soon as possible.
+                  Merci de nous avoir contactés. Nous avons bien reçu votre message et
+                  nous vous répondrons dans les plus brefs délais.
                 </p>
                 <Link
                   to="/collections/all"
                   className="inline-flex items-center bg-primary hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                  Continue Shopping
+                  Continuer mes achats
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </div>
             ) : (
               <>
                 <h2 className="text-2xl font-bold text-black mb-6 text-center">
-                  Contact Us
+                  Nous contacter
                 </h2>
 
                 <Form method="post" className="space-y-6">
@@ -168,7 +168,7 @@ export default function Contact() {
                         htmlFor="name"
                         className="block text-black font-medium text-sm mb-2"
                       >
-                        Name *
+                        Nom *
                       </label>
                       <input
                         id="name"
@@ -176,7 +176,7 @@ export default function Contact() {
                         type="text"
                         required
                         className="w-full bg-white border border-primary/30 rounded-lg px-4 py-3 text-black placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                        placeholder="Your name"
+                        placeholder="Votre nom"
                       />
                     </div>
 
@@ -193,7 +193,7 @@ export default function Contact() {
                         type="email"
                         required
                         className="w-full bg-white border border-primary/30 rounded-lg px-4 py-3 text-black placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                        placeholder="Your email"
+                        placeholder="Votre email"
                       />
                     </div>
                   </div>
@@ -203,14 +203,14 @@ export default function Contact() {
                       htmlFor="subject"
                       className="block text-black font-medium text-sm mb-2"
                     >
-                      Subject
+                      Sujet
                     </label>
                     <input
                       id="subject"
                       name="subject"
                       type="text"
                       className="w-full bg-white border border-primary/30 rounded-lg px-4 py-3 text-black placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                      placeholder="Message subject"
+                      placeholder="Sujet du message"
                     />
                   </div>
 
@@ -227,7 +227,7 @@ export default function Contact() {
                       required
                       rows={6}
                       className="w-full bg-white border border-primary/30 rounded-lg px-4 py-3 text-black placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 resize-none"
-                      placeholder="Your message"
+                      placeholder="Votre message"
                     ></textarea>
                   </div>
 
@@ -236,7 +236,7 @@ export default function Contact() {
                       type="submit"
                       className="bg-primary hover:bg-primary-600 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl"
                     >
-                      Send Message
+                      Envoyer le message
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </button>
                   </div>

@@ -68,16 +68,6 @@ export function Header() {
       ],
     },
     {
-      name: 'ACCESSOIRES',
-      megaMenu: true,
-      submenu: [
-        {name: 'Soins capillaires', link: '/collections/soins-capillaires'},
-        {name: 'Brosses et peignes', link: '/collections/brosses-peignes'},
-        {name: 'Bonnets et filets', link: '/collections/bonnets-filets'},
-        {name: 'Pinces & élastiques', link: '/collections/pinces-elastiques'},
-      ],
-    },
-    {
       name: 'CONSEILS',
       submenu: [
         {name: "Guide d'achat", link: '/pages/guide-achat'},

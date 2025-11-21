@@ -19,6 +19,7 @@ export function ProductCarousel({
   const [itemsPerView, setItemsPerView] = useState(1);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -34,6 +35,23 @@ export function ProductCarousel({
   }, []);
 
   const maxIndex = Math.max(0, products.length - itemsPerView);
+
+  // Auto-scroll carousel
+  useEffect(() => {
+    if (!isClient || isPaused || maxIndex === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => {
+        // Si on atteint la fin, revenir au début
+        if (prev >= maxIndex) {
+          return 0;
+        }
+        return prev + 1;
+      });
+    }, 3500); // Défile toutes les 3.5 secondes
+
+    return () => clearInterval(interval);
+  }, [isClient, isPaused, maxIndex]);
 
   const scrollPrev = useCallback(() => {
     setCurrentIndex((prev) => Math.max(0, prev - 1));
@@ -111,6 +129,8 @@ export function ProductCarousel({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
       >
         <div
           className="flex gap-3 sm:gap-2 transition-transform duration-500 ease-out"
@@ -121,9 +141,11 @@ export function ProductCarousel({
           {products.map((product) => (
             <div
               key={product.id}
-              className={`flex-shrink-0 w-full`}
+              className="flex-shrink-0 w-full max-w-xs mx-auto"
             >
-              <ProductCard product={product} loading={loading} compact={compact} />
+              <div className="scale-90 sm:scale-95">
+                <ProductCard product={product} loading={loading} compact={compact} />
+              </div>
             </div>
           ))}
         </div>

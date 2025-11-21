@@ -133,7 +133,7 @@ export function ProductCard({
   return (
     <div className={`group relative bg-white border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gray-300 ${compact ? 'rounded-lg' : 'rounded-xl'} text-sm lg:text-base`}>
       {/* Image Container */}
-      <div className={`relative overflow-hidden bg-gray-50 ${compact ? 'aspect-[3/4]' : 'h-32 lg:h-48'}`}>
+      <div className={`relative overflow-hidden bg-gray-50 ${compact ? 'aspect-[4/5]' : 'h-32 lg:h-48'}`}>
         <Link
           to={`/products/${handle}`}
           prefetch="intent"
@@ -260,38 +260,38 @@ export function ProductCard({
       </div>
 
       {/* Product Info */}
-      <div className={`${compact ? 'p-2 md:p-3' : 'p-4 lg:p-6'}`}>
+      <div className={`${compact ? 'p-1.5 md:p-2' : 'p-4 lg:p-6'}`}>
         <Link
           to={`/products/${handle}`}
           prefetch="intent"
-          className="block group mb-1.5"
+          className="block group mb-1"
         >
-          <h3 className={`text-gray-900 font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors ${compact ? 'text-[11px] md:text-xs min-h-[32px]' : 'text-base lg:text-lg'}`}>
+          <h3 className={`text-gray-900 font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors ${compact ? 'text-[10px] md:text-[11px] min-h-[28px]' : 'text-base lg:text-lg'}`}>
             {title}
           </h3>
         </Link>
 
         {/* Rating stars - Compact */}
-        <div className="flex items-center gap-1 mb-1.5">
+        <div className="flex items-center gap-1 mb-1">
           <div
             className="flex text-yellow-400"
             role="img"
             aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}
           >
             {[...Array(Math.floor(rating))].map((_, i) => (
-              <Star key={`full-${i}`} className={`${compact ? 'w-2 h-2 md:w-2.5 md:h-2.5' : 'w-4 h-4'} fill-current`} />
+              <Star key={`full-${i}`} className={`${compact ? 'w-1.5 h-1.5 md:w-2 md:h-2' : 'w-4 h-4'} fill-current`} />
             ))}
             {rating % 1 >= 0.5 && (
-              <Star className={`${compact ? 'w-2 h-2 md:w-2.5 md:h-2.5' : 'w-4 h-4'} fill-current opacity-50`} />
+              <Star className={`${compact ? 'w-1.5 h-1.5 md:w-2 md:h-2' : 'w-4 h-4'} fill-current opacity-50`} />
             )}
             {[...Array(5 - Math.ceil(rating))].map((_, i) => (
               <Star
                 key={`empty-${i}`}
-                className={`${compact ? 'w-2 h-2 md:w-2.5 md:h-2.5' : 'w-4 h-4'} stroke-current fill-transparent opacity-30`}
+                className={`${compact ? 'w-1.5 h-1.5 md:w-2 md:h-2' : 'w-4 h-4'} stroke-current fill-transparent opacity-30`}
               />
             ))}
           </div>
-          <span className={`text-gray-500 font-medium ${compact ? 'text-[9px] md:text-[10px]' : 'text-xs'}`}>
+          <span className={`text-gray-500 font-medium ${compact ? 'text-[8px] md:text-[9px]' : 'text-xs'}`}>
             ({reviews})
           </span>
         </div>
@@ -300,13 +300,13 @@ export function ProductCard({
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
             {price && (
-              <span className={`font-bold text-black ${compact ? 'text-xs md:text-sm' : 'text-base lg:text-lg'}`}>
+              <span className={`font-bold text-black ${compact ? 'text-[11px] md:text-xs' : 'text-base lg:text-lg'}`}>
                 <Money data={price} />
               </span>
             )}
 
             {isOnSale && compareAtPrice && (
-              <span className={`text-gray-400 line-through font-medium ${compact ? 'text-[9px] md:text-[10px]' : 'text-xs'}`}>
+              <span className={`text-gray-400 line-through font-medium ${compact ? 'text-[8px] md:text-[9px]' : 'text-xs'}`}>
                 <Money data={compareAtPrice} />
               </span>
             )}
@@ -324,12 +324,12 @@ export function ProductCard({
                 ]}
                 disabled={isAddingToCart || !isAvailable}
                 onClick={handleAddToCart}
-                className={`!w-auto !min-w-0 bg-primary hover:bg-primary/90 text-black rounded-full transition-all duration-300 hover:scale-110 flex items-center gap-1 ${compact ? '!p-1.5 md:!p-2' : '!p-2 lg:!p-3'}`}
+                className={`!w-auto !min-w-0 bg-primary hover:bg-primary/90 text-black rounded-full transition-all duration-300 hover:scale-110 flex items-center gap-1 ${compact ? '!p-1 md:!p-1.5' : '!p-2 lg:!p-3'}`}
               >
                 {isAddingToCart ? (
-                  <span className={`font-semibold ${compact ? 'text-[9px] md:text-[10px]' : 'text-[10px]'}`}>Ajouté</span>
+                  <span className={`font-semibold ${compact ? 'text-[8px] md:text-[9px]' : 'text-[10px]'}`}>Ajouté</span>
                 ) : (
-                  <ShoppingCart className={compact ? 'w-3.5 h-3.5 md:w-4 md:h-4' : 'w-5 h-5 lg:w-6 lg:h-6'} />
+                  <ShoppingCart className={compact ? 'w-3 h-3 md:w-3.5 md:h-3.5' : 'w-5 h-5 lg:w-6 lg:h-6'} />
                 )}
               </AddToCartButton>
             ) : (

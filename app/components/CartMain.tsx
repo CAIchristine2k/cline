@@ -72,35 +72,15 @@ export function CartMain({
     }
   }, [optimisticCart, originalCart]);
 
-  // Debug the cart structure and custom designs
-  console.log('CartMain - Original cart:', originalCart);
-  console.log('CartMain - Optimistic cart:', cart);
+  // Debug logs in development only
+  if (process.env.NODE_ENV === 'development' && cart?.lines?.nodes?.length > 0) {
+    const customDesignCount = cart.lines.nodes.filter(line =>
+      line.attributes?.some(attr => attr.key === '_custom_design' && attr.value === 'true')
+    ).length;
 
-  if (cart?.lines?.nodes && cart.lines.nodes.length > 0) {
-    console.log('CartMain - First line item structure:', cart.lines.nodes[0]);
-    console.log(
-      'CartMain - First line merchandise:',
-      cart.lines.nodes[0]?.merchandise,
-    );
-    console.log(
-      'CartMain - First line product:',
-      cart.lines.nodes[0]?.merchandise?.product,
-    );
-    
-    // Debug custom design attributes
-    cart.lines.nodes.forEach((line, index) => {
-      const hasCustomDesign = line.attributes?.some(
-        attr => attr.key === '_custom_design' && attr.value === 'true'
-      );
-      
-      if (hasCustomDesign) {
-        console.log(`🎨 CartMain - Line ${index} has custom design:`, {
-          lineId: line.id,
-          attributes: line.attributes,
-          attributeCount: line.attributes?.length || 0,
-        });
-      }
-    });
+    if (customDesignCount > 0) {
+      console.log(`🎨 CartMain - ${customDesignCount} item(s) with custom designs`);
+    }
   }
 
   // Cart calculations

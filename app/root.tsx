@@ -143,9 +143,6 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
   // Safely access cart - it might not be available during POST actions
   const cartData = cart ? cart.get() : Promise.resolve(null);
 
-  // Log the cart data for debugging purposes
-  console.log('Loading cart data:', cartData);
-
   return {
     footer,
     header,

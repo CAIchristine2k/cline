@@ -42,7 +42,9 @@ export function PageLayout({
     <div className="flex flex-col min-h-screen bg-background text-text">
       <Header />
 
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow" style={{minHeight: '60vh'}}>
+        {children}
+      </main>
 
       <Footer />
 
@@ -108,7 +110,6 @@ export function PageLayout({
         >
           <Await resolve={cart || Promise.resolve(null)}>
             {(resolvedCart) => {
-              console.log('Cart resolved in PageLayout:', resolvedCart);
               // Ensure we have a valid cart object or null
               const cartData = resolvedCart || null;
               return (

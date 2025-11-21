@@ -74,28 +74,6 @@ export function CustomizableProductGrid({
     config.customizableProducts?.subtitle ||
     'Create one-of-a-kind products featuring your own photos, text, and designs.';
 
-  // Add detailed debug logging
-  console.log('CustomizableProductGrid - All products:', products?.length || 0);
-  // Log how many customizable products are available
-  const customizableCount = products.filter((product) =>
-    product.variants?.nodes?.some(
-      (variant) => variant?.title?.toLowerCase() === 'custom',
-    ),
-  ).length;
-  console.log(
-    `CustomizableProductGrid - Found ${customizableCount} customizable products`,
-  );
-
-  products?.forEach((product, i) => {
-    // Detailed logging removed for brevity
-  });
-
-  // Log all variant titles for easier debugging
-  const allVariantTitles = products?.flatMap(
-    (product) => product.variants?.nodes?.map((variant) => variant.title) || [],
-  );
-  console.log('All variant titles:', allVariantTitles);
-
   // IMPORTANT: Only filter products that have a "custom" variant
   const customizableProducts = products
     .filter((product) =>
@@ -107,13 +85,8 @@ export function CustomizableProductGrid({
 
   // If no customizable products found, don't render anything
   if (customizableProducts.length === 0) {
-    console.log('No customizable products found with "custom" variants');
     return null;
   }
-
-  console.log(
-    `Found ${customizableProducts.length} products with custom variants`,
-  );
 
   return (
     <section className="section-spacing-y bg-gradient-to-b from-black via-gray-900/95 to-black">

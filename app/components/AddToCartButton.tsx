@@ -112,13 +112,8 @@ export function AddToCartButton({
       );
     }
     
-    if (selectedVariant) {
-      console.log('✅ AddToCartButton - selectedVariant provided:', {
-        id: selectedVariant.id,
-        title: selectedVariant.title,
-        availableForSale: selectedVariant.availableForSale,
-      });
-    } else {
+    // Validation silencieuse - pas de logs en production
+    if (!selectedVariant && process.env.NODE_ENV === 'development') {
       console.warn('⚠️ AddToCartButton - No selectedVariant provided for optimistic cart');
     }
   }, [lines, selectedVariant]);
