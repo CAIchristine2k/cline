@@ -33,12 +33,16 @@
   },
 
   // Routes configuration (optional - for custom domains)
-  // "routes": [
-  //   {
-  //     "pattern": "cline.shop/*",
-  //     "zone_name": "cline.shop"
-  //   }
-  // ],
+  "routes": [
+    {
+      "pattern": "www.clinehair.com/*",
+      "zone_name": "clinehair.com"
+    },
+    {
+      "pattern": "clinehair.com/*",
+      "zone_name": "clinehair.com"
+    }
+  ],
 
   // Limits and performance (CPU limits require paid plan)
   // "limits": {
