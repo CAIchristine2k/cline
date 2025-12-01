@@ -387,6 +387,58 @@ export type CollectionsQuery = {
   };
 };
 
+export type BestSellersCollectionQueryVariables = StorefrontAPI.Exact<{
+  handle: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type BestSellersCollectionQuery = {
+  collection?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
+      products: {
+        nodes: Array<
+          Pick<
+            StorefrontAPI.Product,
+            'id' | 'title' | 'handle' | 'publishedAt' | 'availableForSale'
+          > & {
+            featuredImage?: StorefrontAPI.Maybe<
+              Pick<
+                StorefrontAPI.Image,
+                'id' | 'url' | 'altText' | 'width' | 'height'
+              >
+            >;
+            variants: {
+              nodes: Array<
+                Pick<
+                  StorefrontAPI.ProductVariant,
+                  'id' | 'title' | 'availableForSale'
+                > & {
+                  price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+                  compareAtPrice?: StorefrontAPI.Maybe<
+                    Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+                  >;
+                  selectedOptions: Array<
+                    Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+                  >;
+                }
+              >;
+            };
+            priceRange: {
+              minVariantPrice: Pick<
+                StorefrontAPI.MoneyV2,
+                'amount' | 'currencyCode'
+              >;
+              maxVariantPrice: Pick<
+                StorefrontAPI.MoneyV2,
+                'amount' | 'currencyCode'
+              >;
+            };
+          }
+        >;
+      };
+    }
+  >;
+};
+
 export type CustomerOrderQueryVariables = StorefrontAPI.Exact<{
   orderId: StorefrontAPI.Scalars['ID']['input'];
   customerAccessToken: StorefrontAPI.Scalars['String']['input'];
@@ -1119,6 +1171,36 @@ export type StoreRobotsQueryVariables = StorefrontAPI.Exact<{
 
 export type StoreRobotsQuery = {shop: Pick<StorefrontAPI.Shop, 'id'>};
 
+export type ApiPredictiveSearchQueryVariables = StorefrontAPI.Exact<{
+  query: StorefrontAPI.Scalars['String']['input'];
+  limit: StorefrontAPI.Scalars['Int']['input'];
+}>;
+
+export type ApiPredictiveSearchQuery = {
+  predictiveSearch?: StorefrontAPI.Maybe<{
+    products: Array<
+      Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle' | 'tags'> & {
+        featuredImage?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Image, 'url' | 'altText'>
+        >;
+        priceRange: {
+          minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+      }
+    >;
+    collections: Array<
+      Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
+        image?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Image, 'url' | 'altText'>
+        >;
+      }
+    >;
+  }>;
+};
+
 export type ProductCustomizerQueryVariables = StorefrontAPI.Exact<{
   handle: StorefrontAPI.Scalars['String']['input'];
 }>;
@@ -1335,6 +1417,10 @@ interface GeneratedQueryTypes {
     return: CollectionsQuery;
     variables: CollectionsQueryVariables;
   };
+  '#graphql\n  query BestSellersCollection($handle: String!) {\n    collection(handle: $handle) {\n      id\n      title\n      handle\n      products(first: 10) {\n        nodes {\n          id\n          title\n          handle\n          publishedAt\n          availableForSale\n          featuredImage {\n            id\n            url\n            altText\n            width\n            height\n          }\n          variants(first: 10) {\n            nodes {\n              id\n              title\n              availableForSale\n              price {\n                amount\n                currencyCode\n              }\n              compareAtPrice {\n                amount\n                currencyCode\n              }\n              selectedOptions {\n                name\n                value\n              }\n            }\n          }\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n            }\n            maxVariantPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: BestSellersCollectionQuery;
+    variables: BestSellersCollectionQueryVariables;
+  };
   '#graphql\n  query CustomerOrder($orderId: ID!, $customerAccessToken: String!) {\n    node(id: $orderId) {\n      ... on Order {\n        id\n        name\n        processedAt\n        financialStatus\n        statusUrl\n        totalPrice {\n          amount\n          currencyCode\n        }\n        originalTotalPrice {\n          amount\n          currencyCode\n        }\n        totalTax {\n          amount\n          currencyCode\n        }\n        fulfillmentStatus\n        discountApplications(first: 100) {\n          nodes {\n            value {\n              __typename\n              ... on MoneyV2 {\n                amount\n                currencyCode\n              }\n              ... on PricingPercentageValue {\n                percentage\n              }\n            }\n          }\n        }\n        shippingAddress {\n          name\n          formatted(withName: true)\n          formattedArea\n        }\n        lineItems(first: 100) {\n          nodes {\n            title\n            quantity\n            variant {\n              title\n              price {\n                amount\n                currencyCode\n              }\n              image {\n                altText\n                height\n                url\n                id\n                width\n              }\n            }\n            discountAllocations {\n              allocatedAmount {\n                amount\n                currencyCode\n              }\n              discountApplication {\n                value {\n                  __typename\n                  ... on MoneyV2 {\n                    amount\n                    currencyCode\n                  }\n                  ... on PricingPercentageValue {\n                    percentage\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: CustomerOrderQuery;
     variables: CustomerOrderQueryVariables;
@@ -1386,6 +1472,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query StoreRobots($country: CountryCode, $language: LanguageCode)\n   @inContext(country: $country, language: $language) {\n    shop {\n      id\n    }\n  }\n': {
     return: StoreRobotsQuery;
     variables: StoreRobotsQueryVariables;
+  };
+  '#graphql\n  query ApiPredictiveSearch($query: String!, $limit: Int!) {\n    predictiveSearch(query: $query, limit: $limit, types: [PRODUCT, COLLECTION]) {\n      products {\n        id\n        title\n        handle\n        featuredImage {\n          url\n          altText\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        tags\n      }\n      collections {\n        id\n        title\n        handle\n        image {\n          url\n          altText\n        }\n      }\n    }\n  }\n': {
+    return: ApiPredictiveSearchQuery;
+    variables: ApiPredictiveSearchQueryVariables;
   };
   '#graphql\n  query ProductCustomizer($handle: String!) {\n    product(handle: $handle) {\n      id\n      handle\n      title\n      description\n      images(first: 10) {\n        nodes {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n      }\n      media(first: 50) {\n        nodes {\n          id\n          ... on MediaImage {\n            image {\n              id\n              url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      variants(first: 25) {\n        nodes {\n          id\n          title\n          availableForSale\n          price {\n            amount\n            currencyCode\n          }\n          compareAtPrice {\n            amount\n            currencyCode\n          }\n          image {\n            id\n            url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n            altText\n            width\n            height\n          }\n          metafield(namespace: "custom", key: "variant_imgs") {\n            id\n            type\n            value\n            references(first: 20) {\n              nodes {\n                ... on MediaImage {\n                  id\n                  image {\n                    url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n                    altText\n                    width\n                    height\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: ProductCustomizerQuery;

@@ -1,7 +1,7 @@
 import {type LoaderFunctionArgs} from 'react-router';
 
 const PREDICTIVE_SEARCH_QUERY = `#graphql
-  query PredictiveSearch($query: String!, $limit: Int!) {
+  query ApiPredictiveSearch($query: String!, $limit: Int!) {
     predictiveSearch(query: $query, limit: $limit, types: [PRODUCT, COLLECTION]) {
       products {
         id
