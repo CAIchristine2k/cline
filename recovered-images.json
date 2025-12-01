@@ -1,0 +1,413 @@
+{
+  "metadata": {
+    "generated_at": "2025-11-29",
+    "project": "C'Line Hair Shopify Hydrogen",
+    "description": "Liste des images trouvées dans le projet. Note: Les images de produits Shopify sont chargées dynamiquement via GraphQL et ne sont pas hardcodées dans le code source.",
+    "total_local_images": 38,
+    "total_shopify_cdn_urls": 0,
+    "shopify_note": "Pour récupérer les URLs d'images Shopify, utilisez: 1) Shopify Admin → Products/Files, 2) Browser DevTools → Network tab, 3) GraphQL API directe, 4) Export CSV des produits"
+  },
+  "local_static_images": [
+    {
+      "path": "/images/amexnew.png",
+      "type": "payment_logo",
+      "context": "Logo American Express",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 9
+    },
+    {
+      "path": "/images/american-express.svg",
+      "type": "payment_logo",
+      "context": "Logo American Express (fallback SVG)",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 11
+    },
+    {
+      "path": "/images/apple-pay.png",
+      "type": "payment_logo",
+      "context": "Logo Apple Pay",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 14
+    },
+    {
+      "path": "/images/google-pay.png",
+      "type": "payment_logo",
+      "context": "Logo Google Pay",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 19
+    },
+    {
+      "path": "/images/mastercard.png",
+      "type": "payment_logo",
+      "context": "Logo Mastercard",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 24
+    },
+    {
+      "path": "/images/visaa.webp",
+      "type": "payment_logo",
+      "context": "Logo Visa",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 29
+    },
+    {
+      "path": "/images/logo-visa.png",
+      "type": "payment_logo",
+      "context": "Logo Visa (fallback)",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 31
+    },
+    {
+      "path": "/images/shopp.webp",
+      "type": "payment_logo",
+      "context": "Logo Shop Pay",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 34
+    },
+    {
+      "path": "/images/shop-pay-logo-color.webp",
+      "type": "payment_logo",
+      "context": "Logo Shop Pay (fallback)",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 36
+    },
+    {
+      "path": "/images/logo.png",
+      "type": "brand_logo",
+      "context": "Logo principal C'Line Hair",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 42,
+      "used_in": [
+        "app/components/Logo.tsx",
+        "app/components/ComparisonTable.tsx"
+      ]
+    },
+    {
+      "path": "/images/footer-logo.png",
+      "type": "brand_logo",
+      "context": "Logo footer",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 43
+    },
+    {
+      "path": "/images/category-bundles.jpg",
+      "type": "category_image",
+      "context": "Image catégorie Bundles",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 48,
+      "used_in": [
+        "app/components/CategoryGrid.tsx"
+      ]
+    },
+    {
+      "path": "/images/category-colored.jpg",
+      "type": "category_image",
+      "context": "Image catégorie Colored",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 49,
+      "used_in": [
+        "app/components/CategoryGrid.tsx"
+      ]
+    },
+    {
+      "path": "/images/category-halfwig.jpg",
+      "type": "category_image",
+      "context": "Image catégorie Half Wig",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 50,
+      "used_in": [
+        "app/components/CategoryGrid.tsx"
+      ]
+    },
+    {
+      "path": "/images/category-hdlace.jpg",
+      "type": "category_image",
+      "context": "Image catégorie HD Lace",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 51,
+      "used_in": [
+        "app/components/CategoryGrid.tsx"
+      ]
+    },
+    {
+      "path": "/images/category-mcap.jpg",
+      "type": "category_image",
+      "context": "Image catégorie M Cap",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 52,
+      "used_in": [
+        "app/components/CategoryGrid.tsx"
+      ]
+    },
+    {
+      "path": "/images/category-newarrivals.jpg",
+      "type": "category_image",
+      "context": "Image catégorie Nouveautés",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 53,
+      "used_in": [
+        "app/components/CategoryGrid.tsx"
+      ]
+    },
+    {
+      "path": "/images/cline1.jpg",
+      "type": "avatar",
+      "context": "Avatar/Photo client 1 - Témoignages",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 59,
+      "also_in": "app/utils/config.ts (careerHighlights)"
+    },
+    {
+      "path": "/images/cline2.jpg",
+      "type": "avatar",
+      "context": "Avatar/Photo client 2 - Témoignages",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 60
+    },
+    {
+      "path": "/images/cline3.jpg",
+      "type": "avatar",
+      "context": "Avatar/Photo client 3 - Témoignages",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 61
+    },
+    {
+      "path": "/images/cline4.jpg",
+      "type": "avatar",
+      "context": "Avatar/Photo client 4 - Témoignages",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 62
+    },
+    {
+      "path": "/images/cline5.jpg",
+      "type": "avatar",
+      "context": "Avatar/Photo client 5 - Témoignages, Hero background",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 63,
+      "also_in": "app/utils/config.ts (heroBackgroundImage)"
+    },
+    {
+      "path": "/images/cline6.jpg",
+      "type": "avatar",
+      "context": "Avatar/Photo client 6 - Témoignages",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 64
+    },
+    {
+      "path": "/images/cline7.jpg",
+      "type": "avatar",
+      "context": "Avatar/Photo client 7 - Témoignages",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 65
+    },
+    {
+      "path": "/images/rapidegratuit.png",
+      "type": "marketing_asset",
+      "context": "Marketing - Badge livraison rapide gratuite",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 70
+    },
+    {
+      "path": "/images/astuce.png",
+      "type": "marketing_asset",
+      "context": "Marketing - Image astuces dans section Tips",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 71,
+      "used_in": [
+        "app/components/AIMediaGeneration.tsx"
+      ]
+    },
+    {
+      "path": "/images/50kclient.png",
+      "type": "marketing_asset",
+      "context": "Marketing - Badge 50 000 clients",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 72,
+      "also_in": "app/utils/config.ts (careerHighlights)"
+    },
+    {
+      "path": "/images/bgfete.png",
+      "type": "marketing_asset",
+      "context": "Background section fêtes (career highlights)",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 73,
+      "also_in": "app/utils/config.ts (careerHighlights)"
+    },
+    {
+      "path": "/images/entreprise.PNG",
+      "type": "marketing_asset",
+      "context": "Image entreprise/société",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 74
+    },
+    {
+      "path": "/images/preset/card/card1.PNG",
+      "type": "hero_carousel",
+      "context": "Carte Hero carousel 1",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 79
+    },
+    {
+      "path": "/images/preset/card/card2.PNG",
+      "type": "hero_carousel",
+      "context": "Carte Hero carousel 2",
+      "file": "app/utils/assetsConfig.ts",
+      "line": 80
+    },
+    {
+      "path": "/images/web4.png",
+      "type": "background_image",
+      "context": "Background image section offre limitée (fête)",
+      "file": "app/components/LimitedEdition.tsx",
+      "line": 61
+    },
+    {
+      "path": "/images/testimonial-2.jpeg",
+      "type": "testimonial_avatar",
+      "context": "Photo témoignage - Marie Dubois",
+      "file": "app/utils/config.ts",
+      "line": 702
+    },
+    {
+      "path": "/images/testimonial-3.jpeg",
+      "type": "testimonial_avatar",
+      "context": "Photo témoignage - Sophie Martin",
+      "file": "app/utils/config.ts",
+      "line": 710
+    },
+    {
+      "path": "/images/social-feed-1.jpeg",
+      "type": "testimonial_avatar",
+      "context": "Photo témoignage - Lucas Petit",
+      "file": "app/utils/config.ts",
+      "line": 718
+    },
+    {
+      "path": "/images/naissance.png",
+      "type": "marketing_asset",
+      "context": "Collection naissance (career highlights)",
+      "file": "app/utils/config.ts",
+      "line": 612
+    },
+    {
+      "path": "/videos/vid.mp4",
+      "type": "video",
+      "context": "Video Hero background",
+      "file": "app/utils/config.ts",
+      "line": 265
+    },
+    {
+      "path": "/images/cline.jpg",
+      "type": "influencer_image",
+      "context": "Photo influenceur principal (Cline) + AI reference",
+      "file": "app/utils/config.ts",
+      "line": 257
+    }
+  ],
+  "shopify_cdn_urls": [],
+  "graphql_image_sources": {
+    "description": "Les images de produits Shopify sont chargées dynamiquement via ces queries GraphQL",
+    "queries": [
+      {
+        "file": "app/routes/($locale)._index.tsx",
+        "query_name": "PRODUCTS_QUERY",
+        "line_start": 165,
+        "image_fields": [
+          "featuredImage { id, url, altText, width, height }",
+          "images(first: 1) { nodes { url, altText, width, height } }",
+          "variants(first: 25) { nodes { image { url, altText, width, height } } }"
+        ]
+      },
+      {
+        "file": "app/routes/($locale)._index.tsx",
+        "query_name": "BESTSELLERS_COLLECTION_QUERY",
+        "line_start": 249,
+        "image_fields": [
+          "collection.products.nodes.featuredImage { id, url, altText, width, height }",
+          "collection.products.nodes.variants.nodes.image (non inclus actuellement)"
+        ]
+      },
+      {
+        "file": "app/routes/($locale).products.$handle.tsx",
+        "query_name": "PRODUCT_QUERY",
+        "line_start": 993,
+        "image_fields": [
+          "product.featuredImage { id, url, altText, width, height }",
+          "product.images(first: 10) { nodes { id, url, altText, width, height } }",
+          "product.variants.nodes.image { id, url, altText, width, height }"
+        ]
+      },
+      {
+        "file": "app/routes/($locale).collections.$handle.tsx",
+        "query_name": "COLLECTION_QUERY",
+        "image_fields": [
+          "collection.image { url, altText, width, height }",
+          "collection.products.nodes.featuredImage { id, url, altText, width, height }"
+        ]
+      }
+    ]
+  },
+  "how_to_recover_shopify_images": {
+    "method_1": {
+      "name": "Shopify Admin - Products & Files",
+      "steps": [
+        "Connectez-vous à votre Shopify Admin",
+        "Allez dans Products → Tous les produits (y compris archivés)",
+        "Pour chaque produit, clic droit sur l'image → Copier l'adresse de l'image",
+        "Ou allez dans Settings → Files pour voir tous les fichiers uploadés"
+      ],
+      "note": "Les images de produits supprimés restent accessibles pendant 60-90 jours"
+    },
+    "method_2": {
+      "name": "Browser DevTools - Network Tab",
+      "steps": [
+        "Lancez 'npm run dev' dans votre terminal",
+        "Ouvrez votre navigateur à localhost:3000",
+        "Ouvrez DevTools (F12) → Onglet Network",
+        "Filtrez par 'Img' ou cherchez 'cdn.shopify.com'",
+        "Naviguez sur votre site pour charger les images",
+        "Copiez les URLs des images chargées"
+      ]
+    },
+    "method_3": {
+      "name": "GraphQL API Directe",
+      "description": "Utilisez l'API Shopify Storefront pour récupérer toutes les URLs d'images",
+      "example_query": "{ products(first: 250) { nodes { id title images(first: 10) { nodes { url originalSrc transformedSrc } } } } }"
+    },
+    "method_4": {
+      "name": "Export CSV des produits",
+      "steps": [
+        "Shopify Admin → Products → Export",
+        "Sélectionnez 'Tous les produits' ou 'Produits sélectionnés'",
+        "Le CSV contiendra les colonnes 'Image Src' avec les URLs"
+      ]
+    },
+    "method_5": {
+      "name": "Shopify Files Archive",
+      "description": "Settings → Files → Tous les fichiers uploadés sur votre boutique sont listés ici avec leurs URLs CDN"
+    }
+  },
+  "cdn_references_found": [
+    {
+      "file": "app/root.tsx",
+      "line": 34,
+      "context": "CSP preconnect configuration",
+      "url": "https://cdn.shopify.com",
+      "note": "Configuration seulement, pas une URL d'image réelle"
+    },
+    {
+      "file": "app/components/Seo.tsx",
+      "line": 143,
+      "context": "DNS preconnect optimization",
+      "url": "https://cdn.shopify.com",
+      "note": "Configuration seulement, pas une URL d'image réelle"
+    },
+    {
+      "file": "app/entry.server.tsx",
+      "line": 36,
+      "context": "Content Security Policy",
+      "url": "https://cdn.shopify.com",
+      "note": "Configuration seulement, pas une URL d'image réelle"
+    }
+  ]
+}

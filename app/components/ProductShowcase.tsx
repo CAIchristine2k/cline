@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {ShoppingBag, Star, ArrowRight} from 'lucide-react';
 import {Link} from 'react-router';
 import {ProductCard} from '~/components/ProductCard';
@@ -20,6 +20,27 @@ export function ProductShowcase({
 }: ProductShowcaseProps) {
   const config = useConfig();
 
+  // Get 6 first products + 4 random products for desktop
+  const displayProducts = useMemo(() => {
+    // Filter out specific products
+    const excludedHandles = ['beyonce-5x5-glueless-lace-wig', 'big-afro-hh-wig'];
+    const filteredProducts = products.filter(
+      (product) => !excludedHandles.includes(product.handle)
+    );
+
+    const firstSix = filteredProducts.slice(0, 6);
+
+    // Get 4 random products from the remaining products
+    const remainingProducts = filteredProducts.slice(6);
+    if (remainingProducts.length > 0) {
+      const shuffled = [...remainingProducts].sort(() => Math.random() - 0.5);
+      const randomFour = shuffled.slice(0, 4);
+      return [...firstSix, ...randomFour];
+    }
+
+    return firstSix;
+  }, [products]);
+
   return (
     <section className="relative py-6 md:py-12 lg:py-16 bg-white overflow-hidden">
       {/* Subtle background gradient */}
@@ -28,23 +49,17 @@ export function ProductShowcase({
       <div className="relative container mx-auto px-3 md:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-4 md:mb-8 lg:mb-10">
-          <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full mb-3">
-            <Star className="w-3 h-3 md:w-4 md:h-4 fill-current" />
-            <span className="text-xs md:text-sm font-semibold uppercase tracking-wide">Best Sellers</span>
-          </div>
-
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
-            Nos Produits
-          </h2>
-
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-primary tracking-wide mb-2">
+            BEST SELLERS
+          </h1>
           <p className="text-gray-600 text-xs md:text-sm lg:text-base max-w-2xl mx-auto px-4">
-            Découvrez nos produits les plus populaires, recommandés par des milliers de clientes satisfaites
+            Nos produits les plus appréciés et recommandés par nos clientes.
           </p>
         </div>
 
         {/* Products Grid - Modern Layout */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6 mb-6 md:mb-10 lg:mb-12 max-w-5xl mx-auto">
-          {products.slice(0, 6).map((product, index) => (
+          {displayProducts.map((product, index) => (
             <div
               key={product.id}
               className="animate-fade-in lg:scale-[0.85]"
@@ -65,11 +80,27 @@ export function ProductShowcase({
         {/* View All Button */}
         <div className="flex justify-center">
           <Link
-            to="/collections/all"
-            className="group inline-flex items-center gap-2 bg-black hover:bg-primary text-white hover:text-black font-semibold px-6 py-3 md:px-8 md:py-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm md:text-base"
+            to="/collections/best-sellers"
+            prefetch="intent"
+            className="inline-flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
           >
-            <span>Voir tous les produits</span>
-            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
+            <ShoppingBag className="w-5 h-5" />
+            VOIR NOS PRODUITS
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform group-hover:translate-x-1"
+            >
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
           </Link>
         </div>
       </div>

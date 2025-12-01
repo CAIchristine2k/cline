@@ -156,7 +156,7 @@ export function CartMain({
 
           {/* Cart Summary - Compact bottom */}
           <div className="cart-summary-container">
-            <div className="border-t border-white/10 backdrop-blur-xl" style={{backgroundColor: '#ffb6c1'}}>
+            <div className="border-t border-white/10 backdrop-blur-xl bg-primary-light">
                           {/* Prepare designs for checkout */}
             <PrepareDesignsForCheckout 
               cart={cart} 
@@ -291,7 +291,7 @@ function CartEmpty({
       </p>
 
       <Link
-        to="/collections"
+        to="/collections/best-sellers"
         onClick={close}
         prefetch="viewport"
         className="inline-flex items-center gap-2 bg-primary hover:bg-primary-600 text-black font-bold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"

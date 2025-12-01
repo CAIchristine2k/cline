@@ -1,5 +1,6 @@
 import {useConfig} from '~/utils/themeContext';
 import {Link} from 'react-router';
+import {BRAND_LOGOS, getImageWithFallback} from '~/utils/assetsConfig';
 
 export function FooterLogo() {
   const config = useConfig();
@@ -10,7 +11,7 @@ export function FooterLogo() {
         <div className="relative">
           <div className="absolute -inset-1"></div>
           <img
-            src={config.brandLogo || '/images/footer-logo.png'}
+            {...getImageWithFallback(config.brandLogo || BRAND_LOGOS.footer, BRAND_LOGOS.main)}
             alt={`${config.brandName} Logo`}
             className="h-32 w-auto relative filter drop-shadow-glow"
           />

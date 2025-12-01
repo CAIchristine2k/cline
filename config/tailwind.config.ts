@@ -5,34 +5,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Product theme colors - easily customizable for different products
+        // C'LINE HAIR Brand Colors - Pink Palette
         primary: {
-          50: 'var(--color-primary-50, #FFF9E5)',
-          100: 'var(--color-primary-100, #FFF0BF)',
-          200: 'var(--color-primary-200, #FFE180)',
-          300: 'var(--color-primary-300, #FFD540)',
-          400: 'var(--color-primary-400, #FFC700)',
-          500: 'var(--color-primary-500, #E6B000)',
-          600: 'var(--color-primary-600, #CC9900)',
-          700: 'var(--color-primary-700, #A37A00)',
-          800: 'var(--color-primary-800, #7A5C00)',
-          900: 'var(--color-primary-900, #523D00)',
-          DEFAULT: 'var(--color-primary-500, #E6B000)',
-          dark: 'var(--color-primary-600, #CC9900)',
-          light: 'var(--color-primary-400, #FFC700)',
+          50: '#FFEFF7',
+          100: '#FCD9E7',
+          200: '#F9C4D8',
+          300: '#F7AFCA',
+          400: '#F5A6C6',
+          500: '#F5A6C6', // Main primary
+          600: '#DD88AB',
+          700: '#C56A90',
+          800: '#AD4C75',
+          900: '#952E5A',
+          DEFAULT: '#F5A6C6',
+          dark: '#DD88AB',
+          light: '#FCD9E7',
+          soft: '#FFEFF7',
         },
-        // Secondary color palette for accents
+        // Secondary color palette - Beige/Nude tones
         secondary: {
-          50: 'var(--color-secondary-50, #E6F7FF)',
-          100: 'var(--color-secondary-100, #BAE7FF)',
-          200: 'var(--color-secondary-200, #91D5FF)',
-          300: 'var(--color-secondary-300, #69C0FF)',
-          400: 'var(--color-secondary-400, #40A9FF)',
-          500: 'var(--color-secondary-500, #1890FF)',
-          600: 'var(--color-secondary-600, #096DD9)',
-          700: 'var(--color-secondary-700, #0050B3)',
-          800: 'var(--color-secondary-800, #003A8C)',
-          900: 'var(--color-secondary-900, #002766)',
+          50: '#FAF5F3',
+          100: '#F7EDE9',
+          200: '#F3E8E2',
+          300: '#EFD8CC',
+          400: '#E6C9B8',
+          500: '#F3E8E2',
+          600: '#D9C2BA',
+          700: '#C3A89E',
+          800: '#AD8E82',
+          900: '#977466',
+          DEFAULT: '#F3E8E2',
+          dark: '#D9C2BA',
+        },
+        // Black variants for text and UI
+        black: {
+          DEFAULT: '#111111',
+          soft: '#333333',
+        },
+        // Gray variants
+        gray: {
+          light: '#F7F7F7',
+          DEFAULT: '#CCCCCC',
+          dark: '#777777',
         },
         // Neutral color palette for text and backgrounds
         neutral: {

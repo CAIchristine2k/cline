@@ -75,7 +75,8 @@ export function ProductCard({
       : 0;
 
   // Generate mock rating and reviews for display (since Shopify doesn't provide this)
-  const rating = 4.8 + Math.random() * 0.2;
+  const possibleRatings = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+  const rating = possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
   const reviews = 70 + Math.floor(Math.random() * 60);
 
   // Check if product is a featured product based on config
@@ -83,7 +84,7 @@ export function ProductCard({
 
   // Get product label based on tags or sale status
   const getProductLabel = () => {
-    if (isOnSale) return {text: 'Sale', color: 'bg-red-500'};
+    if (isOnSale) return {text: 'Sale', color: 'bg-primary'};
     if (isFeatured) return {text: 'Featured', color: 'bg-primary'};
     if (tags && tags.includes('new'))
       return {text: 'New', color: 'bg-green-500'};
@@ -167,13 +168,13 @@ export function ProductCard({
         <div className={`absolute flex flex-col gap-1 ${compact ? 'top-1.5 left-1.5 md:top-2 md:left-2' : 'top-4 left-4'}`}>
           {productLabel && (
             <div
-              className={`${productLabel.color} text-white font-bold uppercase tracking-wide rounded-md shadow-md ${compact ? 'text-[8px] px-1.5 py-0.5 md:text-[9px] md:px-2' : 'text-xs px-3 py-1.5'}`}
+              className={`${productLabel.color} text-white font-bold uppercase tracking-wide rounded-sm shadow-md ${compact ? 'text-[9px] px-2 py-0.5 md:text-sm md:px-3.5 md:py-1.5' : 'text-base px-5 py-2.5'}`}
             >
               {productLabel.text}
             </div>
           )}
           {savingsPercentage > 0 && (
-            <div className={`bg-red-500 text-white font-bold rounded-md shadow-md ${compact ? 'text-[8px] px-1.5 py-0.5 md:text-[9px] md:px-2' : 'text-xs px-3 py-1.5'}`}>
+            <div className={`bg-[#f2c47f] text-white font-bold rounded-sm shadow-md flex items-center justify-center ${compact ? 'text-[8px] px-1.5 py-0.5 md:text-xs md:px-2.5 md:py-1' : 'text-sm px-4 py-2'}`}>
               -{savingsPercentage}%
             </div>
           )}
@@ -188,7 +189,7 @@ export function ProductCard({
             </div>
           )}
           {!isAvailable && (
-            <div className={`bg-gray-600/90 text-white font-bold rounded-md shadow-md ${compact ? 'text-[8px] px-1.5 py-0.5 md:text-[9px] md:px-2' : 'text-xs px-3 py-1.5'}`}>
+            <div className={`bg-red-600/90 text-white font-bold rounded-md shadow-md ${compact ? 'text-[8px] px-1.5 py-0.5 md:text-[9px] md:px-2' : 'text-xs px-3 py-1.5'}`}>
               Sold Out
             </div>
           )}
@@ -213,6 +214,7 @@ export function ProductCard({
             {showQuickView && (
               <Link
                 to={`/products/${handle}`}
+                prefetch="intent"
                 className="bg-white/95 hover:bg-white text-gray-900 p-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/20 hover:scale-105"
                 aria-label={`Quick view ${title}`}
               >
@@ -223,6 +225,7 @@ export function ProductCard({
             {hasCustomVariant && !isCustomVariantOutOfStock && (
               <Link
                 to={`/customize-product/${handle}`}
+                prefetch="intent"
                 className="bg-blue-500/95 hover:bg-blue-500 text-white p-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl backdrop-blur-sm border border-blue-400/30 hover:scale-105"
                 aria-label={`Customize ${title}`}
               >
@@ -266,7 +269,7 @@ export function ProductCard({
           prefetch="intent"
           className="block group mb-1"
         >
-          <h3 className={`text-gray-900 font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors ${compact ? 'text-[10px] md:text-[11px] min-h-[28px]' : 'text-base lg:text-lg'}`}>
+          <h3 className={`text-gray-900 font-semibold leading-tight group-hover:text-primary transition-colors ${compact ? 'text-[10px] md:text-[11px] min-h-[42px]' : 'text-base lg:text-lg min-h-[48px]'}`}>
             {title}
           </h3>
         </Link>

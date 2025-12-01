@@ -16,9 +16,10 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {getConfig} from '~/utils/config';
 import {useConfig} from '~/utils/themeContext';
 import {ProductForm} from '~/components/ProductForm';
-import {ProductCarousel} from '~/components/ProductCarousel';
+import {ProductCard} from '~/components/ProductCard';
 import {Suspense} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
+import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
 
 // Product Reviews Component
 const productReviews = [
@@ -231,6 +232,13 @@ export default function Product() {
   useEffect(() => {
     setCurrentVariant(product?.selectedVariant ?? product?.variants?.nodes[0]);
   }, [product?.selectedVariant, product?.variants?.nodes]);
+
+  // Select 2 random products for desktop display
+  const randomProducts = useMemo(() => {
+    if (!recommendedProducts || recommendedProducts.length === 0) return [];
+    const shuffled = [...recommendedProducts].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
+  }, [recommendedProducts]);
 
   if (!product) {
     return (
@@ -645,7 +653,11 @@ export default function Product() {
                 </div>
               )}
 
-              <img src="/images/rapidegratuit.png" alt="Livraison rapide gratuite" className="h-24 w-auto" />
+              <img
+                {...getImageWithFallback(MARKETING_ASSETS.freeShipping, null)}
+                alt="Livraison rapide gratuite"
+                className="h-24 w-auto"
+              />
             </div>
 
             <div className="prose prose-sm max-w-none mb-8 text-black">
@@ -917,7 +929,7 @@ export default function Product() {
         </div>
 
         {/* Best Sellers Section */}
-        {recommendedProducts && recommendedProducts.length > 0 && (
+        {randomProducts && randomProducts.length > 0 && (
           <>
             {/* Section titre */}
             <section className="py-16 bg-white mt-20 border-t border-primary/20">
@@ -941,8 +953,17 @@ export default function Product() {
               <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
               <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
 
-              <div className="relative container mx-auto px-4 z-20">
-                <ProductCarousel products={recommendedProducts} loading="lazy" compact={true} />
+              <div className="relative container mx-auto px-3 md:px-6 lg:px-8 z-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                  {randomProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      loading="lazy"
+                      compact={true}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Add the CSS styles directly */}

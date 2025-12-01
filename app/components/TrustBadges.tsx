@@ -1,6 +1,7 @@
 import React from 'react';
 import {Shield} from 'lucide-react';
 import {useConfig} from '~/utils/themeContext';
+import {PAYMENT_LOGOS, getImageWithFallback} from '~/utils/assetsConfig';
 
 interface Badge {
   emoji: string;
@@ -70,8 +71,8 @@ export default function TrustBadges() {
               <div className="mb-3 inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-primary/20 to-pink-100 group-hover:scale-110 transition-transform duration-300">
                 {badge.emoji === 'apple-pay-logo' ? (
                   <img
-                    src="/images/apple-pay.png"
-                    alt="Apple Pay"
+                    {...getImageWithFallback(PAYMENT_LOGOS.applePay.src, PAYMENT_LOGOS.applePay.fallback)}
+                    alt={PAYMENT_LOGOS.applePay.alt}
                     className="h-8 w-auto object-contain"
                   />
                 ) : (

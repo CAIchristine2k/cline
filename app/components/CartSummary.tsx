@@ -96,38 +96,50 @@ function CartCheckoutActions({
       '❌ CartCheckoutActions - Error parsing checkout URL:',
       error,
     );
-    // Fallback to our custom checkout
+    // Fallback: redirect to Shopify cart which will auto-redirect to checkout
+    const fallbackUrl = checkoutUrl || '#';
     return (
       <div className="mt-8">
-        <Link
-          to="/checkout"
+        <a
+          href={fallbackUrl}
           onClick={close}
           className="block w-full bg-primary hover:bg-primary-600 text-black text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
         >
-          Vérifier et Payer →
-        </Link>
+          Payer maintenant →
+        </a>
         <div className="mt-4 flex items-center justify-center">
           <p className="text-xs text-black/50 text-center">
-            Vérifiez vos achats, puis procédez au paiement sécurisé
+            Vous serez redirigé vers le paiement sécurisé Shopify
           </p>
         </div>
       </div>
     );
   }
 
-  // Preserve the actual checkout path and parameters
-  const checkoutPath = parsedUrl.pathname;
-  const checkoutParams = parsedUrl.search;
-
-  // Construct the final checkout URL
+  // Convert cart permalink to checkout URL
+  // Shopify cart URLs like /cart/c/xxx need to be converted to actual checkout
   let finalCheckoutUrl = checkoutUrl;
+
+  // If the URL contains /cart/c/, it's a cart permalink
+  // Convert it to a proper checkout by changing the path
+  if (parsedUrl.pathname.includes('/cart/c/')) {
+    // Replace /cart/c/ with /checkouts/c/ to get the checkout URL
+    const checkoutPath = parsedUrl.pathname.replace('/cart/c/', '/checkouts/c/');
+    parsedUrl.pathname = checkoutPath;
+
+    // Add step parameter to go directly to payment
+    parsedUrl.searchParams.set('step', 'payment_method');
+
+    finalCheckoutUrl = parsedUrl.toString();
+    console.log('🔄 Converted cart URL to checkout URL:', finalCheckoutUrl);
+  }
 
   // If we're using a custom domain, ensure we construct the URL correctly
   if (checkoutDomain) {
     try {
       const customDomainUrl = new URL(`https://${checkoutDomain}`);
-      customDomainUrl.pathname = checkoutPath;
-      customDomainUrl.search = checkoutParams;
+      customDomainUrl.pathname = parsedUrl.pathname;
+      customDomainUrl.search = parsedUrl.search;
       finalCheckoutUrl = customDomainUrl.toString();
       console.log(
         '✅ CartCheckoutActions - Using custom domain checkout URL:',
@@ -138,8 +150,7 @@ function CartCheckoutActions({
         '❌ CartCheckoutActions - Error creating custom domain URL:',
         error,
       );
-      // Fallback to the original checkout URL
-      finalCheckoutUrl = checkoutUrl;
+      // Fallback to the converted checkout URL
     }
   }
 
@@ -148,6 +159,8 @@ function CartCheckoutActions({
       <a
         href={finalCheckoutUrl}
         onClick={close}
+        target="_self"
+        rel="noopener"
         className="block w-full bg-black hover:bg-black/80 text-white text-center py-4 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg"
       >
         Payer maintenant →
@@ -198,7 +211,7 @@ function CartDiscounts({
         <div className="space-y-2">
           <label
             htmlFor="discountCode"
-            className="block text-black font-medium text-sm"
+            className="block text-black dark:text-white font-medium text-sm"
           >
             Code promo
           </label>
@@ -208,11 +221,11 @@ function CartDiscounts({
               type="text"
               name="discountCode"
               placeholder="Entrez le code"
-              className="flex-grow bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all duration-200"
+              className="flex-grow bg-white text-black placeholder-gray-400 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary focus:outline-none dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:placeholder-gray-400 transition-all duration-200"
             />
             <button
               type="submit"
-              className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-primary/40 text-white px-6 py-3 rounded-lg transition-all duration-200 font-medium"
+              className="bg-primary hover:bg-primary/90 text-black px-6 py-3 rounded-md transition-all duration-200 font-medium hover:shadow-md dark:text-black"
             >
               Appliquer
             </button>

@@ -45,34 +45,44 @@ export function Header() {
   // Configuration des menus principaux (header secondaire)
   const menuItems: MenuItem[] = [
     {
+      name: 'BEST SELLERS',
+      link: '/collections/best-sellers',
+    },
+    {
       name: 'PERRUQUES',
-      link: '/collections/perruques',
-      premium: true,
-    },
-    {
-      name: 'NATURELLES',
-      megaMenu: true,
-      premium: true,
       submenu: [
-        {name: 'Toutes les Naturelles', link: '/collections/naturelles'},
-        {name: 'Perruques', link: '/collections/naturelles-perruques'},
-        {name: 'Bundles', link: '/collections/naturelles-bundles'},
-        {name: 'Closures', link: '/collections/naturelles-closure'},
-        {name: 'Ponytails', link: '/collections/naturelles-ponytail'},
-        {name: 'Bulk', link: '/collections/naturelles-bulk'},
+        {name: 'Naturelles', link: '/collections/naturelles-perruques'},
+        {name: 'Synthétique', link: '/collections/synthetique-perruques'},
       ],
     },
     {
-      name: 'SYNTHÉTIQUE',
-      megaMenu: true,
+      name: 'TISSAGES',
       submenu: [
-        {name: 'Toutes les Synthétiques', link: '/collections/synthetique'},
-        {name: 'Perruques', link: '/collections/synthetique-perruques'},
-        {name: 'Bundles', link: '/collections/synthetique-bundles'},
-        {name: 'Closures', link: '/collections/synthetique-closure'},
-        {name: 'Ponytails', link: '/collections/synthetique-ponytail'},
-        {name: 'Bulk', link: '/collections/synthetique-bulk'},
+        {name: 'Bundles naturels', link: '/collections/naturelles-bundles'},
+        {name: 'Bundles synthétiques', link: '/collections/bundles'},
       ],
+    },
+    {
+      name: 'CLOSURE & FRONTALE',
+      submenu: [
+        {name: 'Closures naturelles', link: '/collections/naturelles-closure'},
+        {name: 'Closures synthétiques', link: '/collections/synthetique-closure'},
+      ],
+    },
+    {
+      name: 'CROCHET BRAIDS',
+      link: '/collections/crochet-braids',
+      premium: true, // Hidden flag - will be shown later
+    },
+    {
+      name: 'ACCESSOIRES',
+      submenu: [
+        {name: 'Accessoires de maintien', link: '/collections/accessoires-maintien'},
+        {name: 'Accessoires de coiffage', link: '/collections/accessoires-coiffage'},
+        {name: "Produits d'entretien", link: '/collections/accessoires-entretien'},
+        {name: 'Accessoires de rangement & transport', link: '/collections/accessoires-rangement'},
+      ],
+      premium: true, // Hidden flag - will be shown later
     },
     {
       name: 'CONSEILS',
@@ -81,10 +91,6 @@ export function Header() {
         {name: "Guide d'entretien", link: '/pages/guide-entretien'},
         {name: 'FAQ', link: '/pages/faq-produits'},
       ],
-    },
-    {
-      name: 'BEST SELLERS',
-      link: '/collections/best-sellers',
     },
   ];
 
@@ -124,9 +130,7 @@ export function Header() {
 
       {/* Header principal */}
       <div
-        className={`border-b border-gray-200 transition-all duration-300 ${
-          isScrolled ? 'py-2 md:py-3' : 'py-3 md:py-4'
-        }`}
+        className="border-b border-gray-200 transition-all duration-300"
       >
         <div className="w-full md:container mx-auto px-3 md:px-4 lg:px-6">
           {/* Desktop Header */}
@@ -142,6 +146,7 @@ export function Header() {
             <nav className="flex items-center justify-center gap-3 flex-shrink-0">
               <Link
                 to="/"
+                prefetch="intent"
                 className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-xs whitespace-nowrap"
               >
                 Accueil
@@ -155,6 +160,7 @@ export function Header() {
 
               <Link
                 to="/pages/about"
+                prefetch="intent"
                 className="text-black hover:text-primary transition-all duration-300 font-medium relative group uppercase tracking-wider text-xs whitespace-nowrap"
               >
                 À propos
@@ -167,6 +173,7 @@ export function Header() {
               {/* Account Button */}
               <Link
                 to="/account"
+                prefetch="intent"
                 className="text-gray-700 hover:text-black transition-all duration-300 flex items-center gap-2"
                 aria-label="Mon compte"
               >
@@ -221,12 +228,15 @@ export function Header() {
       </div>
 
       {/* Menu de navigation principal (desktop) */}
-      <div className="hidden lg:block border-b border-gray-100" style={{backgroundColor: '#111111'}}>
+      <div className="hidden lg:block" style={{backgroundColor: '#111111'}}>
         <div className="w-full md:container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1">
-            {menuItems.map((item, index) => (
-              <React.Fragment key={item.name}>
-                {index > 0 && <span className="text-gray-500 px-1">·</span>}
+            {menuItems.filter(item => !item.premium).map((item, index) => (
+              <div
+                key={item.name}
+                className="relative flex items-center"
+              >
+                <span className={`text-gray-500 px-1 ${index === 0 ? 'hidden' : ''}`}>·</span>
                 <div
                   className="relative"
                   onMouseEnter={() => handleMenuHover(item.name)}
@@ -235,6 +245,7 @@ export function Header() {
                   {item.link ? (
                     <Link
                       to={item.link}
+                      prefetch="intent"
                       className="text-white hover:text-gray-300 transition-all duration-200 px-4 py-3 text-xs font-medium whitespace-nowrap uppercase tracking-wider inline-flex items-center gap-1"
                     >
                       {item.name}
@@ -244,18 +255,18 @@ export function Header() {
                       className="text-white hover:text-gray-300 transition-all duration-200 px-4 py-3 text-xs font-medium whitespace-nowrap uppercase tracking-wider inline-flex items-center gap-1"
                     >
                       {item.name}
-                      {item.submenu && <ChevronDown className="h-3 w-3" />}
+                      {item.submenu ? <ChevronDown className="h-3 w-3" /> : null}
                     </button>
                   )}
                 </div>
-              </React.Fragment>
+              </div>
             ))}
           </nav>
         </div>
       </div>
 
       {/* Mega Menus / Dropdown (desktop) */}
-      {activeMenu && (
+      {activeMenu ? (
         <div
           className="hidden lg:block absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-2xl"
           onMouseEnter={() => handleMenuHover(activeMenu)}
@@ -264,7 +275,15 @@ export function Header() {
           <div className="container mx-auto px-4 lg:px-6 py-8">
             {(() => {
               const activeItem = menuItems.find((item) => item.name === activeMenu);
-              if (!activeItem?.submenu) return null;
+              if (!activeItem?.submenu) return <div />;
+
+
+              const handleLinkClick = (e: React.MouseEvent) => {
+                // Prevent mouse leave from interfering
+                e.stopPropagation();
+                // Close menu immediately
+                setActiveMenu(null);
+              };
 
               // Mega menu avec grille (pour Naturel, Semi-Naturel, Accessoires)
               if (activeItem.megaMenu) {
@@ -275,8 +294,9 @@ export function Header() {
                         <li key={subItem.name}>
                           <Link
                             to={subItem.link}
-                            className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
-                            onClick={() => setActiveMenu(null)}
+                            className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-primary/20 rounded-lg transition-all duration-200 font-medium"
+                            onClick={handleLinkClick}
+                            prefetch="intent"
                           >
                             {subItem.name}
                           </Link>
@@ -295,8 +315,9 @@ export function Header() {
                       <li key={subItem.name}>
                         <Link
                           to={subItem.link}
-                          className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
-                          onClick={() => setActiveMenu(null)}
+                          className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-primary/20 rounded-lg transition-all duration-200 font-medium"
+                          onClick={handleLinkClick}
+                          prefetch="intent"
                         >
                           {subItem.name}
                         </Link>
@@ -308,10 +329,10 @@ export function Header() {
             })()}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Mobile Menu */}
-      {isOpen && (
+      {isOpen ? (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-gray-200 z-50 max-h-[80vh] overflow-y-auto">
           <div className="py-4">
             {/* Search Bar Mobile */}
@@ -323,6 +344,7 @@ export function Header() {
               {/* Liens principaux */}
               <Link
                 to="/"
+                prefetch="intent"
                 onClick={() => setIsOpen(false)}
                 className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
               >
@@ -331,6 +353,7 @@ export function Header() {
 
               <Link
                 to="/pages/about"
+                prefetch="intent"
                 onClick={() => setIsOpen(false)}
                 className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
               >
@@ -338,11 +361,12 @@ export function Header() {
               </Link>
 
               {/* Menus avec sous-menus */}
-              {menuItems.map((item) => (
+              {menuItems.filter(item => !item.premium).map((item) => (
                 <div key={item.name} className="border-b border-gray-100">
                   {item.link ? (
                     <Link
                       to={item.link}
+                      prefetch="intent"
                       onClick={() => setIsOpen(false)}
                       className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between"
                     >
@@ -361,12 +385,13 @@ export function Header() {
                           }`}
                         />
                       </button>
-                      {mobileActiveMenu === item.name && item.submenu && (
+                      {mobileActiveMenu === item.name && item.submenu ? (
                         <div className="bg-gray-50 py-2">
                           {item.submenu.map((subItem) => (
                             <Link
                               key={subItem.name}
                               to={subItem.link}
+                              prefetch="intent"
                               onClick={() => {
                                 setIsOpen(false);
                                 setMobileActiveMenu(null);
@@ -377,7 +402,7 @@ export function Header() {
                             </Link>
                           ))}
                         </div>
-                      )}
+                      ) : null}
                     </>
                   )}
                 </div>
@@ -386,6 +411,7 @@ export function Header() {
               {/* Account link in mobile */}
               <Link
                 to="/account"
+                prefetch="intent"
                 onClick={() => setIsOpen(false)}
                 className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center gap-2"
               >
@@ -395,7 +421,7 @@ export function Header() {
             </nav>
           </div>
         </div>
-      )}
+      ) : null}
     </header>
   );
 }

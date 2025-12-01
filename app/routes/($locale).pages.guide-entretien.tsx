@@ -508,7 +508,7 @@ export default function GuideEntretien() {
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-6 bg-pink-50 border-l-4 p-3 md:p-4 rounded" style={{borderLeftColor: '#ffb6c1'}}>
+              <div className="mt-4 md:mt-6 bg-pink-50 border-l-4 border-l-primary-light p-3 md:p-4 rounded">
                 <p className="text-pink-800 text-xs md:text-sm">
                   ✨ <span className="font-bold">Astuce pro :</span> Appliquez
                   le talc avec parcimonie et brossez délicatement pour un effet
@@ -538,7 +538,7 @@ export default function GuideEntretien() {
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-6 bg-blue-50 border-l-4 p-3 md:p-4 rounded" style={{borderLeftColor: '#ffb6c1'}}>
+              <div className="mt-4 md:mt-6 bg-blue-50 border-l-4 border-l-primary-light p-3 md:p-4 rounded">
                 <p className="text-blue-800 text-xs md:text-sm">
                   🏠 <span className="font-bold">Conservation optimale :</span>{' '}
                   Un endroit sec, frais et à l'abri de la lumière directe

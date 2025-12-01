@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {ShoppingBag, Leaf} from 'lucide-react';
 import {Link} from 'react-router';
 import {useConfig} from '~/utils/themeContext';
@@ -6,36 +6,64 @@ import {useConfig} from '~/utils/themeContext';
 export function Hero() {
   // Get config from context instead of props
   const config = useConfig();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const carouselImages = [
+    '/images/preset/card/card1.PNG',
+    '/images/preset/card/card2.PNG',
+  ];
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.8;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+    }, 4000); // Change slide every 4 seconds
 
-      // Try to play the video - handle autoplay restrictions
-      const playPromise = videoRef.current.play();
-
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.log('Auto-play was prevented by browser:', error);
-          // We'll show the poster image as fallback
-        });
-      }
-    }
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <section
       id="home"
-      className="relative w-full pt-[120px]"
+      className="relative w-full pt-[50px]"
     >
-      {/* Full width image - visible en entier */}
-      <div className="w-full">
-        <img
-          src="/images/web.png"
-          alt="cline"
-          className="w-full h-auto object-contain"
-        />
+      {/* Full width carousel */}
+      <div className="w-full relative overflow-hidden">
+        <div
+          className="flex transition-transform duration-700 ease-in-out"
+          style={{
+            transform: `translateX(-${currentSlide * 100}%)`,
+          }}
+        >
+          {carouselImages.map((image, index) => (
+            <div
+              key={index}
+              className="w-full flex-shrink-0"
+            >
+              <img
+                src={image}
+                alt={`C'Line Hair ${index + 1}`}
+                className="w-full h-auto object-contain"
+                loading={index === 0 ? 'eager' : 'lazy'}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Navigation dots */}
+        <div className="hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+          {carouselImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
+                currentSlide === index
+                  ? 'bg-primary w-6 md:w-8'
+                  : 'bg-white/50 hover:bg-white/80'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Add the CSS styles directly to match Vue template */}

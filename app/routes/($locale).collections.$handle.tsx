@@ -42,16 +42,78 @@ export default function Collection() {
   const {collection} = useLoaderData<typeof loader>();
   const products = collection.products.nodes;
 
+  // Custom titles for specific collections
+  const getCollectionTitle = (handle: string) => {
+    const customTitles: Record<string, {line1: string; line2?: string; line2Color?: string}> = {
+      'perruques': {
+        line1: 'Nos perruques'
+      },
+      'naturelles-perruques': {
+        line1: 'Perruques naturelles'
+      },
+      'best-sellers': {
+        line1: 'NOS BEST-SELLERS'
+      },
+      'naturelles': {
+        line1: '100% naturelles'
+      },
+      'naturelles-bundles': {
+        line1: 'Bundles naturels',
+        line2: 'Cheveux authentiques',
+        line2Color: 'text-primary'
+      },
+      'bundles': {
+        line1: 'Nos Bundles'
+      },
+      'naturelles-closure': {
+        line1: 'Closures naturelles'
+      },
+      'synthetique-perruques': {
+        line1: 'PERRUQUES SEMI-NATUREL'
+      },
+      'synthetique-ponytail': {
+        line1: 'Ponytails synthétiques'
+      },
+      'synthetique-bulk': {
+        line1: 'Bulk synthétique'
+      },
+      'synthetique-closure': {
+        line1: 'Closures synthétiques'
+      },
+      'accessoires': {
+        line1: 'Nos Accessoires'
+      },
+      'accessoires-maintien': {
+        line1: 'Accessoires de maintien'
+      },
+      'accessoires-coiffage': {
+        line1: 'Accessoires de coiffage'
+      },
+      'accessoires-entretien': {
+        line1: "Produits d'entretien"
+      },
+      'accessoires-rangement': {
+        line1: 'Accessoires de rangement & transport'
+      },
+      'crochet-braids': {
+        line1: 'Crochet Braids'
+      },
+    };
+    return customTitles[handle] || {line1: collection.title};
+  };
+
+  const titleConfig = getCollectionTitle(collection.handle);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header avec breadcrumb */}
       <div
         className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-gray-200"
         style={{
-          paddingTop: '120px',
+          paddingTop: '50px',
         }}
       >
-        <div className="container mx-auto px-4 py-3 md:py-4">
+        <div className="container mx-auto px-4 pt-12 pb-3 md:pb-4">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-gray-600 mb-2 md:mb-3">
             <Link to="/" className="hover:text-primary transition-colors">
@@ -75,103 +137,17 @@ export default function Collection() {
         </div>
       </div>
 
-      {/* Section Nos Best Sellers - Style Homepage */}
-      <section className="py-20 relative overflow-hidden" style={{background: 'linear-gradient(to bottom right, #FFB6C1, #FFA0AB)'}}>
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          {/* Header */}
-          <div className="text-center mb-12 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-white/60 text-black px-4 py-2 rounded-full mb-6 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-bold uppercase tracking-wider">Nos Produits Vedettes</span>
-            </div>
-
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-              {collection.title}
-            </h2>
-
-            {collection.description && (
-              <p className="text-lg text-black leading-relaxed">
-                {collection.description}
-              </p>
-            )}
-          </div>
-
-          {/* Carousel */}
-          {products.length > 0 ? (
-            <div className="mb-12">
-              <ProductCarousel products={products} loading="lazy" compact={true} />
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <div className="text-white/50 mb-4">
-                <svg
-                  className="w-24 h-24 mx-auto"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Aucun produit disponible
-              </h3>
-              <p className="text-white/80 mb-6">
-                Cette collection ne contient pas encore de produits.
-              </p>
-            </div>
-          )}
-
-          {/* CTA Button */}
-          {products.length > 0 && (
-            <div className="text-center">
-              <button
-                onClick={() => {
-                  document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="inline-flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                Voir Tous Les Produits
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform group-hover:translate-x-1"
-                >
-                  <path d="M5 12h14"/>
-                  <path d="m12 5 7 7-7 7"/>
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom decorative wave */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/10 to-transparent"></div>
-      </section>
-
       {/* Grille complète de tous les produits */}
       {products.length > 0 && (
         <div id="all-products" className="container mx-auto px-4 py-12">
-          <h3 className="text-2xl font-bold text-black mb-6">
-            Tous les produits
-          </h3>
+          <h1 className="text-2xl font-bold text-primary mb-6 text-center">
+            <div>{titleConfig.line1}</div>
+            {titleConfig.line2 && (
+              <div className={titleConfig.line2Color || 'text-black'}>
+                {titleConfig.line2}
+              </div>
+            )}
+          </h1>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {products.map((product: any, index: number) => (
               <ProductCard
@@ -184,6 +160,28 @@ export default function Collection() {
           </div>
         </div>
       )}
+
+      {/* Section Carousel - Produits Vedettes */}
+      {products.length > 0 && (
+        <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+          <div className="container mx-auto px-4">
+            {/* Header */}
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-sm font-bold uppercase tracking-wider">Découvrez Aussi</span>
+              </div>
+              <h3 className="text-3xl md:text-4xl font-bold text-black">
+                Nos Produits Vedettes
+              </h3>
+            </div>
+
+            {/* Carousel */}
+            <ProductCarousel products={products} loading="lazy" compact={true} />
+          </div>
+        </section>
+      )}
+
     </div>
   );
 }

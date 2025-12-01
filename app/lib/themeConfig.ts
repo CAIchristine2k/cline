@@ -42,11 +42,11 @@ export const colorSchemes: Record<
   ThemeColors
 > = {
   luxury: {
-    primary: '#FFB6C1', // Rose pastel
-    secondary: '#FFFFFF', // Blanc
-    accent: '#FFD1DC', // Rose clair
-    background: '#FFFFFF', // Blanc
-    text: '#000000', // Noir
+    primary: '#F5A6C6', // C'LINE HAIR Pink
+    secondary: '#F3E8E2', // Beige/Nude tone
+    accent: '#FCD9E7', // Primary light
+    background: '#FFFFFF', // White
+    text: '#111111', // Black
   },
   sporty: {
     primary: '#FF4C29', // Energetic red

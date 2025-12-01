@@ -42,7 +42,7 @@ export function PageLayout({
     <div className="flex flex-col min-h-screen bg-background text-text">
       <Header />
 
-      <main className="flex-grow" style={{minHeight: '60vh'}}>
+      <main className="flex-grow pt-20 md:pt-24 lg:pt-28" style={{minHeight: '60vh'}}>
         {children}
       </main>
 

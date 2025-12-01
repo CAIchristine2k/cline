@@ -9,6 +9,7 @@ import {
 import {Link} from 'react-router';
 import {FooterLogo} from './FooterLogo';
 import {useConfig} from '~/utils/themeContext';
+import {PAYMENT_LOGOS, getImageWithFallback} from '~/utils/assetsConfig';
 
 export function Footer() {
   const config = useConfig();
@@ -40,25 +41,25 @@ export function Footer() {
   }
 
   const quickLinks = [
-    {name: 'Boutique', href: '/collections/all'},
+    {name: 'Boutique', href: '/'},
     {name: 'Best Sellers', href: '/collections/best-sellers'},
-    {name: 'Nouveautés', href: '/collections/nouveautes'},
-    {name: 'À Propos', href: '/about'},
-    {name: 'Notre Histoire', href: '/#brand-story'},
+    {name: 'À Propos', href: '/pages/about'},
+    {name: 'Contact', href: '/pages/contact'},
   ];
 
   const supportLinks = [
-    {name: 'Contactez-nous', href: '/pages/contact'},
-    {name: 'FAQ', href: '/pages/faq'},
-    {name: 'Livraison & Retours', href: '/pages/shipping'},
-    {name: 'Guide des Tailles', href: '/pages/size-guide'},
+    {name: 'Politique de Retour', href: '/pages/returns'},
+    {name: 'Politique de Livraison', href: '/pages/shipping'},
+    {name: 'Paiement Sécurisé', href: '/pages/secure-payment'},
+    {name: 'Guide d\'achat', href: '/pages/guide-achat'},
+    {name: 'Guide d\'entretien', href: '/pages/guide-entretien'},
+    {name: 'FAQ', href: '/pages/faq-produits'},
   ];
 
   const legalLinks = [
     {name: 'Mentions Légales', href: '/pages/mentions-legales'},
     {name: 'CGV', href: '/pages/cgv'},
     {name: 'Politique de Confidentialité', href: '/pages/privacy-policy'},
-    {name: 'Cookies', href: '/pages/cookies'},
   ];
 
   return (
@@ -89,9 +90,9 @@ export function Footer() {
                 );
               })}
 
-              {/* TikTok - lien à compléter */}
+              {/* TikTok */}
               <a
-                href="#"
+                href="https://www.tiktok.com/@c.linehair?_r=1&_t=ZN-91imcHt1ily"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-600 hover:text-primary transition-colors duration-300"
@@ -159,30 +160,30 @@ export function Footer() {
           <p className="text-gray-600 text-sm text-center mb-4">Moyens de paiement acceptés</p>
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
             {/* Klarna */}
-            <div className="h-10 px-4 flex items-center justify-center bg-[#FFB3C7] rounded-md">
+            <div className="h-10 px-4 flex items-center justify-center bg-primary-light rounded-md">
               <span className="font-bold text-black text-base">klarna</span>
             </div>
             {/* American Express */}
             <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
               <img
-                src="/images/amexnew.png"
-                alt="American Express"
+                {...getImageWithFallback(PAYMENT_LOGOS.amex.src, PAYMENT_LOGOS.amex.fallback)}
+                alt={PAYMENT_LOGOS.amex.alt}
                 className="h-full w-auto object-contain py-1"
               />
             </div>
             {/* Apple Pay */}
             <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
               <img
-                src="/images/apple-pay.png"
-                alt="Apple Pay"
+                {...getImageWithFallback(PAYMENT_LOGOS.applePay.src, PAYMENT_LOGOS.applePay.fallback)}
+                alt={PAYMENT_LOGOS.applePay.alt}
                 className="h-6 w-auto object-contain"
               />
             </div>
             {/* Google Pay */}
             <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
               <img
-                src="/images/google-pay.png"
-                alt="Google Pay"
+                {...getImageWithFallback(PAYMENT_LOGOS.googlePay.src, PAYMENT_LOGOS.googlePay.fallback)}
+                alt={PAYMENT_LOGOS.googlePay.alt}
                 className="h-6 w-auto object-contain"
               />
             </div>
@@ -196,8 +197,8 @@ export function Footer() {
             {/* Mastercard */}
             <div className="h-10 px-4 flex items-center justify-center bg-white rounded-md border border-gray-300">
               <img
-                src="/images/mastercard.png"
-                alt="Mastercard"
+                {...getImageWithFallback(PAYMENT_LOGOS.mastercard.src, PAYMENT_LOGOS.mastercard.fallback)}
+                alt={PAYMENT_LOGOS.mastercard.alt}
                 className="h-6 w-auto object-contain"
               />
             </div>
@@ -208,16 +209,16 @@ export function Footer() {
             {/* Shop Pay */}
             <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
               <img
-                src="/images/shopp.webp"
-                alt="Shop Pay"
+                {...getImageWithFallback(PAYMENT_LOGOS.shopPay.src, PAYMENT_LOGOS.shopPay.fallback)}
+                alt={PAYMENT_LOGOS.shopPay.alt}
                 className="h-full w-auto object-contain py-1"
               />
             </div>
             {/* Visa */}
             <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
               <img
-                src="/images/visaa.webp"
-                alt="Visa"
+                {...getImageWithFallback(PAYMENT_LOGOS.visa.src, PAYMENT_LOGOS.visa.fallback)}
+                alt={PAYMENT_LOGOS.visa.alt}
                 className="h-full w-auto object-contain py-1"
               />
             </div>

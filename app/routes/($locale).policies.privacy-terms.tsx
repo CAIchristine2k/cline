@@ -20,7 +20,7 @@ export default function PrivacyTerms() {
 
   return (
     <main className="min-h-screen bg-background text-text">
-      <div className="pt-32 pb-20 mx-auto px-4 max-w-4xl">
+      <div className="pt-8 pb-20 mx-auto px-4 max-w-4xl">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-primary">
           Privacy Policy & Terms
         </h1>

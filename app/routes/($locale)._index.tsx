@@ -63,34 +63,59 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     (collection: any) => collection.handle === 'frontpage',
   );
 
+  // Get best-sellers collection
+  console.log('📦 Available collections:', collections?.nodes.map((c: any) => c.handle));
+
+  // Try multiple possible handles
+  let bestSellersCollection = collections?.nodes.find(
+    (collection: any) => collection.handle === 'best-sellers',
+  );
+
+  if (!bestSellersCollection) {
+    bestSellersCollection = collections?.nodes.find(
+      (collection: any) => collection.handle === 'collections/best-sellers',
+    );
+  }
+
+  console.log('🏆 Best-sellers collection found:', !!bestSellersCollection);
+  console.log('🏆 Collection handle:', bestSellersCollection?.handle);
+
+  // Get best-sellers products if collection exists
+  let bestSellersProducts = [];
+  if (bestSellersCollection) {
+    const {collection} = await context.storefront.query(BESTSELLERS_COLLECTION_QUERY, {
+      variables: {handle: bestSellersCollection.handle},
+    });
+    bestSellersProducts = collection?.products?.nodes || [];
+    console.log('🛍️ Best-sellers products count:', bestSellersProducts.length);
+  } else {
+    console.warn('⚠️ Best-sellers collection not found, using fallback products');
+  }
+
   return {
     products: products.nodes,
     featuredCollection,
     collections: collections.nodes,
+    bestSellersProducts,
   };
 }
 
 export default function Home() {
-  const {products, featuredCollection} = useLoaderData<typeof loader>();
+  const {products, featuredCollection, bestSellersProducts} = useLoaderData<typeof loader>();
   const appConfig = useConfig();
 
   return (
     <main>
       <Hero />
 
-      {/* Category Grid - 6 catégories */}
-      <CategoryGrid />
-
-      {/* Product showcase section - EXCLUSIVE MERCHANDISE (non-customizable products only) */}
+      {/* Product showcase section - BEST SELLERS (from best-sellers collection) */}
       <ProductShowcase
-        products={products.filter(
-          (product: any) =>
-            !product.variants?.nodes?.some(
-              (variant: any) => variant?.title?.toLowerCase() === 'custom',
-            ),
-        )}
+        products={bestSellersProducts && bestSellersProducts.length > 0 ? bestSellersProducts : products.slice(0, 6)}
         title="EXCLUSIVE MERCHANDISE"
       />
+
+      {/* Category Grid - 6 catégories */}
+      <CategoryGrid />
 
       {/* Customizable Products Section - Show all customizable products */}
       <CustomizableProductGrid
@@ -215,6 +240,61 @@ const COLLECTIONS_QUERY = `#graphql
           altText
           width
           height
+        }
+      }
+    }
+  }
+`;
+
+const BESTSELLERS_COLLECTION_QUERY = `#graphql
+  query BestSellersCollection($handle: String!) {
+    collection(handle: $handle) {
+      id
+      title
+      handle
+      products(first: 10) {
+        nodes {
+          id
+          title
+          handle
+          publishedAt
+          availableForSale
+          featuredImage {
+            id
+            url
+            altText
+            width
+            height
+          }
+          variants(first: 10) {
+            nodes {
+              id
+              title
+              availableForSale
+              price {
+                amount
+                currencyCode
+              }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
+              selectedOptions {
+                name
+                value
+              }
+            }
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+          }
         }
       }
     }

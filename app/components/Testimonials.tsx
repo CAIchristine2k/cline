@@ -8,7 +8,7 @@ interface Testimonial {
   role: string;
   content: string;
   avatar: string;
-  rating: 4 | 5; // 4 or 5 stars
+  rating: number; // Rating from 4.5 to 5.0
   date: string; // Date de l'avis
 }
 
@@ -25,7 +25,31 @@ const StarIcon = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
-// Testimonials data - 100% 5★ reviews
+// Half Star Icon component
+const HalfStarIcon = ({ className = '' }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    className={className}
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="half-star-gradient">
+        <stop offset="50%" stopColor="currentColor" stopOpacity="1" />
+        <stop offset="50%" stopColor="currentColor" stopOpacity="0.3" />
+      </linearGradient>
+    </defs>
+    <path fill="url(#half-star-gradient)" d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+  </svg>
+);
+
+// Generate random rating from possible values
+const generateRating = () => {
+  const possibleRatings = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+  return possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
+};
+
+// Testimonials data - Realistic ratings
 const testimonialsData: Testimonial[] = [
   {
     id: 1,
@@ -34,7 +58,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Produits de qualité exceptionnelle ! La personnalisation est parfaite et la livraison rapide. Je recommande à 100%.',
     avatar: '/images/cline1.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Mars 2024',
   },
   {
@@ -44,7 +68,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Service client irréprochable et produits magnifiques. Exactement ce que je cherchais pour un cadeau unique.',
     avatar: '/images/cline2.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Novembre 2023',
   },
   {
@@ -54,7 +78,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'La qualité dépasse mes attentes ! Les finitions sont impeccables et le rendu final est sublime.',
     avatar: '/images/cline3.jpg',
-    rating: 4,
+    rating: generateRating(),
     date: 'Juin 2022',
   },
   {
@@ -64,7 +88,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Un vrai coup de cœur ! La personnalisation est facile et le résultat est toujours au-delà de mes espérances.',
     avatar: '/images/cline4.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Janvier 2025',
   },
   {
@@ -74,7 +98,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Je ne peux plus m\'en passer ! Chaque produit est unique et fait avec soin. Un grand merci à toute l\'équipe.',
     avatar: '/images/cline5.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Septembre 2021',
   },
   {
@@ -84,7 +108,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Absolument ravie de mon achat ! La qualité est au rendez-vous et le service après-vente est top. Je recommande vivement.',
     avatar: '/images/cline6.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Février 2024',
   },
   {
@@ -94,7 +118,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Des produits magnifiques et un savoir-faire exceptionnel. Chaque commande est une nouvelle surprise positive !',
     avatar: '/images/cline7.jpg',
-    rating: 4,
+    rating: generateRating(),
     date: 'Août 2023',
   },
   {
@@ -104,7 +128,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Je suis impressionnée par la rapidité de livraison et la qualité du packaging. Les produits sont encore plus beaux en vrai !',
     avatar: '/images/cline1.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Avril 2022',
   },
   {
@@ -114,7 +138,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Un excellent rapport qualité-prix ! J\'ai commandé plusieurs fois et je n\'ai jamais été déçue. Service impeccable.',
     avatar: '/images/cline2.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Décembre 2024',
   },
   {
@@ -124,7 +148,7 @@ const testimonialsData: Testimonial[] = [
     content:
       'Une expérience d\'achat parfaite du début à la fin. Les produits personnalisés sont de grande qualité et très bien réalisés.',
     avatar: '/images/cline3.jpg',
-    rating: 5,
+    rating: generateRating(),
     date: 'Mai 2020',
   },
 ];
@@ -269,14 +293,20 @@ export default function Testimonials() {
                   aria-label={`Témoignage de ${testimonial.name}`}
                 >
                   {/* Stars Rating */}
-                  <div className="flex mb-3 gap-1" role="img" aria-label={`${testimonial.rating} étoiles sur 5`}>
-                    {[...Array(testimonial.rating)].map((_, i) => (
+                  <div className="flex mb-3 gap-1" role="img" aria-label={`${testimonial.rating.toFixed(1)} étoiles sur 5`}>
+                    {/* Full stars */}
+                    {[...Array(Math.floor(testimonial.rating))].map((_, i) => (
                       <StarIcon
-                        key={i}
+                        key={`full-${i}`}
                         className="h-4 w-4 text-primary"
                       />
                     ))}
-                    {[...Array(5 - testimonial.rating)].map((_, i) => (
+                    {/* Half star if rating has decimal >= 0.3 */}
+                    {testimonial.rating % 1 >= 0.3 && testimonial.rating % 1 < 0.8 && (
+                      <HalfStarIcon className="h-4 w-4 text-primary" />
+                    )}
+                    {/* Empty stars */}
+                    {[...Array(5 - Math.ceil(testimonial.rating))].map((_, i) => (
                       <StarIcon
                         key={`empty-${i}`}
                         className="h-4 w-4 text-gray-300"

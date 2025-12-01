@@ -84,7 +84,7 @@ export default function CollectionMainSub() {
       <div
         className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-gray-200"
         style={{
-          paddingTop: '120px',
+          paddingTop: '50px',
         }}
       >
         <div className="container mx-auto px-4 py-3 md:py-4">
@@ -139,7 +139,7 @@ export default function CollectionMainSub() {
       </div>
 
       {/* Section Nos Best Sellers - Style Homepage */}
-      <section className="py-20 relative overflow-hidden" style={{background: 'linear-gradient(to bottom right, #FFB6C1, #FFA0AB)'}}>
+      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-primary-light to-primary-200">
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
@@ -197,10 +197,8 @@ export default function CollectionMainSub() {
           {/* CTA Button */}
           {products.length > 0 && (
             <div className="text-center">
-              <button
-                onClick={() => {
-                  document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' });
-                }}
+              <Link
+                to="/collections/all"
                 className="inline-flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -220,7 +218,7 @@ export default function CollectionMainSub() {
                   <path d="M5 12h14"/>
                   <path d="m12 5 7 7-7 7"/>
                 </svg>
-              </button>
+              </Link>
             </div>
           )}
         </div>

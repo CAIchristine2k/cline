@@ -58,19 +58,7 @@ export default function LimitedEdition() {
   }, [config.limitedEdition]);
 
   return (
-    <section id="fete-offer" className="py-16 md:py-24 relative">
-      {/* Dégradé rose pastel */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-white/90 to-accent/30 z-10"></div>
-
-      {/* Image d'arrière-plan (remplace par une photo de produit festive) */}
-      <div
-        className="absolute inset-0 bg-cover bg-center z-0"
-        style={{
-          backgroundImage: `url('/images/astuce.png')`,
-          backgroundAttachment: 'fixed',
-        }}
-      ></div>
-
+    <section id="fete-offer" className="py-16 md:py-24 relative bg-white bg-cover bg-center bg-no-repeat w-full" style={{backgroundImage: 'url(/images/web4.png)'}}>
       <div className="container mx-auto px-4 relative z-20">
         <div className="max-w-4xl mx-auto text-center">
 
@@ -82,13 +70,12 @@ export default function LimitedEdition() {
           {/* Titre principal */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-black">
             Sublimez vos Fêtes avec <br />
-            <span className="text-primary hero-title-glow">C'LINE HAIR</span>
+            <span className="text-white hero-title-glow">C'LINE HAIR</span>
           </h2>
 
           {/* Sous-texte */}
           <p className="text-lg md:text-xl opacity-90 mb-8 max-w-xl mx-auto text-black">
             Offrez-vous la chevelure de vos rêves à prix magique ✨
-            Jusqu'à <span className="text-black font-bold">-30%</span> sur nos extensions, perruques et bundles 100% naturels.
           </p>
 
           {/* Timer - 24h countdown */}
@@ -115,8 +102,9 @@ export default function LimitedEdition() {
 
           {/* CTA Button */}
           <Link
-            to="/collections/fete-offer"
-            className="bg-primary hover:bg-primary-600 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 inline-flex items-center group shadow-glow"
+            to="/collections/best-sellers"
+            prefetch="intent"
+            className="bg-white hover:bg-gray-100 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 inline-flex items-center group shadow-glow"
           >
             DÉCOUVRIR L'OFFRE
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />

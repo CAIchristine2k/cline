@@ -221,36 +221,29 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <style
           dangerouslySetInnerHTML={{
             __html: `
-              /* Theme CSS Variables - matches Vue template approach */
+              /* Theme CSS Variables - C'LINE HAIR Pink Palette */
               :root {
-                --color-primary: #FFB6C1;
-                --color-secondary: #FFFFFF;
-                --color-accent: #FFD1DC;
-                --color-gold: #e6b000;
+                --color-primary: #F5A6C6;
+                --color-secondary: #F3E8E2;
+                --color-accent: #FCD9E7;
                 --color-background: #FFFFFF;
-                --color-text: #000000;
+                --color-text: #111111;
 
                 /* RGB versions for opacity/shadows */
-                --color-primary-rgb: 255, 182, 193;
-                --color-secondary-rgb: 255, 255, 255;
-                --color-gold-rgb: 230, 176, 0;
+                --color-primary-rgb: 245, 166, 198;
+                --color-secondary-rgb: 243, 232, 226;
 
-                /* Pink color theme variables */
-                --color-gold-400: #FFD1DC;
-                --color-gold-500: #FFB6C1;
-                --color-gold-600: #FFA0AB;
-
-                /* Primary color variants */
-                --color-primary-50: #FFF5F7;
-                --color-primary-100: #FFE8ED;
-                --color-primary-200: #FFD1DC;
-                --color-primary-300: #FFB6C1;
-                --color-primary-400: #FFA0AB;
-                --color-primary-500: #FFB6C1;
-                --color-primary-600: #FF8FA1;
-                --color-primary-700: #FF7A91;
-                --color-primary-800: #FF6581;
-                --color-primary-900: #FF5071;
+                /* Primary color variants - C'LINE HAIR Pink */
+                --color-primary-50: #FFEFF7;
+                --color-primary-100: #FCD9E7;
+                --color-primary-200: #F9C4D8;
+                --color-primary-300: #F7AFCA;
+                --color-primary-400: #F5A6C6;
+                --color-primary-500: #F5A6C6;
+                --color-primary-600: #DD88AB;
+                --color-primary-700: #C56A90;
+                --color-primary-800: #AD4C75;
+                --color-primary-900: #952E5A;
                 
                 /* Typography - use system fonts instead of Google Fonts */
                 --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';

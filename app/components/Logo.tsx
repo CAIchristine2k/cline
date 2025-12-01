@@ -10,12 +10,12 @@ export function Logo({isScrolled = false}: LogoProps) {
 
   return (
     <div className="flex items-center transition-all duration-500">
-      <Link to="/" className="flex items-center">
+      <Link to="/" prefetch="intent" className="flex items-center">
         <img
           src={config.brandLogo}
           alt={`${config.brandName} Logo`}
           className={`transition-all duration-500 ease-in-out ${
-            isScrolled ? 'h-10 w-auto' : 'h-14 w-auto'
+            isScrolled ? 'h-14 w-auto' : 'h-20 w-auto'
           }`}
         />
       </Link>

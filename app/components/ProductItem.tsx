@@ -60,7 +60,8 @@ export function ProductItem({
   const isAvailable = firstVariant?.availableForSale ?? true;
 
   // Generate mock rating and reviews for display (since Shopify doesn't provide this)
-  const rating = 4.8 + Math.random() * 0.2;
+  const possibleRatings = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+  const rating = possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
   const reviews = 70 + Math.floor(Math.random() * 60);
 
   // Check if product is a featured product based on config

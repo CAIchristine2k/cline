@@ -80,7 +80,7 @@ export function ComparisonTable() {
         </div>
 
         {/* Note */}
-        <p className="mt-4 text-sm text-gray-600">
+        <p className="mt-4 text-sm text-black">
           C'Line Hair, pensée comme une perruque mais vécue comme vos vrais cheveux.
         </p>
       </div>

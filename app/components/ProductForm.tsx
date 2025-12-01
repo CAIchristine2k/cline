@@ -7,6 +7,8 @@ import {Money} from '~/components/Money';
 import type {ProductDetailsQuery} from 'storefrontapi.generated';
 import {useCart} from '~/providers/CartProvider';
 import {useLoaderData} from 'react-router';
+import {getColorInfo, isColorOption} from '~/utils/colorMapping';
+import {getDominantColorCached, getContrastColor} from '~/utils/colorExtractor';
 
 // Define a safer type using explicit types rather than referencing a potential null type
 interface ProductVariant {
@@ -51,6 +53,7 @@ export function ProductForm({
   >({});
   const [isAdding, setIsAdding] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [extractedColors, setExtractedColors] = useState<Record<string, string>>({});
 
   // Initialize the selected variant
   useEffect(() => {
@@ -102,6 +105,62 @@ export function ProductForm({
     // Intentionally only depend on selectedVariant.id, not the entire object or onVariantChange
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVariant?.id, product.variants?.nodes]);
+
+  // Extract colors from variant images for color options
+  useEffect(() => {
+    const extractColors = async () => {
+      const colorOptions = product.options.filter((opt) => isColorOption(opt.name));
+      if (colorOptions.length === 0) return;
+
+      const variantNodes = product.variants?.nodes || [];
+      const colors: Record<string, string> = {};
+
+      // Process each color option value
+      for (const colorOption of colorOptions) {
+        for (const value of colorOption.values) {
+          // Find ALL variants with this exact color option value
+          const matchingVariants = variantNodes.filter((v) =>
+            v.selectedOptions.some(
+              (opt) => opt.name === colorOption.name && opt.value === value
+            )
+          );
+
+          // Try to find a variant with an image
+          let variantWithImage = matchingVariants.find((v) => v.image?.url);
+
+          // Fallback: use first matching variant even without image
+          if (!variantWithImage && matchingVariants.length > 0) {
+            variantWithImage = matchingVariants[0];
+          }
+
+          // Extract color from variant image
+          if (variantWithImage?.image?.url) {
+            try {
+              const imageUrl = variantWithImage.image.url;
+              console.log(`🎨 Extracting color for "${value}" from:`, imageUrl);
+
+              const dominantColor = await getDominantColorCached(imageUrl);
+              if (dominantColor) {
+                colors[value] = dominantColor;
+                console.log(`✅ Color extracted for "${value}":`, dominantColor);
+              } else {
+                console.warn(`⚠️ Failed to extract color for "${value}"`);
+              }
+            } catch (error) {
+              console.error(`❌ Error extracting color for "${value}":`, error);
+            }
+          } else {
+            console.warn(`⚠️ No image found for color option "${value}"`);
+          }
+        }
+      }
+
+      console.log('📊 All extracted colors:', colors);
+      setExtractedColors(colors);
+    };
+
+    extractColors();
+  }, [product.options, product.variants?.nodes]);
 
   // Find options available in this product
   const options = product.options.filter((option) => option.values.length > 1);
@@ -256,17 +315,52 @@ export function ProductForm({
                   const isAvailableOption =
                     optionVariant?.availableForSale || false;
 
+                  // Check if this is a color option and get color info
+                  const isColor = isColorOption(option.name);
+
+                  // Try to get extracted color from image first, fallback to mapping
+                  let backgroundColor: string | undefined;
+                  let textColor = '#000000';
+
+                  if (isColor) {
+                    // Priority 1: Use extracted color from variant image
+                    if (extractedColors[value]) {
+                      backgroundColor = extractedColors[value];
+                      textColor = getContrastColor(backgroundColor) === 'light' ? '#ffffff' : '#000000';
+                    }
+                    // Priority 2: Fallback to color mapping
+                    else {
+                      const colorInfo = getColorInfo(value);
+                      if (colorInfo) {
+                        backgroundColor = colorInfo.hex;
+                        textColor = colorInfo.textColor === 'light' ? '#ffffff' : '#000000';
+                      }
+                    }
+                  }
+
                   return (
                     <button
                       key={value}
                       onClick={() => updateSelectedVariant(option.name, value)}
-                      className={`min-w-[80px] px-4 py-2 border text-sm rounded-sm relative ${
+                      className={`min-w-[80px] px-4 py-2 border text-sm rounded-sm relative transition-all ${
                         isSelected
-                          ? 'border-primary bg-primary text-black'
+                          ? backgroundColor
+                            ? 'border-primary ring-2 ring-primary ring-offset-2'
+                            : 'border-black ring-2 ring-black ring-offset-2 text-black'
                           : isAvailableOption
-                            ? 'border-primary/20 hover:border-primary/50 text-black'
+                            ? backgroundColor
+                              ? 'border-primary/20 hover:border-primary/50 hover:scale-105'
+                              : 'border-black/30 hover:border-black hover:scale-105 text-black'
                             : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
                       }`}
+                      style={
+                        backgroundColor && (isAvailableOption || isSelected)
+                          ? {
+                              backgroundColor,
+                              color: textColor,
+                            }
+                          : undefined
+                      }
                       disabled={!isAvailableOption}
                     >
                       {isAvailableOption && value}

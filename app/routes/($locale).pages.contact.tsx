@@ -9,6 +9,7 @@ import {
   redirect,
 } from 'react-router';
 import {useConfig} from '~/utils/themeContext';
+import {getConfig} from '~/utils/config';
 import {ArrowRight} from 'lucide-react';
 import {Resend} from 'resend';
 
@@ -52,8 +53,7 @@ export async function action({request, context}: ActionFunctionArgs) {
 
   // Get store information
   const storeUrl = request.url ? new URL(request.url).origin : 'Unknown';
-  // Import config to get store name
-  const {getConfig} = await import('~/utils/config');
+  // Get config to get store name
   const config = getConfig();
   const storeName = config.brandName || 'Shopify Store';
 

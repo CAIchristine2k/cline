@@ -178,7 +178,7 @@ export function SearchBar({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className="w-full backdrop-blur-sm border border-white/30 rounded-lg py-2 pl-3 pr-10 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200"
-            style={{backgroundColor: '#ffb6c1'}}
+            style={{backgroundColor: '#f2c47f'}}
             aria-label="Rechercher des produits"
             autoComplete="off"
           />

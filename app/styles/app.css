@@ -26,29 +26,29 @@
   --section-spacing: 4rem;
   --card-spacing: 1.5rem;
   
-  /* Product theme colors - matches Vue implementation exactly */
-  --color-primary-50: #FFF9E5;
-  --color-primary-100: #FFF0BF;
-  --color-primary-200: #FFE180;
-  --color-primary-300: #FFD540;
-  --color-primary-400: #FFC700;
-  --color-primary-500: #E6B000;
-  --color-primary-600: #CC9900;
-  --color-primary-700: #A37A00;
-  --color-primary-800: #7A5C00;
-  --color-primary-900: #523D00;
-  
-  /* Secondary color palette for accents */
-  --color-secondary-50: #E6F7FF;
-  --color-secondary-100: #BAE7FF;
-  --color-secondary-200: #91D5FF;
-  --color-secondary-300: #69C0FF;
-  --color-secondary-400: #40A9FF;
-  --color-secondary-500: #1890FF;
-  --color-secondary-600: #096DD9;
-  --color-secondary-700: #0050B3;
-  --color-secondary-800: #003A8C;
-  --color-secondary-900: #002766;
+  /* C'LINE HAIR Brand Colors - Pink Palette */
+  --color-primary-50: #FFEFF7;
+  --color-primary-100: #FCD9E7;
+  --color-primary-200: #F9C4D8;
+  --color-primary-300: #F7AFCA;
+  --color-primary-400: #f2c47f;
+  --color-primary-500: #bf638f;
+  --color-primary-600: #DD88AB;
+  --color-primary-700: #C56A90;
+  --color-primary-800: #AD4C75;
+  --color-primary-900: #952E5A;
+
+  /* Secondary color palette - Beige/Nude tones */
+  --color-secondary-50: #FAF5F3;
+  --color-secondary-100: #F7EDE9;
+  --color-secondary-200: #F3E8E2;
+  --color-secondary-300: #EFD8CC;
+  --color-secondary-400: #E6C9B8;
+  --color-secondary-500: #F3E8E2;
+  --color-secondary-600: #D9C2BA;
+  --color-secondary-700: #C3A89E;
+  --color-secondary-800: #AD8E82;
+  --color-secondary-900: #977466;
   
   /* Neutral color palette for text and backgrounds */
   --color-neutral-50: #FAFAFA;
@@ -80,7 +80,7 @@
   --color-primary-light: var(--color-primary-400);
   
   /* Add RGB versions for opacity control */
-  --color-primary-rgb: 230, 176, 0; /* E6B000 */
+  --color-primary-rgb: 191, 99, 143; /* bf638f - C'LINE HAIR Pink */
   --color-background-rgb: 0, 0, 0;
   
   /* Typography */
@@ -856,7 +856,7 @@ video {
 
 .cart-summary-container {
   flex-shrink: 0;
-  background: rgba(var(--color-background-rgb, 0, 0, 0), 0.9);
+  background: #ffffff;
   backdrop-filter: blur(15px);
   border-top: 1px solid rgba(var(--color-primary-rgb), 0.15);
   min-height: var(--cart-summary-min-height);

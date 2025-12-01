@@ -10,22 +10,24 @@ interface FeaturedProductsSectionProps {
 
 export function FeaturedProductsSection({products}: FeaturedProductsSectionProps) {
   return (
-    <section className="py-20 relative overflow-hidden" style={{background: 'linear-gradient(to bottom right, #FFB6C1, #FFA0AB)'}}>
+    <section className="py-20 relative overflow-hidden bg-white">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-12 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/60 text-black px-4 py-2 rounded-full mb-6 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-bold uppercase tracking-wider">Nos Produits Vedettes</span>
+        <div className="flex flex-col items-center text-center mb-12 max-w-3xl mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/60 text-black px-4 py-2 rounded-full backdrop-blur-sm">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-sm font-bold uppercase tracking-wider">Nos Produits Vedettes</span>
+            </div>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-            Nos{' '}
-            <span className="text-black">Nouveautés</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center w-full">
+            <span className="text-primary">Nos</span>{' '}
+            <span className="text-primary">Nouveautés</span>
           </h2>
 
           <p className="text-lg text-black leading-relaxed">
@@ -43,7 +45,7 @@ export function FeaturedProductsSection({products}: FeaturedProductsSectionProps
         <div className="text-center">
           <Link
             to="/collections/all"
-            className="inline-flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
+            className="inline-flex items-center gap-3 bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
           >
             <ShoppingBag className="w-5 h-5" />
             Voir Tous Les Produits

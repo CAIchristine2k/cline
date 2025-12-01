@@ -13,18 +13,18 @@ export default function About() {
   const config = useConfig();
 
   return (
-    <div className="min-h-screen bg-white pt-28 md:pt-32 pb-8 relative overflow-hidden">
+    <div className="min-h-screen bg-white pt-8 pb-8 relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute -right-20 top-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute -left-40 bottom-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
 
       {/* Section Hero - Nouvelle première section */}
       <section className="relative min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden pt-4 md:pt-10 bg-white">
-        <div className="relative container mx-auto px-4 z-20 py-10 md:py-20">
+        <div className="relative container mx-auto px-4 z-20">
           <div className="max-w-3xl mx-auto bg-white/40 p-4 md:p-8 rounded-lg text-center">
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
               <span className="text-black">L'HISTOIRE DE</span><br />
-              <span className="tracking-wider hero-title-glow" style={{color: '#e6b000'}}>C'LINE HAIR</span>
+              <span className="tracking-wider hero-title-glow text-primary">C'LINE HAIR</span>
             </h1>
 
             <p className="text-base md:text-lg lg:text-xl text-gray-700 mb-6 md:mb-10 max-w-xl leading-relaxed mx-auto px-2">
@@ -33,8 +33,9 @@ export default function About() {
 
             <div className="flex flex-col sm:flex-row gap-5 justify-center">
               <Link
-                to="/collections/all"
-                className="group bg-primary hover:bg-primary-400 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow"
+                to="/collections/best-sellers"
+                prefetch="intent"
+                className="group bg-[#f2c47f] hover:bg-[#e5b570] text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow"
               >
                 DÉCOUVRIR LA COLLECTION
                 <ShoppingBag className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -43,35 +44,35 @@ export default function About() {
 
             <div className="mt-8 md:mt-16 mb-8 md:mb-24 grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-4">
               <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-3 md:p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-                <div className="text-2xl md:text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>20+</div>
+                <div className="text-2xl md:text-3xl font-bold hero-stat-glow text-primary">20+</div>
                 <div className="text-gray-800 text-[10px] md:text-sm tracking-wider">ANNÉES D'EXPERTISE</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-3 md:p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-                <div className="text-2xl md:text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>0</div>
+                <div className="text-2xl md:text-3xl font-bold hero-stat-glow text-primary">0</div>
                 <div className="text-gray-800 text-[10px] md:text-sm tracking-wider">COMPROMIS SUR LA QUALITÉ</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-3 md:p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-                <div className="text-2xl md:text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>+50K</div>
+                <div className="text-2xl md:text-3xl font-bold hero-stat-glow text-primary">+50K</div>
                 <div className="text-gray-800 text-[10px] md:text-sm tracking-wider">CLIENTES SATISFAITES</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-3 md:p-4 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-                <div className="text-2xl md:text-3xl font-bold hero-stat-glow" style={{color: '#e6b000'}}>+300</div>
+                <div className="text-2xl md:text-3xl font-bold hero-stat-glow text-primary">+300</div>
                 <div className="text-gray-800 text-[10px] md:text-sm tracking-wider">PRODUITS</div>
               </div>
             </div>
           </div>
 
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
-            <span className="text-xs mb-2 tracking-widest" style={{color: '#ffb6c1'}}>FAITES DÉFILER</span>
+            <span className="text-xs mb-2 tracking-widest text-black">FAITES DÉFILER</span>
             <div className="w-0.5 h-12 bg-primary"></div>
           </div>
         </div>
       </section>
 
       {/* Section 1: À propos */}
-      <section id="about" className="py-10 md:py-16 lg:py-24 relative z-10">
+      <section id="about" className="pb-10 md:pb-16 lg:pb-24 relative z-10">
         <div className="container mx-auto px-4 max-w-5xl text-center">
-          <div className="inline-block px-3 md:px-4 py-1 text-black text-xs md:text-sm font-bold tracking-wider uppercase mb-4 md:mb-6 rounded-sm" style={{backgroundColor: '#e6b000'}}>
+          <div className="inline-block px-4 md:px-6 py-2 md:py-3 text-black text-sm md:text-base font-bold tracking-wider uppercase mb-4 md:mb-6 rounded-sm bg-[#f2c47f]">
             À propos
           </div>
 
@@ -83,7 +84,7 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {/* Bloc 1 */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 md:p-6 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3" style={{color: '#ffb6c1'}}>Le parcours</h3>
+              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3 text-primary-light">Le parcours</h3>
               <p className="text-gray-700 text-xs md:text-sm leading-relaxed">
                 D'un atelier parisien à une référence de confiance : sélection de cheveux 100 % traçables,
                 finitions soignées et contrôle qualité strict à chaque étape.
@@ -92,7 +93,7 @@ export default function About() {
 
             {/* Bloc 2 */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 md:p-6 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3" style={{color: '#ffb6c1'}}>Savoir-faire & innovation</h3>
+              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3 text-primary-light">Savoir-faire & innovation</h3>
               <p className="text-gray-700 text-xs md:text-sm leading-relaxed">
                 Finitions <strong>HD Lace</strong> invisibles, <strong>InvisiFit 360°</strong>, lignes naturelles et confort
                 longue durée — un rendu réaliste, sans compromis entre qualité, éthique et style.
@@ -101,7 +102,7 @@ export default function About() {
 
             {/* Bloc 3 */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-4 md:p-6 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3" style={{color: '#ffb6c1'}}>Au-delà du produit</h3>
+              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3 text-primary-light">Au-delà du produit</h3>
               <p className="text-gray-700 text-xs md:text-sm leading-relaxed">
                 Conseils personnalisés, service de pose pro et guide d'entretien. Notre collection exclusive
                 est pensée pour la confiance au quotidien.
@@ -113,25 +114,13 @@ export default function About() {
           <div className="mt-6 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-5 justify-center px-4">
             <Link
               to="/collections/all"
-              className="group text-black font-bold py-3 md:py-4 px-6 md:px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow uppercase tracking-wider text-xs md:text-sm"
-              style={{backgroundColor: '#e6b000'}}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d4a000'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e6b000'}
+              className="group text-black font-bold py-3 md:py-4 px-6 md:px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow uppercase tracking-wider text-xs md:text-sm bg-primary hover:bg-primary-dark"
             >
               Découvrir la collection
             </Link>
             <Link
               to="/conseils"
-              className="group bg-white border-2 text-black font-bold py-3 md:py-4 px-6 md:px-8 rounded-sm transition-all duration-300 flex items-center justify-center uppercase tracking-wider text-xs md:text-sm"
-              style={{borderColor: '#e6b000', color: '#e6b000'}}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#e6b000';
-                e.currentTarget.style.color = 'black';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'white';
-                e.currentTarget.style.color = '#e6b000';
-              }}
+              className="group bg-white border-2 border-primary text-primary font-bold py-3 md:py-4 px-6 md:px-8 rounded-sm transition-all duration-300 flex items-center justify-center uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-black"
             >
               Nos conseils d'entretien
             </Link>
@@ -154,7 +143,7 @@ export default function About() {
           <div className="text-center mb-8 md:mb-12">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
               <span className="text-white">NOTRE BOUTIQUE</span>{' '}
-              <span style={{color: '#e6b000'}}>C'LINE</span>
+              <span className="text-primary">C'LINE</span>
             </h2>
           </div>
 
@@ -176,7 +165,7 @@ export default function About() {
                 <div className="text-3xl md:text-4xl">📞</div>
                 <div>
                   <h3 className="text-lg md:text-xl font-bold text-black mb-2">Téléphone</h3>
-                  <a href="tel:+33659274906" className="text-primary hover:text-primary-600 font-semibold text-sm md:text-base transition-colors">
+                  <a href="tel:+33659274906" className="text-black hover:text-gray-700 font-semibold text-sm md:text-base transition-colors">
                     06 59 27 49 06
                   </a>
                 </div>
@@ -231,13 +220,13 @@ export default function About() {
         <div className="container mx-auto px-4 max-w-5xl text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 md:mb-16 text-center">
             <span className="text-black">NOS </span>
-            <span className="text-primary">VALEURS</span>
+            <span className="text-[#f2c47f]">VALEURS</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {/* 01 Qualité & Excellence */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-5 md:p-8 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <div className="text-primary text-4xl md:text-5xl font-extrabold mb-3 md:mb-4 hero-stat-glow">01</div>
+              <div className="text-[#f2c47f] text-4xl md:text-5xl font-extrabold mb-3 md:mb-4 hero-stat-glow">01</div>
               <h3 className="text-base md:text-xl font-bold mb-2 md:mb-4 text-black tracking-wider">QUALITÉ & EXCELLENCE</h3>
               <p className="text-gray-700 text-xs md:text-sm leading-relaxed">
                 Cheveux sélectionnés avec soin, finitions HD Lace invisibles et contrôle qualité à chaque étape.
@@ -246,7 +235,7 @@ export default function About() {
 
             {/* 02 Éthique & Transparence */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-5 md:p-8 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <div className="text-primary text-4xl md:text-5xl font-extrabold mb-3 md:mb-4 hero-stat-glow">02</div>
+              <div className="text-[#f2c47f] text-4xl md:text-5xl font-extrabold mb-3 md:mb-4 hero-stat-glow">02</div>
               <h3 className="text-base md:text-xl font-bold mb-2 md:mb-4 text-black tracking-wider">ÉTHIQUE & TRANSPARENCE</h3>
               <p className="text-gray-700 text-xs md:text-sm leading-relaxed">
                 Approvisionnement responsable, traçabilité de l'origine et respect des donateurs & communautés.
@@ -255,7 +244,7 @@ export default function About() {
 
             {/* 03 Confort & Innovation */}
             <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-5 md:p-8 rounded-sm text-center transform transition-transform hover:scale-105 hover:border-primary/80">
-              <div className="text-primary text-4xl md:text-5xl font-extrabold mb-3 md:mb-4 hero-stat-glow">03</div>
+              <div className="text-[#f2c47f] text-4xl md:text-5xl font-extrabold mb-3 md:mb-4 hero-stat-glow">03</div>
               <h3 className="text-base md:text-xl font-bold mb-2 md:mb-4 text-black tracking-wider">CONFORT & INNOVATION</h3>
               <p className="text-gray-700 text-xs md:text-sm leading-relaxed">
                 Technologies HD Lace 9×6 & InvisiFit 360°, légèreté, tenue sûre et rendu ultra-naturel au quotidien.
