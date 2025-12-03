@@ -17,27 +17,28 @@ import {getConfig} from '~/utils/config';
 import {useConfig} from '~/utils/themeContext';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductCard} from '~/components/ProductCard';
+import {ClientOnly} from '~/components/ClientOnly';
 import {Suspense} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
 
 // Product Reviews Component
 const productReviews = [
-  { name: 'Marie D.', initial: 'M', rating: 5, comment: 'Qualité exceptionnelle ! Exactement ce que je cherchais. Très satisfaite de mon achat.', time: 'Il y a 2 jours' },
-  { name: 'Sophie L.', initial: 'S', rating: 5, comment: 'Livraison rapide et produit conforme. Je recommande vivement !', time: 'Il y a 5 jours' },
-  { name: 'Laura M.', initial: 'L', rating: 4, comment: 'Bon produit dans l\'ensemble. Correspond à la description.', time: 'Il y a 1 semaine' },
-  { name: 'Emma R.', initial: 'E', rating: 5, comment: 'Magnifique ! La qualité est au rendez-vous, je suis ravie.', time: 'Il y a 2 semaines' },
-  { name: 'Camille B.', initial: 'C', rating: 5, comment: 'Parfait pour mon usage. Très bon rapport qualité-prix.', time: 'Il y a 3 semaines' },
-  { name: 'Julie T.', initial: 'J', rating: 4, comment: 'Très satisfaite, correspond bien aux attentes.', time: 'Il y a 3 semaines' },
-  { name: 'Léa F.', initial: 'L', rating: 5, comment: 'Excellent produit, je recommande sans hésiter !', time: 'Il y a 1 mois' },
-  { name: 'Anna P.', initial: 'A', rating: 5, comment: 'Super qualité, conforme à la description. Ravie !', time: 'Il y a 1 mois' },
-  { name: 'Charlotte V.', initial: 'C', rating: 4, comment: 'Bonne qualité, livraison dans les temps.', time: 'Il y a 1 mois' },
-  { name: 'Manon G.', initial: 'M', rating: 5, comment: 'Produit de très bonne qualité. Je recommande.', time: 'Il y a 2 mois' },
-  { name: 'Sarah K.', initial: 'S', rating: 5, comment: 'Absolument parfait ! Dépasse mes attentes.', time: 'Il y a 2 mois' },
-  { name: 'Océane H.', initial: 'O', rating: 4, comment: 'Très bon achat, conforme à mes besoins.', time: 'Il y a 2 mois' },
-  { name: 'Chloé M.', initial: 'C', rating: 5, comment: 'Top qualité ! Je suis très contente de mon achat.', time: 'Il y a 3 mois' },
-  { name: 'Lucie D.', initial: 'L', rating: 5, comment: 'Excellente qualité, je rachèterai sans hésiter.', time: 'Il y a 3 mois' },
-  { name: 'Inès A.', initial: 'I', rating: 4, comment: 'Bon produit, conforme à la description.', time: 'Il y a 3 mois' },
+  { name: 'Fatou D.', initial: 'F', rating: 5, comment: 'Qualité exceptionnelle ! Exactement ce que je cherchais. Très satisfaite de mon achat.', time: 'Il y a 2 jours' },
+  { name: 'Yasmine K.', initial: 'Y', rating: 5, comment: 'Livraison rapide et produit conforme. Je recommande vivement !', time: 'Il y a 5 jours' },
+  { name: 'Mireille M.', initial: 'M', rating: 4.5, comment: 'Bon produit dans l\'ensemble. Correspond à la description.', time: 'Il y a 1 semaine' },
+  { name: 'Inès L.', initial: 'I', rating: 5, comment: 'Magnifique ! La qualité est au rendez-vous, je suis ravie.', time: 'Il y a 2 semaines' },
+  { name: 'Kenza B.', initial: 'K', rating: 5, comment: 'Parfait pour mon usage. Très bon rapport qualité-prix.', time: 'Il y a 3 semaines' },
+  { name: 'Aya T.', initial: 'A', rating: 4.5, comment: 'Très satisfaite, correspond bien aux attentes.', time: 'Il y a 3 semaines' },
+  { name: 'Lina F.', initial: 'L', rating: 5, comment: 'Excellent produit, je recommande sans hésiter !', time: 'Il y a 1 mois' },
+  { name: 'Nadège P.', initial: 'N', rating: 5, comment: 'Super qualité, conforme à la description. Ravie !', time: 'Il y a 1 mois' },
+  { name: 'Carine V.', initial: 'C', rating: 4.5, comment: 'Bonne qualité, livraison dans les temps.', time: 'Il y a 1 mois' },
+  { name: 'Jamila G.', initial: 'J', rating: 5, comment: 'Produit de très bonne qualité. Je recommande.', time: 'Il y a 2 mois' },
+  { name: 'Malak K.', initial: 'M', rating: 5, comment: 'Absolument parfait ! Dépasse mes attentes.', time: 'Il y a 2 mois' },
+  { name: 'Joëlle H.', initial: 'J', rating: 4.5, comment: 'Très bon achat, conforme à mes besoins.', time: 'Il y a 2 mois' },
+  { name: 'Fatoumata D.', initial: 'F', rating: 5, comment: 'Top qualité ! Je suis très contente de mon achat.', time: 'Il y a 3 mois' },
+  { name: 'Sophie R.', initial: 'S', rating: 5, comment: 'Excellente qualité, je rachèterai sans hésiter.', time: 'Il y a 3 mois' },
+  { name: 'Emma A.', initial: 'E', rating: 4.5, comment: 'Bon produit, conforme à la description.', time: 'Il y a 3 mois' },
 ];
 
 function ProductReviews() {
@@ -86,12 +87,17 @@ function ProductReviews() {
         {getCurrentReviews().map((review, index) => (
           <div key={index} className="bg-white border-2 border-primary/20 rounded-lg p-3 shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex mb-2 gap-0.5">
-              {[...Array(review.rating)].map((_, i) => (
+              {[...Array(Math.floor(review.rating))].map((_, i) => (
                 <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-primary">
                   <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
                 </svg>
               ))}
-              {[...Array(5 - review.rating)].map((_, i) => (
+              {review.rating % 1 >= 0.5 && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-primary opacity-50">
+                  <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                </svg>
+              )}
+              {[...Array(5 - Math.ceil(review.rating))].map((_, i) => (
                 <svg key={`empty-${i}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-gray-300">
                   <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
                 </svg>
@@ -227,6 +233,30 @@ export default function Product() {
   const [currentVariant, setCurrentVariant] = useState(
     product?.selectedVariant ?? product?.variants?.nodes[0],
   );
+
+  // Timer countdown to midnight (24h renewal)
+  const [timeLeft, setTimeLeft] = useState({hours: 0, minutes: 0, seconds: 0});
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0);
+
+      const diff = midnight.getTime() - now.getTime();
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft({hours, minutes, seconds});
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Update variant when the loader data changes (e.g., on URL changes)
   useEffect(() => {
@@ -493,11 +523,11 @@ export default function Product() {
       <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
 
-      <div className="w-full mx-auto px-4 md:container relative z-10 mt-24 pt-2 lg:pt-8">
+      <div className="w-full mx-auto px-4 md:container relative z-10 mt-8">
         {/* Product Grid */}
         <div className="mb-16 mt-8 lg:mt-16 lg:grid lg:grid-cols-2 lg:gap-8 space-y-8 lg:space-y-0">
           {/* Breadcrumb */}
-          <div className="hidden lg:block col-span-2 mb-6">
+          <div className="block col-span-2 mb-6">
             <nav className="flex" aria-label="Breadcrumb">
               <ol className="flex items-center space-x-2">
                 <li>
@@ -526,7 +556,7 @@ export default function Product() {
 
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="aspect-square max-h-[270px] lg:max-h-[400px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white mx-auto lg:mx-0">
+            <div className="aspect-square w-full max-w-[500px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white mx-auto lg:mx-0">
               {activeImage ? (
                 <>
                   <Image
@@ -642,22 +672,43 @@ export default function Product() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="text-3xl font-bold text-black bg-[#ffa3ae] px-4 py-2 rounded-md">
+            <div className="flex items-center gap-4 mb-6 flex-wrap">
+              <div className="text-xl font-bold text-black bg-[#ffa3ae] px-4 py-2 rounded-md">
                 <Money data={currentVariant.price} />
               </div>
 
               {currentVariant.compareAtPrice && (
-                <div className="text-lg text-red-500 line-through">
+                <div className="text-lg text-red-500 line-through font-extrabold">
                   <Money data={currentVariant.compareAtPrice} />
                 </div>
               )}
 
-              <img
-                {...getImageWithFallback(MARKETING_ASSETS.freeShipping, null)}
-                alt="Livraison rapide gratuite"
-                className="h-24 w-auto"
-              />
+              {/* Countdown Timer - Always visible */}
+              <ClientOnly>
+                <div className="w-full bg-[#FFF5F9] rounded-lg px-4 py-3 flex items-center justify-center gap-2">
+                  <span className="text-black font-semibold text-sm">
+                    Fin dans :
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {/* Hours */}
+                    <div className="bg-[#D61C8C] text-white font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
+                      {String(timeLeft.hours).padStart(2, '0')}
+                    </div>
+                    <span className="text-[#D61C8C] font-bold text-lg">:</span>
+
+                    {/* Minutes */}
+                    <div className="bg-[#D61C8C] text-white font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
+                      {String(timeLeft.minutes).padStart(2, '0')}
+                    </div>
+                    <span className="text-[#D61C8C] font-bold text-lg">:</span>
+
+                    {/* Seconds */}
+                    <div className="bg-[#D61C8C] text-white font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
+                      {String(timeLeft.seconds).padStart(2, '0')}
+                    </div>
+                  </div>
+                </div>
+              </ClientOnly>
             </div>
 
             <div className="prose prose-sm max-w-none mb-8 text-black">
@@ -876,7 +927,7 @@ export default function Product() {
                     <li>Accessoires et packaging d'origine inclus</li>
                     <li>Étiquette intacte</li>
                   </ul>
-                  <p className="mb-4">Les retours sont <strong>gratuits</strong> si le produit est conforme aux conditions ci-dessus. Une fois le colis reçu, le remboursement est effectué sous <strong>3 à 7 jours ouvrés</strong>.</p>
+                  <p className="mb-4">Les retours sont soumis à des <strong>frais de 5€</strong> si le produit est conforme aux conditions ci-dessus. Une fois le colis reçu, le remboursement est effectué sous <strong>3 à 7 jours ouvrés</strong>.</p>
                   <p className="text-primary font-semibold">❗ Tout article porté, altéré, abîmé ou présentant des traces de manipulation ne pourra pas être remboursé.</p>
                 </div>
               </details>
@@ -932,7 +983,7 @@ export default function Product() {
         {randomProducts && randomProducts.length > 0 && (
           <>
             {/* Section titre */}
-            <section className="py-16 bg-white mt-20 border-t border-primary/20">
+            <section className="pt-5 pb-16 bg-white mt-20 border-t border-primary/20">
               <div className="container mx-auto px-4">
                 <div className="max-w-3xl mx-auto text-center">
                   <div className="inline-block bg-primary text-black font-bold py-1 px-4 mb-6 tracking-wider rounded-sm">

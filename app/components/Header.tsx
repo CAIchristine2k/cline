@@ -49,6 +49,10 @@ export function Header() {
       link: '/collections/best-sellers',
     },
     {
+      name: 'VENTE FLASH',
+      link: '/collections/vente-flash',
+    },
+    {
       name: 'PERRUQUES',
       submenu: [
         {name: 'Naturelles', link: '/collections/naturelles-perruques'},
@@ -130,7 +134,7 @@ export function Header() {
 
       {/* Header principal */}
       <div
-        className="border-b border-gray-200 transition-all duration-300"
+        className="transition-all duration-300"
       >
         <div className="w-full md:container mx-auto px-3 md:px-4 lg:px-6">
           {/* Desktop Header */}
@@ -268,7 +272,7 @@ export function Header() {
       {/* Mega Menus / Dropdown (desktop) */}
       {activeMenu ? (
         <div
-          className="hidden lg:block absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-2xl"
+          className="hidden lg:block absolute top-full left-0 right-0 bg-white shadow-2xl"
           onMouseEnter={() => handleMenuHover(activeMenu)}
           onMouseLeave={() => handleMenuHover(null)}
         >
@@ -333,10 +337,10 @@ export function Header() {
 
       {/* Mobile Menu */}
       {isOpen ? (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-gray-200 z-50 max-h-[80vh] overflow-y-auto">
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-2xl z-50 max-h-[80vh] overflow-y-auto">
           <div className="py-4">
             {/* Search Bar Mobile */}
-            <div className="px-4 pb-4 border-b border-gray-100">
+            <div className="px-4 pb-4">
               <SearchBar />
             </div>
 
@@ -346,7 +350,7 @@ export function Header() {
                 to="/"
                 prefetch="intent"
                 onClick={() => setIsOpen(false)}
-                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
+                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between"
               >
                 Accueil
               </Link>
@@ -355,14 +359,14 @@ export function Header() {
                 to="/pages/about"
                 prefetch="intent"
                 onClick={() => setIsOpen(false)}
-                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between border-b border-gray-100"
+                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between"
               >
                 À propos
               </Link>
 
               {/* Menus avec sous-menus */}
               {menuItems.filter(item => !item.premium).map((item) => (
-                <div key={item.name} className="border-b border-gray-100">
+                <div key={item.name}>
                   {item.link ? (
                     <Link
                       to={item.link}

@@ -6,7 +6,7 @@ import {Money} from '~/components/Money';
 import type {
   ProductItemFragment,
   CollectionItemFragment,
-} from 'storefrontapi.generated';
+} from '~/types/custom-fragments';
 import {useVariantUrl} from '~/lib/variants';
 import {useConfig} from '~/utils/themeContext';
 import {AddToCartButton} from '~/components/AddToCartButton';
@@ -25,9 +25,11 @@ interface ProductWithTags extends ProductItemFragment {
 export function ProductItem({
   product,
   loading,
+  collectionHandle,
 }: {
   product: CollectionItemFragment | ProductWithTags;
   loading?: 'eager' | 'lazy';
+  collectionHandle?: string;
 }) {
   const config = useConfig();
   const variantUrl = useVariantUrl(product.handle);
@@ -36,12 +38,13 @@ export function ProductItem({
 
   // Cast to the extended interface to access tags
   const productWithTags = product as ProductWithTags;
-  const {title, handle, featuredImage} = product;
+  const {title, handle} = product;
+  const featuredImage = 'featuredImage' in product ? product.featuredImage : ('image' in product ? product.image : undefined);
   const tags = productWithTags.tags || [];
 
-  const price = product.priceRange?.minVariantPrice;
+  const price = 'priceRange' in product ? product.priceRange?.minVariantPrice : undefined;
   const comparePrice =
-    product.priceRange?.maxVariantPrice &&
+    'priceRange' in product && product.priceRange?.maxVariantPrice &&
     product.priceRange.maxVariantPrice.amount !==
       product.priceRange.minVariantPrice.amount
       ? product.priceRange.maxVariantPrice
@@ -60,7 +63,7 @@ export function ProductItem({
   const isAvailable = firstVariant?.availableForSale ?? true;
 
   // Generate mock rating and reviews for display (since Shopify doesn't provide this)
-  const possibleRatings = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+  const possibleRatings = [4.5, 5.0];
   const rating = possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
   const reviews = 70 + Math.floor(Math.random() * 60);
 
@@ -69,8 +72,11 @@ export function ProductItem({
 
   // Get product label based on tags or sale status
   const getProductLabel = () => {
-    if (isOnSale)
-      return {text: 'Promo', color: 'bg-gradient-to-r from-red-500 to-red-600'};
+    if (isOnSale) {
+      // Show "-40%" only on vente-flash collection page, "PROMO" elsewhere
+      const promoText = collectionHandle === 'vente-flash' ? '-40%' : 'PROMO';
+      return {text: promoText, color: 'bg-gradient-to-r from-red-500 to-red-600'};
+    }
     if (isFeatured) return {text: 'Vedette', color: 'bg-primary'};
     if (tags.includes('new'))
       return {
@@ -105,7 +111,7 @@ export function ProductItem({
         prefetch="intent"
         className="block rounded-sm overflow-hidden bg-white/60 backdrop-blur-sm border border-primary/30 hover:border-primary transition-all duration-500 shadow-md hover:shadow-xl hover:shadow-primary/20 transform hover:-translate-y-2 hover:scale-[1.02]"
       >
-        <div className="relative h-80 overflow-hidden">
+        <div className="relative aspect-square overflow-hidden">
           {featuredImage ? (
             <Image
               data={featuredImage}
@@ -124,7 +130,7 @@ export function ProductItem({
           {productLabel && (
             <div className="absolute top-4 left-4">
               <div
-                className={`${productLabel.color} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm shadow-lg backdrop-blur-sm border border-white/20`}
+                className={`${productLabel.color} text-black text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm shadow-lg backdrop-blur-sm border border-white/20`}
               >
                 {productLabel.text}
               </div>
@@ -148,15 +154,15 @@ export function ProductItem({
           <div className="flex items-center gap-3">
             <div className="flex text-primary">
               {[...Array(Math.floor(rating))].map((_, i) => (
-                <Star key={`full-${i}`} className="w-4 h-4 fill-current" />
+                <Star key={`full-${i}`} className="w-5 h-5 fill-current" />
               ))}
               {rating % 1 >= 0.5 && (
-                <Star className="w-4 h-4 fill-current opacity-50" />
+                <Star className="w-5 h-5 fill-current opacity-50" />
               )}
               {[...Array(5 - Math.ceil(rating))].map((_, i) => (
                 <Star
                   key={`empty-${i}`}
-                  className="w-4 h-4 stroke-current fill-transparent opacity-30"
+                  className="w-5 h-5 stroke-current fill-transparent opacity-30"
                 />
               ))}
             </div>
@@ -175,7 +181,7 @@ export function ProductItem({
               )}
 
               {isOnSale && comparePrice && (
-                <div className="text-sm text-gray-500 line-through font-medium price-no-hover bg-gray-100 px-2 py-1 rounded">
+                <div className="text-sm text-black line-through font-medium price-no-hover bg-gray-100 px-2 py-1 rounded" style={{textDecorationColor: '#FF0000'}}>
                   <Money data={comparePrice} />
                 </div>
               )}

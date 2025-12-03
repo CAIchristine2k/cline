@@ -2499,14 +2499,14 @@ export default function ProductCustomizer() {
                 <span className="text-red-400 text-2xl">⚠️</span>
               </div>
               <h2 className="text-2xl font-bold text-red-400 mb-4">
-                Out of Stock
+                Rupture de stock
               </h2>
               <p className="text-gray-300 mb-6">
-                This product is currently out of stock and cannot be customized
-                at this time.
+                Ce produit est actuellement en rupture de stock et ne peut pas être personnalisé
+                pour le moment.
               </p>
               <p className="text-gray-400 text-sm mb-6">
-                Please check back later or browse our other available products.
+                Veuillez revenir plus tard ou parcourir nos autres produits disponibles.
               </p>
               <div className="flex justify-center">
                 <a

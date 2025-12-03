@@ -156,7 +156,7 @@ export function CartMain({
 
           {/* Cart Summary - Compact bottom */}
           <div className="cart-summary-container">
-            <div className="border-t border-white/10 backdrop-blur-xl bg-primary-light">
+            <div className="backdrop-blur-xl bg-primary-light">
                           {/* Prepare designs for checkout */}
             <PrepareDesignsForCheckout 
               cart={cart} 
@@ -185,7 +185,7 @@ export function CartMain({
  * Free Shipping Progress Bar Component
  * Shows progress towards free shipping threshold (100€)
  */
-function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null}) {
+function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null | any}) {
   const FREE_SHIPPING_THRESHOLD = 100;
 
   // Get current cart total in euros
@@ -216,14 +216,13 @@ function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null}) {
   };
 
   return (
-    <div className="px-3 py-3 border-t border-black/5" role="region" aria-label="Progression vers la livraison gratuite">
+    <div className="px-3 py-3" role="region" aria-label="Progression vers la livraison gratuite">
       {/* Progress message */}
       <div className="flex items-center justify-center mb-2">
         <p className="text-xs font-medium text-black/70 text-center">
           {isFreeShippingUnlocked ? (
             <span className="text-green-600 font-semibold flex items-center gap-1">
               <span>Livraison gratuite</span>
-              <span role="img" aria-label="celebration">🎉</span>
             </span>
           ) : (
             <span>

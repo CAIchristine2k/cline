@@ -95,13 +95,13 @@ export function CustomizableProductCard({
     <div className="group relative flex flex-col bg-black/40 backdrop-blur-sm border border-primary/30 p-4 rounded-sm overflow-hidden h-full shadow-md hover:shadow-lg transition-all duration-300">
       {isCustomVariantOutOfStock && (
         <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-sm">
-          Out of Stock
+          Rupture
         </div>
       )}
 
       <Link
         to={`/customize-product/${handle}`}
-        className="block relative overflow-hidden rounded-sm mb-4 aspect-[4/5]"
+        className="block relative overflow-hidden rounded-sm mb-4 aspect-square"
       >
         {firstImage ? (
           <div className="relative w-full h-full overflow-hidden group-hover:scale-105 transition-transform duration-500">
@@ -115,7 +115,7 @@ export function CustomizableProductCard({
               <div className="absolute bottom-4 left-4 right-4">
                 <span className="inline-flex items-center bg-primary text-black px-3 py-1 rounded-sm text-sm font-medium shadow-md">
                   <Sparkles className="w-3 h-3 mr-1.5" />
-                  Design Your Own
+                  Personnalisez
                 </span>
               </div>
             </div>
@@ -139,7 +139,7 @@ export function CustomizableProductCard({
         )}
 
         <p className="text-gray-400 text-sm mb-4">
-          Create your own custom design
+          Créez votre design personnalisé
         </p>
       </div>
 
@@ -152,7 +152,7 @@ export function CustomizableProductCard({
         } text-black font-bold py-2 px-4 rounded-sm transition duration-300 ease-in-out`}
       >
         <Pencil className="w-4 h-4 mr-2" />
-        {isCustomVariantOutOfStock ? 'Currently Unavailable' : 'Customize Now'}
+        {isCustomVariantOutOfStock ? 'Indisponible' : 'Personnaliser'}
       </Link>
     </div>
   );

@@ -49,24 +49,29 @@ export default function Collection() {
         line1: 'Nos perruques'
       },
       'naturelles-perruques': {
-        line1: 'Perruques naturelles'
+        line1: 'PERRUQUES NATURELLES'
       },
       'best-sellers': {
         line1: 'NOS BEST-SELLERS'
+      },
+      'vente-flash': {
+        line1: 'VENTE FLASH',
+        line2: 'Offres limitées',
+        line2Color: 'text-black'
       },
       'naturelles': {
         line1: '100% naturelles'
       },
       'naturelles-bundles': {
-        line1: 'Bundles naturels',
+        line1: 'BUNDLES NATURELS',
         line2: 'Cheveux authentiques',
-        line2Color: 'text-primary'
+        line2Color: 'text-black'
       },
       'bundles': {
-        line1: 'Nos Bundles'
+        line1: 'NOS BUNDLES'
       },
       'naturelles-closure': {
-        line1: 'Closures naturelles'
+        line1: 'CLOSURES NATURELLES'
       },
       'synthetique-perruques': {
         line1: 'PERRUQUES SEMI-NATUREL'
@@ -155,6 +160,7 @@ export default function Collection() {
                 product={product}
                 loading={index < 8 ? 'eager' : 'lazy'}
                 compact={true}
+                collectionHandle={collection.handle}
               />
             ))}
           </div>
@@ -177,7 +183,7 @@ export default function Collection() {
             </div>
 
             {/* Carousel */}
-            <ProductCarousel products={products} loading="lazy" compact={true} />
+            <ProductCarousel products={products} loading="lazy" compact={true} collectionHandle={collection.handle} />
           </div>
         </section>
       )}

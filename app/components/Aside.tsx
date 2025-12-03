@@ -162,7 +162,7 @@ export function Aside({
             : 'none',
         }}
       >
-        <header className="flex items-center justify-between p-6 border-b border-primary/20 flex-shrink-0 bg-gradient-to-r from-background/50 to-background backdrop-blur-sm">
+        <header className="flex items-center justify-between p-6 flex-shrink-0 bg-gradient-to-r from-background/50 to-background backdrop-blur-sm">
           <h3 className="text-xl font-bold text-primary tracking-wide">
             {heading}
           </h3>

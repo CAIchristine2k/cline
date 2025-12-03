@@ -166,7 +166,7 @@ export default function CGV() {
                 <li>Envoyer une demande à : <a href="mailto:support@clinehair.com" className="text-primary hover:underline">support@clinehair.com</a></li>
                 <li>Attendre l'autorisation de retour</li>
                 <li>Renvoyer le produit à l'adresse indiquée</li>
-                <li>Les frais de retour sont à la charge du client</li>
+                <li>Les frais de retour sont de 5€</li>
               </ol>
 
               <h3 className="text-xl font-semibold text-black mt-6 mb-3">Remboursement</h3>
@@ -261,11 +261,86 @@ export default function CGV() {
             <section className="mb-8">
               <h2 className="text-2xl font-bold text-black mb-4">14. Contact</h2>
               <p className="text-gray-700 mb-4">Pour toute question :</p>
-              <ul className="list-none space-y-2 text-gray-700">
-                <li>📧 <a href="mailto:support@clinehair.com" className="text-primary hover:underline">support@clinehair.com</a></li>
-                <li>📍 175 Rue du Président Roosevelt, 78100 Saint-Germain-en-Laye</li>
-                <li>📞 +33 6 52 21 93 25</li>
-              </ul>
+
+              {/* Desktop version - 3 columns */}
+              <div className="hidden md:grid md:grid-cols-3 gap-4">
+                <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl">📧</div>
+                    <div>
+                      <h3 className="text-lg font-bold text-black mb-2">Email</h3>
+                      <a href="mailto:support@clinehair.com" className="text-black hover:text-gray-700 font-semibold text-sm transition-colors">
+                        support@clinehair.com
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl">📍</div>
+                    <div>
+                      <h3 className="text-lg font-bold text-black mb-2">Adresse</h3>
+                      <p className="text-black text-sm">
+                        175 Rue du Président Roosevelt<br />
+                        78100 Saint-Germain-en-Laye
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl">📞</div>
+                    <div>
+                      <h3 className="text-lg font-bold text-black mb-2">Téléphone</h3>
+                      <a href="tel:+33652219325" className="text-black hover:text-gray-700 font-semibold text-sm transition-colors">
+                        06 52 21 93 25
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile version - stacked with left alignment */}
+              <div className="md:hidden space-y-4">
+                <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl">📧</div>
+                    <div>
+                      <h3 className="text-lg font-bold text-black mb-2">Email</h3>
+                      <a href="mailto:support@clinehair.com" className="text-black hover:text-gray-700 font-semibold text-sm transition-colors">
+                        support@clinehair.com
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl">📍</div>
+                    <div>
+                      <h3 className="text-lg font-bold text-black mb-2">Adresse</h3>
+                      <p className="text-black text-sm">
+                        175 Rue du Président Roosevelt<br />
+                        78100 Saint-Germain-en-Laye
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl">📞</div>
+                    <div>
+                      <h3 className="text-lg font-bold text-black mb-2">Téléphone</h3>
+                      <a href="tel:+33652219325" className="text-black hover:text-gray-700 font-semibold text-sm transition-colors">
+                        06 52 21 93 25
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <div className="border-t border-gray-200 pt-8 mt-12 text-center text-gray-500 text-sm">

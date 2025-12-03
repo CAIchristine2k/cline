@@ -592,6 +592,12 @@ video {
   padding-bottom: var(--section-spacing);
 }
 
+/* Remove borders between sections */
+section {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
 .card-spacing {
   gap: var(--card-spacing);
 }

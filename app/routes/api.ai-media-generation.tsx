@@ -47,8 +47,8 @@ async function generateKlingToken(
   const payloadJson = JSON.stringify(payload);
 
   // Encode header and payload
-  const encodedHeader = base64URLEncode(new TextEncoder().encode(headerJson));
-  const encodedPayload = base64URLEncode(new TextEncoder().encode(payloadJson));
+  const encodedHeader = base64URLEncode(new TextEncoder().encode(headerJson).buffer);
+  const encodedPayload = base64URLEncode(new TextEncoder().encode(payloadJson).buffer);
 
   // Create signature
   const data = `${encodedHeader}.${encodedPayload}`;

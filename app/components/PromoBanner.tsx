@@ -33,7 +33,7 @@ export function PromoBanner() {
   return (
     <div className="bg-primary overflow-x-hidden relative w-full max-w-full">
       <div className="flex animate-scroll whitespace-nowrap py-2">
-        {[...promoItems, ...promoItems, ...promoItems, ...promoItems].map((item, index) => (
+        {[...promoItems, ...promoItems, ...promoItems, ...promoItems, ...promoItems, ...promoItems].map((item, index) => (
           <span
             key={index}
             className="text-black font-medium text-sm uppercase tracking-wide px-6"
@@ -50,12 +50,12 @@ export function PromoBanner() {
               transform: translateX(0);
             }
             100% {
-              transform: translateX(-25%);
+              transform: translateX(-50%);
             }
           }
 
           .animate-scroll {
-            animation: scroll 30s linear infinite;
+            animation: scroll 20s linear infinite;
             will-change: transform;
           }
 

@@ -58,7 +58,27 @@ export default function LimitedEdition() {
   }, [config.limitedEdition]);
 
   return (
-    <section id="fete-offer" className="py-16 md:py-24 relative bg-white bg-cover bg-center bg-no-repeat w-full" style={{backgroundImage: 'url(/images/web4.png)'}}>
+    <section
+      id="fete-offer"
+      className="py-16 md:py-24 relative bg-white w-full"
+      style={{
+        backgroundImage: 'url(/images/web4.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Mobile background overlay - adapt image positioning for mobile */}
+      <div
+        className="absolute inset-0 md:hidden"
+        style={{
+          backgroundImage: 'url(/images/Frame%2073.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+
       <div className="container mx-auto px-4 relative z-20">
         <div className="max-w-4xl mx-auto text-center">
 
@@ -102,7 +122,7 @@ export default function LimitedEdition() {
 
           {/* CTA Button */}
           <Link
-            to="/collections/best-sellers"
+            to="/collections/vente-flash"
             prefetch="intent"
             className="bg-white hover:bg-gray-100 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 inline-flex items-center group shadow-glow"
           >

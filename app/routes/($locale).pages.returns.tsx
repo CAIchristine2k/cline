@@ -108,7 +108,7 @@ export default function Returns() {
                 </p>
               </div>
               <p className="text-gray-700 mt-4 text-sm">
-                ⚠️ Les frais de retour sont <strong>à votre charge</strong>, sauf en cas de produit défectueux ou d'erreur de notre part.
+                ⚠️ Les frais de retour sont de <strong>5€</strong>, sauf en cas de produit défectueux ou d'erreur de notre part.
               </p>
 
               <h3 className="text-xl font-semibold text-black mt-6 mb-3">Étape 4 : Remboursement</h3>
@@ -128,8 +128,8 @@ export default function Returns() {
               <div className="bg-green-50 border-l-4 border-green-500 p-6 rounded">
                 <h3 className="font-bold text-green-700 mb-3">Dans ce cas, C'LINE prend en charge :</h3>
                 <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                  <li>✅ Les frais de retour</li>
-                  <li>✅ Un échange gratuit</li>
+                  <li>✅ Les frais de retour (pas de frais de 5€)</li>
+                  <li>✅ Un échange sans frais supplémentaires</li>
                   <li>✅ Un remboursement intégral</li>
                 </ul>
               </div>

@@ -525,21 +525,21 @@ export function CartLineItem({
               prefetch="intent"
               className="block group/title"
             >
-              <h3 className="font-semibold text-white text-sm leading-tight group-hover/title:text-primary transition-colors duration-200 line-clamp-2">
+              <h3 className="font-semibold text-black text-sm leading-tight group-hover/title:text-primary transition-colors duration-200 line-clamp-2">
                 {product.title || 'Untitled Product'}
               </h3>
             </Link>
 
             {/* Product Description */}
             {product.description && (
-              <p className="text-white/50 text-xs leading-relaxed line-clamp-2 mt-1">
+              <p className="text-black/50 text-xs leading-relaxed line-clamp-2 mt-1">
                 {product.description}
               </p>
             )}
 
             {/* Variant Details */}
             {title && title !== 'Default Title' && (
-              <p className="text-white/60 text-xs font-medium">{title}</p>
+              <p className="text-black/60 text-xs font-medium">{title}</p>
             )}
 
             {/* Selected Options */}
@@ -550,7 +550,7 @@ export function CartLineItem({
                   {selectedOptions.map((option) => (
                     <span
                       key={option.name}
-                      className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/70 text-xs font-medium"
+                      className="inline-flex items-center px-2 py-0.5 rounded-md bg-black/5 border border-black/10 text-black/70 text-xs font-medium"
                     >
                       {option.value}
                     </span>
@@ -589,17 +589,17 @@ export function CartLineItem({
               {merchandise.price ? (
                 <Money
                   data={merchandise.price}
-                  className="text-white font-bold text-sm"
+                  className="text-black font-bold text-sm"
                 />
               ) : (
-                <span className="text-white font-bold text-sm">
+                <span className="text-black font-bold text-sm">
                   Price unavailable
                 </span>
               )}
               {merchandise.compareAtPrice && (
                 <Money
                   data={merchandise.compareAtPrice}
-                  className="text-white/40 line-through text-xs"
+                  className="text-black/40 line-through text-xs"
                 />
               )}
             </div>
@@ -608,7 +608,7 @@ export function CartLineItem({
       </div>
 
       {/* Actions Row - Compact */}
-      <div className="flex items-center justify-between mt-3 border-t border-white/5">
+      <div className="flex items-center justify-between mt-3">
         <CartLineQuantityAdjust line={line} />
         <CartLineRemoveButton lineId={id} disabled={!!line.isOptimistic} />
       </div>
@@ -643,15 +643,15 @@ function CartLineQuantityAdjust({
           name="decrease-quantity"
           aria-label="Decrease quantity"
           disabled={quantity <= 1 || !!line.isOptimistic}
-          className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-200 hover:bg-white/20 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 disabled:hover:border-white/20"
+          className="w-8 h-8 rounded-lg bg-black/10 backdrop-blur-sm border border-white flex items-center justify-center transition-all duration-200 hover:bg-black/20 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black/10 disabled:hover:border-white"
         >
-          <Minus className="w-4 h-4 text-white" />
+          <Minus className="w-4 h-4 text-black" />
         </button>
       </CartForm>
 
       {/* Quantity display */}
-      <div className="min-w-[3rem] px-3 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-center">
-        <span className="text-white font-semibold text-sm">{quantity}</span>
+      <div className="min-w-[3rem] px-3 py-2 bg-black/5 backdrop-blur-sm border border-white rounded-lg text-center">
+        <span className="text-black font-semibold text-sm">{quantity}</span>
       </div>
 
       {/* Increase button */}
@@ -665,9 +665,9 @@ function CartLineQuantityAdjust({
           name="increase-quantity"
           aria-label="Increase quantity"
           disabled={!!line.isOptimistic}
-          className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-200 hover:bg-white/20 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 disabled:hover:border-white/20"
+          className="w-8 h-8 rounded-lg bg-black/10 backdrop-blur-sm border border-white flex items-center justify-center transition-all duration-200 hover:bg-black/20 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black/10 disabled:hover:border-white"
         >
-          <Plus className="w-4 h-4 text-white" />
+          <Plus className="w-4 h-4 text-black" />
         </button>
       </CartForm>
     </div>
@@ -692,11 +692,11 @@ function CartLineRemoveButton({
     >
       <button
         type="submit"
-        className="group/remove w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-200 hover:bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 disabled:hover:border-white/20"
+        className="group/remove w-8 h-8 rounded-lg bg-black/10 backdrop-blur-sm border border-black/20 flex items-center justify-center transition-all duration-200 hover:bg-black/20 hover:border-black/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black/10 disabled:hover:border-black/20"
         disabled={disabled}
         aria-label="Remove from cart"
       >
-        <Trash2 className="w-4 h-4 text-white/70 group-hover/remove:text-white transition-colors duration-200" />
+        <Trash2 className="w-4 h-4 text-black/70 group-hover/remove:text-black transition-colors duration-200" />
       </button>
     </CartForm>
   );

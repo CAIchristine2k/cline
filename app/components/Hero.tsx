@@ -8,15 +8,22 @@ export function Hero() {
   const config = useConfig();
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Desktop images
   const carouselImages = [
     '/images/preset/card/card1.PNG',
-    '/images/preset/card/card2.PNG',
+    '/images/image2hero.PNG',
+  ];
+
+  // Mobile images
+  const mobileImages = [
+    '/images/mobile1.PNG',
+    '/images/mobile2.PNG',
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-    }, 4000); // Change slide every 4 seconds
+    }, 8000); // Change slide every 8 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -35,17 +42,26 @@ export function Hero() {
           }}
         >
           {carouselImages.map((image, index) => (
-            <div
+            <Link
               key={index}
-              className="w-full flex-shrink-0"
+              to="/collections/vente-flash"
+              className="w-full flex-shrink-0 cursor-pointer"
             >
+              {/* Desktop image - hidden on mobile */}
               <img
                 src={image}
                 alt={`C'Line Hair ${index + 1}`}
-                className="w-full h-auto object-contain"
+                className="hidden md:block w-full h-auto object-contain"
                 loading={index === 0 ? 'eager' : 'lazy'}
               />
-            </div>
+              {/* Mobile image - visible only on mobile */}
+              <img
+                src={mobileImages[index]}
+                alt={`C'Line Hair Mobile ${index + 1}`}
+                className="md:hidden w-full h-auto object-contain"
+                loading={index === 0 ? 'eager' : 'lazy'}
+              />
+            </Link>
           ))}
         </div>
 

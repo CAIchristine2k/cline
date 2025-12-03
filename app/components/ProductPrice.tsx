@@ -22,7 +22,7 @@ export function ProductPrice({
               <Money data={price} />
             </span>
           ) : null}
-          <s className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+          <s className="text-sm text-black bg-gray-100 px-2 py-0.5 rounded" style={{textDecorationColor: '#FF0000'}}>
             <Money data={compareAtPrice} />
           </s>
         </div>

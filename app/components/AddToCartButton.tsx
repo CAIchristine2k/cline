@@ -129,7 +129,7 @@ export function AddToCartButton({
 
             // Log form data being submitted
             if (fetcher.formData) {
-              const formDataEntries = Array.from(fetcher.formData.entries());
+              const formDataEntries = Array.from(fetcher.formData?.entries() ?? []);
               console.log(
                 'AddToCartButton form data being submitted:',
                 Object.fromEntries(formDataEntries),

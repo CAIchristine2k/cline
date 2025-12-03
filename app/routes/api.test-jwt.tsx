@@ -36,10 +36,10 @@ async function generateKlingTokenExact(
 
   // Encode header and payload
   const encodedHeader = base64URLEncode(
-    new TextEncoder().encode(JSON.stringify(headers)),
+    new TextEncoder().encode(JSON.stringify(headers)).buffer,
   );
   const encodedPayload = base64URLEncode(
-    new TextEncoder().encode(JSON.stringify(payload)),
+    new TextEncoder().encode(JSON.stringify(payload)).buffer,
   );
 
   // Create signature using Web Crypto API
@@ -86,8 +86,8 @@ async function generateKlingTokenAlternative(
   const headerJson = JSON.stringify(headers, Object.keys(headers).sort());
   const payloadJson = JSON.stringify(payload, Object.keys(payload).sort());
 
-  const encodedHeader = base64URLEncode(new TextEncoder().encode(headerJson));
-  const encodedPayload = base64URLEncode(new TextEncoder().encode(payloadJson));
+  const encodedHeader = base64URLEncode(new TextEncoder().encode(headerJson).buffer);
+  const encodedPayload = base64URLEncode(new TextEncoder().encode(payloadJson).buffer);
 
   const data = `${encodedHeader}.${encodedPayload}`;
   const key = await crypto.subtle.importKey(

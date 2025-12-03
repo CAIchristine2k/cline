@@ -9,12 +9,12 @@ export function Money({
   data,
   className = '',
 }: {
-  data: MoneyV2;
+  data: MoneyV2 | Pick<MoneyV2, 'amount' | 'currencyCode'> | {amount?: string; currencyCode?: string};
   className?: string;
 }) {
-  if (!data) return null;
+  if (!data || !data.amount || !data.currencyCode) return null;
 
-  const formattedPrice = formatMoney(data);
+  const formattedPrice = formatMoney(data as MoneyV2);
 
   return <span className={className}>{formattedPrice}</span>;
 }

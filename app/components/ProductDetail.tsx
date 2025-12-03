@@ -3,6 +3,7 @@ import {Star, Truck, Shield, ArrowLeft} from 'lucide-react';
 import {Image, type MappedProductOptions} from '@shopify/hydrogen';
 import {Money} from '~/components/Money';
 import {ProductForm} from './ProductForm';
+import {CountdownTimer} from './CountdownTimer';
 import {Link, useLocation} from 'react-router';
 import type {ProductDetailsQuery} from 'storefrontapi.generated';
 import type {LandingPageConfig} from '~/utils/config';
@@ -115,10 +116,15 @@ export function ProductDetail({
                   )}
                 </span>
                 {selectedVariant?.compareAtPrice && (
-                  <span className="text-xl text-gray-500 line-through bg-gray-100 px-3 py-1.5 rounded">
+                  <span className="text-xl text-black line-through bg-gray-100 px-3 py-1.5 rounded" style={{textDecorationColor: '#FF0000'}}>
                     <Money data={selectedVariant.compareAtPrice} />
                   </span>
                 )}
+              </div>
+
+              {/* Countdown Timer */}
+              <div className="mb-6">
+                <CountdownTimer />
               </div>
             </div>
 

@@ -30,7 +30,7 @@ export function ComparisonTable() {
   ];
 
   return (
-    <section className="py-16 px-4 relative z-[2] bg-white">
+    <section className="py-16 px-4 relative z-[2] bg-white border-b-0">
       {/* Pink overlay */}
       <div className="absolute inset-0 bg-primary/10"></div>
 
@@ -163,7 +163,7 @@ export function ComparisonTable() {
           padding: 12px 14px;
           font-weight: 500;
           color: #444;
-          border-right: 1px solid rgba(255, 255, 255, 0.7);
+          border-right: none;
         }
 
         .compare-cell {
@@ -171,6 +171,7 @@ export function ComparisonTable() {
           display: flex;
           gap: 8px;
           align-items: center;
+          justify-content: center;
         }
 
         .compare-cell span {
@@ -188,23 +189,25 @@ export function ComparisonTable() {
         .compare-cell.good .icon {
           color: #1e9c5b;
           font-weight: 700;
+          flex-shrink: 0;
         }
 
         .compare-cell.bad .icon {
           color: #e74c3c;
           font-weight: 700;
+          flex-shrink: 0;
         }
 
         @media (max-width: 768px) {
           .compare-card {
-            padding: 16px 10px;
+            padding: 16px 8px;
             border-radius: 16px;
           }
 
           .compare-header {
             padding-left: 0;
-            grid-template-columns: 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
             text-align: center;
             margin-bottom: 16px;
           }
@@ -213,20 +216,20 @@ export function ComparisonTable() {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
           }
 
           .compare-col--right {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
+            justify-content: flex-end;
+            gap: 4px;
           }
 
           .compare-avatar {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             margin: 0 auto;
           }
 
@@ -237,38 +240,41 @@ export function ComparisonTable() {
           }
 
           .compare-col h3 {
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             margin-top: 0;
             font-weight: 700;
           }
 
           .compare-row {
-            grid-template-columns: 1fr;
-            font-size: 0.75rem;
+            grid-template-columns: 0.8fr 1fr 1fr;
+            font-size: 0.7rem;
+            gap: 4px;
           }
 
           .compare-label {
             border-right: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.7);
-            font-weight: 700;
-            background: #f0f0f0;
-            padding: 10px 12px;
-            font-size: 0.8rem;
+            font-weight: 600;
+            background: #f8f8f8;
+            padding: 8px 6px;
+            font-size: 0.65rem;
+            line-height: 1.2;
           }
 
           .compare-cell {
-            justify-content: flex-start;
-            padding: 12px;
-            gap: 6px;
+            justify-content: center;
+            padding: 8px 6px;
+            gap: 4px;
+            flex-direction: column;
+            align-items: center;
           }
 
           .compare-cell span {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             line-height: 1.3;
           }
 
           .compare-cell .icon {
-            font-size: 1rem;
+            font-size: 0.9rem;
             flex-shrink: 0;
           }
         }

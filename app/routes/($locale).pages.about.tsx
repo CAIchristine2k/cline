@@ -62,7 +62,7 @@ export default function About() {
             </div>
           </div>
 
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
+          <div className="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-pulse z-30 md:bottom-8">
             <span className="text-xs mb-2 tracking-widest text-black">FAITES DÉFILER</span>
             <div className="w-0.5 h-12 bg-primary"></div>
           </div>
@@ -160,7 +160,7 @@ export default function About() {
             </div>
 
             {/* Téléphone */}
-            <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 md:p-8 rounded-lg w-full h-full flex items-center justify-center">
+            <div className="bg-white/60 backdrop-blur-sm border border-primary/30 p-6 md:p-8 rounded-lg w-full h-full flex items-center md:justify-center">
               <div className="flex items-start gap-4">
                 <div className="text-3xl md:text-4xl">📞</div>
                 <div>

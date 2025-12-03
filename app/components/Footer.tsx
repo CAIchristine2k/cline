@@ -63,7 +63,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-white border-t border-primary/20">
+    <footer className="bg-white">
       <div className="container mx-auto px-3 md:px-4 py-8 md:py-12 lg:py-16">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
@@ -156,7 +156,7 @@ export function Footer() {
         </div>
 
         {/* Payment Methods */}
-        <div className="border-t border-primary/20 pt-8 mb-8">
+        <div className="pt-8 mb-8">
           <p className="text-gray-600 text-sm text-center mb-4">Moyens de paiement acceptés</p>
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
             {/* Klarna */}
@@ -226,7 +226,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-primary/20 pt-8">
+        <div className="pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-600 text-sm text-center md:text-left">
               © {new Date().getFullYear()} C'Line Hair. Tous droits réservés.

@@ -1,18 +1,20 @@
 import React, {useCallback, useState, useEffect, useRef} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {ProductCard} from '~/components/ProductCard';
-import type {ProductItemFragment} from 'storefrontapi.generated';
+import type {ProductItemFragment} from '~/types/custom-fragments';
 
 interface ProductCarouselProps {
   products: ProductItemFragment[];
   loading?: 'eager' | 'lazy';
   compact?: boolean;
+  collectionHandle?: string;
 }
 
 export function ProductCarousel({
   products,
   loading = 'lazy',
   compact = false,
+  collectionHandle,
 }: ProductCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isClient, setIsClient] = useState(false);
@@ -214,6 +216,7 @@ export function ProductCarousel({
                   product={product}
                   loading={index < itemsPerView * 2 ? 'eager' : 'lazy'}
                   compact={compact}
+                  collectionHandle={collectionHandle}
                 />
               </div>
             </div>

@@ -9,6 +9,7 @@ import {useCart} from '~/providers/CartProvider';
 import {useLoaderData} from 'react-router';
 import {getColorInfo, isColorOption} from '~/utils/colorMapping';
 import {getDominantColorCached, getContrastColor} from '~/utils/colorExtractor';
+import {ProductGuarantees} from './ProductGuarantees';
 
 // Define a safer type using explicit types rather than referencing a potential null type
 interface ProductVariant {
@@ -394,20 +395,20 @@ export function ProductForm({
           <button
             onClick={decrementQuantity}
             disabled={quantity <= 1 || !isAvailable}
-            className="w-10 h-10 flex items-center justify-center rounded-l-sm disabled:opacity-50 transition-colors border border-primary text-primary hover:bg-primary hover:text-black"
+            className="w-10 h-10 flex items-center justify-center rounded-l-sm disabled:opacity-50 transition-colors border border-black text-black hover:bg-black hover:text-white"
             aria-label="Decrease quantity"
           >
             −
           </button>
           <div
-            className="w-16 h-10 flex items-center justify-center border-t border-b border-primary text-primary font-medium"
+            className="w-16 h-10 flex items-center justify-center border-t border-b border-black text-black font-medium"
           >
             {quantity}
           </div>
           <button
             onClick={incrementQuantity}
             disabled={!isAvailable}
-            className="w-10 h-10 flex items-center justify-center rounded-r-sm disabled:opacity-50 transition-colors border border-primary text-primary hover:bg-primary hover:text-black"
+            className="w-10 h-10 flex items-center justify-center rounded-r-sm disabled:opacity-50 transition-colors border border-black text-black hover:bg-black hover:text-white"
             aria-label="Increase quantity"
           >
             +
@@ -424,7 +425,7 @@ export function ProductForm({
           onClick={handleAddToCart}
           className={`w-full py-3 px-6 rounded-sm flex items-center justify-center relative ${
             isAvailable
-              ? 'bg-primary hover:bg-black text-black hover:text-primary'
+              ? 'bg-primary hover:bg-black text-black hover:text-white'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           } transition-all duration-300 uppercase tracking-wider font-bold`}
         >
@@ -475,6 +476,9 @@ export function ProductForm({
             'Rupture de stock'
           )}
         </AddToCartButton>
+
+        {/* Product Guarantees */}
+        <ProductGuarantees />
       </div>
     </div>
   );

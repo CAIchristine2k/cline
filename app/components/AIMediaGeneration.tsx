@@ -56,17 +56,17 @@ export function AIMediaGeneration() {
   ];
 
   return (
-    <section ref={sectionRef} id="tips" className="pb-20 lg:py-20 bg-white">
+    <section ref={sectionRef} id="tips" className="pb-20 lg:py-20 bg-white border-t-0 shadow-none">
       <div className="container mx-auto px-4 relative z-10">
         {/* En-tête */}
-        <div className="text-center mb-16 max-w-3xl mx-auto">
-          <div className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full mb-4">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16 max-w-3xl mx-auto px-2">
+          <div className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full mb-3 sm:mb-4">
             Conseils d'experte
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-black">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-black">
             Astuces pour la <span className="text-primary">pose</span> &amp; l'<span className="text-primary">entretien</span>
           </h2>
-          <p className="text-gray-700 text-lg leading-relaxed">
+          <p className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed">
             Tout ce qu'il faut savoir pour une pose impeccable et une tenue longue durée de vos extensions et perruques.
           </p>
         </div>
@@ -75,34 +75,34 @@ export function AIMediaGeneration() {
         <div className="max-w-6xl mx-auto bg-white border border-primary/20 rounded-xl overflow-hidden shadow-2xl">
           <div className="grid md:grid-cols-2 gap-0">
             {/* visuel */}
-            <div className="relative aspect-[4/3] md:aspect-auto p-4 flex items-center justify-center">
+            <div className="relative aspect-[4/3] md:aspect-auto p-2 sm:p-4 flex items-center justify-center w-full">
               <img
                 {...getImageWithFallback(MARKETING_ASSETS.tips, null)}
                 alt="Astuces de pose C'Line Hair"
-                className="max-w-[80%] max-h-[400px] object-contain"
+                className="max-w-[90%] md:max-w-[80%] max-h-[300px] sm:max-h-[400px] object-contain"
               />
             </div>
 
             {/* contenu */}
-            <div className="p-8 md:p-12">
-              <h3 className="text-2xl font-bold mb-6 text-black">Pose impeccable en 5 étapes</h3>
-              <ol className="space-y-4">
+            <div className="hidden md:block p-4 sm:p-6 md:p-6 lg:p-8">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-black pr-2">Pose impeccable en 5 étapes</h3>
+              <ol className="space-y-3 sm:space-y-4">
                 {steps.map((step, index) => (
                   <li
                     key={index}
-                    className={`flex items-start transition-all duration-700 ease-out ${
+                    className={`flex items-start gap-2 transition-all duration-700 ease-out ${
                       isVisible
                         ? 'opacity-100 translate-y-0'
                         : 'opacity-0 translate-y-8'
                     }`}
                     style={{transitionDelay: `${index * 150}ms`}}
                   >
-                    <span className="flex-none w-8 h-8 rounded-full bg-primary/20 text-primary font-bold grid place-items-center mr-3">
+                    <span className="shrink-0 w-6 h-6 sm:w-7 sm:h-7 text-xs sm:text-sm rounded-full bg-primary/20 text-primary font-bold grid place-items-center">
                       {index + 1}
                     </span>
-                    <div>
-                      <h4 className="text-black font-medium">{step.title}</h4>
-                      <p className="text-gray-600 text-sm">{step.description}</p>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <h4 className="text-black font-medium text-xs sm:text-sm md:text-base mb-0.5">{step.title}</h4>
+                      <p className="text-gray-600 text-xs sm:text-sm leading-relaxed" style={{wordBreak: 'break-word'}}>{step.description}</p>
                     </div>
                   </li>
                 ))}
@@ -111,10 +111,10 @@ export function AIMediaGeneration() {
           </div>
 
           {/* Entretien : Do / Don't */}
-          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-primary/20 border-t border-primary/20">
-            <div className="p-8">
-              <p className="text-black text-xs font-bold mb-4 tracking-widest">À FAIRE</p>
-              <ul className="space-y-3 text-sm">
+          <div className="grid md:grid-cols-2">
+            <div className="p-3 sm:p-4 md:p-6 lg:p-8">
+              <p className="text-black text-xs font-bold mb-2 sm:mb-3 md:mb-4 tracking-widest">À FAIRE</p>
+              <ul className="space-y-1.5 sm:space-y-2 md:space-y-3 text-xs md:text-sm">
                 {[
                   "Démêler des pointes vers les racines, matin & soir.",
                   "Utiliser shampoing doux + après-shampoing hydratant (sans sulfates).",
@@ -130,15 +130,15 @@ export function AIMediaGeneration() {
                     }`}
                     style={{transitionDelay: `${(index + 8) * 100}ms`}}
                   >
-                    <span className="mt-1 mr-3 w-2 h-2 rounded-full bg-primary flex-shrink-0"></span>
-                    <p className="text-gray-700">{item}</p>
+                    <span className="mt-0.5 sm:mt-1 mr-2 sm:mr-3 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary flex-shrink-0"></span>
+                    <p className="text-gray-700 flex-1 min-w-0 break-words leading-relaxed pr-2">{item}</p>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="p-8">
-              <p className="text-black text-xs font-bold mb-4 tracking-widest">À ÉVITER</p>
-              <ul className="space-y-3 text-sm">
+            <div className="p-3 sm:p-4 md:p-6 lg:p-8">
+              <p className="text-black text-xs font-bold mb-2 sm:mb-3 md:mb-4 tracking-widest">À ÉVITER</p>
+              <ul className="space-y-1.5 sm:space-y-2 md:space-y-3 text-xs md:text-sm">
                 {[
                   "Tirer sur la lace ou utiliser une chaleur élevée directement sur les nœuds.",
                   "Dormir avec les cheveux mouillés.",
@@ -154,8 +154,8 @@ export function AIMediaGeneration() {
                     }`}
                     style={{transitionDelay: `${(index + 8) * 100}ms`}}
                   >
-                    <span className="mt-1 mr-3 w-2 h-2 rounded-full bg-gray-400 flex-shrink-0"></span>
-                    <p className="text-gray-600">{item}</p>
+                    <span className="mt-0.5 sm:mt-1 mr-2 sm:mr-3 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gray-400 flex-shrink-0"></span>
+                    <p className="text-gray-600 flex-1 min-w-0 break-words leading-relaxed pr-2">{item}</p>
                   </li>
                 ))}
               </ul>
@@ -163,9 +163,9 @@ export function AIMediaGeneration() {
           </div>
 
           {/* FAQ courte */}
-          <div className="p-8 md:p-12 border-t border-primary/20">
-            <h3 className="text-2xl font-bold mb-6 text-primary">Questions fréquentes</h3>
-            <div className="grid md:grid-cols-3 gap-6">
+          <div className="p-3 sm:p-4 md:p-6 lg:p-12">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-primary">Questions fréquentes</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               {[
                 {
                   question: "Combien de temps tient une lace ?",
@@ -182,15 +182,15 @@ export function AIMediaGeneration() {
               ].map((faq, index) => (
                 <div
                   key={index}
-                  className={`bg-primary/5 border-2 border-primary/40 rounded-lg p-5 shadow-md hover:shadow-lg transition-all duration-700 ease-out ${
+                  className={`bg-primary/5 border-2 border-primary/40 rounded-lg p-2.5 sm:p-3 md:p-5 shadow-md hover:shadow-lg transition-all duration-700 ease-out ${
                     isVisible
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-8'
                   }`}
                   style={{transitionDelay: `${(index + 5) * 150}ms`}}
                 >
-                  <p className="text-primary font-bold mb-3 pb-2 border-b border-primary/30">{faq.question}</p>
-                  <p className="text-gray-700 text-sm">{faq.answer}</p>
+                  <p className="text-primary font-bold mb-1.5 sm:mb-2 md:mb-3 pb-1 sm:pb-2 text-xs sm:text-sm md:text-base break-words">{faq.question}</p>
+                  <p className="text-gray-700 text-xs md:text-sm break-words leading-relaxed">{faq.answer}</p>
                 </div>
               ))}
             </div>

@@ -1,5 +1,6 @@
 import {
   createHydrogenContext,
+  createCustomerAccountClient,
   cartGetIdDefault,
   cartSetIdDefault,
 } from '@shopify/hydrogen';
@@ -29,6 +30,14 @@ export async function createAppLoadContext(
     AppSession.init(request, [env.SESSION_SECRET]),
   ]);
 
+  const customerAccount = createCustomerAccountClient({
+    waitUntil,
+    request,
+    session,
+    customerAccountId: env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID,
+    customerAccountUrl: env.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
+  });
+
   const hydrogenContext = createHydrogenContext({
     env,
     request,
@@ -43,6 +52,7 @@ export async function createAppLoadContext(
         maxage: 60 * 60 * 24 * 365, // One year expiry
       }),
     },
+    customerAccount,
   });
 
   return {

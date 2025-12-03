@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import {ShoppingBag, Sparkles} from 'lucide-react';
 import {ProductCarousel} from '~/components/ProductCarousel';
-import type {ProductItemFragment} from 'storefrontapi.generated';
+import type {ProductItemFragment} from '~/types/custom-fragments';
 
 interface FeaturedProductsSectionProps {
   products: ProductItemFragment[];

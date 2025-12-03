@@ -3,7 +3,7 @@ import {ShoppingBag, Star, ArrowRight} from 'lucide-react';
 import {Link} from 'react-router';
 import {ProductCard} from '~/components/ProductCard';
 import {useConfig} from '~/utils/themeContext';
-import type {ProductItemFragment} from 'storefrontapi.generated';
+import type {ProductItemFragment} from '~/types/custom-fragments';
 
 interface ProductShowcaseProps {
   products: ProductItemFragment[];
@@ -49,12 +49,9 @@ export function ProductShowcase({
       <div className="relative container mx-auto px-3 md:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-4 md:mb-8 lg:mb-10">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-primary tracking-wide mb-2">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-black tracking-wide mb-2">
             BEST SELLERS
           </h1>
-          <p className="text-gray-600 text-xs md:text-sm lg:text-base max-w-2xl mx-auto px-4">
-            Nos produits les plus appréciés et recommandés par nos clientes.
-          </p>
         </div>
 
         {/* Products Grid - Modern Layout */}

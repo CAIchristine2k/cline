@@ -45,109 +45,131 @@ const HalfStarIcon = ({ className = '' }: { className?: string }) => (
 
 // Generate random rating from possible values
 const generateRating = () => {
-  const possibleRatings = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+  const possibleRatings = [4.5, 5.0];
   return possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
+};
+
+// Generate random avatar from avis folder
+const generateAvatar = () => {
+  const availableAvatars = [
+    '/images/avis/IMG_7333.JPG',
+    '/images/avis/IMG_7334.JPG',
+    '/images/avis/IMG_7335.JPG',
+    '/images/avis/IMG_7336.JPG',
+    '/images/avis/IMG_7337.JPG',
+    '/images/avis/IMG_7338.JPG',
+    '/images/avis/IMG_7339.JPG',
+    '/images/avis/IMG_7340.JPG',
+    '/images/avis/IMG_7343.JPG',
+    '/images/avis/IMG_7344.JPG',
+    '/images/avis/IMG_7345.JPG',
+    '/images/avis/IMG_7346.JPG',
+    '/images/avis/IMG_7349.JPG',
+    '/images/avis/IMG_7350.WEBP',
+    '/images/avis/IMG_7351.WEBP',
+  ];
+  return availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
 };
 
 // Testimonials data - Realistic ratings
 const testimonialsData: Testimonial[] = [
   {
     id: 1,
-    name: 'Sophie Martin',
+    name: 'Sophie M.',
     role: 'Cliente fidèle',
     content:
       'Produits de qualité exceptionnelle ! La personnalisation est parfaite et la livraison rapide. Je recommande à 100%.',
-    avatar: '/images/cline1.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Mars 2024',
   },
   {
     id: 2,
-    name: 'Marie Dubois',
+    name: 'Fatou D.',
     role: 'Acheteuse vérifiée',
     content:
       'Service client irréprochable et produits magnifiques. Exactement ce que je cherchais pour un cadeau unique.',
-    avatar: '/images/cline2.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Novembre 2023',
   },
   {
     id: 3,
-    name: 'Julie Petit',
+    name: 'Yasmine K.',
     role: 'Cliente satisfaite',
     content:
       'La qualité dépasse mes attentes ! Les finitions sont impeccables et le rendu final est sublime.',
-    avatar: '/images/cline3.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Juin 2022',
   },
   {
     id: 4,
-    name: 'Emma Laurent',
+    name: 'Inès L.',
     role: 'Acheteuse régulière',
     content:
       'Un vrai coup de cœur ! La personnalisation est facile et le résultat est toujours au-delà de mes espérances.',
-    avatar: '/images/cline4.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Janvier 2025',
   },
   {
     id: 5,
-    name: 'Léa Bernard',
+    name: 'Kenza B.',
     role: 'Cliente heureuse',
     content:
       'Je ne peux plus m\'en passer ! Chaque produit est unique et fait avec soin. Un grand merci à toute l\'équipe.',
-    avatar: '/images/cline5.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Septembre 2021',
   },
   {
     id: 6,
-    name: 'Camille Rousseau',
+    name: 'Mireille R.',
     role: 'Acheteuse satisfaite',
     content:
       'Absolument ravie de mon achat ! La qualité est au rendez-vous et le service après-vente est top. Je recommande vivement.',
-    avatar: '/images/cline6.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Février 2024',
   },
   {
     id: 7,
-    name: 'Chloé Moreau',
+    name: 'Lina M.',
     role: 'Cliente régulière',
     content:
       'Des produits magnifiques et un savoir-faire exceptionnel. Chaque commande est une nouvelle surprise positive !',
-    avatar: '/images/cline7.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Août 2023',
   },
   {
     id: 8,
-    name: 'Anaïs Leroy',
+    name: 'Aya L.',
     role: 'Acheteuse vérifiée',
     content:
       'Je suis impressionnée par la rapidité de livraison et la qualité du packaging. Les produits sont encore plus beaux en vrai !',
-    avatar: '/images/cline1.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Avril 2022',
   },
   {
     id: 9,
-    name: 'Manon Girard',
+    name: 'Nadège G.',
     role: 'Cliente fidèle',
     content:
       'Un excellent rapport qualité-prix ! J\'ai commandé plusieurs fois et je n\'ai jamais été déçue. Service impeccable.',
-    avatar: '/images/cline2.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Décembre 2024',
   },
   {
     id: 10,
-    name: 'Laura Fontaine',
+    name: 'Jamila F.',
     role: 'Acheteuse heureuse',
     content:
       'Une expérience d\'achat parfaite du début à la fin. Les produits personnalisés sont de grande qualité et très bien réalisés.',
-    avatar: '/images/cline3.jpg',
+    avatar: generateAvatar(),
     rating: generateRating(),
     date: 'Mai 2020',
   },
@@ -298,12 +320,12 @@ export default function Testimonials() {
                     {[...Array(Math.floor(testimonial.rating))].map((_, i) => (
                       <StarIcon
                         key={`full-${i}`}
-                        className="h-4 w-4 text-primary"
+                        className="h-4 w-4 text-yellow-400"
                       />
                     ))}
                     {/* Half star if rating has decimal >= 0.3 */}
                     {testimonial.rating % 1 >= 0.3 && testimonial.rating % 1 < 0.8 && (
-                      <HalfStarIcon className="h-4 w-4 text-primary" />
+                      <HalfStarIcon className="h-4 w-4 text-yellow-400" />
                     )}
                     {/* Empty stars */}
                     {[...Array(5 - Math.ceil(testimonial.rating))].map((_, i) => (
@@ -320,7 +342,7 @@ export default function Testimonials() {
                   </blockquote>
 
                   {/* Author Info */}
-                  <div className="flex items-center gap-3 pt-3 border-t border-primary/10">
+                  <div className="flex items-center gap-3 pt-3">
                     {/* Avatar */}
                     <div className="flex-shrink-0">
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30 bg-primary/10">
@@ -382,15 +404,35 @@ export default function Testimonials() {
         <div className="text-center mt-12">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-6 py-3">
             <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
+              {/* 4 full stars */}
+              {[...Array(4)].map((_, i) => (
                 <StarIcon
-                  key={i}
+                  key={`full-${i}`}
                   className="h-5 w-5 text-primary"
                 />
               ))}
+              {/* 0.5 partial star (half filled) */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="partial-star-50">
+                    <stop offset="50%" stopColor="currentColor" stopOpacity="1" className="text-primary" />
+                    <stop offset="50%" stopColor="currentColor" stopOpacity="0.3" className="text-primary" />
+                  </linearGradient>
+                </defs>
+                <path
+                  fill="url(#partial-star-50)"
+                  className="text-primary"
+                  d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"
+                />
+              </svg>
             </div>
             <span className="text-black font-semibold">
-              4,8/5 de satisfaction — la qualité avant tout
+              4,8/5 de satisfaction
             </span>
           </div>
         </div>

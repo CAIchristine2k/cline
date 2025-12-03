@@ -52,9 +52,9 @@ export function SearchBar({
       const response = await fetch(
         `/api/predictive-search?q=${encodeURIComponent(searchQuery)}`,
       );
-      const data = await response.json();
+      const data = await response.json() as {success?: boolean; suggestions?: SearchSuggestion[]};
 
-      if (data.success && data.suggestions) {
+      if (data?.success && data?.suggestions) {
         return data.suggestions;
       }
       return [];
@@ -303,7 +303,7 @@ export function SearchOverlay({
     <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm">
       <div className="flex flex-col h-full bg-white">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-primary/30">
+        <div className="flex items-center justify-between p-4">
           <h2 className="text-lg font-bold text-white">
             Search {config.brandName}
           </h2>
