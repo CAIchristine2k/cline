@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Star, ShoppingCart, Eye, Heart} from 'lucide-react';
 import {Link} from 'react-router';
-import {Image} from '@shopify/hydrogen';
+import {OptimizedImage} from '~/components/OptimizedImage';
 import {Money} from '~/components/Money';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import {WishlistButton} from '~/components/WishlistButton';
@@ -46,7 +46,6 @@ export function ProductCard({
   collectionHandle,
 }: ProductCardProps) {
   const config = useConfig();
-  const [imageLoading, setImageLoading] = useState(true);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   if (!product) return null;
@@ -151,21 +150,14 @@ export function ProductCard({
           aria-label={`Voir les détails de ${title}`}
         >
           {featuredImage ? (
-            <div className="relative w-full h-full">
-              {imageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                  <LoadingSpinner size="lg" color="primary" />
-                </div>
-              )}
-              <Image
-                data={featuredImage}
-                className="w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-110"
-                sizes="(min-width: 1024px) 20vw, (min-width: 768px) 33vw, 50vw"
-                loading={loading}
-                onLoad={() => setImageLoading(false)}
-                onError={() => setImageLoading(false)}
-              />
-            </div>
+            <OptimizedImage
+              data={featuredImage}
+              priority={loading === 'eager'}
+              showPlaceholder
+              aspectRatio="1/1"
+              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 33vw, 50vw"
+              className="w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-110"
+            />
           ) : (
             <div className="h-full w-full bg-gray-100 flex items-center justify-center">
               <span className="text-gray-500 text-xs lg:text-sm">Aucune image disponible</span>

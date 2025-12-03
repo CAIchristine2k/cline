@@ -7,7 +7,14 @@
   // Environment variables (sensitive values should be in .env or .dev.vars)
   "vars": {
     "APP_NAME": "Cline Shop",
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
+    "PUBLIC_STORE_DOMAIN": "msjnp5-ww.myshopify.com",
+    "PUBLIC_STOREFRONT_API_TOKEN": "5ac74aa1ed1216e9f9fd7fef4f50e9f0",
+    "PUBLIC_STOREFRONT_ID": "1000059859",
+    "PUBLIC_CHECKOUT_DOMAIN": "msjnp5-ww.myshopify.com",
+    "PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID": "5bb4aa7f-fa3f-467e-961d-784278ebef93",
+    "PUBLIC_CUSTOMER_ACCOUNT_API_URL": "https://account.clinehair.com",
+    "SHOP_ID": "98115354969"
   },
 
   // Bindings for Cloudflare services

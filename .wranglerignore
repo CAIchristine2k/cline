@@ -1,0 +1,32 @@
+# Development files (should not be deployed)
+.dev.vars
+
+# Node modules
+node_modules/
+
+# Build artifacts that are already bundled
+.vite/
+.cache/
+
+# Git
+.git/
+.github/
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Environment templates
+.env.example

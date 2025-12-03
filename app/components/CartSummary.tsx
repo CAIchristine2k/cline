@@ -64,6 +64,18 @@ export function CartSummary({cart, layout, checkoutDomain}: CartSummaryProps) {
   );
 }
 
+/**
+ * CartCheckoutActions - Bouton de paiement
+ *
+ * ✅ Utilise directement cart.checkoutUrl fourni par Shopify
+ * ✅ Aucune manipulation de domaine - Shopify gère automatiquement
+ * ✅ Compatible dev (localhost) et production (www.clinehair.com)
+ *
+ * Le checkoutUrl est configuré automatiquement par Shopify selon :
+ * - Les paramètres de la boutique (Settings > Checkout)
+ * - Le domaine custom configuré (www.clinehair.com)
+ * - L'environnement (dev/prod)
+ */
 function CartCheckoutActions({
   checkoutUrl,
 }: {

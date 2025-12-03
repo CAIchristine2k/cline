@@ -1,7 +1,7 @@
 import React from 'react';
 import {Star, ShoppingCart} from 'lucide-react';
 import {Link} from 'react-router';
-import {Image} from '@shopify/hydrogen';
+import {OptimizedImage} from '~/components/OptimizedImage';
 import {Money} from '~/components/Money';
 import type {
   ProductItemFragment,
@@ -113,12 +113,13 @@ export function ProductItem({
       >
         <div className="relative aspect-square overflow-hidden">
           {featuredImage ? (
-            <Image
+            <OptimizedImage
               data={featuredImage}
-              alt={title}
-              className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
+              priority={loading === 'eager'}
+              showPlaceholder
+              aspectRatio="1/1"
               sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-              loading={loading}
+              className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
             />
           ) : (
             <div className="h-full w-full bg-gray-100 flex items-center justify-center">

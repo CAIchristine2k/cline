@@ -48,19 +48,25 @@ export function Hero() {
               className="w-full flex-shrink-0 cursor-pointer"
             >
               {/* Desktop image - hidden on mobile */}
-              <img
-                src={image}
-                alt={`C'Line Hair ${index + 1}`}
-                className="hidden md:block w-full h-auto object-contain"
-                loading={index === 0 ? 'eager' : 'lazy'}
-              />
+              <picture className="hidden md:block w-full">
+                <img
+                  src={image}
+                  alt={`C'Line Hair ${index + 1}`}
+                  className="w-full h-auto object-contain"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={index === 0 ? 'high' : 'low'}
+                />
+              </picture>
               {/* Mobile image - visible only on mobile */}
-              <img
-                src={mobileImages[index]}
-                alt={`C'Line Hair Mobile ${index + 1}`}
-                className="md:hidden w-full h-auto object-contain"
-                loading={index === 0 ? 'eager' : 'lazy'}
-              />
+              <picture className="md:hidden w-full">
+                <img
+                  src={mobileImages[index]}
+                  alt={`C'Line Hair Mobile ${index + 1}`}
+                  className="w-full h-auto object-contain"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={index === 0 ? 'high' : 'low'}
+                />
+              </picture>
             </Link>
           ))}
         </div>

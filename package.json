@@ -5,7 +5,7 @@
   "version": "2025.5.1",
   "type": "module",
   "scripts": {
-    "build": "npm run codegen && react-router build",
+    "build": "npm run codegen && react-router build && node scripts/clean-build.js",
     "dev": "react-router dev",
     "preview": "npm run build && vite preview",
     "deploy": "npm run build && npx wrangler deploy",

@@ -1,50 +1,9 @@
 import React from 'react';
 import {Link} from 'react-router';
 import {Image as ImageIcon, Pencil, Sparkles} from 'lucide-react';
-import {Image as ShopifyImage} from '@shopify/hydrogen';
+import {OptimizedImage} from '~/components/OptimizedImage';
 import {Money} from '~/components/Money';
 import {useConfig} from '~/utils/themeContext';
-
-// Internal components
-function Image({
-  src,
-  alt,
-  className,
-  sizes,
-}: {
-  src: string;
-  alt?: string;
-  className?: string;
-  sizes?: string;
-}) {
-  if (!src) return null;
-
-  // Check if the src is a GID
-  if (src.startsWith('gid://shopify/MediaImage/')) {
-    // For GIDs, we need to use ShopifyImage
-    return (
-      <ShopifyImage
-        data={{
-          url: '', // This will be resolved by ShopifyImage
-          id: src, // The GID will be used to resolve the image
-          altText: alt || 'Product image',
-        }}
-        className={className || 'w-full h-full object-cover'}
-        sizes={sizes}
-      />
-    );
-  }
-
-  // For regular URLs, use standard img tag
-  return (
-    <img
-      src={src}
-      alt={alt || 'Product image'}
-      className={className || 'w-full h-full object-cover'}
-      sizes={sizes}
-    />
-  );
-}
 
 function PriceRange({priceRange}: {priceRange: any}) {
   if (!priceRange?.minVariantPrice) return null;
@@ -105,11 +64,12 @@ export function CustomizableProductCard({
       >
         {firstImage ? (
           <div className="relative w-full h-full overflow-hidden group-hover:scale-105 transition-transform duration-500">
-            <Image
-              src={firstImage.url}
-              alt={firstImage.altText || title}
-              className={`w-full h-full object-cover ${isCustomVariantOutOfStock ? 'opacity-70' : ''}`}
+            <OptimizedImage
+              data={firstImage}
+              showPlaceholder
+              aspectRatio="1/1"
               sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+              className={`w-full h-full object-cover ${isCustomVariantOutOfStock ? 'opacity-70' : ''}`}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-300">
               <div className="absolute bottom-4 left-4 right-4">

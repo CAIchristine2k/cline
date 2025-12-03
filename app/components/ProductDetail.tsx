@@ -1,6 +1,7 @@
 import React from 'react';
 import {Star, Truck, Shield, ArrowLeft} from 'lucide-react';
-import {Image, type MappedProductOptions} from '@shopify/hydrogen';
+import {type MappedProductOptions} from '@shopify/hydrogen';
+import {OptimizedImage} from '~/components/OptimizedImage';
 import {Money} from '~/components/Money';
 import {ProductForm} from './ProductForm';
 import {CountdownTimer} from './CountdownTimer';
@@ -78,10 +79,13 @@ export function ProductDetail({
           <div className="space-y-4">
             <div className="aspect-square rounded-sm overflow-hidden bg-gray-900/80 backdrop-blur-sm border border-gray-800">
               {selectedVariant?.image && (
-                <Image
+                <OptimizedImage
                   data={selectedVariant.image}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  priority
+                  showPlaceholder
+                  aspectRatio="1/1"
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
               )}
             </div>
