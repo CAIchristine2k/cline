@@ -86,9 +86,9 @@ export function ProductCard({
   // Get product label based on tags or sale status
   const getProductLabel = () => {
     if (isOnSale) {
-      // Show "-40%" only on vente-flash collection page
-      if (collectionHandle === 'vente-flash') {
-        return {text: '-40%', color: 'bg-primary'};
+      // Show dynamic discount percentage on vente-flash collection page
+      if (collectionHandle === 'vente-flash' && savingsPercentage > 0) {
+        return {text: `-${savingsPercentage}%`, color: 'bg-primary'};
       }
       // Don't show any promo badge on other pages
       return null;
@@ -140,9 +140,9 @@ export function ProductCard({
   }
 
   return (
-    <div className={`group relative bg-white border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gray-300 ${compact ? 'rounded-lg' : 'rounded-xl'} text-sm lg:text-base`}>
+    <div className={`group relative bg-white border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gray-300 ${compact ? 'rounded-lg' : 'rounded-xl'} text-sm lg:text-base flex flex-col h-full`}>
       {/* Image Container */}
-      <div className="relative overflow-hidden bg-gray-50 aspect-square">
+      <div className="relative overflow-hidden bg-gray-50 aspect-square flex-shrink-0">
         <Link
           to={`/products/${handle}`}
           prefetch="intent"

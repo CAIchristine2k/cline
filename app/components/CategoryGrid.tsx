@@ -64,6 +64,17 @@ export function CategoryGrid() {
             </Link>
           ))}
         </div>
+
+        {/* Bouton Tous nos produits */}
+        <div className="flex justify-center mt-8 md:mt-12">
+          <Link
+            to="/products"
+            prefetch="intent"
+            className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 uppercase tracking-wider"
+          >
+            TOUS NOS PRODUITS
+          </Link>
+        </div>
       </div>
     </section>
   );

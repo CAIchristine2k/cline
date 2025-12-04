@@ -23,7 +23,7 @@ export function Hero() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-    }, 8000); // Change slide every 8 seconds
+    }, 4000); // Change slide every 4 seconds (2x faster)
 
     return () => clearInterval(interval);
   }, []);
@@ -31,7 +31,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative w-full pt-[50px]"
+      className="relative w-full"
     >
       {/* Full width carousel */}
       <div className="w-full relative overflow-hidden">
@@ -58,7 +58,7 @@ export function Hero() {
                 />
               </picture>
               {/* Mobile image - visible only on mobile */}
-              <picture className="md:hidden w-full">
+              <picture className="md:hidden w-full pt-[35px]">
                 <img
                   src={mobileImages[index]}
                   alt={`C'Line Hair Mobile ${index + 1}`}

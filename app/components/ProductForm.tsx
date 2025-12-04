@@ -164,7 +164,12 @@ export function ProductForm({
   }, [product.options, product.variants?.nodes]);
 
   // Find options available in this product
-  const options = product.options.filter((option) => option.values.length > 1);
+  // Exclure les options de couleur car elles sont gérées par le ColorCarousel
+  const options = product.options.filter(
+    (option) =>
+      option.values.length > 1 &&
+      !isColorOption(option.name)
+  );
 
   // Update the selected variant when options change
   const updateSelectedVariant = (name: string, value: string) => {
@@ -343,15 +348,15 @@ export function ProductForm({
                     <button
                       key={value}
                       onClick={() => updateSelectedVariant(option.name, value)}
-                      className={`min-w-[80px] px-4 py-2 border text-sm rounded-sm relative transition-all ${
+                      className={`min-w-[80px] px-4 py-2 border-2 text-sm rounded-sm relative transition-all ${
                         isSelected
                           ? backgroundColor
-                            ? 'border-primary ring-2 ring-primary ring-offset-2'
-                            : 'border-black ring-2 ring-black ring-offset-2 text-black'
+                            ? 'border-primary ring-2 ring-primary ring-offset-2 hover:bg-primary/90'
+                            : 'border-primary ring-2 ring-primary ring-offset-2 bg-primary text-white hover:bg-primary/90'
                           : isAvailableOption
                             ? backgroundColor
-                              ? 'border-primary/20 hover:border-primary/50 hover:scale-105'
-                              : 'border-black/30 hover:border-black hover:scale-105 text-black'
+                              ? 'border-primary/30 hover:border-primary hover:scale-105'
+                              : 'border-primary/30 hover:border-primary hover:scale-105 text-black'
                             : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
                       }`}
                       style={
@@ -391,24 +396,24 @@ export function ProductForm({
         <label htmlFor="quantity" className="block text-sm font-medium mb-2 text-black">
           Quantité
         </label>
-        <div className="flex items-center max-w-[140px]">
+        <div className="flex items-center max-w-[140px] border-2 border-black rounded-sm">
           <button
             onClick={decrementQuantity}
             disabled={quantity <= 1 || !isAvailable}
-            className="w-10 h-10 flex items-center justify-center rounded-l-sm disabled:opacity-50 transition-colors border border-black text-black hover:bg-black hover:text-white"
+            className="w-10 h-10 flex items-center justify-center disabled:opacity-50 transition-colors bg-primary text-white hover:bg-primary/90 disabled:bg-gray-400"
             aria-label="Decrease quantity"
           >
             −
           </button>
           <div
-            className="w-16 h-10 flex items-center justify-center border-t border-b border-black text-black font-medium"
+            className="w-16 h-10 flex items-center justify-center text-black font-medium"
           >
             {quantity}
           </div>
           <button
             onClick={incrementQuantity}
             disabled={!isAvailable}
-            className="w-10 h-10 flex items-center justify-center rounded-r-sm disabled:opacity-50 transition-colors border border-black text-black hover:bg-black hover:text-white"
+            className="w-10 h-10 flex items-center justify-center disabled:opacity-50 transition-colors bg-primary text-white hover:bg-primary/90 disabled:bg-gray-400"
             aria-label="Increase quantity"
           >
             +

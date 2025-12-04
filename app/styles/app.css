@@ -148,6 +148,10 @@
   --color-primary-400: #34D399;
 }
 
+body.hydrated {
+  padding-top: 20px;
+}
+
 [data-theme="technical"] {
   --color-primary-500: #06B6D4;
   --color-primary-600: #0891B2;

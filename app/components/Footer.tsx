@@ -41,7 +41,7 @@ export function Footer() {
   }
 
   const quickLinks = [
-    {name: 'Boutique', href: '/'},
+    {name: 'Boutique', href: '/products'},
     {name: 'Best Sellers', href: '/collections/best-sellers'},
     {name: 'À Propos', href: '/pages/about'},
     {name: 'Contact', href: '/pages/contact'},

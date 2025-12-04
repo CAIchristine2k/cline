@@ -21,13 +21,14 @@ import {ClientOnly} from '~/components/ClientOnly';
 import {Suspense} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
+import {ColorCarousel, type ColorOption} from '~/components/ColorCarousel';
 
 // Product Reviews Component
 const productReviews = [
   { name: 'Fatou D.', initial: 'F', rating: 5, comment: 'Qualité exceptionnelle ! Exactement ce que je cherchais. Très satisfaite de mon achat.', time: 'Il y a 2 jours' },
   { name: 'Yasmine K.', initial: 'Y', rating: 5, comment: 'Livraison rapide et produit conforme. Je recommande vivement !', time: 'Il y a 5 jours' },
   { name: 'Mireille M.', initial: 'M', rating: 4.5, comment: 'Bon produit dans l\'ensemble. Correspond à la description.', time: 'Il y a 1 semaine' },
-  { name: 'Inès L.', initial: 'I', rating: 5, comment: 'Magnifique ! La qualité est au rendez-vous, je suis ravie.', time: 'Il y a 2 semaines' },
+  { name: 'Inès L.', initial: 'I', image: '/images/reviews/ines.jpg', rating: 5, comment: 'Magnifique ! La qualité est au rendez-vous, je suis ravie.', time: 'Il y a 2 semaines' },
   { name: 'Kenza B.', initial: 'K', rating: 5, comment: 'Parfait pour mon usage. Très bon rapport qualité-prix.', time: 'Il y a 3 semaines' },
   { name: 'Aya T.', initial: 'A', rating: 4.5, comment: 'Très satisfaite, correspond bien aux attentes.', time: 'Il y a 3 semaines' },
   { name: 'Lina F.', initial: 'L', rating: 5, comment: 'Excellent produit, je recommande sans hésiter !', time: 'Il y a 1 mois' },
@@ -107,9 +108,17 @@ function ProductReviews() {
               "{review.comment}"
             </p>
             <div className="flex items-center gap-2 pt-2 border-t border-primary/10">
-              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                {review.initial}
-              </div>
+              {review.image ? (
+                <img
+                  src={review.image}
+                  alt={review.name}
+                  className="w-6 h-6 rounded-full object-cover border border-primary/20"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                  {review.initial}
+                </div>
+              )}
               <div>
                 <div className="font-bold text-black text-xs flex items-center gap-1">
                   {review.name}
@@ -202,6 +211,26 @@ async function loadCriticalData({
     throw new Response(null, {status: 404});
   }
 
+  // 🆕 Récupérer tous les metaobjects Couleur
+  let colorMetaobjects: any[] = [];
+  try {
+    const colorData = await storefront.query(COLOR_METAOBJECTS_QUERY);
+    colorMetaobjects = colorData?.metaobjects?.nodes || [];
+    console.log('🎨 [LOADER] Metaobjects Couleur récupérés:', colorMetaobjects.length);
+
+    // Log simplif: tous les labels/handles
+    console.log('📋 [LOADER] Labels des metaobjects:',
+      colorMetaobjects.slice(0, 10).map((mo: any) => {
+        const labelField = mo.fields?.find((f: any) =>
+          f.key === 'Label' || f.key === 'label' || f.key === 'title'
+        );
+        return `${labelField?.value || mo.handle} (handle: ${mo.handle})`;
+      }).join(', ')
+    );
+  } catch (error) {
+    console.error('❌ [LOADER] Erreur lors de la récupération des metaobjects:', error);
+  }
+
   // The API handle might be localized, so redirect to the localized handle
   redirectIfHandleIsLocalized(request, {handle, data: data.product});
 
@@ -209,6 +238,7 @@ async function loadCriticalData({
     product: data.product,
     recommendedProducts: data.recommendedProducts?.nodes || [],
     storeDomain: storefront.getShopifyDomain(),
+    colorMetaobjects, // 🆕 Passer les metaobjects au composant
   };
 }
 
@@ -224,8 +254,153 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
   return {};
 }
 
+/**
+ * Helper function pour extraire les options de couleur depuis le produit
+ * Combine les données des métaobjets Couleur et des variants
+ */
+function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorOption[] {
+  console.log('🎨 extractColorOptions appelée pour produit:', product.title);
+  console.log('📋 Options disponibles:', product.options?.map((o: any) => o?.name).filter(Boolean));
+
+  // Chercher l'option "Couleur" ou similaire
+  const colorOption = product.options?.find(
+    (opt: any) =>
+      opt &&
+      opt.name &&
+      (opt.name.toLowerCase() === 'couleur' ||
+        opt.name.toLowerCase() === 'color' ||
+        opt.name.toLowerCase() === 'colours')
+  );
+
+  console.log('🔎 Option couleur trouvée:', colorOption ? colorOption.name : 'AUCUNE');
+
+  if (!colorOption || !colorOption.values || colorOption.values.length === 0) {
+    console.log('⚠️ Pas d\'option couleur pour ce produit');
+    return [];
+  }
+
+  console.log('🌈 Valeurs de couleurs:', colorOption.values);
+  console.log('🎨 Metaobjects Couleur reçus:', colorMetaobjects.length);
+
+  // 🆕 APPROCHE DIRECTE: Utiliser les metaobjects passés en paramètre
+  // Créer un mapping des metaobjects par nom/handle/label
+  const colorMetaobjectsMap = new Map<string, any>();
+
+  colorMetaobjects.forEach((metaobj: any) => {
+    if (!metaobj) return;
+
+    // Trouver les champs Label et Image
+    const labelField = metaobj.fields?.find(
+      (f: any) => f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name'
+    );
+
+    const label = labelField?.value || metaobj.handle;
+
+    console.log(`📦 Metaobject trouvé: "${label}" (handle: ${metaobj.handle}, type: ${metaobj.type})`);
+
+    // Stocker par différentes clés pour maximiser les chances de match
+    if (label) {
+      colorMetaobjectsMap.set(label.toLowerCase(), metaobj);
+      colorMetaobjectsMap.set(label, metaobj);
+      // Aussi sans espaces et tirets
+      colorMetaobjectsMap.set(label.toLowerCase().replace(/[\s-_]/g, ''), metaobj);
+    }
+    if (metaobj.handle) {
+      colorMetaobjectsMap.set(metaobj.handle.toLowerCase(), metaobj);
+      colorMetaobjectsMap.set(metaobj.handle, metaobj);
+    }
+  });
+
+  console.log('🗺️ Map des metaobjects créée avec', colorMetaobjectsMap.size, 'entrées');
+
+  // Construire la liste des ColorOption
+  const colorOptions: ColorOption[] = [];
+  const colorOptionName = colorOption.name;
+
+  colorOption.values.forEach((colorValue: string) => {
+    // Trouver la variante correspondante à cette couleur
+    const variant = product.variants?.nodes?.find((v: any) =>
+      v.selectedOptions?.some(
+        (opt: any) => opt.name === colorOptionName && opt.value === colorValue
+      )
+    );
+
+    if (!variant) {
+      console.warn(`⚠️ Aucune variante trouvée pour la couleur "${colorValue}"`);
+      return;
+    }
+
+    // 🔍 Chercher le metaobject correspondant avec plusieurs variantes du nom
+    let colorMeta =
+      colorMetaobjectsMap.get(colorValue) ||
+      colorMetaobjectsMap.get(colorValue.toLowerCase()) ||
+      colorMetaobjectsMap.get(colorValue.toLowerCase().replace(/[\s-_]/g, '')) ||
+      colorMetaobjectsMap.get(colorValue.toUpperCase());
+
+    let imageUrl = '';
+    let colorLabel = colorValue;
+
+    if (colorMeta) {
+      console.log(`✅ Metaobject trouvé pour "${colorValue}"`);
+
+      // Récupérer le label
+      const labelField = colorMeta.fields?.find(
+        (f: any) => f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name'
+      );
+      if (labelField?.value) {
+        colorLabel = labelField.value;
+      }
+
+      // 🖼️ Récupérer l'image depuis le champ "Image"
+      const imageField = colorMeta.fields?.find(
+        (f: any) => f.key === 'Image' || f.key === 'image' || f.key === 'swatch'
+      );
+
+      if (imageField?.reference?.image?.url) {
+        imageUrl = imageField.reference.image.url;
+        console.log(`✅ Image metaobject trouvée pour "${colorValue}":`, imageUrl);
+      } else {
+        console.warn(`⚠️ Pas d'image dans le metaobject pour "${colorValue}"`);
+        console.log('🔍 Champs disponibles:', colorMeta.fields?.map((f: any) => `${f.key}: ${f.type}`));
+      }
+    } else {
+      console.warn(`⚠️ Pas de metaobject trouvé pour "${colorValue}"`);
+      console.log('🔍 Clés disponibles dans la map:', Array.from(colorMetaobjectsMap.keys()).join(', '));
+    }
+
+    // Fallback 1: Si pas d'image metaobject, utiliser l'image de la variante
+    if (!imageUrl && variant.image?.url) {
+      imageUrl = variant.image.url;
+      console.warn(`⚠️ Utilisation de l'image variante pour "${colorValue}"`);
+    }
+
+    // Fallback 2: Image featured du produit
+    if (!imageUrl && product.featuredImage?.url) {
+      imageUrl = product.featuredImage.url;
+      console.warn(`⚠️ Utilisation de l'image produit pour "${colorValue}"`);
+    }
+
+    // Si on a une image, ajouter l'option
+    if (imageUrl) {
+      colorOptions.push({
+        name: colorLabel,
+        imageUrl,
+        variantId: variant.id,
+        availableForSale: variant.availableForSale || false,
+      });
+
+      console.log(`✅ ColorOption ajoutée: "${colorLabel}" (${colorValue})`);
+    } else {
+      console.error(`❌ Aucune image trouvée pour la couleur "${colorValue}"`);
+    }
+  });
+
+  console.log(`📊 Total ColorOptions extraites: ${colorOptions.length}`);
+  return colorOptions;
+}
+
 export default function Product() {
-  const {product, recommendedProducts, storeDomain} =
+  const {product, recommendedProducts, storeDomain, colorMetaobjects} =
     useLoaderData<typeof loader>();
   const config = useConfig();
 
@@ -236,6 +411,41 @@ export default function Product() {
 
   // Timer countdown to midnight (24h renewal)
   const [timeLeft, setTimeLeft] = useState({hours: 0, minutes: 0, seconds: 0});
+
+  // Extract color options for the carousel
+  const colorOptions = useMemo(
+    () => extractColorOptions(product, colorMetaobjects),
+    [product, colorMetaobjects]
+  );
+
+  // Get current color name from selected variant
+  const currentColorName = useMemo(() => {
+    if (!currentVariant) return '';
+
+    const colorOption = currentVariant.selectedOptions?.find(
+      (opt: any) =>
+        opt.name.toLowerCase() === 'couleur' ||
+        opt.name.toLowerCase() === 'color' ||
+        opt.name.toLowerCase() === 'colours'
+    );
+
+    return colorOption?.value || '';
+  }, [currentVariant]);
+
+  // Handler pour la sélection d'une couleur dans le carrousel
+  const handleColorSelect = useCallback(
+    (colorOption: ColorOption) => {
+      // Trouver la variante correspondante
+      const selectedVariant = product.variants?.nodes?.find(
+        (v: any) => v.id === colorOption.variantId
+      );
+
+      if (selectedVariant) {
+        setCurrentVariant(selectedVariant);
+      }
+    },
+    [product.variants?.nodes]
+  );
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -429,8 +639,14 @@ export default function Product() {
       console.log('New variant images:', newVariantImages.length);
       setCustomVariantImages(newVariantImages);
 
-      // Set active image to variant's main image or first custom image
-      if (currentVariant.image?.url) {
+      // Always prioritize featured image (photo principale) first
+      if (featuredImage?.url) {
+        console.log(
+          'Setting active image to featured image (photo principale):',
+          featuredImage.url,
+        );
+        setActiveImage(featuredImage);
+      } else if (currentVariant.image?.url) {
         console.log(
           'Setting active image to variant image:',
           currentVariant.image.url,
@@ -442,17 +658,11 @@ export default function Product() {
           newVariantImages[0].url,
         );
         setActiveImage(newVariantImages[0]);
-      } else if (featuredImage?.url) {
-        console.log(
-          'Setting active image to featured image:',
-          featuredImage.url,
-        );
-        setActiveImage(featuredImage);
       }
     }
   }, [currentVariant, getVariantImages, featuredImage]);
 
-  // Determine which images to display - the variant's main image plus any custom variant images
+  // Determine which images to display - all product images
   const displayImages = useMemo(() => {
     if (!currentVariant) {
       return [
@@ -466,15 +676,37 @@ export default function Product() {
       ];
     }
 
-    const variantImages = [
-      // First add the variant's main image if it exists
-      ...(currentVariant.image?.url ? [currentVariant.image] : []),
-      // Then add any custom variant-specific images
-      ...customVariantImages,
-    ];
+    const images = [];
+    const seenIds = new Set();
+
+    // First add the featured image (photo principale)
+    if (featuredImage?.url && featuredImage?.id) {
+      images.push(featuredImage);
+      seenIds.add(featuredImage.id);
+    }
+
+    // Then add all product images (excluding duplicates)
+    if (allProductImages && allProductImages.length > 0) {
+      allProductImages.forEach((img: any) => {
+        if (img?.url && img?.id && !seenIds.has(img.id)) {
+          images.push(img);
+          seenIds.add(img.id);
+        }
+      });
+    }
+
+    // Finally add any custom variant-specific images
+    if (customVariantImages && customVariantImages.length > 0) {
+      customVariantImages.forEach((img: any) => {
+        if (img?.url && img?.id && !seenIds.has(img.id)) {
+          images.push(img);
+          seenIds.add(img.id);
+        }
+      });
+    }
 
     // If we have no images at all, show a placeholder
-    if (variantImages.length === 0) {
+    if (images.length === 0) {
       return [
         {
           id: 'placeholder-image',
@@ -486,8 +718,8 @@ export default function Product() {
       ];
     }
 
-    return variantImages;
-  }, [currentVariant, customVariantImages]);
+    return images;
+  }, [currentVariant, customVariantImages, featuredImage, allProductImages]);
 
   // Make sure activeImage is one of the display images
   useEffect(() => {
@@ -538,7 +770,7 @@ export default function Product() {
                 <li className="flex items-center space-x-2">
                   <span className="text-gray-400">/</span>
                   <Link
-                    to="/collections/all"
+                    to="/products"
                     className="text-gray-700 hover:text-primary transition-colors"
                   >
                     Boutique
@@ -556,7 +788,7 @@ export default function Product() {
 
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="aspect-square w-full max-w-[500px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white mx-auto lg:mx-0">
+            <div className="aspect-square w-full max-w-[500px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white mx-auto lg:mx-0 group">
               {activeImage ? (
                 <>
                   <Image
@@ -570,6 +802,34 @@ export default function Product() {
                         Rupture
                       </div>
                     </div>
+                  )}
+
+                  {/* Navigation Arrows - Only show if multiple images */}
+                  {displayImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => {
+                          const currentIndex = displayImages.findIndex((img: any) => img.id === activeImage.id);
+                          const prevIndex = currentIndex > 0 ? currentIndex - 1 : displayImages.length - 1;
+                          setActiveImage(displayImages[prevIndex]);
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black p-2 rounded-full shadow-lg md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
+                        aria-label="Image précédente"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          const currentIndex = displayImages.findIndex((img: any) => img.id === activeImage.id);
+                          const nextIndex = currentIndex < displayImages.length - 1 ? currentIndex + 1 : 0;
+                          setActiveImage(displayImages[nextIndex]);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black p-2 rounded-full shadow-lg md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
+                        aria-label="Image suivante"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
                   )}
                 </>
               ) : (
@@ -586,11 +846,11 @@ export default function Product() {
 
             {/* Out of Stock Banner */}
             {currentVariant && !currentVariant.availableForSale && (
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-sm">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
+              <div className="bg-gradient-to-r from-primary/5 to-primary/10 border-2 border-primary/30 p-5 rounded-xl shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 bg-white rounded-full p-2 shadow-sm">
                     <svg
-                      className="h-5 w-5 text-amber-500"
+                      className="h-6 w-6 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
@@ -602,12 +862,11 @@ export default function Product() {
                       />
                     </svg>
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-amber-800 font-medium">
-                      Ce produit est actuellement{' '}
-                      <span className="font-bold">en rupture de stock</span>
+                  <div className="flex-1">
+                    <p className="text-base text-black font-bold mb-2">
+                      Ce produit est actuellement en rupture de stock
                     </p>
-                    <p className="text-xs text-amber-700 mt-1">
+                    <p className="text-sm text-gray-700">
                       Vous pouvez l'ajouter à votre liste de souhaits ou revenir plus tard
                     </p>
                   </div>
@@ -623,11 +882,11 @@ export default function Product() {
             )}
 
             {displayImages.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
                 {displayImages.map((image: any) => (
                   <div
                     key={image.id}
-                    className={`aspect-square overflow-hidden rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                    className={`aspect-square overflow-hidden rounded-md border cursor-pointer transition-all duration-300 ${
                       activeImage?.id === image.id
                         ? 'border-primary scale-105 shadow-md'
                         : 'border-gray-200 hover:border-primary/50'
@@ -639,7 +898,7 @@ export default function Product() {
                     <Image
                       data={image}
                       className="h-full w-full object-cover"
-                      sizes="(min-width: 1024px) 15vw, 25vw"
+                      sizes="(min-width: 1024px) 10vw, 20vw"
                     />
                   </div>
                 ))}
@@ -685,31 +944,42 @@ export default function Product() {
 
               {/* Countdown Timer - Always visible */}
               <ClientOnly>
-                <div className="w-full bg-[#FFF5F9] rounded-lg px-4 py-3 flex items-center justify-center gap-2">
-                  <span className="text-black font-semibold text-sm">
+                <div className="w-full bg-primary/5 rounded-lg px-4 py-3 flex items-center justify-center gap-2">
+                  <span className="text-black font-semibold text-sm uppercase">
                     Fin dans :
                   </span>
                   <div className="flex items-center gap-1.5">
                     {/* Hours */}
-                    <div className="bg-[#D61C8C] text-white font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
+                    <div className="bg-primary text-black font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
                       {String(timeLeft.hours).padStart(2, '0')}
                     </div>
-                    <span className="text-[#D61C8C] font-bold text-lg">:</span>
+                    <span className="text-primary font-bold text-lg">:</span>
 
                     {/* Minutes */}
-                    <div className="bg-[#D61C8C] text-white font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
+                    <div className="bg-primary text-black font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
                       {String(timeLeft.minutes).padStart(2, '0')}
                     </div>
-                    <span className="text-[#D61C8C] font-bold text-lg">:</span>
+                    <span className="text-primary font-bold text-lg">:</span>
 
                     {/* Seconds */}
-                    <div className="bg-[#D61C8C] text-white font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
+                    <div className="bg-primary text-black font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
                       {String(timeLeft.seconds).padStart(2, '0')}
                     </div>
                   </div>
                 </div>
               </ClientOnly>
             </div>
+
+            {/* Color Carousel - Only show if product has color options */}
+            {colorOptions.length > 0 && (
+              <div className="mb-6">
+                <ColorCarousel
+                  colors={colorOptions}
+                  selectedColorName={currentColorName}
+                  onColorSelect={handleColorSelect}
+                />
+              </div>
+            )}
 
             <div className="prose prose-sm max-w-none mb-8 text-black">
               <div
@@ -1057,6 +1327,35 @@ export default function Product() {
   );
 }
 
+// Query pour récupérer tous les metaobjects Couleur
+const COLOR_METAOBJECTS_QUERY = `#graphql
+  query ColorMetaobjects {
+    metaobjects(type: "shopify--color-pattern", first: 100) {
+      nodes {
+        id
+        handle
+        type
+        fields {
+          key
+          value
+          type
+          reference {
+            ... on MediaImage {
+              id
+              image {
+                url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 const PRODUCT_QUERY = `#graphql
   query ProductDetails($handle: String!) {
     product(handle: $handle) {
@@ -1160,10 +1459,35 @@ const PRODUCT_QUERY = `#graphql
             currencyCode
           }
           sku
-          metafields(identifiers: [{namespace: "custom", key: "variant_imgs"}]) {
+          metafields(identifiers: [
+            {namespace: "custom", key: "variant_imgs"},
+            {namespace: "custom", key: "couleur"}
+          ]) {
             key
             value
             namespace
+            reference {
+              ... on Metaobject {
+                id
+                type
+                labelField: field(key: "Label") {
+                  value
+                }
+                imageField: field(key: "Image") {
+                  reference {
+                    ... on MediaImage {
+                      id
+                      image {
+                        url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1171,12 +1495,40 @@ const PRODUCT_QUERY = `#graphql
         title
         description
       }
-      metafields(identifiers: [{namespace: "custom", key: "related_products"}]) {
+      metafields(identifiers: [
+        {namespace: "custom", key: "related_products"},
+        {namespace: "custom", key: "couleurs"}
+      ]) {
         key
         value
+        type
+        references(first: 50) {
+          nodes {
+            ... on Metaobject {
+              id
+              type
+              fields {
+                key
+                value
+                type
+                reference {
+                  ... on MediaImage {
+                    id
+                    image {
+                      url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})
+                      altText
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
-    
+
     # Fetch recommended products - top selling products from the same collection
     recommendedProducts: products(first: 4, sortKey: BEST_SELLING) {
       nodes {

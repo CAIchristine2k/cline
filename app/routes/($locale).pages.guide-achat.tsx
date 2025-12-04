@@ -467,7 +467,7 @@ export default function GuideAchat() {
               Notre équipe est là pour vous conseiller ! Contactez-nous sur le chat du site ou par message Instagram pour une recommandation personnalisée selon votre style et votre budget.
             </p>
             <a
-              href="https://www.instagram.com/clinehair_officiel/"
+              href="https://www.instagram.com/c_line.cheveux/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-black font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"

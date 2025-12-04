@@ -274,7 +274,7 @@ export const defaultConfig: LandingPageConfig = {
   // Navigation
   navigation: [
     {name: 'Accueil', href: '/'},
-    {name: 'Boutique', href: '/collections/all'},
+    {name: 'Boutique', href: '/products'},
     {name: 'À Propos', href: '/about'},
     {name: 'Contact', href: '/pages/contact'},
   ],
@@ -347,7 +347,7 @@ export const defaultConfig: LandingPageConfig = {
 
   // Social Links
   socialLinks: {
-    instagram: 'https://instagram.com/cline_shop',
+    instagram: 'https://www.instagram.com/c_line.cheveux/',
     twitter: undefined,
     youtube: undefined,
     tiktok: undefined,

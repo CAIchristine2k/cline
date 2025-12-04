@@ -105,7 +105,7 @@ export default function Home() {
   const appConfig = useConfig();
 
   return (
-    <main>
+    <main className="pt-5">
       <Hero />
 
       {/* Product showcase section - BEST SELLERS (from best-sellers collection) */}

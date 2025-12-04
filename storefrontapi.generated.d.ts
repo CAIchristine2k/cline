@@ -883,7 +883,27 @@ export type ProductDetailsQuery = {
             >;
             metafields: Array<
               StorefrontAPI.Maybe<
-                Pick<StorefrontAPI.Metafield, 'key' | 'value' | 'namespace'>
+                Pick<StorefrontAPI.Metafield, 'key' | 'value' | 'namespace'> & {
+                  reference?: StorefrontAPI.Maybe<
+                    Pick<StorefrontAPI.Metaobject, 'id' | 'type'> & {
+                      labelField?: StorefrontAPI.Maybe<
+                        Pick<StorefrontAPI.MetaobjectField, 'value'>
+                      >;
+                      imageField?: StorefrontAPI.Maybe<{
+                        reference?: StorefrontAPI.Maybe<
+                          Pick<StorefrontAPI.MediaImage, 'id'> & {
+                            image?: StorefrontAPI.Maybe<
+                              Pick<
+                                StorefrontAPI.Image,
+                                'url' | 'altText' | 'width' | 'height'
+                              >
+                            >;
+                          }
+                        >;
+                      }>;
+                    }
+                  >;
+                }
               >
             >;
           }
@@ -891,7 +911,33 @@ export type ProductDetailsQuery = {
       };
       seo: Pick<StorefrontAPI.Seo, 'title' | 'description'>;
       metafields: Array<
-        StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'key' | 'value'>>
+        StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Metafield, 'key' | 'value' | 'type'> & {
+            references?: StorefrontAPI.Maybe<{
+              nodes: Array<
+                Pick<StorefrontAPI.Metaobject, 'id' | 'type'> & {
+                  fields: Array<
+                    Pick<
+                      StorefrontAPI.MetaobjectField,
+                      'key' | 'value' | 'type'
+                    > & {
+                      reference?: StorefrontAPI.Maybe<
+                        Pick<StorefrontAPI.MediaImage, 'id'> & {
+                          image?: StorefrontAPI.Maybe<
+                            Pick<
+                              StorefrontAPI.Image,
+                              'url' | 'altText' | 'width' | 'height'
+                            >
+                          >;
+                        }
+                      >;
+                    }
+                  >;
+                }
+              >;
+            }>;
+          }
+        >
       >;
     }
   >;
@@ -928,6 +974,64 @@ export type ProductDetailsQuery = {
           >;
         };
       }
+    >;
+  };
+};
+
+export type AllProductsPaginatedQueryVariables = StorefrontAPI.Exact<{
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  startCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+  endCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+}>;
+
+export type AllProductsPaginatedQuery = {
+  products: {
+    nodes: Array<
+      Pick<
+        StorefrontAPI.Product,
+        'id' | 'title' | 'handle' | 'description' | 'tags'
+      > & {
+        featuredImage?: StorefrontAPI.Maybe<
+          Pick<
+            StorefrontAPI.Image,
+            'id' | 'url' | 'altText' | 'width' | 'height'
+          >
+        >;
+        priceRange: {
+          minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        compareAtPriceRange: {
+          minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<
+              StorefrontAPI.ProductVariant,
+              'id' | 'title' | 'availableForSale'
+            > & {
+              price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+              compareAtPrice?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+              >;
+            }
+          >;
+        };
+      }
+    >;
+    pageInfo: Pick<
+      StorefrontAPI.PageInfo,
+      'hasPreviousPage' | 'hasNextPage' | 'startCursor' | 'endCursor'
     >;
   };
 };
@@ -1457,9 +1561,13 @@ interface GeneratedQueryTypes {
     return: PoliciesQuery;
     variables: PoliciesQueryVariables;
   };
-  '#graphql\n  query ProductDetails($handle: String!) {\n    product(handle: $handle) {\n      id\n      title\n      description\n      descriptionHtml\n      handle\n      vendor\n      tags\n      productType\n      featuredImage {\n        id\n        url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n        altText\n        width\n        height\n      }\n      images(first: 10) {\n        nodes {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n      }\n      media(first: 20) {\n        nodes {\n          id\n          ... on MediaImage {\n            image {\n              id\n              url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      options {\n        name\n        values\n      }\n      selectedVariant: variantBySelectedOptions(selectedOptions: []) {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n        image {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        sku\n        title\n        unitPrice {\n          amount\n          currencyCode\n        }\n        product {\n          title\n          handle\n        }\n      }\n      variants(first: 10) {\n        nodes {\n          id\n          title\n          availableForSale\n          image {\n            id\n            url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n            altText\n            width\n            height\n          }\n          selectedOptions {\n            name\n            value\n          }\n          price {\n            amount\n            currencyCode\n          }\n          compareAtPrice {\n            amount\n            currencyCode\n          }\n          sku\n          metafields(identifiers: [{namespace: "custom", key: "variant_imgs"}]) {\n            key\n            value\n            namespace\n          }\n        }\n      }\n      seo {\n        title\n        description\n      }\n      metafields(identifiers: [{namespace: "custom", key: "related_products"}]) {\n        key\n        value\n      }\n    }\n    \n    # Fetch recommended products - top selling products from the same collection\n    recommendedProducts: products(first: 4, sortKey: BEST_SELLING) {\n      nodes {\n        id\n        title\n        handle\n        description\n        descriptionHtml\n        vendor\n        featuredImage {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          nodes {\n            id\n            availableForSale\n            price {\n              amount\n              currencyCode\n            }\n            compareAtPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query ProductDetails($handle: String!) {\n    product(handle: $handle) {\n      id\n      title\n      description\n      descriptionHtml\n      handle\n      vendor\n      tags\n      productType\n      featuredImage {\n        id\n        url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n        altText\n        width\n        height\n      }\n      images(first: 10) {\n        nodes {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n      }\n      media(first: 20) {\n        nodes {\n          id\n          ... on MediaImage {\n            image {\n              id\n              url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      options {\n        name\n        values\n      }\n      selectedVariant: variantBySelectedOptions(selectedOptions: []) {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n        image {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        sku\n        title\n        unitPrice {\n          amount\n          currencyCode\n        }\n        product {\n          title\n          handle\n        }\n      }\n      variants(first: 10) {\n        nodes {\n          id\n          title\n          availableForSale\n          image {\n            id\n            url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n            altText\n            width\n            height\n          }\n          selectedOptions {\n            name\n            value\n          }\n          price {\n            amount\n            currencyCode\n          }\n          compareAtPrice {\n            amount\n            currencyCode\n          }\n          sku\n          metafields(identifiers: [\n            {namespace: "custom", key: "variant_imgs"},\n            {namespace: "custom", key: "couleur"}\n          ]) {\n            key\n            value\n            namespace\n            reference {\n              ... on Metaobject {\n                id\n                type\n                labelField: field(key: "Label") {\n                  value\n                }\n                imageField: field(key: "Image") {\n                  reference {\n                    ... on MediaImage {\n                      id\n                      image {\n                        url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                        altText\n                        width\n                        height\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      seo {\n        title\n        description\n      }\n      metafields(identifiers: [\n        {namespace: "custom", key: "related_products"},\n        {namespace: "custom", key: "couleurs"}\n      ]) {\n        key\n        value\n        type\n        references(first: 50) {\n          nodes {\n            ... on Metaobject {\n              id\n              type\n              fields {\n                key\n                value\n                type\n                reference {\n                  ... on MediaImage {\n                    id\n                    image {\n                      url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n\n    # Fetch recommended products - top selling products from the same collection\n    recommendedProducts: products(first: 4, sortKey: BEST_SELLING) {\n      nodes {\n        id\n        title\n        handle\n        description\n        descriptionHtml\n        vendor\n        featuredImage {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          nodes {\n            id\n            availableForSale\n            price {\n              amount\n              currencyCode\n            }\n            compareAtPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: ProductDetailsQuery;
     variables: ProductDetailsQueryVariables;
+  };
+  '#graphql\n  query AllProductsPaginated($first: Int, $last: Int, $startCursor: String, $endCursor: String) {\n    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {\n      nodes {\n        id\n        title\n        handle\n        description\n        tags\n        featuredImage {\n          id\n          url\n          altText\n          width\n          height\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        compareAtPriceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 10) {\n          nodes {\n            id\n            title\n            availableForSale\n            price {\n              amount\n              currencyCode\n            }\n            compareAtPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        startCursor\n        endCursor\n      }\n    }\n  }\n': {
+    return: AllProductsPaginatedQuery;
+    variables: AllProductsPaginatedQueryVariables;
   };
   '#graphql\n  query RegularSearch(\n    $country: CountryCode\n    $endCursor: String\n    $first: Int\n    $language: LanguageCode\n    $last: Int\n    $term: String!\n    $startCursor: String\n  ) @inContext(country: $country, language: $language) {\n    articles: search(\n      query: $term,\n      types: [ARTICLE],\n      first: $first,\n    ) {\n      nodes {\n        ...on Article {\n          ...SearchArticle\n        }\n      }\n    }\n    pages: search(\n      query: $term,\n      types: [PAGE],\n      first: $first,\n    ) {\n      nodes {\n        ...on Page {\n          ...SearchPage\n        }\n      }\n    }\n    products: search(\n      after: $endCursor,\n      before: $startCursor,\n      first: $first,\n      last: $last,\n      query: $term,\n      sortKey: RELEVANCE,\n      types: [PRODUCT],\n      unavailableProducts: HIDE,\n    ) {\n      nodes {\n        ...on Product {\n          ...SearchProduct\n        }\n      }\n      pageInfo {\n        ...PageInfoFragment\n      }\n    }\n  }\n  \n  #graphql\n  fragment SearchProduct on Product {\n    __typename\n    handle\n    id\n    publishedAt\n    title\n    trackingParameters\n    vendor\n    selectedOrFirstAvailableVariant(\n      selectedOptions: []\n      ignoreUnknownOptions: true\n      caseInsensitiveMatch: true\n    ) {\n      id\n      image {\n        url\n        altText\n        width\n        height\n      }\n      price {\n        amount\n        currencyCode\n      }\n      compareAtPrice {\n        amount\n        currencyCode\n      }\n      selectedOptions {\n        name\n        value\n      }\n      product {\n        handle\n        title\n      }\n    }\n  }\n\n  #graphql\n  fragment SearchPage on Page {\n     __typename\n     handle\n    id\n    title\n    trackingParameters\n  }\n\n  #graphql\n  fragment SearchArticle on Article {\n    __typename\n    handle\n    id\n    title\n    trackingParameters\n  }\n\n  \n  #graphql\n  fragment PageInfoFragment on PageInfo {\n    hasNextPage\n    hasPreviousPage\n    startCursor\n    endCursor\n  }\n': {
     return: RegularSearchQuery;

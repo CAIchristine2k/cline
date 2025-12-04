@@ -89,8 +89,7 @@ export default function LimitedEdition() {
 
           {/* Titre principal */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-black">
-            Sublimez vos Fêtes avec <br />
-            <span className="text-white hero-title-glow">C'LINE HAIR</span>
+            VENTE FLASH
           </h2>
 
           {/* Sous-texte */}

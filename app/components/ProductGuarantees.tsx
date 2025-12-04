@@ -26,22 +26,22 @@ export function ProductGuarantees() {
     <div className="mt-6 space-y-4">
       {/* Guarantees Grid */}
       <div className="border border-gray-200 rounded-lg overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-2 gap-0">
           {guarantees.map((item, index) => (
             <div
               key={index}
               className={`
                 p-4 flex items-start gap-3
                 ${index < 2 ? 'border-b border-gray-200' : ''}
-                ${index % 2 === 0 ? 'md:border-r border-gray-200' : ''}
+                ${index % 2 === 0 ? 'border-r border-gray-200' : ''}
               `}
             >
               <div className="text-2xl flex-shrink-0">{item.icon}</div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-black leading-tight">
+                <h4 className="text-xs md:text-sm font-bold text-black leading-tight">
                   {item.title}
                 </h4>
-                <p className="text-xs text-gray-500 mt-0.5">{item.subtitle}</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">{item.subtitle}</p>
               </div>
             </div>
           ))}
@@ -49,7 +49,6 @@ export function ProductGuarantees() {
 
         {/* Payment Methods - Inside the border */}
         <div className="pt-4 pb-4 border-t border-gray-200">
-          <p className="text-gray-600 text-xs text-center mb-3">Moyens de paiement acceptés</p>
           <div className="flex flex-wrap items-center justify-center gap-2 px-4">
             {/* Klarna */}
             <div className="h-8 px-3 flex items-center justify-center bg-primary-light rounded-md">

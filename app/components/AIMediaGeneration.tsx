@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
+import {Link} from 'react-router';
 import {useConfig} from '~/utils/themeContext';
 import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
 
@@ -66,13 +67,42 @@ export function AIMediaGeneration() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-black">
             Astuces pour la <span className="text-primary">pose</span> &amp; l'<span className="text-primary">entretien</span>
           </h2>
-          <p className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed">
+          {/* Image mobile uniquement */}
+          <div className="md:hidden flex justify-center mb-4">
+            <img
+              src="/images/astuce.png"
+              alt="Conseils de pose C'Line Hair"
+              className="w-48 h-48 object-cover rounded-lg shadow-md"
+            />
+          </div>
+          <p className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed mb-6">
             Tout ce qu'il faut savoir pour une pose impeccable et une tenue longue durée de vos extensions et perruques.
           </p>
+          <Link
+            to="/pages/guide-entretien"
+            className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+          >
+            NOS CONSEILS
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform group-hover:translate-x-1"
+            >
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </Link>
         </div>
 
         {/* Étapes de pose */}
-        <div className="max-w-6xl mx-auto bg-white border border-primary/20 rounded-xl overflow-hidden shadow-2xl">
+        <div className="max-w-6xl mx-auto bg-white border border-primary/20 rounded-xl overflow-hidden shadow-2xl hidden md:block">
           <div className="grid md:grid-cols-2 gap-0">
             {/* visuel */}
             <div className="relative aspect-[4/3] md:aspect-auto p-2 sm:p-4 flex items-center justify-center w-full">

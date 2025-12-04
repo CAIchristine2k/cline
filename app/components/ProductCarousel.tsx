@@ -198,7 +198,7 @@ export function ProductCarousel({
         onMouseEnter={() => !isDragging && setIsPaused(true)}
       >
         <div
-          className="flex transition-transform duration-700 ease-in-out gap-6"
+          className="flex transition-transform duration-700 ease-in-out gap-4"
           style={{
             transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
           }}
@@ -206,19 +206,17 @@ export function ProductCarousel({
           {products.map((product, index) => (
             <div
               key={product.id}
-              className="flex-shrink-0"
+              className="flex-shrink-0 h-full"
               style={{
-                width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)`,
+                width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)`,
               }}
             >
-              <div className="transform scale-105">
-                <ProductCard
-                  product={product}
-                  loading={index < itemsPerView * 2 ? 'eager' : 'lazy'}
-                  compact={compact}
-                  collectionHandle={collectionHandle}
-                />
-              </div>
+              <ProductCard
+                product={product}
+                loading={index < itemsPerView * 2 ? 'eager' : 'lazy'}
+                compact={compact}
+                collectionHandle={collectionHandle}
+              />
             </div>
           ))}
         </div>

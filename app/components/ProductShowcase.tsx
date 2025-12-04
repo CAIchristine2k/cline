@@ -82,7 +82,7 @@ export function ProductShowcase({
             className="inline-flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
           >
             <ShoppingBag className="w-5 h-5" />
-            VOIR NOS PRODUITS
+            VOIR PLUS
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

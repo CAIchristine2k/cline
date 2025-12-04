@@ -175,14 +175,13 @@ export function Header() {
             {/* Right: Account & Cart */}
             <div className="flex items-center justify-end gap-4">
               {/* Account Button */}
-              <Link
-                to="/account"
-                prefetch="intent"
+              <a
+                href="https://account.clinehair.com/orders"
                 className="text-gray-700 hover:text-black transition-all duration-300 flex items-center gap-2"
                 aria-label="Mon compte"
               >
                 <User className="h-5 w-5" />
-              </Link>
+              </a>
 
               {/* Cart Button */}
               <button
@@ -364,6 +363,15 @@ export function Header() {
                 À propos
               </Link>
 
+              <Link
+                to="/products"
+                prefetch="intent"
+                onClick={() => setIsOpen(false)}
+                className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center justify-between"
+              >
+                NOS PRODUITS
+              </Link>
+
               {/* Menus avec sous-menus */}
               {menuItems.filter(item => !item.premium).map((item) => (
                 <div key={item.name}>
@@ -413,15 +421,14 @@ export function Header() {
               ))}
 
               {/* Account link in mobile */}
-              <Link
-                to="/account"
-                prefetch="intent"
+              <a
+                href="https://account.clinehair.com/orders"
                 onClick={() => setIsOpen(false)}
                 className="text-black hover:bg-gray-50 transition-all duration-300 py-4 px-4 text-sm uppercase font-semibold tracking-wider flex items-center gap-2"
               >
                 <User className="h-4 w-4" />
                 Mon compte
-              </Link>
+              </a>
             </nav>
           </div>
         </div>
