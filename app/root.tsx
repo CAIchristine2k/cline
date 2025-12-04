@@ -24,7 +24,6 @@ import {CartProvider} from '~/providers/CartProvider';
 import {Aside} from '~/components/Aside';
 
 import appStyles from './styles/app.css?url';
-import favicon from '~/assets/favicon.svg';
 
 export const links: LinksFunction = () => {
   return [
@@ -37,7 +36,8 @@ export const links: LinksFunction = () => {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    {rel: 'icon', type: 'image/png', href: '/images/logo.png'},
+    {rel: 'apple-touch-icon', href: '/images/logo.png'},
   ];
 };
 
@@ -217,71 +217,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        {/* Keep CSS variables consistent between server and client */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              /* Theme CSS Variables - C'LINE HAIR Pink Palette */
-              :root {
-                --color-primary: #F5A6C6;
-                --color-secondary: #F3E8E2;
-                --color-accent: #FCD9E7;
-                --color-background: #FFFFFF;
-                --color-text: #111111;
-
-                /* RGB versions for opacity/shadows */
-                --color-primary-rgb: 245, 166, 198;
-                --color-secondary-rgb: 243, 232, 226;
-
-                /* Primary color variants - C'LINE HAIR Pink */
-                --color-primary-50: #FFEFF7;
-                --color-primary-100: #FCD9E7;
-                --color-primary-200: #F9C4D8;
-                --color-primary-300: #F7AFCA;
-                --color-primary-400: #F5A6C6;
-                --color-primary-500: #F5A6C6;
-                --color-primary-600: #DD88AB;
-                --color-primary-700: #C56A90;
-                --color-primary-800: #AD4C75;
-                --color-primary-900: #952E5A;
-                
-                /* Typography - use system fonts instead of Google Fonts */
-                --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-                --font-secondary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-                
-                /* Spacing scale */
-                --spacing-xs: 0.25rem;
-                --spacing-sm: 0.5rem;
-                --spacing-md: 1rem;
-                --spacing-lg: 1.5rem;
-                --spacing-xl: 2rem;
-                --spacing-2xl: 3rem;
-                --spacing-3xl: 4rem;
-                
-                /* Border radius */
-                --radius-sm: 0.25rem;
-                --radius-md: 0.5rem;
-                --radius-lg: 0.75rem;
-                --radius-xl: 1rem;
-                
-                /* Shadows */
-                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-                --shadow-primary: 0 0 15px rgba(var(--color-primary-rgb), 0.3);
-              }
-              
-              /* Dark theme support */
-              @media (prefers-color-scheme: dark) {
-                :root {
-                  --color-background: #e6d0d1;
-                  --color-text: #000000;
-                }
-              }
-            `,
-          }}
-        />
       </head>
       <body>
         <Analytics.Provider

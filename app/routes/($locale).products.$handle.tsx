@@ -153,13 +153,53 @@ function ProductReviews() {
 }
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
-  const config = getConfig();
+  if (!data?.product) {
+    return [
+      {title: 'Produit non trouvé - C\'Line Hair'},
+      {name: 'robots', content: 'noindex'},
+    ];
+  }
+
+  const product = data.product;
+  const variant = product.selectedVariant || product.variants?.nodes[0];
+  const price = variant?.price?.amount || 0;
+  const description = product.seo?.description || product.description?.substring(0, 155) || `${product.title} - Perruque naturelle 100% cheveux humains de qualité premium chez C'Line Hair.`;
+  const title = product.seo?.title || `${product.title} - Perruque Naturelle | C'Line Hair`;
+  const imageUrl = variant?.image?.url || product.featuredImage?.url || '';
+
   return [
-    {title: `${config.brandName} | ${data?.product.title ?? ''}`},
+    {title},
+    {name: 'description', content: description},
     {
-      rel: 'canonical',
-      href: `/products/${data?.product.handle}`,
+      name: 'keywords',
+      content: `${product.title}, perruque naturelle, lace wig, cheveux humains, ${variant?.title || ''}, perruque qualité premium`,
     },
+
+    // Open Graph
+    {property: 'og:type', content: 'product'},
+    {property: 'og:title', content: title},
+    {property: 'og:description', content: description},
+    {property: 'og:image', content: imageUrl},
+    {property: 'og:url', content: `https://www.clinehair.com/products/${product.handle}`},
+    {property: 'og:price:amount', content: price},
+    {property: 'og:price:currency', content: variant?.price?.currencyCode || 'EUR'},
+
+    // Twitter Card
+    {name: 'twitter:card', content: 'summary_large_image'},
+    {name: 'twitter:title', content: title},
+    {name: 'twitter:description', content: description},
+    {name: 'twitter:image', content: imageUrl},
+
+    // Product specific
+    {property: 'product:price:amount', content: price},
+    {property: 'product:price:currency', content: variant?.price?.currencyCode || 'EUR'},
+    {property: 'product:availability', content: variant?.availableForSale ? 'in stock' : 'out of stock'},
+
+    // Canonical
+    {rel: 'canonical', href: `https://www.clinehair.com/products/${product.handle}`},
+
+    // Robots
+    {name: 'robots', content: 'index, follow'},
   ];
 };
 
@@ -211,24 +251,13 @@ async function loadCriticalData({
     throw new Response(null, {status: 404});
   }
 
-  // 🆕 Récupérer tous les metaobjects Couleur
+  // Récupérer tous les metaobjects Couleur
   let colorMetaobjects: any[] = [];
   try {
     const colorData = await storefront.query(COLOR_METAOBJECTS_QUERY);
     colorMetaobjects = colorData?.metaobjects?.nodes || [];
-    console.log('🎨 [LOADER] Metaobjects Couleur récupérés:', colorMetaobjects.length);
-
-    // Log simplif: tous les labels/handles
-    console.log('📋 [LOADER] Labels des metaobjects:',
-      colorMetaobjects.slice(0, 10).map((mo: any) => {
-        const labelField = mo.fields?.find((f: any) =>
-          f.key === 'Label' || f.key === 'label' || f.key === 'title'
-        );
-        return `${labelField?.value || mo.handle} (handle: ${mo.handle})`;
-      }).join(', ')
-    );
   } catch (error) {
-    console.error('❌ [LOADER] Erreur lors de la récupération des metaobjects:', error);
+    // Silently fail - fallback to variant images
   }
 
   // The API handle might be localized, so redirect to the localized handle
@@ -259,9 +288,6 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
  * Combine les données des métaobjets Couleur et des variants
  */
 function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorOption[] {
-  console.log('🎨 extractColorOptions appelée pour produit:', product.title);
-  console.log('📋 Options disponibles:', product.options?.map((o: any) => o?.name).filter(Boolean));
-
   // Chercher l'option "Couleur" ou similaire
   const colorOption = product.options?.find(
     (opt: any) =>
@@ -272,17 +298,10 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
         opt.name.toLowerCase() === 'colours')
   );
 
-  console.log('🔎 Option couleur trouvée:', colorOption ? colorOption.name : 'AUCUNE');
-
   if (!colorOption || !colorOption.values || colorOption.values.length === 0) {
-    console.log('⚠️ Pas d\'option couleur pour ce produit');
     return [];
   }
 
-  console.log('🌈 Valeurs de couleurs:', colorOption.values);
-  console.log('🎨 Metaobjects Couleur reçus:', colorMetaobjects.length);
-
-  // 🆕 APPROCHE DIRECTE: Utiliser les metaobjects passés en paramètre
   // Créer un mapping des metaobjects par nom/handle/label
   const colorMetaobjectsMap = new Map<string, any>();
 
@@ -291,18 +310,15 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
 
     // Trouver les champs Label et Image
     const labelField = metaobj.fields?.find(
-      (f: any) => f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name'
+      (f: any) => f && (f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name')
     );
 
     const label = labelField?.value || metaobj.handle;
-
-    console.log(`📦 Metaobject trouvé: "${label}" (handle: ${metaobj.handle}, type: ${metaobj.type})`);
 
     // Stocker par différentes clés pour maximiser les chances de match
     if (label) {
       colorMetaobjectsMap.set(label.toLowerCase(), metaobj);
       colorMetaobjectsMap.set(label, metaobj);
-      // Aussi sans espaces et tirets
       colorMetaobjectsMap.set(label.toLowerCase().replace(/[\s-_]/g, ''), metaobj);
     }
     if (metaobj.handle) {
@@ -310,8 +326,6 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
       colorMetaobjectsMap.set(metaobj.handle, metaobj);
     }
   });
-
-  console.log('🗺️ Map des metaobjects créée avec', colorMetaobjectsMap.size, 'entrées');
 
   // Construire la liste des ColorOption
   const colorOptions: ColorOption[] = [];
@@ -326,11 +340,10 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
     );
 
     if (!variant) {
-      console.warn(`⚠️ Aucune variante trouvée pour la couleur "${colorValue}"`);
       return;
     }
 
-    // 🔍 Chercher le metaobject correspondant avec plusieurs variantes du nom
+    // Chercher le metaobject correspondant avec plusieurs variantes du nom
     let colorMeta =
       colorMetaobjectsMap.get(colorValue) ||
       colorMetaobjectsMap.get(colorValue.toLowerCase()) ||
@@ -341,43 +354,32 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
     let colorLabel = colorValue;
 
     if (colorMeta) {
-      console.log(`✅ Metaobject trouvé pour "${colorValue}"`);
-
       // Récupérer le label
       const labelField = colorMeta.fields?.find(
-        (f: any) => f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name'
+        (f: any) => f && (f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name')
       );
       if (labelField?.value) {
         colorLabel = labelField.value;
       }
 
-      // 🖼️ Récupérer l'image depuis le champ "Image"
+      // Récupérer l'image depuis le champ "Image"
       const imageField = colorMeta.fields?.find(
-        (f: any) => f.key === 'Image' || f.key === 'image' || f.key === 'swatch'
+        (f: any) => f && (f.key === 'Image' || f.key === 'image' || f.key === 'swatch')
       );
 
       if (imageField?.reference?.image?.url) {
         imageUrl = imageField.reference.image.url;
-        console.log(`✅ Image metaobject trouvée pour "${colorValue}":`, imageUrl);
-      } else {
-        console.warn(`⚠️ Pas d'image dans le metaobject pour "${colorValue}"`);
-        console.log('🔍 Champs disponibles:', colorMeta.fields?.map((f: any) => `${f.key}: ${f.type}`));
       }
-    } else {
-      console.warn(`⚠️ Pas de metaobject trouvé pour "${colorValue}"`);
-      console.log('🔍 Clés disponibles dans la map:', Array.from(colorMetaobjectsMap.keys()).join(', '));
     }
 
     // Fallback 1: Si pas d'image metaobject, utiliser l'image de la variante
     if (!imageUrl && variant.image?.url) {
       imageUrl = variant.image.url;
-      console.warn(`⚠️ Utilisation de l'image variante pour "${colorValue}"`);
     }
 
     // Fallback 2: Image featured du produit
     if (!imageUrl && product.featuredImage?.url) {
       imageUrl = product.featuredImage.url;
-      console.warn(`⚠️ Utilisation de l'image produit pour "${colorValue}"`);
     }
 
     // Si on a une image, ajouter l'option
@@ -388,14 +390,9 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
         variantId: variant.id,
         availableForSale: variant.availableForSale || false,
       });
-
-      console.log(`✅ ColorOption ajoutée: "${colorLabel}" (${colorValue})`);
-    } else {
-      console.error(`❌ Aucune image trouvée pour la couleur "${colorValue}"`);
     }
   });
 
-  console.log(`📊 Total ColorOptions extraites: ${colorOptions.length}`);
   return colorOptions;
 }
 
@@ -532,7 +529,6 @@ export default function Product() {
       const allImages = product.images?.nodes || [];
 
       // First check for the custom metafield with variant images
-      console.log('Variant metafields:', variant.metafields);
 
       const variantImgsMetafield = variant.metafields?.find(
         (metafield: any) =>
@@ -540,7 +536,6 @@ export default function Product() {
           metafield?.key === 'variant_imgs',
       );
 
-      console.log('Found variant_imgs metafield:', variantImgsMetafield);
 
       if (variantImgsMetafield?.value) {
         try {
@@ -548,7 +543,6 @@ export default function Product() {
           const imageIdentifiers = JSON.parse(
             variantImgsMetafield.value,
           ) as string[];
-          console.log('Parsed image identifiers:', imageIdentifiers);
 
           return imageIdentifiers
             .map((identifier: string, index: number) => {
@@ -573,14 +567,6 @@ export default function Product() {
                   (node.id?.includes(mediaId) &&
                     node.__typename === 'MediaImage'),
               );
-
-              // Log resolution attempt
-              console.log(`Resolving GID: ${identifier}`, {
-                mediaId,
-                found: !!matchedMedia?.image?.url,
-                hasImage: !!matchedMedia?.image,
-                imageUrl: matchedMedia?.image?.url,
-              });
 
               // If we found a media node with an image, use that
               if (matchedMedia?.image?.url) {
@@ -614,12 +600,10 @@ export default function Product() {
               }
 
               // Last resort: Log that we couldn't find this image and return null
-              console.warn(`Could not resolve GID to image URL: ${identifier}`);
               return null;
             })
             .filter(Boolean); // Filter out any null values
         } catch (e) {
-          console.error('Error parsing variant images:', e);
           return [];
         }
       }
@@ -638,32 +622,18 @@ export default function Product() {
 
   // Initialize images when component mounts or when selected variant changes
   useEffect(() => {
-    console.log('Variant changed effect running for:', currentVariant?.title);
 
     if (currentVariant) {
       // Get variant-specific custom images
       const newVariantImages = getVariantImages(currentVariant);
-      console.log('New variant images:', newVariantImages.length);
       setCustomVariantImages(newVariantImages);
 
       // Always prioritize featured image (photo principale) first
       if (featuredImage?.url) {
-        console.log(
-          'Setting active image to featured image (photo principale):',
-          featuredImage.url,
-        );
         setActiveImage(featuredImage);
       } else if (currentVariant.image?.url) {
-        console.log(
-          'Setting active image to variant image:',
-          currentVariant.image.url,
-        );
         setActiveImage(currentVariant.image);
       } else if (newVariantImages.length > 0) {
-        console.log(
-          'Setting active image to first custom image:',
-          newVariantImages[0].url,
-        );
         setActiveImage(newVariantImages[0]);
       }
     }
@@ -739,14 +709,6 @@ export default function Product() {
   }, [displayImages, activeImage]);
 
   // Log the image gallery contents for debugging
-  console.log('Display Images:', {
-    count: displayImages.length,
-    variantHasMainImage: !!currentVariant?.image?.url,
-    customImagesCount: customVariantImages.length,
-    activeImageId: activeImage?.id,
-    variantTitle: currentVariant?.title,
-    images: displayImages.map((img: any) => ({id: img.id, url: img.url})),
-  });
 
   // Check if this product has a custom variant
   const customVariant = product.variants.nodes.find(
@@ -792,8 +754,39 @@ export default function Product() {
     }
   };
 
+  // Schema.org structured data for SEO
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.title,
+    "description": product.description,
+    "image": currentVariant?.image?.url || product.featuredImage?.url,
+    "sku": currentVariant?.sku || product.id,
+    "brand": {
+      "@type": "Brand",
+      "name": "C'Line Hair"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `https://www.clinehair.com/products/${product.handle}`,
+      "priceCurrency": currentVariant?.price?.currencyCode || "EUR",
+      "price": currentVariant?.price?.amount,
+      "availability": currentVariant?.availableForSale ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "C'Line Hair"
+      }
+    }
+  };
+
   return (
     <div className="pt-4 bg-gradient-to-b from-white via-white/95 to-white min-h-screen relative">
+      {/* Schema.org JSON-LD for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{__html: JSON.stringify(productSchema)}}
+      />
+
       {/* Background decorative elements - modern style matching homepage */}
       <div className="absolute -right-20 top-1/2 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
@@ -843,6 +836,8 @@ export default function Product() {
                     data={activeImage}
                     className={`h-full w-full object-cover object-center ${!currentVariant.availableForSale ? 'opacity-70' : ''}`}
                     sizes="(min-width: 1024px) 50vw, 100vw"
+                    loading="eager"
+                    fetchPriority="high"
                   />
                   {!currentVariant.availableForSale && (
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -931,7 +926,7 @@ export default function Product() {
 
             {displayImages.length > 1 && (
               <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
-                {displayImages.map((image: any) => (
+                {displayImages.map((image: any, index: number) => (
                   <div
                     key={image.id}
                     className={`aspect-square overflow-hidden rounded-md border cursor-pointer transition-all duration-300 ${
@@ -947,6 +942,7 @@ export default function Product() {
                       data={image}
                       className="h-full w-full object-cover"
                       sizes="(min-width: 1024px) 10vw, 20vw"
+                      loading={index < 6 ? 'eager' : 'lazy'}
                     />
                   </div>
                 ))}
@@ -992,26 +988,35 @@ export default function Product() {
 
               {/* Countdown Timer - Always visible */}
               <ClientOnly>
-                <div className="w-full bg-primary/5 rounded-lg px-4 py-3 flex items-center justify-center gap-2">
-                  <span className="text-black font-semibold text-sm uppercase">
-                    Fin dans :
+                <div className="w-full bg-primary/5 rounded-lg px-3 py-3 md:px-4 flex flex-col items-center justify-center gap-2 md:gap-3">
+                  <span className="text-black font-semibold text-xs md:text-sm uppercase text-center">
+                    FIN DE L'OFFRE DANS :
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-start gap-1 md:gap-1.5">
                     {/* Hours */}
-                    <div className="bg-primary text-black font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
-                      {String(timeLeft.hours).padStart(2, '0')}
+                    <div className="flex flex-col items-center gap-0.5 md:gap-1">
+                      <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
+                        {String(timeLeft.hours).padStart(2, '0')}
+                      </div>
+                      <span className="text-gray-500 text-[10px] md:text-xs">Heures</span>
                     </div>
-                    <span className="text-primary font-bold text-lg">:</span>
+                    <span className="text-primary font-bold text-base md:text-lg mt-1.5">:</span>
 
                     {/* Minutes */}
-                    <div className="bg-primary text-black font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
-                      {String(timeLeft.minutes).padStart(2, '0')}
+                    <div className="flex flex-col items-center gap-0.5 md:gap-1">
+                      <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
+                        {String(timeLeft.minutes).padStart(2, '0')}
+                      </div>
+                      <span className="text-gray-500 text-[10px] md:text-xs">Minutes</span>
                     </div>
-                    <span className="text-primary font-bold text-lg">:</span>
+                    <span className="text-primary font-bold text-base md:text-lg mt-1.5">:</span>
 
                     {/* Seconds */}
-                    <div className="bg-primary text-black font-bold text-lg rounded-lg px-3 py-1.5 min-w-[45px] text-center">
-                      {String(timeLeft.seconds).padStart(2, '0')}
+                    <div className="flex flex-col items-center gap-0.5 md:gap-1">
+                      <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
+                        {String(timeLeft.seconds).padStart(2, '0')}
+                      </div>
+                      <span className="text-gray-500 text-[10px] md:text-xs">Secondes</span>
                     </div>
                   </div>
                 </div>
@@ -1043,7 +1048,6 @@ export default function Product() {
                 onVariantChange={useCallback(
                   (variant: any) => {
                     // Update our local state with the new variant
-                    console.log('Variant changed to:', variant?.title);
                     setCurrentVariant(variant);
                   },
                   [setCurrentVariant],

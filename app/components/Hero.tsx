@@ -7,6 +7,8 @@ export function Hero() {
   // Get config from context instead of props
   const config = useConfig();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   // Desktop images
   const carouselImages = [
@@ -20,6 +22,9 @@ export function Hero() {
     '/images/mobile2.PNG',
   ];
 
+  // Distance minimale de swipe (en pixels)
+  const minSwipeDistance = 50;
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
@@ -28,30 +33,65 @@ export function Hero() {
     return () => clearInterval(interval);
   }, []);
 
+  // Gestionnaires d'événements pour le swipe
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+    } else if (isRightSwipe) {
+      setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
+    }
+  };
+
+  const goToNext = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+  };
+
+  const goToPrev = () => {
+    setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
+  };
+
   return (
     <section
       id="home"
       className="relative w-full"
     >
       {/* Full width carousel */}
-      <div className="w-full relative overflow-hidden">
+      <div className="w-full relative overflow-hidden group">
         <div
           className="flex transition-transform duration-700 ease-in-out"
           style={{
             transform: `translateX(-${currentSlide * 100}%)`,
           }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           {carouselImages.map((image, index) => (
             <Link
               key={index}
-              to="/collections/vente-flash"
+              to="/products"
               className="w-full flex-shrink-0 cursor-pointer"
             >
               {/* Desktop image - hidden on mobile */}
               <picture className="hidden md:block w-full">
                 <img
                   src={image}
-                  alt={`C'Line Hair ${index + 1}`}
+                  alt={index === 0 ? "C'Line Hair - Perruques naturelles 100% cheveux humains, Lace Wigs premium avec densité 250%" : "C'Line Hair - Collection de perruques lace wig et bundles cheveux naturels"}
                   className="w-full h-auto object-contain"
                   loading={index === 0 ? 'eager' : 'lazy'}
                   fetchpriority={index === 0 ? 'high' : 'low'}
@@ -61,7 +101,7 @@ export function Hero() {
               <picture className="md:hidden w-full pt-[35px]">
                 <img
                   src={mobileImages[index]}
-                  alt={`C'Line Hair Mobile ${index + 1}`}
+                  alt={index === 0 ? "C'Line Hair - Perruques naturelles 100% cheveux humains, Lace Wigs premium avec densité 250%" : "C'Line Hair - Collection de perruques lace wig et bundles cheveux naturels"}
                   className="w-full h-auto object-contain"
                   loading={index === 0 ? 'eager' : 'lazy'}
                   fetchpriority={index === 0 ? 'high' : 'low'}
@@ -70,6 +110,30 @@ export function Hero() {
             </Link>
           ))}
         </div>
+
+        {/* Navigation arrows for desktop */}
+        {carouselImages.length > 1 && (
+          <>
+            <button
+              onClick={goToPrev}
+              className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
+              aria-label="Image précédente"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={goToNext}
+              className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-black p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
+              aria-label="Image suivante"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
 
         {/* Navigation dots */}
         <div className="hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
@@ -82,7 +146,8 @@ export function Hero() {
                   ? 'bg-primary w-6 md:w-8'
                   : 'bg-white/50 hover:bg-white/80'
               }`}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={`Aller à la diapositive ${index + 1}`}
+              aria-current={currentSlide === index ? 'true' : 'false'}
             />
           ))}
         </div>

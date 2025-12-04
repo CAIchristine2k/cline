@@ -31,8 +31,8 @@ export function PromoBanner() {
   ];
 
   return (
-    <div className="bg-primary overflow-x-hidden relative w-full max-w-full">
-      <div className="flex animate-scroll whitespace-nowrap py-2">
+    <div className="bg-primary overflow-x-hidden relative w-full max-w-full" role="banner" aria-label="Bannière promotionnelle">
+      <div className="flex animate-scroll whitespace-nowrap py-2" aria-live="polite" aria-atomic="true">
         {[...promoItems, ...promoItems, ...promoItems, ...promoItems, ...promoItems, ...promoItems, ...promoItems, ...promoItems].map((item, index) => (
           <span
             key={index}
@@ -55,7 +55,7 @@ export function PromoBanner() {
           }
 
           .animate-scroll {
-            animation: scroll 10s linear infinite;
+            animation: scroll 5s linear infinite;
             will-change: transform;
           }
 

@@ -28,20 +28,37 @@ import {ComparisonTable} from '~/components/ComparisonTable';
 import {CategoryGrid} from '~/components/CategoryGrid';
 
 export const meta: MetaFunction = () => {
+  const description = "Perruques naturelles 100% cheveux humains - Lace Wigs, Closures et Bundles de qualité premium. Livraison offerte dès 100€. Densité 200-250%, installation facile.";
+  const title = "C'Line - Perruques qualités premium";
+
   return [
-    {title: `${config.brandName} - ${config.influencerTitle} | Official Store`},
-    {
-      name: 'description',
-      content: `${config.influencerBio.substring(0, 160)}...`,
-    },
+    {title},
+    {name: 'description', content: description},
     {
       name: 'keywords',
-      content: `${config.influencerName}, ${config.brandName}, boxing equipment, merchandise, champion gear`,
+      content: 'perruque naturelle, lace wig, cheveux humains, closure, bundles, perruque qualité, human hair, perruque lace, 13x4 lace wig, perruque densité 250%, perruque afro',
     },
-    {property: 'og:title', content: `${config.brandName} - Official Store`},
-    {property: 'og:description', content: config.heroSubtitle},
-    {property: 'og:image', content: config.brandLogo},
+
+    // Open Graph / Facebook
     {property: 'og:type', content: 'website'},
+    {property: 'og:title', content: title},
+    {property: 'og:description', content: description},
+    {property: 'og:image', content: 'https://www.clinehair.com/images/og-image.jpg'},
+    {property: 'og:url', content: 'https://www.clinehair.com'},
+    {property: 'og:site_name', content: "C'Line Hair"},
+    {property: 'og:locale', content: 'fr_FR'},
+
+    // Twitter Card
+    {name: 'twitter:card', content: 'summary_large_image'},
+    {name: 'twitter:title', content: title},
+    {name: 'twitter:description', content: description},
+    {name: 'twitter:image', content: 'https://www.clinehair.com/images/og-image.jpg'},
+
+    // Additional SEO tags
+    {name: 'robots', content: 'index, follow'},
+    {name: 'language', content: 'French'},
+    {name: 'author', content: "C'Line Hair"},
+    {httpEquiv: 'Content-Type', content: 'text/html; charset=utf-8'},
   ];
 };
 
@@ -64,9 +81,6 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   );
 
   // Get best-sellers collection
-  console.log('📦 Available collections:', collections?.nodes.map((c: any) => c.handle));
-
-  // Try multiple possible handles
   let bestSellersCollection = collections?.nodes.find(
     (collection: any) => collection.handle === 'best-sellers',
   );
@@ -77,9 +91,6 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     );
   }
 
-  console.log('🏆 Best-sellers collection found:', !!bestSellersCollection);
-  console.log('🏆 Collection handle:', bestSellersCollection?.handle);
-
   // Get best-sellers products if collection exists
   let bestSellersProducts = [];
   if (bestSellersCollection) {
@@ -87,9 +98,6 @@ export async function loader({request, context}: LoaderFunctionArgs) {
       variables: {handle: bestSellersCollection.handle},
     });
     bestSellersProducts = collection?.products?.nodes || [];
-    console.log('🛍️ Best-sellers products count:', bestSellersProducts.length);
-  } else {
-    console.warn('⚠️ Best-sellers collection not found, using fallback products');
   }
 
   return {
@@ -128,34 +136,19 @@ export default function Home() {
       {/* Limited Edition section */}
       {appConfig.showLimitedEdition && <LimitedEdition />}
 
-      {/* Career Highlights section - Histoire de C'Line Hair */}
-      {/* <CareerHighlights /> */}
-
-      {/* Testimonials section - Avis clients 5★ */}
+      {/* Testimonials section */}
       <Testimonials />
 
-      {/* Featured Products Section - New elegant product showcase */}
+      {/* Featured Products Section */}
       <FeaturedProductsSection products={products} />
 
-      {/* Comparison Table - Nous VS Concurrents */}
+      {/* Comparison Table */}
       <ComparisonTable />
-
-      {/* Featured Products section (renamed from Train with the Champ) */}
-      {/* {appConfig.showTrainingSection && <FeaturedProducts />} */}
-
-      {/* Testimonials section - Commented out for initial launch */}
-      {/* {appConfig.showTestimonials && <Testimonials />} */}
-
-      {/* Social Feed section - Commented out for initial launch */}
-      {/* {appConfig.showSocialFeed && <SocialFeed />} */}
 
       {/* AI Media Generation section */}
       {appConfig.showAIMediaGeneration && <AIMediaGeneration />}
 
-      {/* Newsletter signup section - Commented out for initial launch */}
-      {/* <NewsletterSignup /> */}
-
-      {/* Trust Badges section - Garanties et réassurance */}
+      {/* Trust Badges section */}
       <TrustBadges />
     </main>
   );

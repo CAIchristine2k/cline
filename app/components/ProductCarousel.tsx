@@ -38,7 +38,7 @@ export function ProductCarousel({
       } else if (width >= 768) {
         setItemsPerView(2); // Tablette
       } else {
-        setItemsPerView(2); // Mobile - toujours 2
+        setItemsPerView(2); // Mobile - 2 cartes compactes
       }
     };
 
@@ -162,15 +162,16 @@ export function ProductCarousel({
   }
 
   return (
-    <div className="relative max-w-7xl mx-auto px-8 md:px-12">
+    <div className="relative max-w-7xl mx-auto px-2 md:px-8 lg:px-12">
       {/* Navigation Buttons */}
       {currentIndex > 0 && (
         <button
           onClick={scrollPrev}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-primary text-black p-3 rounded-full shadow-xl transition-all duration-300 hover:scale-110 border border-gray-200"
-          aria-label="Previous"
+          aria-label="Produits précédents"
+          title="Voir les produits précédents"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-5 h-5" aria-hidden="true" />
         </button>
       )}
 
@@ -178,9 +179,10 @@ export function ProductCarousel({
         <button
           onClick={scrollNext}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-primary text-black p-3 rounded-full shadow-xl transition-all duration-300 hover:scale-110 border border-gray-200"
-          aria-label="Next"
+          aria-label="Produits suivants"
+          title="Voir les produits suivants"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-5 h-5" aria-hidden="true" />
         </button>
       )}
 
@@ -198,7 +200,7 @@ export function ProductCarousel({
         onMouseEnter={() => !isDragging && setIsPaused(true)}
       >
         <div
-          className="flex transition-transform duration-700 ease-in-out gap-4"
+          className="flex transition-transform duration-700 ease-in-out gap-2 md:gap-4 pr-2 md:pr-8"
           style={{
             transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
           }}
@@ -208,7 +210,11 @@ export function ProductCarousel({
               key={product.id}
               className="flex-shrink-0 h-full"
               style={{
-                width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)`,
+                width: itemsPerView === 2
+                  ? 'calc((100% - 8px - 8px) / 2)' // Mobile: 2 cartes, gap 8px + padding 8px
+                  : itemsPerView === 3
+                  ? `calc((100% - ${(itemsPerView - 1) * 16}px - 32px) / ${itemsPerView})` // Desktop: 3 cartes
+                  : `calc((100% - ${(itemsPerView - 1) * 16}px - 32px) / ${itemsPerView})`, // Desktop large: 4 cartes
               }}
             >
               <ProductCard
@@ -224,7 +230,7 @@ export function ProductCarousel({
 
       {/* Dots indicator */}
       {maxIndex > 0 && (
-        <div className="flex justify-center gap-2 mt-8">
+        <div className="flex justify-center gap-2 mt-8" role="tablist" aria-label="Navigation du carrousel de produits">
           {Array.from({length: maxIndex + 1}).map((_, idx) => (
             <button
               key={idx}
@@ -234,7 +240,10 @@ export function ProductCarousel({
                   ? 'bg-primary w-8 h-2'
                   : 'bg-gray-300 hover:bg-gray-400 w-2 h-2'
               }`}
-              aria-label={`Go to slide ${idx + 1}`}
+              role="tab"
+              aria-label={`Aller à la page ${idx + 1}`}
+              aria-selected={idx === currentIndex}
+              aria-current={idx === currentIndex ? 'true' : 'false'}
             />
           ))}
         </div>
