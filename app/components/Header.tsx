@@ -89,6 +89,10 @@ export function Header() {
       premium: true, // Hidden flag - will be shown later
     },
     {
+      name: 'NOS PRODUITS',
+      link: '/products',
+    },
+    {
       name: 'CONSEILS',
       submenu: [
         {name: "Guide d'achat", link: '/pages/guide-achat'},
@@ -231,7 +235,7 @@ export function Header() {
       </div>
 
       {/* Menu de navigation principal (desktop) */}
-      <div className="hidden lg:block" style={{backgroundColor: '#111111'}}>
+      <div className="hidden lg:block relative" style={{backgroundColor: '#111111'}}>
         <div className="w-full md:container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1">
             {menuItems.filter(item => !item.premium).map((item, index) => (
@@ -242,8 +246,8 @@ export function Header() {
                 <span className={`text-gray-500 px-1 ${index === 0 ? 'hidden' : ''}`}>·</span>
                 <div
                   className="relative"
-                  onMouseEnter={() => handleMenuHover(item.name)}
-                  onMouseLeave={() => handleMenuHover(null)}
+                  onMouseEnter={() => item.submenu ? handleMenuHover(item.name) : null}
+                  onMouseLeave={() => item.submenu ? handleMenuHover(null) : null}
                 >
                   {item.link ? (
                     <Link
@@ -261,78 +265,36 @@ export function Header() {
                       {item.submenu ? <ChevronDown className="h-3 w-3" /> : null}
                     </button>
                   )}
+
+                  {/* Dropdown sous-menu positionné juste en dessous */}
+                  {item.submenu && activeMenu === item.name && (
+                    <div
+                      className="absolute top-full left-0 bg-white shadow-lg border border-gray-200 rounded-sm mt-1 z-50 min-w-[250px]"
+                      onMouseEnter={() => handleMenuHover(item.name)}
+                      onMouseLeave={() => handleMenuHover(null)}
+                    >
+                      <ul className="py-2">
+                        {item.submenu.map((subItem) => (
+                          <li key={subItem.name}>
+                            <Link
+                              to={subItem.link}
+                              className="block px-4 py-3 text-sm text-gray-700 hover:bg-primary hover:text-black transition-all duration-200 uppercase tracking-wide border-b border-gray-100 last:border-b-0"
+                              onClick={() => setActiveMenu(null)}
+                              prefetch="intent"
+                            >
+                              {subItem.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </nav>
         </div>
       </div>
-
-      {/* Mega Menus / Dropdown (desktop) */}
-      {activeMenu ? (
-        <div
-          className="hidden lg:block absolute top-full left-0 right-0 bg-white shadow-2xl"
-          onMouseEnter={() => handleMenuHover(activeMenu)}
-          onMouseLeave={() => handleMenuHover(null)}
-        >
-          <div className="container mx-auto px-4 lg:px-6 py-8">
-            {(() => {
-              const activeItem = menuItems.find((item) => item.name === activeMenu);
-              if (!activeItem?.submenu) return <div />;
-
-
-              const handleLinkClick = (e: React.MouseEvent) => {
-                // Prevent mouse leave from interfering
-                e.stopPropagation();
-                // Close menu immediately
-                setActiveMenu(null);
-              };
-
-              // Mega menu avec grille (pour Naturel, Semi-Naturel, Accessoires)
-              if (activeItem.megaMenu) {
-                return (
-                  <div className="max-w-3xl mx-auto">
-                    <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {activeItem.submenu.map((subItem) => (
-                        <li key={subItem.name}>
-                          <Link
-                            to={subItem.link}
-                            className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-primary/20 rounded-lg transition-all duration-200 font-medium"
-                            onClick={handleLinkClick}
-                            prefetch="intent"
-                          >
-                            {subItem.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              }
-
-              // Menu simple liste (pour Conseils, Centre d'Aide)
-              return (
-                <div className="max-w-2xl mx-auto">
-                  <ul className="grid grid-cols-2 gap-4">
-                    {activeItem.submenu.map((subItem) => (
-                      <li key={subItem.name}>
-                        <Link
-                          to={subItem.link}
-                          className="block px-4 py-3 text-sm text-gray-700 hover:text-black hover:bg-primary/20 rounded-lg transition-all duration-200 font-medium"
-                          onClick={handleLinkClick}
-                          prefetch="intent"
-                        >
-                          {subItem.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-      ) : null}
 
       {/* Mobile Menu */}
       {isOpen ? (

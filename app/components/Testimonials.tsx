@@ -71,11 +71,11 @@ const generateAvatar = () => {
   return availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
 };
 
-// Testimonials data - Realistic ratings
+// Testimonials data - Realistic ratings avec alternance prénoms complets/initiaux
 const testimonialsData: Testimonial[] = [
   {
     id: 1,
-    name: 'Sophie M.',
+    name: 'Sophie Martin',
     role: 'Cliente fidèle',
     content:
       'Produits de qualité exceptionnelle ! La personnalisation est parfaite et la livraison rapide. Je recommande à 100%.',
@@ -95,7 +95,7 @@ const testimonialsData: Testimonial[] = [
   },
   {
     id: 3,
-    name: 'Yasmine K.',
+    name: 'Yasmine Khalil',
     role: 'Cliente satisfaite',
     content:
       'La qualité dépasse mes attentes ! Les finitions sont impeccables et le rendu final est sublime.',
@@ -115,11 +115,11 @@ const testimonialsData: Testimonial[] = [
   },
   {
     id: 5,
-    name: 'Kenza B.',
+    name: 'Kenza Benali',
     role: 'Cliente heureuse',
     content:
       'Je ne peux plus m\'en passer ! Chaque produit est unique et fait avec soin. Un grand merci à toute l\'équipe.',
-    avatar: generateAvatar(),
+    avatar: '/images/avis/IMG_6439.jpg',
     rating: generateRating(),
     date: 'Septembre 2021',
   },
@@ -135,7 +135,7 @@ const testimonialsData: Testimonial[] = [
   },
   {
     id: 7,
-    name: 'Lina M.',
+    name: 'Lina Moreau',
     role: 'Cliente régulière',
     content:
       'Des produits magnifiques et un savoir-faire exceptionnel. Chaque commande est une nouvelle surprise positive !',
@@ -155,7 +155,7 @@ const testimonialsData: Testimonial[] = [
   },
   {
     id: 9,
-    name: 'Nadège G.',
+    name: 'Nadège Garcia',
     role: 'Cliente fidèle',
     content:
       'Un excellent rapport qualité-prix ! J\'ai commandé plusieurs fois et je n\'ai jamais été déçue. Service impeccable.',

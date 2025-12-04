@@ -515,6 +515,13 @@ export default function Product() {
   const featuredImage = product.featuredImage;
   const allProductImages = product.images.nodes;
 
+  // États pour le swipe sur mobile
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Distance minimale de swipe (en pixels)
+  const minSwipeDistance = 50;
+
   // Get variant-specific images from custom metafield
   const getVariantImages = useCallback(
     (variant: any) => {
@@ -749,6 +756,42 @@ export default function Product() {
   const isCustomVariantOutOfStock =
     customVariant && !customVariant.availableForSale;
 
+  // Gestionnaires d'événements pour le swipe
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe || isRightSwipe) {
+      const currentIndex = displayImages.findIndex((img: any) => img.id === activeImage?.id);
+
+      if (isLeftSwipe && currentIndex < displayImages.length - 1) {
+        // Swipe gauche : image suivante
+        setActiveImage(displayImages[currentIndex + 1]);
+      } else if (isLeftSwipe && currentIndex === displayImages.length - 1) {
+        // Revenir à la première image
+        setActiveImage(displayImages[0]);
+      } else if (isRightSwipe && currentIndex > 0) {
+        // Swipe droite : image précédente
+        setActiveImage(displayImages[currentIndex - 1]);
+      } else if (isRightSwipe && currentIndex === 0) {
+        // Revenir à la dernière image
+        setActiveImage(displayImages[displayImages.length - 1]);
+      }
+    }
+  };
+
   return (
     <div className="pt-4 bg-gradient-to-b from-white via-white/95 to-white min-h-screen relative">
       {/* Background decorative elements - modern style matching homepage */}
@@ -788,7 +831,12 @@ export default function Product() {
 
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="aspect-square w-full max-w-[500px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white mx-auto lg:mx-0 group">
+            <div
+              className="aspect-square w-full max-w-[500px] overflow-hidden rounded-xl border-2 border-primary/30 relative shadow-xl bg-white mx-auto lg:mx-0 group"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
               {activeImage ? (
                 <>
                   <Image
