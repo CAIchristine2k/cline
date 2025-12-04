@@ -396,7 +396,7 @@ export function ProductForm({
         <label htmlFor="quantity" className="block text-sm font-medium mb-2 text-black">
           Quantité
         </label>
-        <div className="flex items-center max-w-[140px] border-2 border-black rounded-sm">
+        <div className="flex items-center max-w-[140px] border-2 border-primary rounded-sm">
           <button
             onClick={decrementQuantity}
             disabled={quantity <= 1 || !isAvailable}

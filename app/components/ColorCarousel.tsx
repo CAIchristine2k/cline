@@ -197,7 +197,7 @@ export function ColorCarousel({
         </div>
         <div className="text-center mt-4">
           <p className="text-sm font-medium text-black tracking-wider">
-            <span className="uppercase">COLOUR</span>
+            <span className="uppercase">COULEUR</span>
             <span className="mx-2">—</span>
             <span>{singleColor.name}</span>
           </p>
@@ -309,7 +309,7 @@ export function ColorCarousel({
       <div className="text-center mt-6">
         <p className="text-sm md:text-base font-medium text-black tracking-wider">
           <span className="uppercase font-bold" style={{letterSpacing: '0.1em'}}>
-            COLOUR
+            COULEUR
           </span>
           <span className="mx-3 text-primary">—</span>
           <span className="font-normal">{colors[currentIndex]?.name || ''}</span>
