@@ -665,11 +665,12 @@ export default function Product() {
       const newVariantImages = getVariantImages(currentVariant);
       setCustomVariantImages(newVariantImages);
 
-      // Always prioritize featured image (photo principale) first
-      if (featuredImage?.url) {
-        setActiveImage(featuredImage);
-      } else if (currentVariant.image?.url) {
+      // Prioritize variant image when a specific variant is selected (e.g., color change)
+      // This allows the main image to update when clicking on color variants
+      if (currentVariant.image?.url) {
         setActiveImage(currentVariant.image);
+      } else if (featuredImage?.url) {
+        setActiveImage(featuredImage);
       } else if (newVariantImages.length > 0) {
         setActiveImage(newVariantImages[0]);
       }
@@ -693,13 +694,20 @@ export default function Product() {
     const images = [];
     const seenIds = new Set();
 
-    // First add the featured image (photo principale)
-    if (featuredImage?.url && featuredImage?.id) {
+    // PRIORITY 1: Add the variant-specific image first (e.g., color variant image)
+    // This ensures the main image updates when clicking color variants
+    if (currentVariant.image?.url && currentVariant.image?.id) {
+      images.push(currentVariant.image);
+      seenIds.add(currentVariant.image.id);
+    }
+
+    // PRIORITY 2: Add the featured image if it's different from variant image
+    if (featuredImage?.url && featuredImage?.id && !seenIds.has(featuredImage.id)) {
       images.push(featuredImage);
       seenIds.add(featuredImage.id);
     }
 
-    // Then add all product images (excluding duplicates)
+    // PRIORITY 3: Add all product images (excluding duplicates)
     if (allProductImages && allProductImages.length > 0) {
       allProductImages.forEach((img: any) => {
         if (img?.url && img?.id && !seenIds.has(img.id)) {
@@ -709,7 +717,7 @@ export default function Product() {
       });
     }
 
-    // Finally add any custom variant-specific images
+    // PRIORITY 4: Add any custom variant-specific images
     if (customVariantImages && customVariantImages.length > 0) {
       customVariantImages.forEach((img: any) => {
         if (img?.url && img?.id && !seenIds.has(img.id)) {
