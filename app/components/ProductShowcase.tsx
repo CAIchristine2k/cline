@@ -23,7 +23,12 @@ export function ProductShowcase({
   // Get 6 first products + 4 random products for desktop
   const displayProducts = useMemo(() => {
     // Filter out specific products
-    const excludedHandles = ['beyonce-5x5-glueless-lace-wig', 'big-afro-hh-wig'];
+    const excludedHandles = [
+      'beyonce-5x5-glueless-lace-wig',
+      'big-afro-hh-wig',
+      'angele-13x4-lace-wig-hh-100-densite-250',
+      'assia-13x4-lace-wig-hh-100-densite-180'
+    ];
     const filteredProducts = products.filter(
       (product) => !excludedHandles.includes(product.handle)
     );

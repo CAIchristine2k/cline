@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {ChevronLeft, ChevronRight, BadgeCheck} from 'lucide-react';
 import {useConfig} from '~/utils/themeContext';
+import {formatReviewName, getReviewPhoto, getReviewRating} from '~/utils/reviewHelpers';
 
 interface Testimonial {
   id: number;
@@ -43,35 +44,7 @@ const HalfStarIcon = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
-// Generate random rating from possible values
-const generateRating = () => {
-  const possibleRatings = [4.5, 5.0];
-  return possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
-};
-
-// Generate random avatar from avis folder
-const generateAvatar = () => {
-  const availableAvatars = [
-    '/images/avis/IMG_7333.JPG',
-    '/images/avis/IMG_7334.JPG',
-    '/images/avis/IMG_7335.JPG',
-    '/images/avis/IMG_7336.JPG',
-    '/images/avis/IMG_7337.JPG',
-    '/images/avis/IMG_7338.JPG',
-    '/images/avis/IMG_7339.JPG',
-    '/images/avis/IMG_7340.JPG',
-    '/images/avis/IMG_7343.JPG',
-    '/images/avis/IMG_7344.JPG',
-    '/images/avis/IMG_7345.JPG',
-    '/images/avis/IMG_7346.JPG',
-    '/images/avis/IMG_7349.JPG',
-    '/images/avis/IMG_7350.WEBP',
-    '/images/avis/IMG_7351.WEBP',
-  ];
-  return availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
-};
-
-// Testimonials data - Realistic ratings avec alternance prénoms complets/initiaux
+// Testimonials data - Using deterministic functions for photos and ratings
 const testimonialsData: Testimonial[] = [
   {
     id: 1,
@@ -79,18 +52,18 @@ const testimonialsData: Testimonial[] = [
     role: 'Cliente fidèle',
     content:
       'Produits de qualité exceptionnelle ! La personnalisation est parfaite et la livraison rapide. Je recommande à 100%.',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(0),
+    rating: getReviewRating(0),
     date: 'Mars 2024',
   },
   {
     id: 2,
-    name: 'Fatou D.',
+    name: 'Fatou Diallo',
     role: 'Acheteuse vérifiée',
     content:
       'Service client irréprochable et produits magnifiques. Exactement ce que je cherchais pour un cadeau unique.',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(1),
+    rating: getReviewRating(1),
     date: 'Novembre 2023',
   },
   {
@@ -99,18 +72,18 @@ const testimonialsData: Testimonial[] = [
     role: 'Cliente satisfaite',
     content:
       'La qualité dépasse mes attentes ! Les finitions sont impeccables et le rendu final est sublime.',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(2),
+    rating: getReviewRating(2),
     date: 'Juin 2022',
   },
   {
     id: 4,
-    name: 'Inès L.',
+    name: 'Inès Laurent',
     role: 'Acheteuse régulière',
     content:
       'Un vrai coup de cœur ! La personnalisation est facile et le résultat est toujours au-delà de mes espérances.',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(3),
+    rating: getReviewRating(3),
     date: 'Janvier 2025',
   },
   {
@@ -119,18 +92,18 @@ const testimonialsData: Testimonial[] = [
     role: 'Cliente heureuse',
     content:
       'Je ne peux plus m\'en passer ! Chaque produit est unique et fait avec soin. Un grand merci à toute l\'équipe.',
-    avatar: '/images/avis/IMG_6439.jpg',
-    rating: generateRating(),
+    avatar: getReviewPhoto(4),
+    rating: getReviewRating(4),
     date: 'Septembre 2021',
   },
   {
     id: 6,
-    name: 'Mireille R.',
+    name: 'Mireille Rousseau',
     role: 'Acheteuse satisfaite',
     content:
       'Absolument ravie de mon achat ! La qualité est au rendez-vous et le service après-vente est top. Je recommande vivement.',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(5),
+    rating: getReviewRating(5),
     date: 'Février 2024',
   },
   {
@@ -139,18 +112,18 @@ const testimonialsData: Testimonial[] = [
     role: 'Cliente régulière',
     content:
       'Des produits magnifiques et un savoir-faire exceptionnel. Chaque commande est une nouvelle surprise positive !',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(6),
+    rating: getReviewRating(6),
     date: 'Août 2023',
   },
   {
     id: 8,
-    name: 'Aya L.',
+    name: 'Aya Lamrani',
     role: 'Acheteuse vérifiée',
     content:
       'Je suis impressionnée par la rapidité de livraison et la qualité du packaging. Les produits sont encore plus beaux en vrai !',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(7),
+    rating: getReviewRating(7),
     date: 'Avril 2022',
   },
   {
@@ -159,18 +132,18 @@ const testimonialsData: Testimonial[] = [
     role: 'Cliente fidèle',
     content:
       'Un excellent rapport qualité-prix ! J\'ai commandé plusieurs fois et je n\'ai jamais été déçue. Service impeccable.',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(8),
+    rating: getReviewRating(8),
     date: 'Décembre 2024',
   },
   {
     id: 10,
-    name: 'Jamila F.',
+    name: 'Jamila Farah',
     role: 'Acheteuse heureuse',
     content:
       'Une expérience d\'achat parfaite du début à la fin. Les produits personnalisés sont de grande qualité et très bien réalisés.',
-    avatar: generateAvatar(),
-    rating: generateRating(),
+    avatar: getReviewPhoto(9),
+    rating: getReviewRating(9),
     date: 'Mai 2020',
   },
 ];
@@ -312,7 +285,7 @@ export default function Testimonials() {
                   key={`${testimonial.id}-${idx}`}
                   className="bg-white border-2 border-primary/20 rounded-2xl p-4 md:p-6 shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-300"
                   role="article"
-                  aria-label={`Témoignage de ${testimonial.name}`}
+                  aria-label={`Témoignage de ${formatReviewName(testimonial.name, testimonial.id - 1)}`}
                 >
                   {/* Stars Rating */}
                   <div className="flex mb-3 gap-1" role="img" aria-label={`${testimonial.rating.toFixed(1)} étoiles sur 5`}>
@@ -348,13 +321,14 @@ export default function Testimonials() {
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30 bg-primary/10">
                         <img
                           src={testimonial.avatar}
-                          alt={`Photo de ${testimonial.name}`}
+                          alt={`Photo de ${formatReviewName(testimonial.name, testimonial.id - 1)}`}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             // Fallback to initials if image fails to load
                             e.currentTarget.style.display = 'none';
                             if (e.currentTarget.parentElement) {
-                              e.currentTarget.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-primary font-bold text-lg">${testimonial.name.charAt(0)}</div>`;
+                              const formattedName = formatReviewName(testimonial.name, testimonial.id - 1);
+                              e.currentTarget.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-primary font-bold text-lg">${formattedName.charAt(0)}</div>`;
                             }
                           }}
                         />
@@ -364,7 +338,7 @@ export default function Testimonials() {
                     {/* Name & Role */}
                     <div>
                       <div className="font-bold text-black text-sm flex items-center gap-1.5">
-                        {testimonial.name}
+                        {formatReviewName(testimonial.name, testimonial.id - 1)}
                         <BadgeCheck className="h-4 w-4 text-green-500" />
                         <span className="text-xs text-green-600 font-medium">Avis vérifié</span>
                       </div>

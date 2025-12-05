@@ -123,11 +123,11 @@ function CartDiscounts({
             Code(s) promo appliqué(s)
           </dt>
           <UpdateDiscountForm>
-            <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-              <code className="text-sm text-green-400 font-mono">
+            <div className="flex items-center justify-between p-3 bg-black border border-primary/20 rounded-lg">
+              <code className="text-sm text-primary font-mono">
                 {codes?.join(', ')}
               </code>
-              <button className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium">
+              <button className="text-sm text-primary hover:text-primary/80 transition-colors font-medium">
                 Retirer
               </button>
             </div>

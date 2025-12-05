@@ -53,6 +53,9 @@ export function AddToCartButton({
   const defaultClasses =
     'w-full bg-primary hover:bg-primary-600 text-background font-bold py-4 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-glow transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none';
 
+  const successClasses =
+    'w-full bg-black text-white font-bold py-4 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-lg transform scale-[1.02]';
+
   // Reset added state after some time
   useEffect(() => {
     if (addedToCart) {
@@ -149,11 +152,18 @@ export function AddToCartButton({
           }
         }, [isSuccess, fetcher.data]);
 
+        // Determine button className based on state
+        const buttonClassName = className
+          ? className
+          : addedToCart
+            ? successClasses
+            : defaultClasses;
+
         return (
           <button
             type="submit"
             disabled={disabled || isSubmitting}
-            className={className || defaultClasses}
+            className={buttonClassName}
             aria-label={
               typeof buttonContent === 'string' ? buttonContent : 'Add to cart'
             }

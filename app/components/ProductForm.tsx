@@ -428,11 +428,6 @@ export function ProductForm({
           selectedVariant={selectedVariant}
           disabled={!isAvailable || isAdding}
           onClick={handleAddToCart}
-          className={`w-full py-3 px-6 rounded-sm flex items-center justify-center relative ${
-            isAvailable
-              ? 'bg-primary hover:bg-black text-black hover:text-white'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          } transition-all duration-300 uppercase tracking-wider font-bold`}
         >
           {isAdding ? (
             <div className="flex items-center justify-center">

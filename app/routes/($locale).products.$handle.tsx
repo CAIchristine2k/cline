@@ -22,24 +22,25 @@ import {Suspense} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
 import {ColorCarousel, type ColorOption} from '~/components/ColorCarousel';
+import {getReviewPhoto} from '~/utils/reviewHelpers';
 
 // Product Reviews Component
 const productReviews = [
-  { name: 'Fatou D.', initial: 'F', rating: 5, comment: 'Qualité exceptionnelle ! Exactement ce que je cherchais. Très satisfaite de mon achat.', time: 'Il y a 2 jours' },
-  { name: 'Yasmine K.', initial: 'Y', rating: 5, comment: 'Livraison rapide et produit conforme. Je recommande vivement !', time: 'Il y a 5 jours' },
-  { name: 'Mireille M.', initial: 'M', rating: 4.5, comment: 'Bon produit dans l\'ensemble. Correspond à la description.', time: 'Il y a 1 semaine' },
-  { name: 'Inès L.', initial: 'I', image: '/images/reviews/ines.jpg', rating: 5, comment: 'Magnifique ! La qualité est au rendez-vous, je suis ravie.', time: 'Il y a 2 semaines' },
-  { name: 'Kenza B.', initial: 'K', rating: 5, comment: 'Parfait pour mon usage. Très bon rapport qualité-prix.', time: 'Il y a 3 semaines' },
-  { name: 'Aya T.', initial: 'A', rating: 4.5, comment: 'Très satisfaite, correspond bien aux attentes.', time: 'Il y a 3 semaines' },
-  { name: 'Lina F.', initial: 'L', rating: 5, comment: 'Excellent produit, je recommande sans hésiter !', time: 'Il y a 1 mois' },
-  { name: 'Nadège P.', initial: 'N', rating: 5, comment: 'Super qualité, conforme à la description. Ravie !', time: 'Il y a 1 mois' },
-  { name: 'Carine V.', initial: 'C', rating: 4.5, comment: 'Bonne qualité, livraison dans les temps.', time: 'Il y a 1 mois' },
-  { name: 'Jamila G.', initial: 'J', rating: 5, comment: 'Produit de très bonne qualité. Je recommande.', time: 'Il y a 2 mois' },
-  { name: 'Malak K.', initial: 'M', rating: 5, comment: 'Absolument parfait ! Dépasse mes attentes.', time: 'Il y a 2 mois' },
-  { name: 'Joëlle H.', initial: 'J', rating: 4.5, comment: 'Très bon achat, conforme à mes besoins.', time: 'Il y a 2 mois' },
-  { name: 'Fatoumata D.', initial: 'F', rating: 5, comment: 'Top qualité ! Je suis très contente de mon achat.', time: 'Il y a 3 mois' },
-  { name: 'Sophie R.', initial: 'S', rating: 5, comment: 'Excellente qualité, je rachèterai sans hésiter.', time: 'Il y a 3 mois' },
-  { name: 'Emma A.', initial: 'E', rating: 4.5, comment: 'Bon produit, conforme à la description.', time: 'Il y a 3 mois' },
+  { name: 'Fatou D.', initial: 'F', image: getReviewPhoto(0), rating: 5, comment: 'Qualité exceptionnelle ! Exactement ce que je cherchais. Très satisfaite de mon achat.', time: 'Il y a 2 jours' },
+  { name: 'Yasmine K.', initial: 'Y', image: getReviewPhoto(1), rating: 5, comment: 'Livraison rapide et produit conforme. Je recommande vivement !', time: 'Il y a 5 jours' },
+  { name: 'Mireille M.', initial: 'M', image: getReviewPhoto(2), rating: 4.5, comment: 'Bon produit dans l\'ensemble. Correspond à la description.', time: 'Il y a 1 semaine' },
+  { name: 'Inès L.', initial: 'I', image: getReviewPhoto(3), rating: 5, comment: 'Magnifique ! La qualité est au rendez-vous, je suis ravie.', time: 'Il y a 2 semaines' },
+  { name: 'Kenza B.', initial: 'K', image: getReviewPhoto(4), rating: 5, comment: 'Parfait pour mon usage. Très bon rapport qualité-prix.', time: 'Il y a 3 semaines' },
+  { name: 'Aya T.', initial: 'A', image: getReviewPhoto(5), rating: 4.5, comment: 'Très satisfaite, correspond bien aux attentes.', time: 'Il y a 3 semaines' },
+  { name: 'Lina F.', initial: 'L', image: getReviewPhoto(6), rating: 5, comment: 'Excellent produit, je recommande sans hésiter !', time: 'Il y a 1 mois' },
+  { name: 'Nadège P.', initial: 'N', image: getReviewPhoto(7), rating: 5, comment: 'Super qualité, conforme à la description. Ravie !', time: 'Il y a 1 mois' },
+  { name: 'Carine V.', initial: 'C', image: getReviewPhoto(8), rating: 4.5, comment: 'Bonne qualité, livraison dans les temps.', time: 'Il y a 1 mois' },
+  { name: 'Jamila G.', initial: 'J', image: getReviewPhoto(9), rating: 5, comment: 'Produit de très bonne qualité. Je recommande.', time: 'Il y a 2 mois' },
+  { name: 'Malak K.', initial: 'M', image: getReviewPhoto(10), rating: 5, comment: 'Absolument parfait ! Dépasse mes attentes.', time: 'Il y a 2 mois' },
+  { name: 'Joëlle H.', initial: 'J', image: getReviewPhoto(11), rating: 4.5, comment: 'Très bon achat, conforme à mes besoins.', time: 'Il y a 2 mois' },
+  { name: 'Fatoumata D.', initial: 'F', image: getReviewPhoto(12), rating: 5, comment: 'Top qualité ! Je suis très contente de mon achat.', time: 'Il y a 3 mois' },
+  { name: 'Sophie R.', initial: 'S', image: getReviewPhoto(13), rating: 5, comment: 'Excellente qualité, je rachèterai sans hésiter.', time: 'Il y a 3 mois' },
+  { name: 'Emma A.', initial: 'E', image: getReviewPhoto(14), rating: 4.5, comment: 'Bon produit, conforme à la description.', time: 'Il y a 3 mois' },
 ];
 
 function ProductReviews() {
@@ -137,6 +138,42 @@ function ProductReviews() {
 
       {/* Pagination dots - Desktop only */}
       <div className="hidden lg:flex justify-center gap-2 mt-4">
+        {Array.from({ length: totalPages }).map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentPage(idx)}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              currentPage === idx ? 'bg-primary w-8' : 'bg-gray-300 w-2'
+            }`}
+            aria-label={`Page ${idx + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* Mobile Navigation Buttons */}
+      <div className="flex lg:hidden justify-center gap-3 mt-4">
+        <button
+          onClick={handlePrev}
+          disabled={currentPage === 0}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary bg-white hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-semibold text-black"
+          aria-label="Avis précédents"
+        >
+          <ChevronLeft className="w-4 h-4 text-primary" />
+          Précédent
+        </button>
+        <button
+          onClick={handleNext}
+          disabled={currentPage === totalPages - 1}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary bg-white hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-semibold text-black"
+          aria-label="Avis suivants"
+        >
+          Suivant
+          <ChevronRight className="w-4 h-4 text-primary" />
+        </button>
+      </div>
+
+      {/* Mobile Page Indicator */}
+      <div className="flex lg:hidden justify-center gap-2 mt-3">
         {Array.from({ length: totalPages }).map((_, idx) => (
           <button
             key={idx}
@@ -956,7 +993,7 @@ export default function Product() {
 
             {/* Reviews Section */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex text-primary" role="img" aria-label="Rating: 4.8 out of 5 stars">
+              <div className="flex text-yellow-400" role="img" aria-label="Rating: 4.8 out of 5 stars">
                 {[...Array(4)].map((_, i) => (
                   <svg key={`full-${i}`} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -976,7 +1013,7 @@ export default function Product() {
             </div>
 
             <div className="flex items-center gap-4 mb-6 flex-wrap">
-              <div className="text-xl font-bold text-black bg-[#ffa3ae] px-4 py-2 rounded-md">
+              <div className="text-xl font-bold text-black bg-primary px-4 py-2 rounded-md">
                 <Money data={currentVariant.price} />
               </div>
 
@@ -988,8 +1025,8 @@ export default function Product() {
 
               {/* Countdown Timer - Always visible */}
               <ClientOnly>
-                <div className="w-full bg-primary/5 rounded-lg px-3 py-3 md:px-4 flex flex-col items-center justify-center gap-2 md:gap-3">
-                  <span className="text-black font-semibold text-xs md:text-sm uppercase text-center">
+                <div className="w-full bg-primary/5 border border-black rounded-lg px-3 py-3 md:px-4 flex flex-row items-center justify-between gap-4 md:gap-6">
+                  <span className="text-black font-semibold text-xs md:text-sm uppercase">
                     FIN DE L'OFFRE DANS :
                   </span>
                   <div className="flex items-start gap-1 md:gap-1.5">
@@ -1336,6 +1373,32 @@ export default function Product() {
                       compact={true}
                     />
                   ))}
+                </div>
+
+                {/* View All Button */}
+                <div className="flex justify-center mt-8">
+                  <Link
+                    to="/products"
+                    prefetch="intent"
+                    className="inline-flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
+                  >
+                    VOIR PLUS
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform group-hover:translate-x-1"
+                    >
+                      <path d="M5 12h14"/>
+                      <path d="m12 5 7 7-7 7"/>
+                    </svg>
+                  </Link>
                 </div>
               </div>
 

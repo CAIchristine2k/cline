@@ -1,5 +1,5 @@
 import {useOptimisticCart} from '@shopify/hydrogen';
-import {Link} from 'react-router';
+import {Link, useNavigate} from 'react-router';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
@@ -7,7 +7,7 @@ import {CartSummary} from './CartSummary';
 import {useConfig} from '~/utils/themeContext';
 import {ShoppingBag} from 'lucide-react';
 import {PrepareDesignsForCheckout} from './PrepareDesignsForCheckout';
-import {useMemo} from 'react';
+import {useMemo, useEffect, useRef} from 'react';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -28,6 +28,8 @@ export function CartMain({
 }: CartMainProps) {
   const config = useConfig();
   const {close} = useAside();
+  const navigate = useNavigate();
+  const previousQuantityRef = useRef<number | null>(null);
 
   // Enhanced optimistic cart with safety checks
   // Use the useOptimisticCart hook for type consistency
@@ -85,6 +87,36 @@ export function CartMain({
 
   // Cart calculations
   const cartHasItems = (cart?.totalQuantity || 0) > 0;
+
+  // Auto-redirect when cart becomes empty
+  useEffect(() => {
+    const currentQuantity = cart?.totalQuantity || 0;
+    const previousQuantity = previousQuantityRef.current;
+
+    // Detect when cart goes from having items (>0) to empty (0)
+    if (previousQuantity !== null && previousQuantity > 0 && currentQuantity === 0) {
+      console.log('🔄 Cart became empty - redirecting to previous page');
+
+      // Close cart drawer if open
+      if (layout === 'aside') {
+        close();
+      }
+
+      // Small delay to ensure cart drawer closes smoothly
+      setTimeout(() => {
+        // Try to go back to previous page
+        // If there's no history, navigate to home page as fallback
+        if (window.history.length > 1) {
+          navigate(-1);
+        } else {
+          navigate('/');
+        }
+      }, 300);
+    }
+
+    // Update the previous quantity for next check
+    previousQuantityRef.current = currentQuantity;
+  }, [cart?.totalQuantity, layout, close, navigate]);
 
   // Loading state with modern spinner
   if (cart === undefined) {
@@ -183,10 +215,10 @@ export function CartMain({
 
 /**
  * Free Shipping Progress Bar Component
- * Shows progress towards free shipping threshold (100€)
+ * Shows progress towards free shipping threshold (50€)
  */
 function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null | any}) {
-  const FREE_SHIPPING_THRESHOLD = 100;
+  const FREE_SHIPPING_THRESHOLD = 50;
 
   // Get current cart total in euros
   const currentAmount = parseFloat(cart?.cost?.subtotalAmount?.amount || '0');
