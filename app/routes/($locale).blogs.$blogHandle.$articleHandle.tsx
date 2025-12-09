@@ -163,7 +163,7 @@ export default function Article() {
               and follow his training methods to elevate your boxing game.
             </p>
             <Link
-              to="/collections/all"
+              to="/products"
               className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
             >
               Shop Boxing Gear

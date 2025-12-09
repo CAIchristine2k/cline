@@ -127,7 +127,7 @@ export default function Page() {
             you have any questions, don't hesitate to reach out.
           </p>
           <Link
-            to="/collections/all"
+            to="/products"
             className="inline-flex items-center bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >
             Continue Shopping

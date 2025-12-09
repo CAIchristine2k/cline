@@ -375,10 +375,10 @@ export function CartLineItem({
     localDesignUrl: localDesignUrl ? 'LOADED' : 'NOT_LOADED',
   });
 
-  // Determine what image to display
-  let displayImageUrl = merchandise?.image?.url || '';
+  // Determine what image to display - ALWAYS use featured image for standard products
+  let displayImageUrl = product?.featuredImage?.url || '';
   let displayImageType = 'PRODUCT';
-  
+
   // For custom designs, use the local design URL if available
   if (isCustomDesign && localDesignUrl) {
     if (localDesignUrl.startsWith('data:') || localDesignUrl.startsWith('http')) {
@@ -393,7 +393,7 @@ export function CartLineItem({
     if (localDesignUrl) {
       displayImageUrl = localDesignUrl;
       displayImageType = 'CUSTOM_DESIGN';
-    } 
+    }
     // Priority 2: Direct design image from cart attributes
     else if (customDesignImage) {
       if (customDesignImage.startsWith('http')) {
@@ -407,7 +407,7 @@ export function CartLineItem({
         if (allDesignedImagesAttr && typeof allDesignedImagesAttr === 'string') {
           try {
             const imageUrls = JSON.parse(allDesignedImagesAttr);
-            if (Array.isArray(imageUrls) && imageUrls.length > 0 && 
+            if (Array.isArray(imageUrls) && imageUrls.length > 0 &&
                 typeof imageUrls[0] === 'string' && imageUrls[0].startsWith('http')) {
               displayImageUrl = imageUrls[0];
               displayImageType = 'MULTI_DESIGN';
@@ -416,7 +416,7 @@ export function CartLineItem({
             console.error('Error parsing _all_designed_images', e);
           }
         }
-        
+
         // If still no URL, use customizedImage as fallback
         if (displayImageType !== 'MULTI_DESIGN' && customizedImage && customizedImage.startsWith('http')) {
           displayImageUrl = customizedImage;
@@ -429,15 +429,20 @@ export function CartLineItem({
       displayImageUrl = customizedImage;
       displayImageType = 'CUSTOMIZED_BASE';
     }
-    // Fallback: Product image with custom design indicator
+    // Fallback: Product featured image with custom design indicator
+    else if (product?.featuredImage?.url) {
+      displayImageUrl = product.featuredImage.url;
+      displayImageType = isLoading ? 'LOADING_DESIGN' : 'VARIANT_WITH_CUSTOM_LABEL';
+    }
+    // Last fallback: Variant image
     else if (merchandise?.image?.url) {
       displayImageUrl = merchandise.image.url;
       displayImageType = isLoading ? 'LOADING_DESIGN' : 'VARIANT_WITH_CUSTOM_LABEL';
     }
-  } else if (merchandise?.image?.url) {
-    // Standard product without customization
-    displayImageUrl = merchandise.image.url;
-    displayImageType = 'VARIANT';
+  } else {
+    // Standard product without customization - ALWAYS use featured image only
+    displayImageUrl = product?.featuredImage?.url || '';
+    displayImageType = 'FEATURED';
   }
 
   // Log the final image decision
@@ -484,7 +489,11 @@ export function CartLineItem({
                       console.log('♻️ Falling back to customized image URL:', customizedImage.substring(0, 100));
                       (e.target as HTMLImageElement).src = customizedImage;
                     }
-                    // Last resort: fall back to the variant image if available
+                    // Last resort: fall back to the featured image, then variant image if available
+                    else if (product?.featuredImage?.url) {
+                      console.log('♻️ Falling back to featured image URL');
+                      (e.target as HTMLImageElement).src = product.featuredImage.url;
+                    }
                     else if (merchandise?.image?.url) {
                       console.log('♻️ Falling back to variant image URL');
                       (e.target as HTMLImageElement).src = merchandise.image.url;
@@ -546,15 +555,51 @@ export function CartLineItem({
             {selectedOptions &&
               selectedOptions.length > 0 &&
               selectedOptions[0]?.value !== 'Default Title' && (
-                <div className="flex flex-wrap gap-1">
-                  {selectedOptions.map((option) => (
-                    <span
-                      key={option.name}
-                      className="inline-flex items-center px-2 py-0.5 rounded-md bg-black/5 border border-black/10 text-black/70 text-xs font-medium"
-                    >
-                      {option.value}
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-2 items-center">
+                  {selectedOptions.map((option) => {
+                    // Check if this is a color option
+                    const isColorOption =
+                      option.name.toLowerCase() === 'couleur' ||
+                      option.name.toLowerCase() === 'color' ||
+                      option.name.toLowerCase() === 'colours';
+
+                    // For color options, display a swatch with the color metaobject image
+                    if (isColorOption) {
+                      // Try to get the color swatch image from attributes first
+                      const colorSwatchImage = lineAttributes.find(
+                        (attr) => attr.key === '_color_swatch_image'
+                      )?.value;
+
+                      // Use the color swatch image if available, otherwise fallback to variant image
+                      const swatchImageUrl = colorSwatchImage || merchandise?.image?.url;
+
+                      if (swatchImageUrl) {
+                        return (
+                          <div
+                            key={option.name}
+                            className="rounded-full w-7 h-7 border-2 border-black/20 shadow-sm"
+                            style={{
+                              backgroundImage: `url(${swatchImageUrl})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                            }}
+                            aria-label={`Couleur sélectionnée: ${option.value}`}
+                            title={option.value}
+                          />
+                        );
+                      }
+                    }
+
+                    // For non-color options or if no image, display text tag
+                    return (
+                      <span
+                        key={option.name}
+                        className="inline-flex items-center px-2 py-0.5 rounded-md bg-black/5 border border-black/10 text-black/70 text-xs font-medium"
+                      >
+                        {option.value}
+                      </span>
+                    );
+                  })}
                 </div>
               )}
 

@@ -65,7 +65,7 @@ export const meta: MetaFunction = () => {
 // Define loader function to fetch all products
 export async function loader({request, context}: LoaderFunctionArgs) {
   const searchParams = new URL(request.url).searchParams;
-  const variables = getPaginationVariables(request, {pageBy: 10});
+  const variables = getPaginationVariables(request, {pageBy: 100}); // Augmenté à 100 pour inclure IRIS
 
   // Get all products with more variants
   const {products} = await context.storefront.query(PRODUCTS_QUERY, {
@@ -91,29 +91,58 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     );
   }
 
-  // Get best-sellers products if collection exists
-  let bestSellersProducts = [];
-  if (bestSellersCollection) {
-    const {collection} = await context.storefront.query(BESTSELLERS_COLLECTION_QUERY, {
-      variables: {handle: bestSellersCollection.handle},
-    });
-    bestSellersProducts = collection?.products?.nodes || [];
+  // Get vente-flash collection
+  let venteFlashCollection = collections?.nodes.find(
+    (collection: any) => collection.handle === 'vente-flash',
+  );
+
+  if (!venteFlashCollection) {
+    venteFlashCollection = collections?.nodes.find(
+      (collection: any) => collection.handle === 'collections/vente-flash',
+    );
   }
+
+  // Define exact products to show in Best Sellers section in specific order
+  // Try multiple search terms for each product to increase chance of finding it
+  const targetProductSearches = [
+    ['alice', 'alice 13'],   // Alice 13×4 Lace Wig HH 100% densité 250%
+    ['soleil', 'soleil wig', 'soleil 20', 'wig 20 pouces'],   // SOLEIL WIG 20 Pouces
+    ['101 alina', 'alina'],  // SP 101 ALINA LACE WIG 34''COL
+    ['hc cosmos', 'cosmos pony', 'hc cosmos -l pony', 'cosmos -l']     // HC COSMOS -L PONY
+  ];
+
+  // Find each product by trying multiple search terms
+  const bestSellersProducts = targetProductSearches
+    .map(searchTerms => {
+      // Try each search term until we find a match
+      for (const term of searchTerms) {
+        const found = products.nodes.find((p: any) =>
+          p.title.toLowerCase().includes(term.toLowerCase())
+        );
+        if (found) return found;
+      }
+      return null;
+    })
+    .filter(Boolean); // Remove any nulls if product not found
+
+  // Get products from vente-flash collection
+  const venteFlashProducts = venteFlashCollection?.products?.nodes || [];
 
   return {
     products: products.nodes,
     featuredCollection,
     collections: collections.nodes,
     bestSellersProducts,
+    venteFlashProducts,
   };
 }
 
 export default function Home() {
-  const {products, featuredCollection, bestSellersProducts} = useLoaderData<typeof loader>();
+  const {products, featuredCollection, bestSellersProducts, venteFlashProducts} = useLoaderData<typeof loader>();
   const appConfig = useConfig();
 
   return (
-    <main className="pt-5">
+    <main>
       <Hero />
 
       {/* Product showcase section - BEST SELLERS (from best-sellers collection) */}
@@ -139,8 +168,69 @@ export default function Home() {
       {/* Testimonials section */}
       <Testimonials />
 
-      {/* Featured Products Section */}
-      <FeaturedProductsSection products={products} />
+      {/* Follow Us on Social Media Section */}
+      <section className="py-8 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-black">
+            Suivez-nous sur les réseaux
+          </h2>
+          <div className="flex space-x-4 justify-center lg:justify-center">
+            <a
+              href="https://instagram.com/c_line.cheveux"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-colors duration-300"
+              aria-label="Instagram"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-instagram w-8 h-8 md:w-10 md:h-10"
+                aria-hidden="true"
+              >
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+              </svg>
+            </a>
+            <a
+              href="https://www.tiktok.com/@c.linehair?_r=1&_t=ZN-91imcHt1ily"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-colors duration-300"
+              aria-label="TikTok"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-music w-8 h-8 md:w-10 md:h-10"
+                aria-hidden="true"
+              >
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Vente Flash Section */}
+      <FeaturedProductsSection products={venteFlashProducts.length > 0 ? venteFlashProducts : products} />
 
       {/* Comparison Table */}
       <ComparisonTable />
@@ -233,6 +323,57 @@ const COLLECTIONS_QUERY = `#graphql
           altText
           width
           height
+        }
+        products(first: 20) {
+          nodes {
+            id
+            title
+            handle
+            description
+            featuredImage {
+              id
+              url
+              altText
+              width
+              height
+            }
+            priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            variants(first: 10) {
+              nodes {
+                id
+                title
+                availableForSale
+                price {
+                  amount
+                  currencyCode
+                }
+                compareAtPrice {
+                  amount
+                  currencyCode
+                }
+                selectedOptions {
+                  name
+                  value
+                }
+                image {
+                  id
+                  url
+                  altText
+                  width
+                  height
+                }
+              }
+            }
+          }
         }
       }
     }

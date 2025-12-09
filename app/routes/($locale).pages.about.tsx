@@ -113,7 +113,7 @@ export default function About() {
           {/* CTA */}
           <div className="mt-6 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-5 justify-center px-4">
             <Link
-              to="/collections/all"
+              to="/products"
               className="group text-black font-bold py-3 md:py-4 px-6 md:px-8 rounded-sm transition-all duration-300 flex items-center justify-center shadow-glow uppercase tracking-wider text-xs md:text-sm bg-primary hover:bg-primary-dark"
             >
               Découvrir la collection

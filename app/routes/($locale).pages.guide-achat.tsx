@@ -36,7 +36,7 @@ export default function GuideAchat() {
       <div className="absolute -right-20 top-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute -left-40 bottom-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
 
-      <div className="container mx-auto px-4 relative z-10 mt-24 md:mt-32 pt-6 md:pt-10">
+      <div className="container mx-auto px-4 relative z-10 pt-20 md:pt-24">
         {/* Page Header */}
         <div className="text-center mb-10 md:mb-16">
           <div className="inline-block bg-primary text-black font-bold py-1.5 px-4 md:py-2 md:px-6 mb-4 md:mb-6 tracking-wider rounded-sm text-xs md:text-sm">

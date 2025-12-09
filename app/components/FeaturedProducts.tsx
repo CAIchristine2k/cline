@@ -87,7 +87,7 @@ export default function FeaturedProducts({config}: FeaturedProductsProps) {
 
         <div className="mt-12 text-center">
           <Link
-            to="/collections/all"
+            to="/products"
             className="bg-primary hover:bg-primary-600 text-black font-bold py-3 px-8 rounded-sm transition-all duration-300 inline-flex items-center group shadow-glow"
           >
             SHOP ALL PRODUCTS

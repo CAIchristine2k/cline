@@ -157,71 +157,12 @@ export function Footer() {
 
         {/* Payment Methods */}
         <div className="pt-8 mb-8">
-          <p className="text-gray-600 text-sm text-center mb-4">Moyens de paiement acceptés</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-            {/* Klarna */}
-            <div className="h-10 px-4 flex items-center justify-center bg-primary-light rounded-md">
-              <span className="font-bold text-black text-base">klarna</span>
-            </div>
-            {/* American Express */}
-            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img
-                {...getImageWithFallback(PAYMENT_LOGOS.amex.src, PAYMENT_LOGOS.amex.fallback)}
-                alt={PAYMENT_LOGOS.amex.alt}
-                className="h-full w-auto object-contain py-1"
-              />
-            </div>
-            {/* Apple Pay */}
-            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img
-                {...getImageWithFallback(PAYMENT_LOGOS.applePay.src, PAYMENT_LOGOS.applePay.fallback)}
-                alt={PAYMENT_LOGOS.applePay.alt}
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-            {/* Google Pay */}
-            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img
-                {...getImageWithFallback(PAYMENT_LOGOS.googlePay.src, PAYMENT_LOGOS.googlePay.fallback)}
-                alt={PAYMENT_LOGOS.googlePay.alt}
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-            {/* Maestro */}
-            <div className="h-10 px-3 flex items-center justify-center bg-white rounded-md border border-gray-200">
-              <svg className="h-6 w-10" viewBox="0 0 40 24">
-                <circle cx="12" cy="12" r="10" fill="#0099DF"/>
-                <circle cx="28" cy="12" r="10" fill="#ED0006" fillOpacity="0.85"/>
-              </svg>
-            </div>
-            {/* Mastercard */}
-            <div className="h-10 px-4 flex items-center justify-center bg-white rounded-md border border-gray-300">
-              <img
-                {...getImageWithFallback(PAYMENT_LOGOS.mastercard.src, PAYMENT_LOGOS.mastercard.fallback)}
-                alt={PAYMENT_LOGOS.mastercard.alt}
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-            {/* PayPal */}
-            <div className="h-10 px-4 flex items-center justify-center bg-[#0070BA] rounded-md">
-              <span className="font-bold text-white text-sm">PayPal</span>
-            </div>
-            {/* Shop Pay */}
-            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img
-                {...getImageWithFallback(PAYMENT_LOGOS.shopPay.src, PAYMENT_LOGOS.shopPay.fallback)}
-                alt={PAYMENT_LOGOS.shopPay.alt}
-                className="h-full w-auto object-contain py-1"
-              />
-            </div>
-            {/* Visa */}
-            <div className="h-10 px-4 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img
-                {...getImageWithFallback(PAYMENT_LOGOS.visa.src, PAYMENT_LOGOS.visa.fallback)}
-                alt={PAYMENT_LOGOS.visa.alt}
-                className="h-full w-auto object-contain py-1"
-              />
-            </div>
+          <div className="flex items-center justify-center">
+            <img
+              src="/images/paiement.png"
+              alt="Méthodes de paiement acceptées"
+              className="w-full max-w-md h-auto object-contain"
+            />
           </div>
         </div>
 
@@ -232,7 +173,15 @@ export function Footer() {
               © {new Date().getFullYear()} C'Line Hair. Tous droits réservés.
             </p>
             <p className="text-gray-500 text-xs text-center md:text-right">
-              Développé avec passion pour sublimer votre beauté
+              Développé avec passion pour sublimer votre beauté | Powered by{' '}
+              <a
+                href="https://odyssey.ad/partners"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors underline"
+              >
+                Odyssey Technology
+              </a>
             </p>
           </div>
         </div>

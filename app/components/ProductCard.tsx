@@ -60,6 +60,9 @@ export function ProductCard({
   const isAvailable = Boolean(firstVariant?.availableForSale);
   const variantId = firstVariant?.id;
 
+  // Use featured image or fallback to first variant image
+  const productImage = featuredImage || (firstVariant as any)?.image || null;
+
   // Check if the product is on sale
   const isOnSale =
     compareAtPrice &&
@@ -149,9 +152,9 @@ export function ProductCard({
           className="block w-full h-full"
           aria-label={`Voir les détails de ${title}`}
         >
-          {featuredImage ? (
+          {productImage ? (
             <OptimizedImage
-              data={featuredImage}
+              data={productImage}
               priority={loading === 'eager'}
               showPlaceholder
               aspectRatio="1/1"
@@ -197,7 +200,7 @@ export function ProductCard({
             <WishlistButton
               productId={product.id}
               productTitle={title}
-              productImage={featuredImage?.url}
+              productImage={productImage?.url}
               productPrice={price?.amount}
               size="md"
             />

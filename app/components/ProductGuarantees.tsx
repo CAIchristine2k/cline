@@ -49,54 +49,12 @@ export function ProductGuarantees() {
 
         {/* Payment Methods - Inside the border */}
         <div className="pt-4 pb-4 border-t border-gray-200">
-          <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-            {/* Klarna */}
-            <div className="h-8 px-3 flex items-center justify-center bg-primary-light rounded-md">
-              <span className="font-bold text-black text-xs">klarna</span>
-            </div>
-
-            {/* American Express */}
-            <div className="h-8 px-3 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img src="/images/amexnew.png" alt="American Express" className="h-full w-auto object-contain py-1" />
-            </div>
-
-            {/* Apple Pay */}
-            <div className="h-8 px-3 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img src="/images/apple-pay.png" alt="Apple Pay" className="h-5 w-auto object-contain" />
-            </div>
-
-            {/* Google Pay */}
-            <div className="h-8 px-3 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img src="/images/google-pay.png" alt="Google Pay" className="h-5 w-auto object-contain" />
-            </div>
-
-            {/* Mastercard SVG */}
-            <div className="h-8 px-2 flex items-center justify-center bg-white rounded-md border border-gray-200">
-              <svg className="h-5 w-8" viewBox="0 0 40 24">
-                <circle cx="12" cy="12" r="10" fill="#0099DF" />
-                <circle cx="28" cy="12" r="10" fill="#ED0006" fillOpacity="0.85" />
-              </svg>
-            </div>
-
-            {/* Mastercard Image */}
-            <div className="h-8 px-3 flex items-center justify-center bg-white rounded-md border border-gray-300">
-              <img src="/images/mastercard.png" alt="Mastercard" className="h-5 w-auto object-contain" />
-            </div>
-
-            {/* PayPal */}
-            <div className="h-8 px-3 flex items-center justify-center bg-[#0070BA] rounded-md">
-              <span className="font-bold text-white text-xs">PayPal</span>
-            </div>
-
-            {/* Shop Pay */}
-            <div className="h-8 px-3 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img src="/images/shopp.webp" alt="Shop Pay" className="h-full w-auto object-contain py-1" />
-            </div>
-
-            {/* Visa */}
-            <div className="h-8 px-3 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              <img src="/images/visaa.webp" alt="Visa" className="h-full w-auto object-contain py-1" />
-            </div>
+          <div className="flex items-center justify-center px-4">
+            <img
+              src="/images/paiement.png"
+              alt="Méthodes de paiement acceptées"
+              className="w-full max-w-md h-auto object-contain"
+            />
           </div>
         </div>
       </div>

@@ -6,9 +6,9 @@
 // Payment Method Logos
 export const PAYMENT_LOGOS = {
   amex: {
-    src: '/images/amexnew.png',
+    src: '/images/aamex.png',
     alt: 'American Express',
-    fallback: '/images/american-express.svg',
+    fallback: '/images/amex.png',
   },
   applePay: {
     src: '/images/apple-pay.png',

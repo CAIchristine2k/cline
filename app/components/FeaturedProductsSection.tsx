@@ -19,20 +19,20 @@ export function FeaturedProductsSection({products}: FeaturedProductsSectionProps
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-12 max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 bg-white/60 text-black px-4 py-2 rounded-full backdrop-blur-sm">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-bold uppercase tracking-wider">Nos Produits Vedettes</span>
+            <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full backdrop-blur-sm animate-pulse">
+              <span className="text-2xl">⚡</span>
+              <span className="text-sm font-bold uppercase tracking-wider text-black">Offres Limitées</span>
             </div>
           </div>
 
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center w-full">
-            <span className="text-primary">Nos</span>{' '}
-            <span className="text-primary">Nouveautés</span>
+            <span className="text-primary">Vente</span>{' '}
+            <span className="text-primary">Flash</span>
           </h2>
 
           <p className="text-lg text-black leading-relaxed">
-            Une sélection exclusive de nos produits les plus populaires,
-            choisis avec soin pour sublimer votre beauté naturelle.
+            Profitez de nos offres exceptionnelles sur une sélection de produits.
+            Stocks limités, ne tardez pas !
           </p>
         </div>
 
@@ -44,7 +44,7 @@ export function FeaturedProductsSection({products}: FeaturedProductsSectionProps
         {/* CTA Button */}
         <div className="text-center">
           <Link
-            to="/collections/all"
+            to="/products"
             className="inline-flex items-center gap-3 bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
           >
             <ShoppingBag className="w-5 h-5" />

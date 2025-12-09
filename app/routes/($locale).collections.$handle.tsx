@@ -126,7 +126,7 @@ export default function Collection() {
             </Link>
             <ChevronRight className="w-3 h-3" />
             <Link
-              to="/collections/all"
+              to="/products"
               className="hover:text-primary transition-colors"
             >
               Collections

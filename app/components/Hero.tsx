@@ -22,6 +22,12 @@ export function Hero() {
     '/images/mobile2.PNG',
   ];
 
+  // Links for each carousel image
+  const carouselLinks = [
+    '/products',                    // mobile1.PNG -> NOS PRODUITS
+    '/collections/vente-flash',     // mobile2.PNG -> VENTE FLASH
+  ];
+
   // Distance minimale de swipe (en pixels)
   const minSwipeDistance = 50;
 
@@ -68,7 +74,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative w-full"
+      className="relative w-full pt-[20px] md:pt-0"
     >
       {/* Full width carousel */}
       <div className="w-full relative overflow-hidden group">
@@ -84,7 +90,7 @@ export function Hero() {
           {carouselImages.map((image, index) => (
             <Link
               key={index}
-              to="/products"
+              to={carouselLinks[index] || '/products'}
               className="w-full flex-shrink-0 cursor-pointer"
             >
               {/* Desktop image - hidden on mobile */}
@@ -95,16 +101,18 @@ export function Hero() {
                   className="w-full h-auto object-contain"
                   loading={index === 0 ? 'eager' : 'lazy'}
                   fetchpriority={index === 0 ? 'high' : 'low'}
+                  decoding={index === 0 ? 'sync' : 'async'}
                 />
               </picture>
               {/* Mobile image - visible only on mobile */}
-              <picture className="md:hidden w-full pt-[35px]">
+              <picture className="md:hidden w-full">
                 <img
                   src={mobileImages[index]}
                   alt={index === 0 ? "C'Line Hair - Perruques naturelles 100% cheveux humains, Lace Wigs premium avec densité 250%" : "C'Line Hair - Collection de perruques lace wig et bundles cheveux naturels"}
                   className="w-full h-auto object-contain"
                   loading={index === 0 ? 'eager' : 'lazy'}
                   fetchpriority={index === 0 ? 'high' : 'low'}
+                  decoding={index === 0 ? 'sync' : 'async'}
                 />
               </picture>
             </Link>

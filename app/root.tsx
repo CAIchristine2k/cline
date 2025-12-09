@@ -38,6 +38,19 @@ export const links: LinksFunction = () => {
     },
     {rel: 'icon', type: 'image/png', href: '/images/logo.png'},
     {rel: 'apple-touch-icon', href: '/images/logo.png'},
+    // Preload critical hero images for faster LCP
+    {
+      rel: 'preload',
+      as: 'image',
+      href: '/images/mobile1.PNG',
+      media: '(max-width: 768px)',
+    },
+    {
+      rel: 'preload',
+      as: 'image',
+      href: '/images/preset/card/card1.PNG',
+      media: '(min-width: 769px)',
+    },
   ];
 };
 

@@ -132,7 +132,7 @@ function EmptyOrders() {
       </div>
 
       <Link
-        to="/collections/all"
+        to="/products"
         className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-lg hover:shadow-xl transform hover:scale-105"
       >
         <ShoppingBag className="mr-2 h-5 w-5" />

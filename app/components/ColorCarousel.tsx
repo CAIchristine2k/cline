@@ -1,5 +1,4 @@
-import {useState, useRef, useEffect} from 'react';
-import {Image} from '@shopify/hydrogen';
+import {useState, useEffect} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 
 // ==================== TYPES ====================
@@ -29,20 +28,17 @@ interface ColorCarouselProps {
   className?: string;
 }
 
-// ==================== CONSTANTES ====================
-
-/** Taille du rond central (couleur sélectionnée) */
-const LARGE_SIZE = 180; // Plus grand pour correspondre à l'image
-/** Taille des ronds adjacents */
-const SMALL_SIZE = 120; // Légèrement plus grands
-
 // ==================== COMPOSANT PRINCIPAL ====================
 
 /**
- * Carrousel de couleurs pour la sélection de variantes produit
+ * Carrousel de couleurs avec affichage de 3 ronds (précédent, sélectionné, suivant)
  *
- * Affiche 3 ronds visibles en même temps avec la couleur sélectionnée au centre
- * Navigation par flèches (desktop) ou swipe (mobile)
+ * Design :
+ * - 3 ronds alignés horizontalement
+ * - Le rond sélectionné est au centre, plus grand, avec un contour rose
+ * - Les ronds voisins sont plus petits sur les côtés
+ * - Navigation par flèches (desktop et mobile)
+ * - Texte "COLOUR — NomCouleur" en dessous
  */
 export function ColorCarousel({
   colors,
@@ -50,18 +46,14 @@ export function ColorCarousel({
   onColorSelect,
   className = '',
 }: ColorCarouselProps) {
-  // ==================== STATE & REFS ====================
+  // ==================== STATE ====================
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
 
   // ==================== EFFECTS ====================
 
   /**
-   * Met à jour l'index du carrousel quand la couleur sélectionnée change
+   * Met à jour l'index quand la couleur sélectionnée change
    */
   useEffect(() => {
     const selectedIndex = colors.findIndex(
@@ -72,48 +64,28 @@ export function ColorCarousel({
     }
   }, [selectedColorName, colors, currentIndex]);
 
-  /**
-   * Centre automatiquement la couleur sélectionnée
-   */
-  useEffect(() => {
-    if (carouselRef.current) {
-      const container = carouselRef.current;
-      const itemWidth = LARGE_SIZE + 32; // taille + gap
-      const offset = currentIndex * itemWidth - container.clientWidth / 2 + itemWidth / 2;
-
-      container.scrollTo({
-        left: offset,
-        behavior: 'smooth',
-      });
-    }
-  }, [currentIndex]);
-
   // ==================== HANDLERS ====================
 
   /**
-   * Navigation vers la couleur précédente
+   * Navigation vers la couleur précédente (avec boucle circulaire)
    */
   const handlePrev = () => {
-    if (currentIndex > 0) {
-      const newIndex = currentIndex - 1;
-      setCurrentIndex(newIndex);
-      onColorSelect(colors[newIndex]);
-    }
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : colors.length - 1;
+    setCurrentIndex(newIndex);
+    onColorSelect(colors[newIndex]);
   };
 
   /**
-   * Navigation vers la couleur suivante
+   * Navigation vers la couleur suivante (avec boucle circulaire)
    */
   const handleNext = () => {
-    if (currentIndex < colors.length - 1) {
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      onColorSelect(colors[newIndex]);
-    }
+    const newIndex = currentIndex < colors.length - 1 ? currentIndex + 1 : 0;
+    setCurrentIndex(newIndex);
+    onColorSelect(colors[newIndex]);
   };
 
   /**
-   * Gestion du clic sur une couleur
+   * Clic direct sur un rond de couleur
    */
   const handleColorClick = (color: ColorOption, index: number) => {
     if (!color.availableForSale) return;
@@ -122,58 +94,9 @@ export function ColorCarousel({
     onColorSelect(color);
   };
 
-  /**
-   * Début du drag/swipe
-   */
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!carouselRef.current) return;
-
-    setIsDragging(true);
-    setStartX(e.pageX - carouselRef.current.offsetLeft);
-    setScrollLeft(carouselRef.current.scrollLeft);
-  };
-
-  /**
-   * Fin du drag/swipe
-   */
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  /**
-   * Mouvement du drag/swipe
-   */
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !carouselRef.current) return;
-
-    e.preventDefault();
-    const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    carouselRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  /**
-   * Gestion du touch sur mobile
-   */
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!carouselRef.current) return;
-
-    setIsDragging(true);
-    setStartX(e.touches[0].pageX - carouselRef.current.offsetLeft);
-    setScrollLeft(carouselRef.current.scrollLeft);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !carouselRef.current) return;
-
-    const x = e.touches[0].pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    carouselRef.current.scrollLeft = scrollLeft - walk;
-  };
-
   // ==================== RENDER CONDITIONS ====================
 
-  // Ne rien afficher si pas de couleurs ou une seule couleur
+  // Ne rien afficher si pas de couleurs
   if (!colors || colors.length === 0) {
     return null;
   }
@@ -185,8 +108,7 @@ export function ColorCarousel({
       <div className={`py-6 ${className}`}>
         <div className="flex justify-center">
           <div
-            className="rounded-full overflow-hidden border-4 border-white shadow-xl ring-2 ring-primary/30"
-            style={{width: LARGE_SIZE, height: LARGE_SIZE}}
+            className="rounded-full overflow-hidden border-[3px] border-primary shadow-xl w-[100px] h-[100px] md:w-[180px] md:h-[180px]"
           >
             <img
               src={singleColor.imageUrl}
@@ -197,8 +119,8 @@ export function ColorCarousel({
         </div>
         <div className="text-center mt-4">
           <p className="text-sm font-medium text-black tracking-wider">
-            <span className="uppercase">COULEUR</span>
-            <span className="mx-2">—</span>
+            <span className="uppercase font-bold">COULEUR</span>
+            <span className="mx-2 text-primary">—</span>
             <span>{singleColor.name}</span>
           </p>
         </div>
@@ -206,103 +128,142 @@ export function ColorCarousel({
     );
   }
 
+  // ==================== CALCUL DES 3 RONDS VISIBLES ====================
+
+  // Index du rond précédent (avec boucle circulaire)
+  const prevIndex = currentIndex > 0 ? currentIndex - 1 : colors.length - 1;
+
+  // Index du rond suivant (avec boucle circulaire)
+  const nextIndex = currentIndex < colors.length - 1 ? currentIndex + 1 : 0;
+
+  // Les 3 couleurs à afficher
+  const prevColor = colors[prevIndex];
+  const currentColor = colors[currentIndex];
+  const nextColor = colors[nextIndex];
+
   // ==================== RENDER PRINCIPAL ====================
 
   return (
     <div className={`relative py-6 ${className}`}>
-      {/* Carrousel scrollable */}
-      <div
-        ref={carouselRef}
-        className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleMouseUp}
-        onTouchMove={handleTouchMove}
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-      >
-        <div className="flex items-center justify-center gap-4 px-4 py-4 min-w-max">
-          {colors.map((color, index) => {
-            const isSelected = index === currentIndex;
-            const size = isSelected ? LARGE_SIZE : SMALL_SIZE;
-            const isAvailable = color.availableForSale;
+      {/* Container principal avec les 3 ronds */}
+      <div className="relative flex items-center justify-center gap-2 md:gap-8 px-2 md:px-4">
 
-            return (
-              <div
-                key={color.variantId}
-                className="flex-shrink-0 transition-all duration-300"
-                style={{
-                  width: size,
-                  height: size,
-                }}
-              >
-                <button
-                  onClick={() => handleColorClick(color, index)}
-                  disabled={!isAvailable}
-                  className={`
-                    w-full h-full rounded-full overflow-hidden
-                    transition-all duration-300
-                    ${isSelected
-                      ? 'border-[3px] border-white shadow-xl ring-1 ring-gray-200/60'
-                      : 'border-0 shadow-md hover:scale-105'
-                    }
-                    ${!isAvailable ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-                  `}
-                  aria-label={`Sélectionner la couleur ${color.name}`}
-                  aria-pressed={isSelected}
-                >
-                  <div className="relative w-full h-full">
-                    <img
-                      src={color.imageUrl}
-                      alt={color.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+        {/* Bouton gauche - Desktop et Mobile */}
+        <button
+          onClick={handlePrev}
+          className="flex-shrink-0 bg-white border-2 border-primary/30 hover:bg-primary/10 text-primary p-1.5 md:p-2 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 z-10"
+          aria-label="Couleur précédente"
+        >
+          <ChevronLeft className="w-4 h-4 md:w-6 md:h-6" />
+        </button>
 
-                    {/* Overlay pour couleurs non disponibles */}
-                    {!isAvailable && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold uppercase">
-                          Épuisé
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </button>
-              </div>
-            );
-          })}
+        {/* Les 3 ronds de couleur */}
+        <div className="flex items-center justify-center gap-2 md:gap-8">
+
+          {/* Rond précédent (gauche) */}
+          <button
+            onClick={() => handleColorClick(prevColor, prevIndex)}
+            disabled={!prevColor.availableForSale}
+            className={`
+              rounded-full overflow-hidden flex-shrink-0
+              transition-all duration-300
+              border-2 border-gray-200
+              shadow-md hover:scale-105
+              w-[70px] h-[70px] md:w-[130px] md:h-[130px]
+              ${!prevColor.availableForSale ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+            `}
+            aria-label={`Sélectionner la couleur ${prevColor.name}`}
+          >
+            <div className="relative w-full h-full">
+              <img
+                src={prevColor.imageUrl}
+                alt={prevColor.name}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              {!prevColor.availableForSale && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold uppercase">
+                    Épuisé
+                  </span>
+                </div>
+              )}
+            </div>
+          </button>
+
+          {/* Rond sélectionné (centre) - PLUS GRAND avec BORDURE ROSE */}
+          <button
+            onClick={() => handleColorClick(currentColor, currentIndex)}
+            disabled={!currentColor.availableForSale}
+            className={`
+              rounded-full overflow-hidden flex-shrink-0
+              transition-all duration-300
+              border-[3px] border-primary
+              shadow-xl ring-2 ring-primary/20
+              w-[100px] h-[100px] md:w-[180px] md:h-[180px]
+              ${!currentColor.availableForSale ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+            `}
+            aria-label={`Couleur sélectionnée: ${currentColor.name}`}
+            aria-pressed="true"
+          >
+            <div className="relative w-full h-full">
+              <img
+                src={currentColor.imageUrl}
+                alt={currentColor.name}
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+              {!currentColor.availableForSale && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold uppercase">
+                    Épuisé
+                  </span>
+                </div>
+              )}
+            </div>
+          </button>
+
+          {/* Rond suivant (droite) */}
+          <button
+            onClick={() => handleColorClick(nextColor, nextIndex)}
+            disabled={!nextColor.availableForSale}
+            className={`
+              rounded-full overflow-hidden flex-shrink-0
+              transition-all duration-300
+              border-2 border-gray-200
+              shadow-md hover:scale-105
+              w-[70px] h-[70px] md:w-[130px] md:h-[130px]
+              ${!nextColor.availableForSale ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+            `}
+            aria-label={`Sélectionner la couleur ${nextColor.name}`}
+          >
+            <div className="relative w-full h-full">
+              <img
+                src={nextColor.imageUrl}
+                alt={nextColor.name}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              {!nextColor.availableForSale && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold uppercase">
+                    Épuisé
+                  </span>
+                </div>
+              )}
+            </div>
+          </button>
+
         </div>
-      </div>
 
-      {/* Flèches de navigation - Desktop uniquement */}
-      <div className="hidden md:block">
-        {/* Flèche gauche */}
-        {currentIndex > 0 && (
-          <button
-            onClick={handlePrev}
-            className="absolute left-8 top-1/2 -translate-y-1/2 bg-gray-800/80 hover:bg-gray-900 text-white p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
-            aria-label="Couleur précédente"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        )}
-
-        {/* Flèche droite */}
-        {currentIndex < colors.length - 1 && (
-          <button
-            onClick={handleNext}
-            className="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-800/80 hover:bg-gray-900 text-white p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
-            aria-label="Couleur suivante"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        )}
+        {/* Bouton droit - Desktop et Mobile */}
+        <button
+          onClick={handleNext}
+          className="flex-shrink-0 bg-white border-2 border-primary/30 hover:bg-primary/10 text-primary p-1.5 md:p-2 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 z-10"
+          aria-label="Couleur suivante"
+        >
+          <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
+        </button>
       </div>
 
       {/* Label de la couleur sélectionnée */}
@@ -311,19 +272,33 @@ export function ColorCarousel({
           <span className="uppercase font-bold" style={{letterSpacing: '0.1em'}}>
             COULEUR
           </span>
-          <span className="mx-3 text-primary">—</span>
-          <span className="font-normal">{colors[currentIndex]?.name || ''}</span>
+          <span className="mx-2 md:mx-3 text-primary font-bold">—</span>
+          <span className="font-normal">{currentColor.name}</span>
         </p>
       </div>
 
-      {/* Style pour masquer la scrollbar */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-        `
-      }} />
+      {/* Indicateur de position (optionnel, uniquement si plus de 3 couleurs) */}
+      {colors.length > 3 && (
+        <div className="flex justify-center gap-1.5 mt-4">
+          {colors.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setCurrentIndex(index);
+                onColorSelect(colors[index]);
+              }}
+              className={`
+                h-1.5 rounded-full transition-all duration-300
+                ${index === currentIndex
+                  ? 'bg-primary w-6'
+                  : 'bg-gray-300 w-1.5 hover:bg-gray-400'
+                }
+              `}
+              aria-label={`Aller à la couleur ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

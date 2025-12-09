@@ -83,7 +83,7 @@ export default function CollectionMain() {
             </Link>
             <ChevronRight className="w-3 h-3" />
             <Link
-              to="/collections/all"
+              to="/products"
               className="hover:text-primary transition-colors"
             >
               Collections
@@ -159,7 +159,7 @@ export default function CollectionMain() {
           {products.length > 0 && (
             <div className="text-center">
               <Link
-                to="/collections/all"
+                to="/products"
                 className="inline-flex items-center gap-3 bg-white hover:bg-white/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group"
               >
                 <ShoppingBag className="w-5 h-5" />

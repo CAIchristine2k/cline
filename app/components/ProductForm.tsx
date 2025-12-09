@@ -34,10 +34,14 @@ export function ProductForm({
   product,
   storeDomain,
   onVariantChange,
+  externalSelectedVariant,
+  colorOptions,
 }: {
   product: NonNullable<ProductDetailsQuery['product']>;
   storeDomain?: string;
   onVariantChange?: (variant: any) => void;
+  externalSelectedVariant?: any; // Variant contrôlée depuis l'extérieur (ex: ColorCarousel)
+  colorOptions?: Array<{name: string; imageUrl: string; variantId: string}>; // Images de couleur depuis ColorCarousel
 }) {
   const config = useConfig();
   const {open} = useAside();
@@ -92,6 +96,44 @@ export function ProductForm({
       );
     }
   }, [product]);
+
+  // 🆕 Synchroniser avec la variant externe (ColorCarousel)
+  useEffect(() => {
+    if (externalSelectedVariant && externalSelectedVariant.id !== selectedVariant?.id) {
+      console.log('🎨 ProductForm: Mise à jour depuis ColorCarousel', externalSelectedVariant.id);
+
+      setSelectedVariant({
+        id: externalSelectedVariant.id,
+        title: externalSelectedVariant.title,
+        availableForSale: externalSelectedVariant.availableForSale,
+        selectedOptions: externalSelectedVariant.selectedOptions,
+        price: {
+          amount: externalSelectedVariant.price.amount,
+          currencyCode: externalSelectedVariant.price.currencyCode,
+          __typename: 'MoneyV2',
+        },
+        compareAtPrice: externalSelectedVariant.compareAtPrice
+          ? {
+              amount: externalSelectedVariant.compareAtPrice.amount,
+              currencyCode: externalSelectedVariant.compareAtPrice.currencyCode,
+              __typename: 'MoneyV2',
+            }
+          : null,
+        sku: externalSelectedVariant.sku,
+      });
+
+      // Mettre à jour aussi selectedOptions pour garder l'UI synchronisée
+      setSelectedOptions(
+        externalSelectedVariant.selectedOptions.reduce(
+          (acc: Record<string, string>, option: any) => {
+            acc[option.name] = option.value;
+            return acc;
+          },
+          {},
+        ),
+      );
+    }
+  }, [externalSelectedVariant, selectedVariant?.id]);
 
   // Call onVariantChange once when the selected variant is initialized or changes
   useEffect(() => {
@@ -269,6 +311,25 @@ export function ProductForm({
         {
           merchandiseId: formatVariantId(selectedVariant.id),
           quantity,
+          attributes: (() => {
+            const attrs = [];
+
+            // Add color swatch image URL if available
+            if (colorOptions && colorOptions.length > 0) {
+              const matchingColorOption = colorOptions.find(
+                (option) => option.variantId === selectedVariant.id
+              );
+
+              if (matchingColorOption?.imageUrl) {
+                attrs.push({
+                  key: '_color_swatch_image',
+                  value: matchingColorOption.imageUrl,
+                });
+              }
+            }
+
+            return attrs.length > 0 ? attrs : undefined;
+          })(),
         },
       ]
     : [];

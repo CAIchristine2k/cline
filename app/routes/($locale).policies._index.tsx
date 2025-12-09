@@ -114,7 +114,7 @@ export default function Policies() {
             transparent, and championship-quality service.
           </p>
           <Link
-            to="/collections/all"
+            to="/products"
             className="inline-flex items-center bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
           >
             Shop with Confidence

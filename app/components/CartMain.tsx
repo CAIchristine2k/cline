@@ -1,5 +1,5 @@
 import {useOptimisticCart} from '@shopify/hydrogen';
-import {Link, useNavigate} from 'react-router';
+import {Link} from 'react-router';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
@@ -28,7 +28,6 @@ export function CartMain({
 }: CartMainProps) {
   const config = useConfig();
   const {close} = useAside();
-  const navigate = useNavigate();
   const previousQuantityRef = useRef<number | null>(null);
 
   // Enhanced optimistic cart with safety checks
@@ -88,35 +87,28 @@ export function CartMain({
   // Cart calculations
   const cartHasItems = (cart?.totalQuantity || 0) > 0;
 
-  // Auto-redirect when cart becomes empty
+  // Auto-close cart drawer when it becomes empty
   useEffect(() => {
     const currentQuantity = cart?.totalQuantity || 0;
     const previousQuantity = previousQuantityRef.current;
 
     // Detect when cart goes from having items (>0) to empty (0)
     if (previousQuantity !== null && previousQuantity > 0 && currentQuantity === 0) {
-      console.log('🔄 Cart became empty - redirecting to previous page');
+      console.log('🛒 Cart became empty - closing drawer if open');
 
       // Close cart drawer if open
       if (layout === 'aside') {
-        close();
+        setTimeout(() => {
+          close();
+        }, 300);
       }
 
-      // Small delay to ensure cart drawer closes smoothly
-      setTimeout(() => {
-        // Try to go back to previous page
-        // If there's no history, navigate to home page as fallback
-        if (window.history.length > 1) {
-          navigate(-1);
-        } else {
-          navigate('/');
-        }
-      }, 300);
+      // Stay on current page - no redirect
     }
 
     // Update the previous quantity for next check
     previousQuantityRef.current = currentQuantity;
-  }, [cart?.totalQuantity, layout, close, navigate]);
+  }, [cart?.totalQuantity, layout, close]);
 
   // Loading state with modern spinner
   if (cart === undefined) {

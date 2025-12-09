@@ -1,6 +1,6 @@
 import {redirect, type LoaderFunctionArgs} from 'react-router';
 import {useLoaderData, type MetaFunction, Link} from 'react-router';
-import {useState, useCallback, useEffect, useMemo} from 'react';
+import {useState, useCallback, useEffect, useMemo, useRef} from 'react';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -520,7 +520,7 @@ export default function Product() {
         <h1 className="text-3xl font-bold mb-6 text-gray-900">Produit non trouvé</h1>
         <p className="mb-8 text-gray-600">Le produit que vous recherchez n'existe pas.</p>
         <Link
-          to="/collections/all"
+          to="/products"
           className="inline-flex items-center bg-primary hover:bg-primary-400 text-black font-bold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
         >
           Retour à la boutique
@@ -657,25 +657,47 @@ export default function Product() {
   // Get custom images for the current variant from metafield
   const [customVariantImages, setCustomVariantImages] = useState<any[]>([]);
 
+  // Track the current product ID to detect when we navigate to a different product
+  const previousProductId = useRef<string>(product.id);
+  const hasInitializedImage = useRef<boolean>(false);
+
   // Initialize images when component mounts or when selected variant changes
   useEffect(() => {
-
     if (currentVariant) {
       // Get variant-specific custom images
       const newVariantImages = getVariantImages(currentVariant);
       setCustomVariantImages(newVariantImages);
 
-      // Prioritize variant image when a specific variant is selected (e.g., color change)
-      // This allows the main image to update when clicking on color variants
-      if (currentVariant.image?.url) {
-        setActiveImage(currentVariant.image);
-      } else if (featuredImage?.url) {
-        setActiveImage(featuredImage);
-      } else if (newVariantImages.length > 0) {
-        setActiveImage(newVariantImages[0]);
+      // Detect if this is a new product (different product.id)
+      const isNewProduct = previousProductId.current !== product.id;
+
+      // On NEW PRODUCT load: ALWAYS prioritize featured image (photo principale Shopify)
+      // On VARIANT CHANGE (same product): prioritize variant image (color change)
+      if (isNewProduct || !hasInitializedImage.current) {
+        // New product or first load: show featured image first
+        if (featuredImage?.url) {
+          setActiveImage(featuredImage);
+        } else if (currentVariant.image?.url) {
+          setActiveImage(currentVariant.image);
+        } else if (newVariantImages.length > 0) {
+          setActiveImage(newVariantImages[0]);
+        }
+
+        // Mark as initialized and update tracked product ID
+        hasInitializedImage.current = true;
+        previousProductId.current = product.id;
+      } else {
+        // Variant change on same product: show variant-specific image
+        if (currentVariant.image?.url) {
+          setActiveImage(currentVariant.image);
+        } else if (featuredImage?.url) {
+          setActiveImage(featuredImage);
+        } else if (newVariantImages.length > 0) {
+          setActiveImage(newVariantImages[0]);
+        }
       }
     }
-  }, [currentVariant, getVariantImages, featuredImage]);
+  }, [currentVariant, getVariantImages, featuredImage, product.id]);
 
   // Determine which images to display - all product images
   const displayImages = useMemo(() => {
@@ -694,17 +716,16 @@ export default function Product() {
     const images = [];
     const seenIds = new Set();
 
-    // PRIORITY 1: Add the variant-specific image first (e.g., color variant image)
-    // This ensures the main image updates when clicking color variants
-    if (currentVariant.image?.url && currentVariant.image?.id) {
-      images.push(currentVariant.image);
-      seenIds.add(currentVariant.image.id);
-    }
-
-    // PRIORITY 2: Add the featured image if it's different from variant image
-    if (featuredImage?.url && featuredImage?.id && !seenIds.has(featuredImage.id)) {
+    // PRIORITY 1: Add the featured image FIRST (photo principale Shopify)
+    if (featuredImage?.url && featuredImage?.id) {
       images.push(featuredImage);
       seenIds.add(featuredImage.id);
+    }
+
+    // PRIORITY 2: Add the variant-specific image (if different from featured)
+    if (currentVariant.image?.url && currentVariant.image?.id && !seenIds.has(currentVariant.image.id)) {
+      images.push(currentVariant.image);
+      seenIds.add(currentVariant.image.id);
     }
 
     // PRIORITY 3: Add all product images (excluding duplicates)
@@ -854,7 +875,7 @@ export default function Product() {
                     to="/products"
                     className="text-gray-700 hover:text-primary transition-colors"
                   >
-                    Boutique
+                    Nos Produits
                   </Link>
                 </li>
                 <li className="flex items-center space-x-2">
@@ -1030,42 +1051,6 @@ export default function Product() {
                   <Money data={currentVariant.compareAtPrice} />
                 </div>
               )}
-
-              {/* Countdown Timer - Always visible */}
-              <ClientOnly>
-                <div className="w-full bg-primary/5 border border-black rounded-lg px-3 py-3 md:px-4 flex flex-row items-center justify-between gap-4 md:gap-6">
-                  <span className="text-black font-semibold text-xs md:text-sm uppercase">
-                    FIN DE L'OFFRE DANS :
-                  </span>
-                  <div className="flex items-start gap-1 md:gap-1.5">
-                    {/* Hours */}
-                    <div className="flex flex-col items-center gap-0.5 md:gap-1">
-                      <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
-                        {String(timeLeft.hours).padStart(2, '0')}
-                      </div>
-                      <span className="text-gray-500 text-[10px] md:text-xs">Heures</span>
-                    </div>
-                    <span className="text-primary font-bold text-base md:text-lg mt-1.5">:</span>
-
-                    {/* Minutes */}
-                    <div className="flex flex-col items-center gap-0.5 md:gap-1">
-                      <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
-                        {String(timeLeft.minutes).padStart(2, '0')}
-                      </div>
-                      <span className="text-gray-500 text-[10px] md:text-xs">Minutes</span>
-                    </div>
-                    <span className="text-primary font-bold text-base md:text-lg mt-1.5">:</span>
-
-                    {/* Seconds */}
-                    <div className="flex flex-col items-center gap-0.5 md:gap-1">
-                      <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
-                        {String(timeLeft.seconds).padStart(2, '0')}
-                      </div>
-                      <span className="text-gray-500 text-[10px] md:text-xs">Secondes</span>
-                    </div>
-                  </div>
-                </div>
-              </ClientOnly>
             </div>
 
             {/* Color Carousel - Only show if product has color options */}
@@ -1079,6 +1064,42 @@ export default function Product() {
               </div>
             )}
 
+            {/* Countdown Timer - Always visible */}
+            <ClientOnly>
+              <div className="w-full bg-primary/5 border border-black rounded-lg px-6 py-3 md:px-8 flex flex-row items-center justify-between gap-4 md:gap-6 mb-6">
+                <span className="text-black font-semibold text-xs md:text-sm uppercase">
+                  FIN DE L'OFFRE DANS :
+                </span>
+                <div className="flex items-start gap-1 md:gap-1.5">
+                  {/* Hours */}
+                  <div className="flex flex-col items-center gap-0.5 md:gap-1">
+                    <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
+                      {String(timeLeft.hours).padStart(2, '0')}
+                    </div>
+                    <span className="text-gray-500 text-[10px] md:text-xs">Heures</span>
+                  </div>
+                  <span className="text-primary font-bold text-base md:text-lg mt-1.5">:</span>
+
+                  {/* Minutes */}
+                  <div className="flex flex-col items-center gap-0.5 md:gap-1">
+                    <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
+                      {String(timeLeft.minutes).padStart(2, '0')}
+                    </div>
+                    <span className="text-gray-500 text-[10px] md:text-xs">Minutes</span>
+                  </div>
+                  <span className="text-primary font-bold text-base md:text-lg mt-1.5">:</span>
+
+                  {/* Seconds */}
+                  <div className="flex flex-col items-center gap-0.5 md:gap-1">
+                    <div className="bg-primary text-black font-bold text-base md:text-lg rounded-lg px-2 py-1.5 md:px-3 min-w-[38px] md:min-w-[45px] text-center">
+                      {String(timeLeft.seconds).padStart(2, '0')}
+                    </div>
+                    <span className="text-gray-500 text-[10px] md:text-xs">Secondes</span>
+                  </div>
+                </div>
+              </div>
+            </ClientOnly>
+
             <div className="prose prose-sm max-w-none mb-8 text-black">
               <div
                 dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
@@ -1090,6 +1111,8 @@ export default function Product() {
               <ProductForm
                 product={product}
                 storeDomain={storeDomain}
+                externalSelectedVariant={currentVariant}
+                colorOptions={colorOptions}
                 onVariantChange={useCallback(
                   (variant: any) => {
                     // Update our local state with the new variant
@@ -1281,7 +1304,7 @@ export default function Product() {
               <details className="group border border-primary/30 rounded-lg overflow-hidden">
                 <summary className="flex items-center justify-between cursor-pointer bg-white hover:bg-primary/5 px-6 py-4 transition-colors">
                   <h3 className="text-base font-bold text-black">Conditions de retour – 14 jours</h3>
-                  <svg className="w-5 h-5 text-primary transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-primary transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="#FFD700">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </summary>

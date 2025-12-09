@@ -57,7 +57,7 @@ export function AIMediaGeneration() {
   ];
 
   return (
-    <section ref={sectionRef} id="tips" className="pb-20 lg:py-20 bg-white border-t-0 shadow-none">
+    <section ref={sectionRef} id="tips" className="pb-8 lg:py-20 bg-white border-t-0 shadow-none">
       <div className="container mx-auto px-4 relative z-10">
         {/* En-tête */}
         <div className="text-center mb-8 sm:mb-12 md:mb-16 max-w-3xl mx-auto px-2">

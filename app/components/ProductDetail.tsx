@@ -66,7 +66,7 @@ export function ProductDetail({
         {/* Back Navigation */}
         <div className="mb-8">
           <Link
-            to="/collections/all"
+            to="/products"
             className="inline-flex items-center text-gold-500 hover:text-gold-400 transition-colors duration-300"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />

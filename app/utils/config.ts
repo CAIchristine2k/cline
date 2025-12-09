@@ -340,7 +340,7 @@ export const defaultConfig: LandingPageConfig = {
   ],
 
   // Social Media
-  instagramHandle: 'cline_shop',
+  instagramHandle: 'c_line.cheveux',
   twitterHandle: '',
   youtubeChannel: '',
   tiktokHandle: '',

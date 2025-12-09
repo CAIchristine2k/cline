@@ -148,7 +148,7 @@ export default function Contact() {
                   nous vous répondrons dans les plus brefs délais.
                 </p>
                 <Link
-                  to="/collections/all"
+                  to="/products"
                   className="inline-flex items-center bg-primary hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   Continuer mes achats

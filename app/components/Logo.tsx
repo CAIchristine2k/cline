@@ -15,7 +15,7 @@ export function Logo({isScrolled = false}: LogoProps) {
           src={config.brandLogo}
           alt={`${config.brandName} Logo`}
           className={`transition-all duration-500 ease-in-out ${
-            isScrolled ? 'h-14 w-auto' : 'h-20 w-auto'
+            isScrolled ? 'h-14 lg:h-20 w-auto' : 'h-20 lg:h-28 w-auto'
           }`}
         />
       </Link>
