@@ -62,10 +62,20 @@ export function ProductItem({
   const variantId = firstVariant?.id;
   const isAvailable = firstVariant?.availableForSale ?? true;
 
-  // Generate mock rating and reviews for display (since Shopify doesn't provide this)
+  // Generate consistent mock rating and reviews based on product ID
+  // Using simple hash function to ensure same product always gets same rating/reviews
+  const getConsistentNumber = (str: string, max: number) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash) % max;
+  };
+
   const possibleRatings = [4.5, 5.0];
-  const rating = possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
-  const reviews = 70 + Math.floor(Math.random() * 60);
+  const rating = possibleRatings[getConsistentNumber(product.id, possibleRatings.length)];
+  const reviews = 70 + getConsistentNumber(product.id + '-reviews', 60);
 
   // Check if product is a featured product based on config
   const isFeatured = config.shopify.featuredProducts.includes(handle);

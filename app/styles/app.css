@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+/* Hide SKU display everywhere */
+[class*="sku" i],
+[class*="SKU"],
+div:has(> :first-child:only-child):has-text("SKU:"),
+*:has(text() = /SKU:/i) {
+  display: none !important;
+}
+
 :root {
   --aside-width: 400px;
   --cart-aside-summary-height-with-discount: 300px;
@@ -1012,4 +1020,71 @@ section {
   .cart-page-container {
     padding-top: calc(var(--header-height-mobile) + 2rem) !important;
   }
+}
+
+/* Shopify Customer Account Menu Styling */
+#left-nav {
+  background-color: #ffffff !important;
+  border-right: 1px solid #e5e5e5 !important;
+}
+
+/* Navigation Links */
+#left-nav a.qKN3X,
+#left-nav button.qKN3X {
+  color: #404040 !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.25rem !important;
+  font-family: var(--font-primary) !important;
+}
+
+#left-nav a.qKN3X:hover,
+#left-nav button.qKN3X:hover {
+  color: var(--color-primary-500) !important;
+  background-color: rgba(var(--color-primary-rgb), 0.05) !important;
+}
+
+/* Active Link */
+#left-nav a.U3Mfo {
+  color: var(--color-primary-500) !important;
+  background-color: rgba(var(--color-primary-rgb), 0.1) !important;
+  font-weight: 600 !important;
+}
+
+/* User Info Section */
+#left-nav ._19gi7yt0 {
+  color: #171717 !important;
+  font-family: var(--font-primary) !important;
+}
+
+#left-nav ._19gi7yt0._19gi7yt1g {
+  font-weight: 600 !important;
+}
+
+#left-nav ._19gi7yt0._1fragempg {
+  color: #737373 !important;
+  font-size: 0.875rem !important;
+}
+
+/* Avatar Circle */
+#left-nav ._15amvvq8 {
+  background: linear-gradient(135deg, var(--color-primary-400) 0%, var(--color-primary-600) 100%) !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Dividers */
+#left-nav .mg7oix2 {
+  background-color: #e5e5e5 !important;
+  opacity: 0.5 !important;
+}
+
+/* Logout Button */
+#left-nav button[type="button"] {
+  color: #dc2626 !important;
+}
+
+#left-nav button[type="button"]:hover {
+  background-color: rgba(220, 38, 38, 0.05) !important;
 }

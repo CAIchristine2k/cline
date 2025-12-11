@@ -10,6 +10,7 @@ import {useLoaderData} from 'react-router';
 import {getColorInfo, isColorOption} from '~/utils/colorMapping';
 import {getDominantColorCached, getContrastColor} from '~/utils/colorExtractor';
 import {ProductGuarantees} from './ProductGuarantees';
+import {ColorSelector} from './ColorSelector';
 
 // Define a safer type using explicit types rather than referencing a potential null type
 interface ProductVariant {
@@ -484,6 +485,34 @@ export function ProductForm({
         </div>
       )}
 
+      {/* Color Selector with Swatches */}
+      {colorOptions && colorOptions.length > 0 && (() => {
+        // Trouver l'option de couleur dans le produit
+        const colorOption = product.options.find((opt) => isColorOption(opt.name));
+        if (!colorOption) return null;
+
+        // Couleur actuellement sélectionnée
+        const currentColorValue = selectedOptions[colorOption.name] || colorOption.values[0];
+
+        return (
+          <ColorSelector
+            label="Couleur"
+            colors={colorOptions.map((colorOpt) => ({
+              value: colorOpt.value || colorOpt.name, // Utiliser value (vraie valeur Shopify) ou fallback sur name
+              label: colorOpt.name, // Label affiché (peut être différent de value)
+              imageUrl: colorOpt.imageUrl,
+              available: colorOpt.availableForSale,
+              variantId: colorOpt.variantId,
+            }))}
+            selectedColor={currentColorValue}
+            onChange={(colorValue) => {
+              // Mettre à jour la variante sélectionnée avec la vraie valeur Shopify
+              updateSelectedVariant(colorOption.name, colorValue);
+            }}
+            showSelect={false}
+          />
+        );
+      })()}
 
       {/* Quantity Selector */}
       <div>

@@ -78,10 +78,20 @@ export function ProductCard({
         )
       : 0;
 
-  // Generate mock rating and reviews for display (since Shopify doesn't provide this)
+  // Generate consistent mock rating and reviews based on product ID
+  // Using simple hash function to ensure same product always gets same rating/reviews
+  const getConsistentNumber = (str: string, max: number) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash) % max;
+  };
+
   const possibleRatings = [4.5, 5.0];
-  const rating = possibleRatings[Math.floor(Math.random() * possibleRatings.length)];
-  const reviews = 70 + Math.floor(Math.random() * 60);
+  const rating = possibleRatings[getConsistentNumber(product.id, possibleRatings.length)];
+  const reviews = 70 + getConsistentNumber(product.id + '-reviews', 60);
 
   // Check if product is a featured product based on config
   const isFeatured = config.shopify.featuredProducts.includes(handle);
@@ -143,7 +153,7 @@ export function ProductCard({
   }
 
   return (
-    <div className={`group relative bg-white border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gray-300 ${compact ? 'rounded-lg' : 'rounded-xl'} text-sm lg:text-base flex flex-col h-full`}>
+    <div className={`group relative bg-white border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl ${compact ? 'rounded-lg' : 'rounded-xl'} text-sm lg:text-base flex flex-col h-full`}>
       {/* Image Container */}
       <div className="relative overflow-hidden bg-gray-50 aspect-square flex-shrink-0">
         <Link
@@ -199,6 +209,7 @@ export function ProductCard({
           <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
             <WishlistButton
               productId={product.id}
+              productHandle={handle}
               productTitle={title}
               productImage={productImage?.url}
               productPrice={price?.amount}

@@ -329,9 +329,10 @@ export function CartLineItem({
     }
   }, [line.id, isCustomDesign, localDesignUrl]);
 
-  // Determine what image to display - ALWAYS use featured image for standard products
+  // Determine what image to display - ALWAYS use featured image for ALL products
+  // PRIORITÉ ABSOLUE: product.featuredImage (photo principale définie dans Shopify)
   let displayImageUrl = product?.featuredImage?.url || merchandise?.image?.url || '';
-  let displayImageType = 'PRODUCT';
+  let displayImageType = 'FEATURED_IMAGE';
 
   // For custom designs, use the local design URL if available
   if (isCustomDesign && localDesignUrl) {
@@ -394,9 +395,15 @@ export function CartLineItem({
       displayImageType = isLoading ? 'LOADING_DESIGN' : 'VARIANT_WITH_CUSTOM_LABEL';
     }
   } else {
-    // Standard product without customization - Use featured image with fallback to merchandise image
+    // Standard product without customization - ALWAYS use featured image (photo principale Shopify)
     displayImageUrl = product?.featuredImage?.url || merchandise?.image?.url || '';
     displayImageType = 'FEATURED';
+  }
+
+  // VÉRIFICATION FINALE: Si on n'a toujours pas d'image et qu'on a product.featuredImage, l'utiliser
+  if (!displayImageUrl && product?.featuredImage?.url) {
+    displayImageUrl = product.featuredImage.url;
+    displayImageType = 'FEATURED_FALLBACK';
   }
 
   return (

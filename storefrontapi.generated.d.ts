@@ -34,7 +34,11 @@ export type CartLineFragment = Pick<
     product: Pick<
       StorefrontAPI.Product,
       'handle' | 'title' | 'id' | 'vendor' | 'description'
-    >;
+    > & {
+      featuredImage?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>
+      >;
+    };
     selectedOptions: Array<
       Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
     >;
@@ -67,7 +71,11 @@ export type CartLineComponentFragment = Pick<
     product: Pick<
       StorefrontAPI.Product,
       'handle' | 'title' | 'id' | 'vendor' | 'description'
-    >;
+    > & {
+      featuredImage?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>
+      >;
+    };
     selectedOptions: Array<
       Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
     >;
@@ -125,7 +133,14 @@ export type CartApiQueryFragment = Pick<
             product: Pick<
               StorefrontAPI.Product,
               'handle' | 'title' | 'id' | 'vendor' | 'description'
-            >;
+            > & {
+              featuredImage?: StorefrontAPI.Maybe<
+                Pick<
+                  StorefrontAPI.Image,
+                  'id' | 'url' | 'altText' | 'width' | 'height'
+                >
+              >;
+            };
             selectedOptions: Array<
               Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
             >;
@@ -160,7 +175,14 @@ export type CartApiQueryFragment = Pick<
             product: Pick<
               StorefrontAPI.Product,
               'handle' | 'title' | 'id' | 'vendor' | 'description'
-            >;
+            > & {
+              featuredImage?: StorefrontAPI.Maybe<
+                Pick<
+                  StorefrontAPI.Image,
+                  'id' | 'url' | 'altText' | 'width' | 'height'
+                >
+              >;
+            };
             selectedOptions: Array<
               Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
             >;
@@ -1760,7 +1782,7 @@ interface GeneratedQueryTypes {
     return: PoliciesQuery;
     variables: PoliciesQueryVariables;
   };
-  '#graphql\n  query ColorMetaobjects {\n    metaobjects(type: "shopify--color-pattern", first: 100) {\n      nodes {\n        id\n        handle\n        type\n        fields {\n          key\n          value\n          type\n          reference {\n            ... on MediaImage {\n              id\n              image {\n                url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                altText\n                width\n                height\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query ColorMetaobjects {\n    metaobjects(type: "shopify--color-pattern", first: 250) {\n      nodes {\n        id\n        handle\n        type\n        fields {\n          key\n          value\n          type\n          reference {\n            ... on MediaImage {\n              id\n              image {\n                url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                altText\n                width\n                height\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: ColorMetaobjectsQuery;
     variables: ColorMetaobjectsQueryVariables;
   };

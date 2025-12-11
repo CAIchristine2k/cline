@@ -48,6 +48,13 @@ export const CART_QUERY_FRAGMENT = `#graphql
           id
           vendor
           description
+          featuredImage {
+            id
+            url
+            altText
+            width
+            height
+          }
         }
         selectedOptions {
           name
@@ -99,6 +106,13 @@ export const CART_QUERY_FRAGMENT = `#graphql
           id
           vendor
           description
+          featuredImage {
+            id
+            url
+            altText
+            width
+            height
+          }
         }
         selectedOptions {
           name

@@ -3,6 +3,7 @@ import {useConfig} from '~/utils/themeContext';
 
 interface WishlistButtonProps {
   productId: string;
+  productHandle?: string;
   productTitle?: string;
   productImage?: string;
   productPrice?: string;
@@ -13,6 +14,7 @@ interface WishlistButtonProps {
 
 interface WishlistItem {
   id: string;
+  handle?: string;
   title: string;
   image?: string;
   price?: string;
@@ -21,6 +23,7 @@ interface WishlistItem {
 
 export function WishlistButton({
   productId,
+  productHandle = '',
   productTitle = '',
   productImage,
   productPrice,
@@ -34,15 +37,15 @@ export function WishlistButton({
 
   // Size classes
   const sizeClasses = {
-    sm: 'w-5 h-5',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6',
   };
 
   const buttonSizeClasses = {
-    sm: 'p-1.5',
-    md: 'p-2',
-    lg: 'p-3',
+    sm: 'p-1',
+    md: 'p-1.5',
+    lg: 'p-2',
   };
 
   // Check if item is in wishlist on mount
@@ -83,6 +86,7 @@ export function WishlistButton({
     const wishlist = getWishlist();
     const newItem: WishlistItem = {
       id: productId,
+      handle: productHandle,
       title: productTitle,
       image: productImage,
       price: productPrice,
@@ -120,8 +124,8 @@ export function WishlistButton({
       onClick={toggleWishlist}
       className={`
         group relative flex items-center justify-center
-        bg-black/40 backdrop-blur-sm border border-primary/30 rounded-sm
-        hover:bg-primary/10 hover:border-primary/50
+        border-2 border-primary rounded-sm
+        hover:bg-primary/10
         transition-all duration-200
         ${buttonSizeClasses[size]}
         ${className}
@@ -138,7 +142,7 @@ export function WishlistButton({
         <svg
           className={`
             absolute inset-0 transition-all duration-300
-            ${isInWishlist ? 'text-red-500 fill-current scale-110' : 'text-gray-400 hover:text-red-400'}
+            ${isInWishlist ? 'text-primary fill-current scale-110' : 'text-primary'}
             ${isAnimating ? 'animate-ping' : ''}
           `}
           fill={isInWishlist ? 'currentColor' : 'none'}
@@ -159,7 +163,7 @@ export function WishlistButton({
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-1 h-1 bg-red-500 rounded-full animate-ping"
+                className="absolute w-1 h-1 bg-primary rounded-full animate-ping"
                 style={{
                   top: '50%',
                   left: '50%',

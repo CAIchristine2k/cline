@@ -41,7 +41,7 @@ export function Footer() {
   }
 
   const quickLinks = [
-    {name: 'Boutique', href: '/products'},
+    {name: 'Boutique', href: 'https://www.clinehair.com/', external: true},
     {name: 'Best Sellers', href: '/collections/best-sellers'},
     {name: 'À Propos', href: '/pages/about'},
     {name: 'Contact', href: '/pages/contact'},
@@ -109,12 +109,21 @@ export function Footer() {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm"
-                  >
-                    {link.name}
-                  </Link>
+                  {link.external ? (
+                    <a
+                      href={link.href}
+                      className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm"
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link
+                      to={link.href}
+                      className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

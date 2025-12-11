@@ -23,6 +23,7 @@ import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
 import {ColorCarousel, type ColorOption} from '~/components/ColorCarousel';
 import {getReviewPhoto} from '~/utils/reviewHelpers';
+import {WishlistButton} from '~/components/WishlistButton';
 
 // Product Reviews Component
 const productReviews = [
@@ -514,6 +515,7 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
     // TOUJOURS ajouter l'option (même sans image parfaite)
     colorOptions.push({
       name: colorLabel,
+      value: colorValue, // Valeur réelle Shopify
       imageUrl,
       variantId: variant.id,
       availableForSale: variant.availableForSale || false,
@@ -761,26 +763,45 @@ export default function Product() {
       // Detect if this is a new product (different product.id)
       const isNewProduct = previousProductId.current !== product.id;
 
-      // On NEW PRODUCT load: ALWAYS use the FIRST image from Shopify (product.images.nodes[0])
+      console.log('🖼️ [IMAGE DEBUG]', {
+        productTitle: product.title,
+        isNewProduct,
+        hasInitialized: hasInitializedImage.current,
+        allProductImagesCount: allProductImages?.length || 0,
+        firstImageUrl: allProductImages?.[0]?.url,
+        featuredImageUrl: product.featuredImage?.url,
+        variantImageUrl: currentVariant.image?.url,
+      });
+
+      // On NEW PRODUCT load: ALWAYS use the FEATURED image from Shopify (product.featuredImage)
       if (isNewProduct || !hasInitializedImage.current) {
-        // New product or first load: show FIRST Shopify image (respects Shopify order)
-        if (allProductImages && allProductImages.length > 0 && allProductImages[0]?.url) {
+        // PRIORITÉ 1: Featured Image (photo principale définie dans Shopify)
+        if (product.featuredImage?.url) {
+          console.log('✅ Using Shopify FEATURED image:', product.featuredImage.url);
+          setActiveImage(product.featuredImage);
+        }
+        // PRIORITÉ 2: Première image dans images.nodes
+        else if (allProductImages && allProductImages.length > 0 && allProductImages[0]?.url) {
+          console.log('⚠️ No featuredImage, using first image:', allProductImages[0].url);
           setActiveImage(allProductImages[0]);
-        } else if (newVariantImages.length > 0) {
+        }
+        // PRIORITÉ 3: Images custom de la variante
+        else if (newVariantImages.length > 0) {
+          console.log('⚠️ No product images, using variant images[0]:', newVariantImages[0]);
           setActiveImage(newVariantImages[0]);
-        } else if (currentVariant.image?.url) {
+        }
+        // PRIORITÉ 4: Image de la variante
+        else if (currentVariant.image?.url) {
+          console.log('⚠️ No images, using variant image:', currentVariant.image.url);
           setActiveImage(currentVariant.image);
         }
 
         // Mark as initialized and update tracked product ID
         hasInitializedImage.current = true;
         previousProductId.current = product.id;
-      } else {
-        // Variant change on same product: change to variant-specific image if available
-        if (currentVariant.image?.url) {
-          setActiveImage(currentVariant.image);
-        }
       }
+      // Pour les changements de variante: TOUJOURS garder la première image Shopify
+      // Ne pas changer l'image principale lors d'un changement de couleur
     }
   }, [currentVariant, getVariantImages, allProductImages, product.id]);
 
@@ -936,7 +957,7 @@ export default function Product() {
         {/* Product Grid */}
         <div className="mb-16 mt-8 lg:mt-16 lg:grid lg:grid-cols-2 lg:gap-8 space-y-8 lg:space-y-0">
           {/* Breadcrumb */}
-          <div className="block col-span-2 mb-6">
+          <div className="block col-span-2 mb-3">
             <nav className="flex" aria-label="Breadcrumb">
               <ol className="flex items-center space-x-2">
                 <li>
@@ -986,7 +1007,7 @@ export default function Product() {
                    currentVariant?.price &&
                    parseFloat(currentVariant.compareAtPrice.amount) > parseFloat(currentVariant.price.amount) && (
                     <div className="absolute top-4 left-4 z-10">
-                      <div className="text-white px-3 py-1.5 uppercase font-bold tracking-wider text-sm shadow-lg rounded" style={{ backgroundColor: '#F5A6C6' }}>
+                      <div className="text-black px-3 py-1.5 uppercase font-bold tracking-wider text-sm shadow-lg rounded" style={{ backgroundColor: '#F5A6C6' }}>
                         -{Math.round(((parseFloat(currentVariant.compareAtPrice.amount) - parseFloat(currentVariant.price.amount)) / parseFloat(currentVariant.compareAtPrice.amount)) * 100)}%
                       </div>
                     </div>
@@ -1105,7 +1126,20 @@ export default function Product() {
 
           {/* Product Info */}
           <div>
-            <h1 className="text-2xl font-bold mb-4 text-black leading-tight">{product.title}</h1>
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <h1 className="text-2xl font-bold text-black leading-tight flex-1">{product.title}</h1>
+
+              {/* Wishlist Button */}
+              <WishlistButton
+                productId={product.id}
+                productHandle={product.handle}
+                productTitle={product.title}
+                productImage={product.featuredImage?.url}
+                productPrice={currentVariant.price.amount}
+                size="lg"
+                showLabel={false}
+              />
+            </div>
 
             {/* Reviews Section */}
             <div className="flex items-center gap-3 mb-6">

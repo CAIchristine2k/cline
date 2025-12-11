@@ -208,7 +208,7 @@ export function ProductCarousel({
           {products.map((product, index) => (
             <div
               key={product.id}
-              className="flex-shrink-0 h-full"
+              className="flex-shrink-0 flex"
               style={{
                 width: itemsPerView === 2
                   ? 'calc((100% - 8px - 8px) / 2)' // Mobile: 2 cartes, gap 8px + padding 8px

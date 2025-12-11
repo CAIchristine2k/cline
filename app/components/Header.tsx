@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   User,
   Search,
+  Heart,
 } from 'lucide-react';
 import {Link, useLocation} from 'react-router';
 import {Logo} from './Logo';
@@ -13,6 +14,7 @@ import {SearchBar} from './SearchBar';
 import {PromoBanner} from './PromoBanner';
 import {useConfig} from '~/utils/themeContext';
 import {useCart} from '~/providers/CartProvider';
+import {WishlistCount} from './WishlistButton';
 
 // Types pour les menus
 interface SubMenuItem {
@@ -187,6 +189,16 @@ export function Header() {
                 <User className="h-5 w-5" />
               </a>
 
+              {/* Wishlist Button */}
+              <Link
+                to="/wishlist"
+                className="text-gray-700 hover:text-black transition-all duration-300 flex items-center gap-2 relative"
+                aria-label="Mes favoris"
+              >
+                <Heart className="h-5 w-5" />
+                <WishlistCount />
+              </Link>
+
               {/* Cart Button */}
               <button
                 onClick={handleCartClick}
@@ -209,6 +221,15 @@ export function Header() {
             <Logo isScrolled={isScrolled} />
 
             <div className="flex items-center gap-2">
+              <Link
+                to="/wishlist"
+                className="bg-black text-white p-1.5 md:p-2 rounded-md transition-all duration-300 relative"
+                aria-label="Mes favoris"
+              >
+                <Heart className="h-4 w-4 md:h-5 md:w-5" />
+                <WishlistCount />
+              </Link>
+
               <button
                 onClick={handleCartClick}
                 className="bg-black text-white p-1.5 md:p-2 rounded-md transition-all duration-300 relative"

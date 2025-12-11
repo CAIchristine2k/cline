@@ -9,6 +9,8 @@ import {ChevronLeft, ChevronRight} from 'lucide-react';
 export interface ColorOption {
   /** Nom de la couleur (ex: "Natural", "Bleach Blonde") */
   name: string;
+  /** Valeur réelle Shopify (ex: "#TT1B/27", "Blond") */
+  value?: string;
   /** URL de l'image swatch/mèche de cheveux */
   imageUrl: string;
   /** ID de la variante associée */
