@@ -1404,128 +1404,6 @@ export type ApiPredictiveSearchQuery = {
   }>;
 };
 
-export type TestMetafieldsQueryVariables = StorefrontAPI.Exact<{
-  [key: string]: never;
-}>;
-
-export type TestMetafieldsQuery = {
-  products: {
-    nodes: Array<
-      Pick<StorefrontAPI.Product, 'id' | 'title'> & {
-        variants: {
-          nodes: Array<
-            Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
-              selectedOptions: Array<
-                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-              >;
-              couleurCustom?: StorefrontAPI.Maybe<
-                Pick<
-                  StorefrontAPI.Metafield,
-                  'namespace' | 'key' | 'value' | 'type'
-                > & {
-                  reference?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.Metaobject, 'id' | 'type' | 'handle'> & {
-                      fields: Array<
-                        Pick<
-                          StorefrontAPI.MetaobjectField,
-                          'key' | 'value' | 'type'
-                        > & {
-                          reference?: StorefrontAPI.Maybe<
-                            Pick<StorefrontAPI.MediaImage, 'id'> & {
-                              image?: StorefrontAPI.Maybe<
-                                Pick<StorefrontAPI.Image, 'url' | 'altText'>
-                              >;
-                            }
-                          >;
-                        }
-                      >;
-                    }
-                  >;
-                }
-              >;
-              couleurShopify?: StorefrontAPI.Maybe<
-                Pick<
-                  StorefrontAPI.Metafield,
-                  'namespace' | 'key' | 'value' | 'type'
-                > & {
-                  reference?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.Metaobject, 'id' | 'type' | 'handle'> & {
-                      fields: Array<
-                        Pick<
-                          StorefrontAPI.MetaobjectField,
-                          'key' | 'value' | 'type'
-                        > & {
-                          reference?: StorefrontAPI.Maybe<
-                            Pick<StorefrontAPI.MediaImage, 'id'> & {
-                              image?: StorefrontAPI.Maybe<
-                                Pick<StorefrontAPI.Image, 'url' | 'altText'>
-                              >;
-                            }
-                          >;
-                        }
-                      >;
-                    }
-                  >;
-                }
-              >;
-              colorPattern?: StorefrontAPI.Maybe<
-                Pick<
-                  StorefrontAPI.Metafield,
-                  'namespace' | 'key' | 'value' | 'type'
-                > & {
-                  reference?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.Metaobject, 'id' | 'type' | 'handle'> & {
-                      fields: Array<
-                        Pick<
-                          StorefrontAPI.MetaobjectField,
-                          'key' | 'value' | 'type'
-                        > & {
-                          reference?: StorefrontAPI.Maybe<
-                            Pick<StorefrontAPI.MediaImage, 'id'> & {
-                              image?: StorefrontAPI.Maybe<
-                                Pick<StorefrontAPI.Image, 'url' | 'altText'>
-                              >;
-                            }
-                          >;
-                        }
-                      >;
-                    }
-                  >;
-                }
-              >;
-              variantImgs?: StorefrontAPI.Maybe<
-                Pick<
-                  StorefrontAPI.Metafield,
-                  'namespace' | 'key' | 'value' | 'type'
-                > & {
-                  reference?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.Metaobject, 'id' | 'type' | 'handle'> & {
-                      fields: Array<
-                        Pick<
-                          StorefrontAPI.MetaobjectField,
-                          'key' | 'value' | 'type'
-                        > & {
-                          reference?: StorefrontAPI.Maybe<
-                            Pick<StorefrontAPI.MediaImage, 'id'> & {
-                              image?: StorefrontAPI.Maybe<
-                                Pick<StorefrontAPI.Image, 'url' | 'altText'>
-                              >;
-                            }
-                          >;
-                        }
-                      >;
-                    }
-                  >;
-                }
-              >;
-            }
-          >;
-        };
-      }
-    >;
-  };
-};
-
 export type ProductCustomizerQueryVariables = StorefrontAPI.Exact<{
   handle: StorefrontAPI.Scalars['String']['input'];
 }>;
@@ -1809,10 +1687,6 @@ interface GeneratedQueryTypes {
   '#graphql\n  query ApiPredictiveSearch($query: String!, $limit: Int!) {\n    predictiveSearch(query: $query, limit: $limit, types: [PRODUCT, COLLECTION]) {\n      products {\n        id\n        title\n        handle\n        featuredImage {\n          url\n          altText\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        tags\n      }\n      collections {\n        id\n        title\n        handle\n        image {\n          url\n          altText\n        }\n      }\n    }\n  }\n': {
     return: ApiPredictiveSearchQuery;
     variables: ApiPredictiveSearchQueryVariables;
-  };
-  '#graphql\n    query TestMetafields @inContext(language: FR) {\n      products(first: 1, query: "title:MELODIE OR title:TAYLOR") {\n        nodes {\n          id\n          title\n          variants(first: 3) {\n            nodes {\n              id\n              title\n              selectedOptions {\n                name\n                value\n              }\n              # Test MULTIPLE possible metafields\n              couleurCustom: metafield(namespace: "custom", key: "couleur") {\n                namespace\n                key\n                value\n                type\n                reference {\n                  ... on Metaobject {\n                    id\n                    type\n                    handle\n                    fields {\n                      key\n                      value\n                      type\n                      reference {\n                        ... on MediaImage {\n                          id\n                          image {\n                            url\n                            altText\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n              couleurShopify: metafield(namespace: "shopify", key: "couleur") {\n                namespace\n                key\n                value\n                type\n                reference {\n                  ... on Metaobject {\n                    id\n                    type\n                    handle\n                    fields {\n                      key\n                      value\n                      type\n                      reference {\n                        ... on MediaImage {\n                          id\n                          image {\n                            url\n                            altText\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n              colorPattern: metafield(namespace: "custom", key: "color_pattern") {\n                namespace\n                key\n                value\n                type\n                reference {\n                  ... on Metaobject {\n                    id\n                    type\n                    handle\n                    fields {\n                      key\n                      value\n                      type\n                      reference {\n                        ... on MediaImage {\n                          id\n                          image {\n                            url\n                            altText\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n              variantImgs: metafield(namespace: "custom", key: "variant_imgs") {\n                namespace\n                key\n                value\n                type\n                reference {\n                  ... on Metaobject {\n                    id\n                    type\n                    handle\n                    fields {\n                      key\n                      value\n                      type\n                      reference {\n                        ... on MediaImage {\n                          id\n                          image {\n                            url\n                            altText\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ': {
-    return: TestMetafieldsQuery;
-    variables: TestMetafieldsQueryVariables;
   };
   '#graphql\n  query ProductCustomizer($handle: String!) {\n    product(handle: $handle) {\n      id\n      handle\n      title\n      description\n      images(first: 10) {\n        nodes {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n      }\n      media(first: 50) {\n        nodes {\n          id\n          ... on MediaImage {\n            image {\n              id\n              url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      variants(first: 25) {\n        nodes {\n          id\n          title\n          availableForSale\n          price {\n            amount\n            currencyCode\n          }\n          compareAtPrice {\n            amount\n            currencyCode\n          }\n          image {\n            id\n            url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n            altText\n            width\n            height\n          }\n          metafield(namespace: "custom", key: "variant_imgs") {\n            id\n            type\n            value\n            references(first: 20) {\n              nodes {\n                ... on MediaImage {\n                  id\n                  image {\n                    url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n                    altText\n                    width\n                    height\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: ProductCustomizerQuery;

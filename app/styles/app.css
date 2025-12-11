@@ -2,9 +2,7 @@
 
 /* Hide SKU display everywhere */
 [class*="sku" i],
-[class*="SKU"],
-div:has(> :first-child:only-child):has-text("SKU:"),
-*:has(text() = /SKU:/i) {
+[class*="SKU"] {
   display: none !important;
 }
 

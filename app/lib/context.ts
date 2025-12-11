@@ -35,7 +35,7 @@ export async function createAppLoadContext(
     request,
     session,
     customerAccountId: env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID,
-    customerAccountUrl: env.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
+    customerApiUrl: env.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
   });
 
   const hydrogenContext = createHydrogenContext({

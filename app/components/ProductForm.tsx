@@ -42,7 +42,7 @@ export function ProductForm({
   storeDomain?: string;
   onVariantChange?: (variant: any) => void;
   externalSelectedVariant?: any; // Variant contrôlée depuis l'extérieur (ex: ColorCarousel)
-  colorOptions?: Array<{name: string; imageUrl: string; variantId: string}>; // Images de couleur depuis ColorCarousel
+  colorOptions?: Array<{name: string; imageUrl: string; variantId: string; value?: string; availableForSale?: boolean}>; // Images de couleur depuis ColorCarousel
 }) {
   const config = useConfig();
   const {open} = useAside();
@@ -501,7 +501,7 @@ export function ProductForm({
               value: colorOpt.value || colorOpt.name, // Utiliser value (vraie valeur Shopify) ou fallback sur name
               label: colorOpt.name, // Label affiché (peut être différent de value)
               imageUrl: colorOpt.imageUrl,
-              available: colorOpt.availableForSale,
+              available: colorOpt.availableForSale ?? true,
               variantId: colorOpt.variantId,
             }))}
             selectedColor={currentColorValue}

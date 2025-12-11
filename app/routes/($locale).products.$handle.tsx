@@ -819,8 +819,8 @@ export default function Product() {
       ];
     }
 
-    const images = [];
-    const seenIds = new Set();
+    const images: any[] = [];
+    const seenIds = new Set<string>();
 
     // RESPECTER L'ORDRE SHOPIFY : product.images.nodes dans l'ordre EXACT
     // La première image dans Shopify = images.nodes[0] = photo principale

@@ -100,7 +100,7 @@ export function Hero() {
                   alt={index === 0 ? "C'Line Hair - Perruques naturelles 100% cheveux humains, Lace Wigs premium avec densité 250%" : "C'Line Hair - Collection de perruques lace wig et bundles cheveux naturels"}
                   className="w-full h-auto object-contain"
                   loading={index === 0 ? 'eager' : 'lazy'}
-                  fetchpriority={index === 0 ? 'high' : 'low'}
+                  fetchPriority={index === 0 ? 'high' : 'low'}
                   decoding={index === 0 ? 'sync' : 'async'}
                 />
               </picture>
@@ -111,7 +111,7 @@ export function Hero() {
                   alt={index === 0 ? "C'Line Hair - Perruques naturelles 100% cheveux humains, Lace Wigs premium avec densité 250%" : "C'Line Hair - Collection de perruques lace wig et bundles cheveux naturels"}
                   className="w-full h-auto object-contain"
                   loading={index === 0 ? 'eager' : 'lazy'}
-                  fetchpriority={index === 0 ? 'high' : 'low'}
+                  fetchPriority={index === 0 ? 'high' : 'low'}
                   decoding={index === 0 ? 'sync' : 'async'}
                 />
               </picture>
