@@ -2,7 +2,7 @@ export function ProductGuarantees() {
   const guarantees = [
     {
       icon: '🚚',
-      title: 'Livraison en 4 à 9 jours ouvrables',
+      title: 'Livraison en 4 à 5j ouvrés',
       subtitle: 'Rapide et fiable',
     },
     {
@@ -25,7 +25,7 @@ export function ProductGuarantees() {
   return (
     <div className="mt-6 space-y-4">
       {/* Guarantees Grid */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="rounded-lg overflow-hidden">
         <div className="grid grid-cols-2 gap-0">
           {guarantees.map((item, index) => (
             <div
@@ -49,11 +49,12 @@ export function ProductGuarantees() {
 
         {/* Payment Methods - Inside the border */}
         <div className="pt-4 pb-4 border-t border-gray-200">
-          <div className="flex items-center justify-center px-4">
+          <div className="flex items-center justify-center px-2">
             <img
-              src="/images/paiement.png"
+              src="/images/paiement.webp"
               alt="Méthodes de paiement acceptées"
-              className="w-full max-w-md h-auto object-contain"
+              className="w-full max-w-[280px] h-auto object-contain"
+              style={{ border: 'none' }}
             />
           </div>
         </div>

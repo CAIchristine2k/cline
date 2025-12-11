@@ -43,14 +43,61 @@ const productReviews = [
   { name: 'Emma A.', initial: 'E', image: getReviewPhoto(14), rating: 4.5, comment: 'Bon produit, conforme à la description.', time: 'Il y a 3 mois' },
 ];
 
-function ProductReviews() {
+// Fonction pour créer un hash robuste à partir d'une chaîne
+function hashString(str: string): number {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) + str.charCodeAt(i); // hash * 33 + c
+  }
+  return hash >>> 0; // Convert to unsigned 32-bit integer
+}
+
+// Générateur de nombres pseudo-aléatoires avec seed (xorshift32)
+class SeededRandom {
+  private state: number;
+
+  constructor(seed: number) {
+    this.state = seed === 0 ? 1 : seed; // Avoid zero seed
+  }
+
+  next(): number {
+    let x = this.state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    this.state = x >>> 0;
+    return (this.state >>> 0) / 0xFFFFFFFF;
+  }
+}
+
+// Fonction de shuffle déterministe basée sur un seed (Fisher-Yates)
+function seededShuffle<T>(array: T[], seed: number): T[] {
+  const shuffled = [...array];
+  const rng = new SeededRandom(seed);
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rng.next() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
+
+function ProductReviews({ productHandle }: { productHandle: string }) {
   const [currentPage, setCurrentPage] = useState(0);
   const reviewsPerPage = 3;
-  const totalPages = Math.ceil(productReviews.length / reviewsPerPage);
+
+  // Mélanger les avis de manière déterministe basée sur le handle du produit
+  const shuffledReviews = useMemo(() => {
+    const seed = hashString(productHandle);
+    return seededShuffle(productReviews, seed);
+  }, [productHandle]);
+
+  const totalPages = Math.ceil(shuffledReviews.length / reviewsPerPage);
 
   const getCurrentReviews = () => {
     const start = currentPage * reviewsPerPage;
-    return productReviews.slice(start, start + reviewsPerPage);
+    return shuffledReviews.slice(start, start + reviewsPerPage);
   };
 
   const handlePrev = () => {
@@ -370,36 +417,76 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
 
   colorOption.values.forEach((colorValue: string) => {
     // Trouver la variante correspondante à cette couleur
-    const variant = product.variants?.nodes?.find((v: any) =>
+    // Essayer plusieurs stratégies de matching pour être plus robuste
+    let variant = product.variants?.nodes?.find((v: any) =>
       v.selectedOptions?.some(
         (opt: any) => opt.name === colorOptionName && opt.value === colorValue
       )
     );
 
+    // Si pas trouvé, essayer un matching case-insensitive
     if (!variant) {
-      return;
+      variant = product.variants?.nodes?.find((v: any) =>
+        v.selectedOptions?.some(
+          (opt: any) =>
+            opt.name === colorOptionName &&
+            opt.value?.toLowerCase() === colorValue.toLowerCase()
+        )
+      );
+    }
+
+    // Si toujours pas de variante trouvée, CONTINUER
+    if (!variant) {
+      // Créer une entrée placeholder pour cette couleur manquante
+      // Cela permet de voir qu'elle existe dans Shopify mais manque dans la query
+      colorOptions.push({
+        name: `${colorValue} (non disponible)`,
+        imageUrl: 'https://cdn.shopify.com/s/files/1/0981/1535/4969/files/placeholder-color.png?v=1',
+        variantId: '', // Pas de variant ID
+        availableForSale: false, // Marqué comme indisponible
+      });
+      return; // Passer à la couleur suivante
     }
 
     // Chercher le metaobject correspondant avec plusieurs variantes du nom
+    // Essayer TOUS les noms possibles: exact, minuscule, majuscule, normalisé, alphanumérique
+    const normalizedColorValue = colorValue.toLowerCase().replace(/^#/, '').replace(/\//g, '-');
+    const alphanumericOnly = colorValue.toLowerCase().replace(/[^a-z0-9]/g, '');
+
     let colorMeta =
+      // Essayer le nom exact tel quel (important si le handle Shopify contient # et /)
       colorMetaobjectsMap.get(colorValue) ||
       colorMetaobjectsMap.get(colorValue.toLowerCase()) ||
-      colorMetaobjectsMap.get(colorValue.toLowerCase().replace(/[\s-_]/g, '')) ||
-      colorMetaobjectsMap.get(colorValue.toUpperCase());
+      colorMetaobjectsMap.get(colorValue.toUpperCase()) ||
+      colorMetaobjectsMap.get(normalizedColorValue) ||
+      colorMetaobjectsMap.get(normalizedColorValue.replace(/[\s-_]/g, '')) ||
+      colorMetaobjectsMap.get(colorValue.toLowerCase().replace(/[\s-_#\/]/g, '')) ||
+      colorMetaobjectsMap.get(alphanumericOnly) ||
+      // Essayer aussi de chercher dans tous les metaobjects par comparaison exacte du handle
+      colorMetaobjects.find((meta: any) => {
+        // Comparaison exacte du handle
+        if (meta.handle === colorValue) return true;
+
+        // Comparaison alphanumérique en fallback
+        const metaHandle = meta.handle?.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return metaHandle === alphanumericOnly;
+      });
 
     let imageUrl = '';
     let colorLabel = colorValue;
 
+    // Récupérer le label depuis le metaobject si disponible
     if (colorMeta) {
-      // Récupérer le label
       const labelField = colorMeta.fields?.find(
         (f: any) => f && (f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name')
       );
       if (labelField?.value) {
         colorLabel = labelField.value;
       }
+    }
 
-      // Récupérer l'image depuis le champ "Image"
+    // PRIORITÉ 1: Image du metaobject couleur (si existe)
+    if (colorMeta) {
       const imageField = colorMeta.fields?.find(
         (f: any) => f && (f.key === 'Image' || f.key === 'image' || f.key === 'swatch')
       );
@@ -409,25 +496,28 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
       }
     }
 
-    // Fallback 1: Si pas d'image metaobject, utiliser l'image de la variante
+    // PRIORITÉ 2: Image de la variante Shopify (fallback si pas d'image metaobject)
     if (!imageUrl && variant.image?.url) {
       imageUrl = variant.image.url;
     }
 
-    // Fallback 2: Image featured du produit
+    // PRIORITÉ 3: Image featured du produit (dernier fallback)
     if (!imageUrl && product.featuredImage?.url) {
       imageUrl = product.featuredImage.url;
     }
 
-    // Si on a une image, ajouter l'option
-    if (imageUrl) {
-      colorOptions.push({
-        name: colorLabel,
-        imageUrl,
-        variantId: variant.id,
-        availableForSale: variant.availableForSale || false,
-      });
+    // Fallback 3: Placeholder pour debug (permet de voir toutes les couleurs)
+    if (!imageUrl) {
+      imageUrl = 'https://cdn.shopify.com/s/files/1/0981/1535/4969/files/placeholder-color.png?v=1';
     }
+
+    // TOUJOURS ajouter l'option (même sans image parfaite)
+    colorOptions.push({
+      name: colorLabel,
+      imageUrl,
+      variantId: variant.id,
+      availableForSale: variant.availableForSale || false,
+    });
   });
 
   return colorOptions;
@@ -671,35 +761,30 @@ export default function Product() {
       // Detect if this is a new product (different product.id)
       const isNewProduct = previousProductId.current !== product.id;
 
-      // On NEW PRODUCT load: ALWAYS prioritize featured image (photo principale Shopify)
-      // On VARIANT CHANGE (same product): prioritize variant image (color change)
+      // On NEW PRODUCT load: ALWAYS use the FIRST image from Shopify (product.images.nodes[0])
       if (isNewProduct || !hasInitializedImage.current) {
-        // New product or first load: show featured image first
-        if (featuredImage?.url) {
-          setActiveImage(featuredImage);
-        } else if (currentVariant.image?.url) {
-          setActiveImage(currentVariant.image);
+        // New product or first load: show FIRST Shopify image (respects Shopify order)
+        if (allProductImages && allProductImages.length > 0 && allProductImages[0]?.url) {
+          setActiveImage(allProductImages[0]);
         } else if (newVariantImages.length > 0) {
           setActiveImage(newVariantImages[0]);
+        } else if (currentVariant.image?.url) {
+          setActiveImage(currentVariant.image);
         }
 
         // Mark as initialized and update tracked product ID
         hasInitializedImage.current = true;
         previousProductId.current = product.id;
       } else {
-        // Variant change on same product: show variant-specific image
+        // Variant change on same product: change to variant-specific image if available
         if (currentVariant.image?.url) {
           setActiveImage(currentVariant.image);
-        } else if (featuredImage?.url) {
-          setActiveImage(featuredImage);
-        } else if (newVariantImages.length > 0) {
-          setActiveImage(newVariantImages[0]);
         }
       }
     }
-  }, [currentVariant, getVariantImages, featuredImage, product.id]);
+  }, [currentVariant, getVariantImages, allProductImages, product.id]);
 
-  // Determine which images to display - all product images
+  // Determine which images to display - STRICTLY respect Shopify order
   const displayImages = useMemo(() => {
     if (!currentVariant) {
       return [
@@ -716,19 +801,9 @@ export default function Product() {
     const images = [];
     const seenIds = new Set();
 
-    // PRIORITY 1: Add the featured image FIRST (photo principale Shopify)
-    if (featuredImage?.url && featuredImage?.id) {
-      images.push(featuredImage);
-      seenIds.add(featuredImage.id);
-    }
-
-    // PRIORITY 2: Add the variant-specific image (if different from featured)
-    if (currentVariant.image?.url && currentVariant.image?.id && !seenIds.has(currentVariant.image.id)) {
-      images.push(currentVariant.image);
-      seenIds.add(currentVariant.image.id);
-    }
-
-    // PRIORITY 3: Add all product images (excluding duplicates)
+    // RESPECTER L'ORDRE SHOPIFY : product.images.nodes dans l'ordre EXACT
+    // La première image dans Shopify = images.nodes[0] = photo principale
+    // Ne PAS réorganiser avec featuredImage ou variant.image en priorité
     if (allProductImages && allProductImages.length > 0) {
       allProductImages.forEach((img: any) => {
         if (img?.url && img?.id && !seenIds.has(img.id)) {
@@ -738,7 +813,7 @@ export default function Product() {
       });
     }
 
-    // PRIORITY 4: Add any custom variant-specific images
+    // Ajouter les images custom des variantes À LA FIN (si elles existent)
     if (customVariantImages && customVariantImages.length > 0) {
       customVariantImages.forEach((img: any) => {
         if (img?.url && img?.id && !seenIds.has(img.id)) {
@@ -873,7 +948,7 @@ export default function Product() {
                   <span className="text-gray-400">/</span>
                   <Link
                     to="/products"
-                    className="text-gray-700 hover:text-primary transition-colors"
+                    className="text-sm text-gray-700 hover:text-primary transition-colors whitespace-nowrap"
                   >
                     Nos Produits
                   </Link>
@@ -905,6 +980,18 @@ export default function Product() {
                     loading="eager"
                     fetchPriority="high"
                   />
+
+                  {/* Discount Badge */}
+                  {currentVariant?.compareAtPrice &&
+                   currentVariant?.price &&
+                   parseFloat(currentVariant.compareAtPrice.amount) > parseFloat(currentVariant.price.amount) && (
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="text-white px-3 py-1.5 uppercase font-bold tracking-wider text-sm shadow-lg rounded" style={{ backgroundColor: '#F5A6C6' }}>
+                        -{Math.round(((parseFloat(currentVariant.compareAtPrice.amount) - parseFloat(currentVariant.price.amount)) / parseFloat(currentVariant.compareAtPrice.amount)) * 100)}%
+                      </div>
+                    </div>
+                  )}
+
                   {!currentVariant.availableForSale && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="bg-primary text-white px-6 py-3 uppercase font-bold tracking-wider transform -rotate-12 text-xl shadow-xl rounded">
@@ -950,7 +1037,7 @@ export default function Product() {
 
             {/* Customer Reviews Section - Desktop only */}
             <div className="hidden lg:block">
-              <ProductReviews />
+              <ProductReviews productHandle={product.handle} />
             </div>
 
             {/* Out of Stock Banner */}
@@ -1304,7 +1391,7 @@ export default function Product() {
               <details className="group border border-primary/30 rounded-lg overflow-hidden">
                 <summary className="flex items-center justify-between cursor-pointer bg-white hover:bg-primary/5 px-6 py-4 transition-colors">
                   <h3 className="text-base font-bold text-black">Conditions de retour – 14 jours</h3>
-                  <svg className="w-5 h-5 text-primary transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="#FFD700">
+                  <svg className="w-5 h-5 text-primary transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="#F5A6C6">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </summary>
@@ -1364,7 +1451,7 @@ export default function Product() {
 
             {/* Customer Reviews Section - Mobile only */}
             <div className="lg:hidden mt-8">
-              <ProductReviews />
+              <ProductReviews productHandle={product.handle} />
             </div>
           </div>
         </div>
@@ -1476,7 +1563,7 @@ export default function Product() {
 // Query pour récupérer tous les metaobjects Couleur
 const COLOR_METAOBJECTS_QUERY = `#graphql
   query ColorMetaobjects {
-    metaobjects(type: "shopify--color-pattern", first: 100) {
+    metaobjects(type: "shopify--color-pattern", first: 250) {
       nodes {
         id
         handle
@@ -1520,7 +1607,7 @@ const PRODUCT_QUERY = `#graphql
         width
         height
       }
-      images(first: 10) {
+      images(first: 20) {
         nodes {
           id
           url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})
@@ -1580,7 +1667,7 @@ const PRODUCT_QUERY = `#graphql
           handle
         }
       }
-      variants(first: 10) {
+      variants(first: 250) {
         nodes {
           id
           title

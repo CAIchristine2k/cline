@@ -205,7 +205,7 @@ export function ComparisonTable() {
           }
 
           .compare-header {
-            padding-left: 0;
+            padding-left: 90px;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             text-align: center;

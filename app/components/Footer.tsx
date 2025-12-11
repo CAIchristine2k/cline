@@ -156,12 +156,13 @@ export function Footer() {
         </div>
 
         {/* Payment Methods */}
-        <div className="pt-8 mb-8">
-          <div className="flex items-center justify-center">
+        <div className="pt-8 mb-8 border-t border-gray-200">
+          <div className="flex items-center justify-center pt-8 px-2">
             <img
-              src="/images/paiement.png"
+              src="/images/paiement.webp"
               alt="Méthodes de paiement acceptées"
-              className="w-full max-w-md h-auto object-contain"
+              className="w-full max-w-[280px] h-auto object-contain"
+              style={{ border: 'none' }}
             />
           </div>
         </div>

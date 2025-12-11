@@ -18,22 +18,9 @@ export function FeaturedProductsSection({products}: FeaturedProductsSectionProps
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-12 max-w-3xl mx-auto">
-          <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full backdrop-blur-sm animate-pulse">
-              <span className="text-2xl">⚡</span>
-              <span className="text-sm font-bold uppercase tracking-wider text-black">Offres Limitées</span>
-            </div>
-          </div>
-
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center w-full">
-            <span className="text-primary">Vente</span>{' '}
-            <span className="text-primary">Flash</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-center w-full text-black">
+            TOUS NOS PRODUITS
           </h2>
-
-          <p className="text-lg text-black leading-relaxed">
-            Profitez de nos offres exceptionnelles sur une sélection de produits.
-            Stocks limités, ne tardez pas !
-          </p>
         </div>
 
         {/* Carousel */}

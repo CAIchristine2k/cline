@@ -36,8 +36,18 @@ export const links: LinksFunction = () => {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    {rel: 'icon', type: 'image/png', href: '/images/logo.png'},
-    {rel: 'apple-touch-icon', href: '/images/logo.png'},
+    // Favicons - Multiple formats for maximum browser compatibility
+    {rel: 'icon', type: 'image/x-icon', href: '/images/favicon.ico'},
+    {rel: 'icon', type: 'image/svg+xml', href: '/images/favicon.svg'},
+    {rel: 'icon', type: 'image/png', href: '/images/favicon-96x96.png', sizes: '96x96'},
+    {rel: 'icon', type: 'image/png', href: '/images/web-app-manifest-192x192.png', sizes: '192x192'},
+    {rel: 'icon', type: 'image/png', href: '/images/web-app-manifest-512x512.png', sizes: '512x512'},
+
+    // Apple Touch Icons - iOS/Safari
+    {rel: 'apple-touch-icon', href: '/images/apple-touch-icon.png'},
+
+    // PWA Manifest
+    {rel: 'manifest', href: '/manifest.json'},
     // Preload critical hero images for faster LCP
     {
       rel: 'preload',
@@ -230,6 +240,42 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
+
+        {/* Schema.org Organization JSON-LD for Google Rich Snippets */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: "C'Line Hair",
+              alternateName: 'C Line Hair',
+              url: 'https://cline-hair.com',
+              logo: 'https://cline-hair.com/images/web-app-manifest-512x512.png',
+              description: 'Perruques et extensions de cheveux de qualité premium depuis 2005. Marque française spécialisée dans les solutions capillaires haut de gamme.',
+              foundingDate: '2005',
+              address: {
+                '@type': 'PostalAddress',
+                addressCountry: 'FR',
+              },
+              contactPoint: {
+                '@type': 'ContactPoint',
+                contactType: 'Service Client',
+                availableLanguage: ['French'],
+              },
+              sameAs: [
+                'https://www.instagram.com/c.linehair',
+                'https://www.tiktok.com/@c.linehair',
+                'https://www.facebook.com/cline.hair',
+              ],
+              brand: {
+                '@type': 'Brand',
+                name: "C'Line Hair",
+                logo: 'https://cline-hair.com/images/web-app-manifest-512x512.png',
+              },
+            }),
+          }}
+        />
       </head>
       <body>
         <Analytics.Provider

@@ -167,31 +167,17 @@ export default function SearchPage() {
   ];
 
   return (
-    <div data-theme={config.theme} className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-24">
+    <div data-theme={config.theme} className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 pt-8 pb-24">
         {/* Back Navigation */}
         <div className="mb-8">
           <Link
             to="/"
-            className="inline-flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
+            className="inline-flex items-center text-black hover:text-gray-700 transition-colors duration-300 font-medium"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
+            Retour à l'accueil
           </Link>
-        </div>
-
-        {/* Search Header */}
-        <div className="text-center mb-12">
-          <div className="inline-block px-4 py-1 bg-primary/20 text-primary text-sm font-bold tracking-wider uppercase mb-4 rounded-sm">
-            Search
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Find Your <span className="text-primary">Championship</span> Gear
-          </h1>
-          <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-            Search through {config.influencerName}'s premium collection of
-            boxing equipment, apparel, and exclusive merchandise.
-          </p>
         </div>
 
         {/* Search Form */}
@@ -203,16 +189,18 @@ export default function SearchPage() {
                 <input
                   defaultValue={term}
                   name="q"
-                  placeholder="Search for products, collections, or articles..."
+                  placeholder="Rechercher des produits..."
                   ref={inputRef}
                   type="search"
-                  className="w-full bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-sm py-4 pl-14 pr-32 text-white text-lg placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                  className="w-full backdrop-blur-sm rounded-lg py-4 pl-14 pr-32 text-black text-base placeholder-gray-400 focus:outline-none transition-colors duration-300"
+                  style={{ backgroundColor: '#FFF0F5', border: 'none' }}
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary/90 text-black font-bold py-2 px-6 rounded-sm transition-all duration-300 uppercase tracking-wider"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black font-bold py-2 px-6 rounded-lg transition-all duration-300 uppercase tracking-wider shadow-sm text-xs"
+                  style={{ backgroundColor: '#F5A6C6' }}
                 >
-                  Search
+                  Rechercher
                 </button>
               </div>
             )}
@@ -224,8 +212,8 @@ export default function SearchPage() {
           <div className="max-w-2xl mx-auto mb-12">
             <div className="flex items-center mb-4">
               <TrendingUp className="h-5 w-5 text-primary mr-2" />
-              <span className="text-gray-400 font-medium">
-                Popular Searches
+              <span className="text-gray-600 font-medium">
+                Recherches populaires
               </span>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -233,7 +221,7 @@ export default function SearchPage() {
                 <Link
                   key={index}
                   to={`/search?q=${encodeURIComponent(search)}`}
-                  className="px-4 py-2 bg-gray-900/80 backdrop-blur-sm hover:bg-gray-800 border border-gray-800 hover:border-primary rounded-sm text-sm transition-all duration-300 hover:text-primary"
+                  className="px-4 py-2 bg-white hover:bg-primary/10 border-2 border-primary/30 hover:border-primary rounded-lg text-sm transition-all duration-300 text-black hover:text-primary"
                 >
                   {search}
                 </Link>
@@ -244,9 +232,9 @@ export default function SearchPage() {
 
         {error && (
           <div className="max-w-2xl mx-auto mb-12">
-            <div className="bg-red-900/20 border border-red-500/30 rounded-sm p-6 text-center">
-              <h3 className="text-red-400 font-bold mb-2">Search Error</h3>
-              <p className="text-red-300">{error}</p>
+            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6 text-center">
+              <h3 className="text-red-600 font-bold mb-2">Erreur de recherche</h3>
+              <p className="text-red-500">{error}</p>
             </div>
           </div>
         )}
@@ -257,31 +245,32 @@ export default function SearchPage() {
             {!result?.total ? (
               <div className="text-center py-16">
                 <div className="mb-8">
-                  <Search className="h-24 w-24 text-gray-600 mx-auto mb-6" />
-                  <h2 className="text-2xl font-bold text-gray-400 mb-4">
-                    No results found for "{term}"
+                  <Search className="h-24 w-24 text-gray-300 mx-auto mb-6" />
+                  <h2 className="text-2xl font-bold text-gray-700 mb-4">
+                    Aucun résultat pour "{term}"
                   </h2>
                   <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
-                    Try searching with different keywords or browse our popular
-                    categories.
+                    Essayez avec d'autres mots-clés ou parcourez nos catégories populaires.
                   </p>
                 </div>
 
                 <Link
                   to="/products"
-                  className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-4 px-8 rounded-sm transition-all duration-300 uppercase tracking-wider shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="group inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 uppercase tracking-wider shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                  Browse All Products
+                  Voir tous les produits
                 </Link>
               </div>
             ) : (
               <div>
                 <div className="mb-8">
-                  <h2 className="text-2xl font-bold mb-2">
-                    Search Results for "
-                    <span className="text-primary">{term}</span>"
+                  <h2 className="text-xl font-bold mb-2 text-black">
+                    Résultats de recherche pour "
+                    <span style={{ color: '#F5A6C6' }}>{term}</span>"
                   </h2>
-                  <p className="text-gray-400">Found {result.total} results</p>
+                  <p className="text-gray-600">
+                    {result.total} {result.total > 1 ? 'résultats trouvés' : 'résultat trouvé'}
+                  </p>
                 </div>
 
                 {/* TODO: Fix type mismatch - response includes 'collections' which should only be in predictive search */}

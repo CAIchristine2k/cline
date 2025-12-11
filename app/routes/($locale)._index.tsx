@@ -229,7 +229,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Vente Flash Section */}
+      {/* Tous nos produits Section */}
       <FeaturedProductsSection products={venteFlashProducts.length > 0 ? venteFlashProducts : products} />
 
       {/* Comparison Table */}

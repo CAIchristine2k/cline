@@ -59,6 +59,7 @@ export function ProductForm({
   const [isAdding, setIsAdding] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [extractedColors, setExtractedColors] = useState<Record<string, string>>({});
+  const [isManualUpdate, setIsManualUpdate] = useState(false);
 
   // Initialize the selected variant
   useEffect(() => {
@@ -99,10 +100,21 @@ export function ProductForm({
 
   // 🆕 Synchroniser avec la variant externe (ColorCarousel)
   useEffect(() => {
-    if (externalSelectedVariant && externalSelectedVariant.id !== selectedVariant?.id) {
-      console.log('🎨 ProductForm: Mise à jour depuis ColorCarousel', externalSelectedVariant.id);
+    // Don't sync if user is manually selecting options
+    if (isManualUpdate) {
+      console.log('⏸️ Skipping ColorCarousel sync - manual update in progress');
+      return;
+    }
 
-      setSelectedVariant({
+    if (externalSelectedVariant && externalSelectedVariant.id !== selectedVariant?.id) {
+      console.log('🎨 ProductForm: Mise à jour depuis ColorCarousel', {
+        externalId: externalSelectedVariant.id,
+        currentId: selectedVariant?.id,
+        externalOptions: externalSelectedVariant.selectedOptions,
+      });
+
+      // Batch updates: prepare all data first
+      const variantData = {
         id: externalSelectedVariant.id,
         title: externalSelectedVariant.title,
         availableForSale: externalSelectedVariant.availableForSale,
@@ -110,30 +122,31 @@ export function ProductForm({
         price: {
           amount: externalSelectedVariant.price.amount,
           currencyCode: externalSelectedVariant.price.currencyCode,
-          __typename: 'MoneyV2',
+          __typename: 'MoneyV2' as const,
         },
         compareAtPrice: externalSelectedVariant.compareAtPrice
           ? {
               amount: externalSelectedVariant.compareAtPrice.amount,
               currencyCode: externalSelectedVariant.compareAtPrice.currencyCode,
-              __typename: 'MoneyV2',
+              __typename: 'MoneyV2' as const,
             }
           : null,
         sku: externalSelectedVariant.sku,
-      });
+      };
 
-      // Mettre à jour aussi selectedOptions pour garder l'UI synchronisée
-      setSelectedOptions(
-        externalSelectedVariant.selectedOptions.reduce(
-          (acc: Record<string, string>, option: any) => {
-            acc[option.name] = option.value;
-            return acc;
-          },
-          {},
-        ),
+      const optionsData = externalSelectedVariant.selectedOptions.reduce(
+        (acc: Record<string, string>, option: any) => {
+          acc[option.name] = option.value;
+          return acc;
+        },
+        {},
       );
+
+      // Update both states together for automatic batching
+      setSelectedVariant(variantData);
+      setSelectedOptions(optionsData);
     }
-  }, [externalSelectedVariant, selectedVariant?.id]);
+  }, [externalSelectedVariant, selectedVariant?.id, isManualUpdate]);
 
   // Call onVariantChange once when the selected variant is initialized or changes
   useEffect(() => {
@@ -215,11 +228,16 @@ export function ProductForm({
 
   // Update the selected variant when options change
   const updateSelectedVariant = (name: string, value: string) => {
-    // Update the selected options
-    const newSelectedOptions = {...selectedOptions, [name]: value};
-    setSelectedOptions(newSelectedOptions);
+    console.log('🔄 updateSelectedVariant called:', {name, value, currentOptions: selectedOptions});
 
-    // Find the variant that matches all selected options
+    // Block ColorCarousel sync during manual update
+    setIsManualUpdate(true);
+
+    // Update the selected options first (what the user clicked)
+    const newSelectedOptions = {...selectedOptions, [name]: value};
+    console.log('📝 New options would be:', newSelectedOptions);
+
+    // Find the variant that matches ALL selected options (exact match only)
     const variantNodes = product.variants?.nodes || [];
     const newVariant = variantNodes.find((variant) => {
       return variant.selectedOptions.every((option) => {
@@ -227,9 +245,15 @@ export function ProductForm({
       });
     });
 
+    console.log('🔍 Variant search result:', {
+      found: !!newVariant,
+      variantId: newVariant?.id,
+      variantTitle: newVariant?.title,
+    });
+
+    // Only update variant if exact match found
     if (newVariant) {
-      // Set the variant without the image field to avoid type issues
-      setSelectedVariant({
+      const variantData = {
         id: newVariant.id,
         title: newVariant.title,
         availableForSale: newVariant.availableForSale,
@@ -237,20 +261,32 @@ export function ProductForm({
         price: {
           amount: newVariant.price.amount,
           currencyCode: newVariant.price.currencyCode,
-          __typename: 'MoneyV2',
+          __typename: 'MoneyV2' as const,
         },
         compareAtPrice: newVariant.compareAtPrice
           ? {
               amount: newVariant.compareAtPrice.amount,
               currencyCode: newVariant.compareAtPrice.currencyCode,
-              __typename: 'MoneyV2',
+              __typename: 'MoneyV2' as const,
             }
           : null,
         sku: newVariant.sku,
-      });
+      };
 
-      // The useEffect that depends on selectedVariant.id will handle calling onVariantChange
+      setSelectedOptions(newSelectedOptions);
+      setSelectedVariant(variantData);
+      console.log('✅ Variant updated successfully');
+    } else {
+      console.warn('⚠️ No matching variant found - combination not available');
+      // No exact match - keep current variant but update options
+      setSelectedOptions(newSelectedOptions);
     }
+
+    // Re-enable ColorCarousel sync after a short delay
+    setTimeout(() => {
+      setIsManualUpdate(false);
+      console.log('🔓 Manual update complete - ColorCarousel sync re-enabled');
+    }, 100);
   };
 
   // Quantity handlers
@@ -349,7 +385,7 @@ export function ProductForm({
           {options.map((option) => (
             <div key={option.name}>
               <h3 className="text-sm font-medium mb-2 text-black">
-                {option.name}
+                {option.name.charAt(0).toUpperCase() + option.name.slice(1)}
                 {selectedOptions[option.name] &&
                   (() => {
                     const variantNodes = product.variants?.nodes || [];
@@ -374,13 +410,16 @@ export function ProductForm({
                 {option.values.map((value) => {
                   const isSelected = selectedOptions[option.name] === value;
                   const variantNodes = product.variants?.nodes || [];
-                  const optionVariant = variantNodes.find((variant) =>
-                    variant.selectedOptions.some(
-                      (opt) => opt.name === option.name && opt.value === value,
-                    ),
-                  );
-                  const isAvailableOption =
-                    optionVariant?.availableForSale || false;
+
+                  // Check if there's a variant with current selections + this value
+                  const testOptions = {...selectedOptions, [option.name]: value};
+                  const matchingVariant = variantNodes.find((variant) => {
+                    return variant.selectedOptions.every((opt) => {
+                      return testOptions[opt.name] === opt.value;
+                    });
+                  });
+
+                  const isAvailableOption = matchingVariant?.availableForSale || false;
 
                   // Check if this is a color option and get color info
                   const isColor = isColorOption(option.name);
@@ -409,16 +448,16 @@ export function ProductForm({
                     <button
                       key={value}
                       onClick={() => updateSelectedVariant(option.name, value)}
-                      className={`min-w-[80px] px-4 py-2 border-2 text-sm rounded-sm relative transition-all ${
+                      className={`min-w-[80px] px-4 border-2 text-sm rounded-sm relative transition-colors ${
                         isSelected
                           ? backgroundColor
-                            ? 'border-primary ring-2 ring-primary ring-offset-2 hover:bg-primary/90'
-                            : 'border-primary ring-2 ring-primary ring-offset-2 bg-primary text-white hover:bg-primary/90'
+                            ? 'border-primary ring-2 ring-primary ring-offset-2 py-2'
+                            : 'border-primary ring-2 ring-primary ring-offset-2 bg-primary text-white py-2'
                           : isAvailableOption
                             ? backgroundColor
-                              ? 'border-primary/30 hover:border-primary hover:scale-105'
-                              : 'border-primary/30 hover:border-primary hover:scale-105 text-black'
-                            : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+                              ? 'border-primary/30 hover:border-primary py-2'
+                              : 'border-primary/30 hover:border-primary text-black py-2'
+                            : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed py-3'
                       }`}
                       style={
                         backgroundColor && (isAvailableOption || isSelected)
@@ -445,16 +484,10 @@ export function ProductForm({
         </div>
       )}
 
-      {/* SKU display */}
-      {selectedVariant?.sku && (
-        <div className="text-sm text-black">
-          SKU: {selectedVariant.sku}
-        </div>
-      )}
 
       {/* Quantity Selector */}
       <div>
-        <label htmlFor="quantity" className="block text-sm font-medium mb-2 text-black">
+        <label className="block text-sm font-medium mb-2 text-black">
           Quantité
         </label>
         <div className="flex items-center max-w-[140px] border-2 border-primary rounded-sm">

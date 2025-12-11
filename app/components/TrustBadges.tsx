@@ -25,7 +25,7 @@ export default function TrustBadges() {
     // Réputation & satisfaction
     {
       emoji: '⭐',
-      title: '+500k Clients',
+      title: '+500k Clientes',
       description: 'Satisfaites depuis 2005',
       category: 'reputation',
     },

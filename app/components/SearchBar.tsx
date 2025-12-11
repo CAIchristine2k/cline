@@ -18,6 +18,7 @@ interface SearchBarProps {
   placeholder?: string;
   autoFocus?: boolean;
   onSearch?: (query: string) => void;
+  onClose?: () => void;
 }
 
 export function SearchBar({
@@ -25,6 +26,7 @@ export function SearchBar({
   placeholder = 'Rechercher des produits...',
   autoFocus = false,
   onSearch,
+  onClose,
 }: SearchBarProps) {
   const config = useConfig();
   const navigate = useNavigate();
@@ -131,6 +133,7 @@ export function SearchBar({
     setQuery('');
     setShowSuggestions(false);
     close(); // Close aside if search is in mobile menu
+    onClose?.(); // Close mobile menu in header
   };
 
   // Handle search submission
@@ -140,6 +143,7 @@ export function SearchBar({
       onSearch?.(query);
       setShowSuggestions(false);
       close(); // Close aside if search is in mobile menu
+      onClose?.(); // Close mobile menu in header
     }
   };
 

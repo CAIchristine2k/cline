@@ -302,7 +302,7 @@ export function Header() {
           <div className="py-4">
             {/* Search Bar Mobile */}
             <div className="px-4 pb-4">
-              <SearchBar />
+              <SearchBar onClose={() => setIsOpen(false)} />
             </div>
 
             <nav className="flex flex-col">

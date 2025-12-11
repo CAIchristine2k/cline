@@ -1,0 +1,27 @@
+{
+  "name": "C'Line Hair - Perruques et Extensions Premium",
+  "short_name": "C'Line Hair",
+  "description": "Perruques et extensions de cheveux de qualité premium depuis 2005",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/images/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "lang": "fr-FR",
+  "dir": "ltr"
+}

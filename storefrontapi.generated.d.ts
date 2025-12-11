@@ -382,6 +382,56 @@ export type CollectionsQuery = {
         image?: StorefrontAPI.Maybe<
           Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
         >;
+        products: {
+          nodes: Array<
+            Pick<
+              StorefrontAPI.Product,
+              'id' | 'title' | 'handle' | 'description'
+            > & {
+              featuredImage?: StorefrontAPI.Maybe<
+                Pick<
+                  StorefrontAPI.Image,
+                  'id' | 'url' | 'altText' | 'width' | 'height'
+                >
+              >;
+              priceRange: {
+                minVariantPrice: Pick<
+                  StorefrontAPI.MoneyV2,
+                  'amount' | 'currencyCode'
+                >;
+                maxVariantPrice: Pick<
+                  StorefrontAPI.MoneyV2,
+                  'amount' | 'currencyCode'
+                >;
+              };
+              variants: {
+                nodes: Array<
+                  Pick<
+                    StorefrontAPI.ProductVariant,
+                    'id' | 'title' | 'availableForSale'
+                  > & {
+                    price: Pick<
+                      StorefrontAPI.MoneyV2,
+                      'amount' | 'currencyCode'
+                    >;
+                    compareAtPrice?: StorefrontAPI.Maybe<
+                      Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+                    >;
+                    selectedOptions: Array<
+                      Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+                    >;
+                    image?: StorefrontAPI.Maybe<
+                      Pick<
+                        StorefrontAPI.Image,
+                        'id' | 'url' | 'altText' | 'width' | 'height'
+                      >
+                    >;
+                  }
+                >;
+              };
+            }
+          >;
+        };
       }
     >;
   };
@@ -1666,7 +1716,7 @@ interface GeneratedQueryTypes {
     return: ProductsQuery;
     variables: ProductsQueryVariables;
   };
-  '#graphql\n  query collections {\n    collections(first: 10) {\n      nodes {\n        id\n        title\n        handle\n        description\n        image {\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query collections {\n    collections(first: 10) {\n      nodes {\n        id\n        title\n        handle\n        description\n        image {\n          url\n          altText\n          width\n          height\n        }\n        products(first: 20) {\n          nodes {\n            id\n            title\n            handle\n            description\n            featuredImage {\n              id\n              url\n              altText\n              width\n              height\n            }\n            priceRange {\n              minVariantPrice {\n                amount\n                currencyCode\n              }\n              maxVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n            variants(first: 10) {\n              nodes {\n                id\n                title\n                availableForSale\n                price {\n                  amount\n                  currencyCode\n                }\n                compareAtPrice {\n                  amount\n                  currencyCode\n                }\n                selectedOptions {\n                  name\n                  value\n                }\n                image {\n                  id\n                  url\n                  altText\n                  width\n                  height\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: CollectionsQuery;
     variables: CollectionsQueryVariables;
   };
@@ -1714,7 +1764,7 @@ interface GeneratedQueryTypes {
     return: ColorMetaobjectsQuery;
     variables: ColorMetaobjectsQueryVariables;
   };
-  '#graphql\n  query ProductDetails($handle: String!) {\n    product(handle: $handle) {\n      id\n      title\n      description\n      descriptionHtml\n      handle\n      vendor\n      tags\n      productType\n      featuredImage {\n        id\n        url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n        altText\n        width\n        height\n      }\n      images(first: 10) {\n        nodes {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n      }\n      media(first: 20) {\n        nodes {\n          id\n          ... on MediaImage {\n            image {\n              id\n              url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      options {\n        name\n        values\n      }\n      selectedVariant: variantBySelectedOptions(selectedOptions: []) {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n        image {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        sku\n        title\n        unitPrice {\n          amount\n          currencyCode\n        }\n        product {\n          title\n          handle\n        }\n      }\n      variants(first: 10) {\n        nodes {\n          id\n          title\n          availableForSale\n          image {\n            id\n            url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n            altText\n            width\n            height\n          }\n          selectedOptions {\n            name\n            value\n          }\n          price {\n            amount\n            currencyCode\n          }\n          compareAtPrice {\n            amount\n            currencyCode\n          }\n          sku\n          metafields(identifiers: [\n            {namespace: "custom", key: "variant_imgs"},\n            {namespace: "custom", key: "couleur"}\n          ]) {\n            key\n            value\n            namespace\n            reference {\n              ... on Metaobject {\n                id\n                type\n                labelField: field(key: "Label") {\n                  value\n                }\n                imageField: field(key: "Image") {\n                  reference {\n                    ... on MediaImage {\n                      id\n                      image {\n                        url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                        altText\n                        width\n                        height\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      seo {\n        title\n        description\n      }\n      metafields(identifiers: [\n        {namespace: "custom", key: "related_products"},\n        {namespace: "custom", key: "couleurs"}\n      ]) {\n        key\n        value\n        type\n        references(first: 50) {\n          nodes {\n            ... on Metaobject {\n              id\n              type\n              fields {\n                key\n                value\n                type\n                reference {\n                  ... on MediaImage {\n                    id\n                    image {\n                      url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n\n    # Fetch recommended products - top selling products from the same collection\n    recommendedProducts: products(first: 4, sortKey: BEST_SELLING) {\n      nodes {\n        id\n        title\n        handle\n        description\n        descriptionHtml\n        vendor\n        featuredImage {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          nodes {\n            id\n            availableForSale\n            price {\n              amount\n              currencyCode\n            }\n            compareAtPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query ProductDetails($handle: String!) {\n    product(handle: $handle) {\n      id\n      title\n      description\n      descriptionHtml\n      handle\n      vendor\n      tags\n      productType\n      featuredImage {\n        id\n        url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n        altText\n        width\n        height\n      }\n      images(first: 20) {\n        nodes {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n      }\n      media(first: 20) {\n        nodes {\n          id\n          ... on MediaImage {\n            image {\n              id\n              url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      options {\n        name\n        values\n      }\n      selectedVariant: variantBySelectedOptions(selectedOptions: []) {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n        image {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        sku\n        title\n        unitPrice {\n          amount\n          currencyCode\n        }\n        product {\n          title\n          handle\n        }\n      }\n      variants(first: 250) {\n        nodes {\n          id\n          title\n          availableForSale\n          image {\n            id\n            url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n            altText\n            width\n            height\n          }\n          selectedOptions {\n            name\n            value\n          }\n          price {\n            amount\n            currencyCode\n          }\n          compareAtPrice {\n            amount\n            currencyCode\n          }\n          sku\n          metafields(identifiers: [\n            {namespace: "custom", key: "variant_imgs"},\n            {namespace: "custom", key: "couleur"}\n          ]) {\n            key\n            value\n            namespace\n            reference {\n              ... on Metaobject {\n                id\n                type\n                labelField: field(key: "Label") {\n                  value\n                }\n                imageField: field(key: "Image") {\n                  reference {\n                    ... on MediaImage {\n                      id\n                      image {\n                        url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                        altText\n                        width\n                        height\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      seo {\n        title\n        description\n      }\n      metafields(identifiers: [\n        {namespace: "custom", key: "related_products"},\n        {namespace: "custom", key: "couleurs"}\n      ]) {\n        key\n        value\n        type\n        references(first: 50) {\n          nodes {\n            ... on Metaobject {\n              id\n              type\n              fields {\n                key\n                value\n                type\n                reference {\n                  ... on MediaImage {\n                    id\n                    image {\n                      url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n\n    # Fetch recommended products - top selling products from the same collection\n    recommendedProducts: products(first: 4, sortKey: BEST_SELLING) {\n      nodes {\n        id\n        title\n        handle\n        description\n        descriptionHtml\n        vendor\n        featuredImage {\n          id\n          url(transform: {maxWidth: 800, maxHeight: 800, crop: CENTER})\n          altText\n          width\n          height\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n          maxVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n        variants(first: 1) {\n          nodes {\n            id\n            availableForSale\n            price {\n              amount\n              currencyCode\n            }\n            compareAtPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: ProductDetailsQuery;
     variables: ProductDetailsQueryVariables;
   };
