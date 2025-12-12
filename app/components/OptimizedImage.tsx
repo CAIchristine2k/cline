@@ -66,7 +66,13 @@ export function OptimizedImage({
 
   // Intersection Observer for lazy loading
   useEffect(() => {
-    if (priority || !imgRef.current) return;
+    // Priority images should render immediately
+    if (priority) {
+      setIsInView(true);
+      return;
+    }
+
+    if (!imgRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -78,7 +84,7 @@ export function OptimizedImage({
         });
       },
       {
-        rootMargin: '50px', // Start loading 50px before entering viewport
+        rootMargin: '200px', // Start loading 200px before entering viewport
       }
     );
 
