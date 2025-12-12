@@ -24,6 +24,7 @@ import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
 import {ColorCarousel, type ColorOption} from '~/components/ColorCarousel';
 import {getReviewPhoto} from '~/utils/reviewHelpers';
 import {WishlistButton} from '~/components/WishlistButton';
+import {getProductReviewMetadata, formatReviewCount} from '~/utils/productReviews';
 
 // Product Reviews Component
 const productReviews = [
@@ -529,6 +530,12 @@ export default function Product() {
   const {product, recommendedProducts, storeDomain, colorMetaobjects} =
     useLoaderData<typeof loader>();
   const config = useConfig();
+
+  // ⭐ SINGLE SOURCE OF TRUTH - Calcul des avis cohérent avec ProductCard
+  const reviewMetadata = useMemo(
+    () => getProductReviewMetadata(product.id, product.handle),
+    [product.id, product.handle]
+  );
 
   // Track the currently selected variant from ProductForm
   const [currentVariant, setCurrentVariant] = useState(
@@ -1141,19 +1148,23 @@ export default function Product() {
               />
             </div>
 
-            {/* Reviews Section */}
+            {/* Reviews Section - Utilise les données cohérentes */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex text-yellow-400" role="img" aria-label="Rating: 4.8 out of 5 stars">
-                {[...Array(4)].map((_, i) => (
+              <div className="flex text-yellow-400" role="img" aria-label={`Rating: ${reviewMetadata.rating} out of 5 stars`}>
+                {/* Étoiles pleines */}
+                {[...Array(Math.floor(reviewMetadata.rating))].map((_, i) => (
                   <svg key={`full-${i}`} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 ))}
-                <svg className="w-5 h-5 fill-current opacity-50" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+                {/* Demi-étoile si nécessaire */}
+                {reviewMetadata.rating % 1 >= 0.5 && (
+                  <svg className="w-5 h-5 fill-current opacity-50" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                )}
               </div>
-              <span className="text-sm text-gray-600 font-medium">(127 avis)</span>
+              <span className="text-sm text-gray-600 font-medium">{formatReviewCount(reviewMetadata.count)}</span>
               <div className="flex items-center gap-1 ml-2">
                 <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />

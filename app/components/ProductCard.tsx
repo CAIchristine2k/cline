@@ -8,6 +8,7 @@ import {WishlistButton} from '~/components/WishlistButton';
 import {LoadingSpinner} from '~/components/LoadingSpinner';
 import type {ProductItemFragment} from '~/types/custom-fragments';
 import {useConfig} from '~/utils/themeContext';
+import {getProductReviewMetadata} from '~/utils/productReviews';
 
 interface VariantNode {
   id: string;
@@ -78,20 +79,9 @@ export function ProductCard({
         )
       : 0;
 
-  // Generate consistent mock rating and reviews based on product ID
-  // Using simple hash function to ensure same product always gets same rating/reviews
-  const getConsistentNumber = (str: string, max: number) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return Math.abs(hash) % max;
-  };
-
-  const possibleRatings = [4.5, 5.0];
-  const rating = possibleRatings[getConsistentNumber(product.id, possibleRatings.length)];
-  const reviews = 70 + getConsistentNumber(product.id + '-reviews', 60);
+  // ⭐ SINGLE SOURCE OF TRUTH - Utilise l'utilitaire centralisé pour les avis
+  // Garantit que le même nombre d'avis est affiché sur la card ET sur la PDP
+  const {rating, count: reviews} = getProductReviewMetadata(product.id, handle);
 
   // Check if product is a featured product based on config
   const isFeatured = config.shopify.featuredProducts.includes(handle);
