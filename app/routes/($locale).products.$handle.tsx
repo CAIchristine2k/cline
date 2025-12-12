@@ -21,7 +21,6 @@ import {ClientOnly} from '~/components/ClientOnly';
 import {Suspense} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {MARKETING_ASSETS, getImageWithFallback} from '~/utils/assetsConfig';
-import {ColorCarousel, type ColorOption} from '~/components/ColorCarousel';
 import {getReviewPhoto} from '~/utils/reviewHelpers';
 import {WishlistButton} from '~/components/WishlistButton';
 import {getProductReviewMetadata, formatReviewCount} from '~/utils/productReviews';
@@ -551,34 +550,6 @@ export default function Product() {
     [product, colorMetaobjects]
   );
 
-  // Get current color name from selected variant
-  const currentColorName = useMemo(() => {
-    if (!currentVariant) return '';
-
-    const colorOption = currentVariant.selectedOptions?.find(
-      (opt: any) =>
-        opt.name.toLowerCase() === 'couleur' ||
-        opt.name.toLowerCase() === 'color' ||
-        opt.name.toLowerCase() === 'colours'
-    );
-
-    return colorOption?.value || '';
-  }, [currentVariant]);
-
-  // Handler pour la sélection d'une couleur dans le carrousel
-  const handleColorSelect = useCallback(
-    (colorOption: ColorOption) => {
-      // Trouver la variante correspondante
-      const selectedVariant = product.variants?.nodes?.find(
-        (v: any) => v.id === colorOption.variantId
-      );
-
-      if (selectedVariant) {
-        setCurrentVariant(selectedVariant);
-      }
-    },
-    [product.variants?.nodes]
-  );
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -1185,16 +1156,6 @@ export default function Product() {
               )}
             </div>
 
-            {/* Color Carousel - Only show if product has color options */}
-            {colorOptions.length > 0 && (
-              <div className="mb-6">
-                <ColorCarousel
-                  colors={colorOptions}
-                  selectedColorName={currentColorName}
-                  onColorSelect={handleColorSelect}
-                />
-              </div>
-            )}
 
             {/* Countdown Timer - Always visible */}
             <ClientOnly>
