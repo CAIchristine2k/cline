@@ -7,6 +7,7 @@ import {CartSummary} from './CartSummary';
 import {useConfig} from '~/utils/themeContext';
 import {ShoppingBag} from 'lucide-react';
 import {PrepareDesignsForCheckout} from './PrepareDesignsForCheckout';
+import {GiftWithPurchase} from './GiftWithPurchase';
 import {useMemo, useEffect, useRef} from 'react';
 
 export type CartLayout = 'page' | 'aside';
@@ -122,8 +123,25 @@ export function CartMain({
     );
   }
 
+  // Debug: Log cart data being passed to GiftWithPurchase
+  if (process.env.NODE_ENV === 'development' && cart?.id) {
+    console.log('🛒 [CartMain] Passing cart to GiftWithPurchase:', {
+      cartId: cart.id,
+      linesCount: cart.lines?.nodes?.length,
+      sampleLine: cart.lines?.nodes?.[0] ? {
+        id: cart.lines.nodes[0].id,
+        hasAttributes: !!cart.lines.nodes[0].attributes,
+        attributesCount: cart.lines.nodes[0].attributes?.length,
+        attributes: cart.lines.nodes[0].attributes,
+      } : 'no lines',
+    });
+  }
+
   return (
     <div className="cart-container">
+      {/* 🎁 Composant de gestion du cadeau automatique - Use originalCart for accurate data */}
+      <GiftWithPurchase cart={originalCart} />
+
       <CartEmpty hidden={cartHasItems} layout={layout} />
 
       {cartHasItems && (
