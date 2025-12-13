@@ -51,7 +51,7 @@ export function ProductGuarantees() {
         <div className="pt-4 pb-4 border-t border-gray-200">
           <div className="flex items-center justify-center px-2">
             <img
-              src="/images/paiement.webp"
+              src="/images/pay.JPG"
               alt="Méthodes de paiement acceptées"
               className="w-full max-w-[280px] h-auto object-contain"
               style={{ border: 'none' }}
