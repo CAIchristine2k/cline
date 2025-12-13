@@ -34,7 +34,7 @@ export default function TrustBadges() {
     {
       emoji: '🚚',
       title: 'Livraison rapide',
-      description: '48h France · Retours faciles',
+      description: '4 à 5j ouvrés · Retours faciles',
       category: 'delivery',
     },
 

@@ -250,7 +250,7 @@ function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null | any})
             </span>
           ) : (
             <span>
-              Encore <span className="font-bold text-black">{formatCurrency(amountRemaining)}</span> pour obtenir la livraison gratuite
+              Encore <span className="font-bold text-black">{formatCurrency(amountRemaining)}</span> pour obtenir la livraison gratuite 🚚
             </span>
           )}
         </p>
@@ -281,7 +281,7 @@ function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null | any})
 
       {/* Threshold info */}
       <p className="text-[10px] text-black/50 mt-1.5 text-center">
-        Livraison gratuite à partir de {formatCurrency(FREE_SHIPPING_THRESHOLD)}
+        Cadeaux offert à partir de 40€ 🎁
       </p>
     </div>
   );

@@ -1,8 +1,7 @@
 import {redirect, type LoaderFunctionArgs} from 'react-router';
 import {useLoaderData, type MetaFunction, Link} from 'react-router';
-import {ArrowLeft, Sparkles, ShoppingBag, ChevronRight} from 'lucide-react';
+import {ArrowLeft, ShoppingBag, ChevronRight} from 'lucide-react';
 import {ProductCard} from '~/components/ProductCard';
-import {ProductCarousel} from '~/components/ProductCarousel';
 import {resolveCollectionParams, getCollectionTitle} from '~/utils/collectionConfig';
 
 export const meta: MetaFunction<typeof loader> = ({data, params}) => {
@@ -124,12 +123,8 @@ export default function CollectionMain() {
             </p>
           </div>
 
-          {/* Carousel */}
-          {products.length > 0 ? (
-            <div className="mb-12">
-              <ProductCarousel products={products} loading="lazy" compact={true} />
-            </div>
-          ) : (
+          {/* Empty state */}
+          {products.length > 0 ? null : (
             <div className="text-center py-16">
               <div className="text-white/50 mb-4">
                 <svg

@@ -1,8 +1,7 @@
 import {type LoaderFunctionArgs} from 'react-router';
 import {useLoaderData, type MetaFunction, Link} from 'react-router';
-import {ChevronRight, Sparkles, ShoppingBag} from 'lucide-react';
+import {ChevronRight, ShoppingBag} from 'lucide-react';
 import {ProductCard} from '~/components/ProductCard';
-import {ProductCarousel} from '~/components/ProductCarousel';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   const title = data?.collection?.title || 'Collection';
@@ -165,27 +164,6 @@ export default function Collection() {
             ))}
           </div>
         </div>
-      )}
-
-      {/* Section Carousel - Produits Vedettes */}
-      {products.length > 0 && (
-        <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
-          <div className="container mx-auto px-4">
-            {/* Header */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4">
-                <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-bold uppercase tracking-wider">Découvrez Aussi</span>
-              </div>
-              <h3 className="text-3xl md:text-4xl font-bold text-black">
-                Nos Produits Vedettes
-              </h3>
-            </div>
-
-            {/* Carousel */}
-            <ProductCarousel products={products} loading="lazy" compact={true} collectionHandle={collection.handle} />
-          </div>
-        </section>
       )}
 
     </div>

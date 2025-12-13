@@ -9,7 +9,7 @@ export function ComparisonTable() {
     },
     {
       label: 'Livraison',
-      good: '24–48h, suivi en temps réel',
+      good: 'Livraison 4 à 5j ouvrés',
       bad: 'Délais plus longs, peu transparents',
     },
     {
@@ -49,11 +49,14 @@ export function ComparisonTable() {
         <div className="compare-card">
           {/* Header */}
           <div className="compare-header">
+            <div></div>
             <div className="compare-col compare-col--left">
-              <div className="compare-avatar">
-                <img src="/images/logo.png" alt="C'Line Hair" />
-              </div>
-              <h3>C'Line Hair</h3>
+              <h3>
+                <div className="compare-avatar">
+                  <img src="/images/logo.png" alt="C'Line Hair" />
+                </div>
+                C'Line Hair
+              </h3>
             </div>
 
             <div className="compare-col compare-col--right">
@@ -99,29 +102,32 @@ export function ComparisonTable() {
 
         .compare-header {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1.1fr 1.1fr 1.1fr;
           align-items: center;
           text-align: center;
           margin-bottom: 20px;
-          padding-left: 19rem;
         }
 
         .compare-col h3 {
           font-size: 1rem;
           font-weight: 600;
-          margin-top: 8px;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
         }
 
         .compare-avatar {
-          width: 70px;
-          height: 70px;
+          width: 50px;
+          height: 50px;
           border-radius: 999px;
           overflow: hidden;
-          margin: 0 auto;
           background: #fff;
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
         .compare-avatar img {
@@ -205,32 +211,15 @@ export function ComparisonTable() {
           }
 
           .compare-header {
-            padding-left: 90px;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            grid-template-columns: 0.8fr 1fr 1fr;
+            gap: 4px;
             text-align: center;
             margin-bottom: 16px;
           }
 
-          .compare-col--left {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-          }
-
-          .compare-col--right {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 4px;
-          }
-
           .compare-avatar {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto;
+            width: 35px;
+            height: 35px;
           }
 
           .compare-avatar img {
@@ -241,8 +230,8 @@ export function ComparisonTable() {
 
           .compare-col h3 {
             font-size: 0.75rem;
-            margin-top: 0;
             font-weight: 700;
+            gap: 6px;
           }
 
           .compare-row {

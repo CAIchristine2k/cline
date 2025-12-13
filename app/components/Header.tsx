@@ -81,14 +81,8 @@ export function Header() {
       premium: true, // Hidden flag - will be shown later
     },
     {
-      name: 'ACCESSOIRES',
-      submenu: [
-        {name: 'Accessoires de maintien', link: '/collections/accessoires-maintien'},
-        {name: 'Accessoires de coiffage', link: '/collections/accessoires-coiffage'},
-        {name: "Produits d'entretien", link: '/collections/accessoires-entretien'},
-        {name: 'Accessoires de rangement & transport', link: '/collections/accessoires-rangement'},
-      ],
-      premium: true, // Hidden flag - will be shown later
+      name: 'NOS ACCESSOIRES',
+      link: '/collections/accessoires',
     },
     {
       name: 'NOS PRODUITS',

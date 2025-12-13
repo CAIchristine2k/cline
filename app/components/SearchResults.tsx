@@ -119,7 +119,7 @@ function SearchResultsProducts({
             });
 
             const price = product?.selectedOrFirstAvailableVariant?.price;
-            const image = product?.selectedOrFirstAvailableVariant?.image;
+            const image = product?.featuredImage || product?.selectedOrFirstAvailableVariant?.image;
 
             return (
               <Link
