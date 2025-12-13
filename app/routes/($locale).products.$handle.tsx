@@ -778,8 +778,16 @@ export default function Product() {
         hasInitializedImage.current = true;
         previousProductId.current = product.id;
       }
-      // Pour les changements de variante: TOUJOURS garder la première image Shopify
-      // Ne pas changer l'image principale lors d'un changement de couleur
+      // Pour les changements de variante: mettre à jour l'image avec celle de la variante si disponible
+      else if (currentVariant?.image?.url) {
+        console.log('🔄 Variant changed, updating to variant image:', currentVariant.image.url);
+        setActiveImage(currentVariant.image);
+      }
+      // Fallback: si la variante n'a pas d'image propre, utiliser les images custom
+      else if (newVariantImages.length > 0) {
+        console.log('🔄 Variant changed, using variant custom images[0]:', newVariantImages[0]);
+        setActiveImage(newVariantImages[0]);
+      }
     }
   }, [currentVariant, getVariantImages, allProductImages, product.id]);
 

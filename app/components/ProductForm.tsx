@@ -276,6 +276,12 @@ export function ProductForm({
 
       setSelectedOptions(newSelectedOptions);
       setSelectedVariant(variantData);
+
+      // Notifier le parent (page produit) pour mettre à jour l'image principale
+      if (onVariantChange) {
+        onVariantChange(newVariant);
+      }
+
       console.log('✅ Variant updated successfully');
     } else {
       console.warn('⚠️ No matching variant found - combination not available');
