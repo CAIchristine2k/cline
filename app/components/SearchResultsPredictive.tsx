@@ -203,11 +203,21 @@ function SearchResultsPredictiveProducts({
 }: PartialPredictiveSearchResult<'products'>) {
   if (!products.length) return null;
 
+  // Filtrer les produits pour exclure ceux avec uniquement la variante "OFFERT"
+  const filteredProducts = products.filter((product) => {
+    const hasNonGiftVariant = product.variants?.nodes?.some(
+      (variant: any) => !variant.title.includes('OFFERT')
+    ) ?? true;
+    return hasNonGiftVariant;
+  });
+
+  if (!filteredProducts.length) return null;
+
   return (
     <div className="predictive-search-result" key="products">
       <h5>Products</h5>
       <ul>
-        {products.map((product) => {
+        {filteredProducts.map((product) => {
           const productUrl = urlWithTrackingParams({
             baseUrl: `/products/${product.handle}`,
             trackingParams: product.trackingParameters,

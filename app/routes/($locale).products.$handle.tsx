@@ -336,12 +336,20 @@ async function loadCriticalData({
     throw new Response(null, {status: 404});
   }
 
-  // Récupérer tous les metaobjects Couleur
+  // Récupérer tous les metaobjects Couleur depuis différentes sources
   let colorMetaobjects: any[] = [];
   try {
     const colorData = await storefront.query(COLOR_METAOBJECTS_QUERY);
-    colorMetaobjects = colorData?.metaobjects?.nodes || [];
+    // Combiner les résultats de toutes les sources possibles
+    const allMetaobjects = [
+      ...(colorData?.colorPatterns?.nodes || []),
+      ...(colorData?.couleurs?.nodes || []),
+      ...(colorData?.colorSwatches?.nodes || []),
+    ];
+    colorMetaobjects = allMetaobjects;
+    console.log(`✅ Loaded ${colorMetaobjects.length} color metaobjects from Shopify`);
   } catch (error) {
+    console.warn('⚠️ Failed to load color metaobjects:', error);
     // Silently fail - fallback to variant images
   }
 
@@ -366,6 +374,17 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
   // For example: product reviews, product recommendations, social feeds.
 
   return {};
+}
+
+/**
+ * Interface pour une option de couleur dans le sélecteur
+ */
+interface ColorOption {
+  name: string; // Le label affiché (ex: "Blond Platine")
+  value?: string; // La valeur Shopify réelle (ex: "#TT1B/27")
+  imageUrl: string; // URL de l'image de la couleur
+  variantId: string; // ID de la variante Shopify
+  availableForSale: boolean; // Disponibilité
 }
 
 /**
@@ -438,14 +457,8 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
 
     // Si toujours pas de variante trouvée, CONTINUER
     if (!variant) {
-      // Créer une entrée placeholder pour cette couleur manquante
-      // Cela permet de voir qu'elle existe dans Shopify mais manque dans la query
-      colorOptions.push({
-        name: `${colorValue} (non disponible)`,
-        imageUrl: 'https://cdn.shopify.com/s/files/1/0981/1535/4969/files/placeholder-color.png?v=1',
-        variantId: '', // Pas de variant ID
-        availableForSale: false, // Marqué comme indisponible
-      });
+      // Ne pas créer d'entrée placeholder - simplement ignorer cette couleur
+      // Si elle n'a pas de variant, elle ne devrait pas être affichée
       return; // Passer à la couleur suivante
     }
 
@@ -453,6 +466,10 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
     // Essayer TOUS les noms possibles: exact, minuscule, majuscule, normalisé, alphanumérique
     const normalizedColorValue = colorValue.toLowerCase().replace(/^#/, '').replace(/\//g, '-');
     const alphanumericOnly = colorValue.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    // Pour les noms simples comme "Melody", créer aussi des variantes kebab-case
+    const kebabCase = colorValue.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const snakeCase = colorValue.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
     let colorMeta =
       // Essayer le nom exact tel quel (important si le handle Shopify contient # et /)
@@ -463,33 +480,33 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
       colorMetaobjectsMap.get(normalizedColorValue.replace(/[\s-_]/g, '')) ||
       colorMetaobjectsMap.get(colorValue.toLowerCase().replace(/[\s-_#\/]/g, '')) ||
       colorMetaobjectsMap.get(alphanumericOnly) ||
+      colorMetaobjectsMap.get(kebabCase) ||
+      colorMetaobjectsMap.get(snakeCase) ||
       // Essayer aussi de chercher dans tous les metaobjects par comparaison exacte du handle
       colorMetaobjects.find((meta: any) => {
         // Comparaison exacte du handle
         if (meta.handle === colorValue) return true;
+        if (meta.handle?.toLowerCase() === colorValue.toLowerCase()) return true;
 
         // Comparaison alphanumérique en fallback
         const metaHandle = meta.handle?.toLowerCase().replace(/[^a-z0-9]/g, '');
-        return metaHandle === alphanumericOnly;
+        if (metaHandle === alphanumericOnly) return true;
+
+        // Essayer aussi kebab-case et snake-case
+        if (meta.handle === kebabCase || meta.handle === snakeCase) return true;
+
+        return false;
       });
 
     let imageUrl = '';
-    let colorLabel = colorValue;
-
-    // Récupérer le label depuis le metaobject si disponible
-    if (colorMeta) {
-      const labelField = colorMeta.fields?.find(
-        (f: any) => f && (f.key === 'Label' || f.key === 'label' || f.key === 'title' || f.key === 'name')
-      );
-      if (labelField?.value) {
-        colorLabel = labelField.value;
-      }
-    }
+    // IMPORTANT: Toujours utiliser la valeur Shopify réelle, pas le label du metaobject
+    // Cela évite d'afficher "#2" au lieu de "2" quand Shopify stocke "2"
+    const colorLabel = colorValue;
 
     // PRIORITÉ 1: Image du metaobject couleur (si existe)
     if (colorMeta) {
       const imageField = colorMeta.fields?.find(
-        (f: any) => f && (f.key === 'Image' || f.key === 'image' || f.key === 'swatch')
+        (f: any) => f && (f.key === 'Image' || f.key === 'image' || f.key === 'swatch' || f.key === 'Swatch')
       );
 
       if (imageField?.reference?.image?.url) {
@@ -507,7 +524,7 @@ function extractColorOptions(product: any, colorMetaobjects: any[] = []): ColorO
       imageUrl = product.featuredImage.url;
     }
 
-    // Fallback 3: Placeholder pour debug (permet de voir toutes les couleurs)
+    // Fallback final: Placeholder
     if (!imageUrl) {
       imageUrl = 'https://cdn.shopify.com/s/files/1/0981/1535/4969/files/placeholder-color.png?v=1';
     }
@@ -1575,9 +1592,60 @@ export default function Product() {
 }
 
 // Query pour récupérer tous les metaobjects Couleur
+// Query pour récupérer les metaobjects de couleur
+// Supporte plusieurs types possibles: shopify--color-pattern, couleur, color_swatch, etc.
 const COLOR_METAOBJECTS_QUERY = `#graphql
   query ColorMetaobjects {
-    metaobjects(type: "shopify--color-pattern", first: 250) {
+    # Essayer le type Shopify standard
+    colorPatterns: metaobjects(type: "shopify--color-pattern", first: 250) {
+      nodes {
+        id
+        handle
+        type
+        fields {
+          key
+          value
+          type
+          reference {
+            ... on MediaImage {
+              id
+              image {
+                url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
+    # Essayer le type personnalisé "couleur"
+    couleurs: metaobjects(type: "couleur", first: 250) {
+      nodes {
+        id
+        handle
+        type
+        fields {
+          key
+          value
+          type
+          reference {
+            ... on MediaImage {
+              id
+              image {
+                url(transform: {maxWidth: 300, maxHeight: 300, crop: CENTER})
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
+    # Essayer le type personnalisé "color_swatch"
+    colorSwatches: metaobjects(type: "color_swatch", first: 250) {
       nodes {
         id
         handle
@@ -1820,3 +1888,89 @@ const PRODUCT_QUERY = `#graphql
     }
   }
 `;
+
+/**
+ * ErrorBoundary pour gérer les erreurs 404 et autres erreurs de la page produit
+ */
+export function ErrorBoundary() {
+  return (
+    <div className="min-h-screen bg-white pt-32 pb-16">
+      <div className="container mx-auto px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          {/* Icône d'erreur */}
+          <div className="mb-8">
+            <div className="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-12 h-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Titre */}
+          <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
+            Produit introuvable
+          </h1>
+
+          {/* Message */}
+          <p className="text-gray-600 mb-8 text-lg">
+            Désolé, ce produit n'existe pas ou a été retiré de notre catalogue.
+          </p>
+
+          {/* Boutons d'action */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/products"
+              className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-black font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              Voir tous nos produits
+            </Link>
+
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-black font-semibold py-3 px-6 rounded-lg border-2 border-gray-200 transition-all duration-300"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                />
+              </svg>
+              Retour à l'accueil
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

@@ -46,7 +46,7 @@ export function ColorSwatches({
               transition-all duration-200
               ${
                 isSelected
-                  ? 'border-2 border-pink-500 ring-2 ring-pink-500/20 ring-offset-2'
+                  ? 'border-[4px] border-primary ring-2 ring-primary/20 ring-offset-2 scale-110'
                   : 'border-2 border-gray-200'
               }
               ${

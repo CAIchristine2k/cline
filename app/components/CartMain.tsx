@@ -5,10 +5,11 @@ import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
 import {useConfig} from '~/utils/themeContext';
-import {ShoppingBag} from 'lucide-react';
+import {ShoppingBag, Gift} from 'lucide-react';
 import {PrepareDesignsForCheckout} from './PrepareDesignsForCheckout';
 import {GiftWithPurchase} from './GiftWithPurchase';
 import {useMemo, useEffect, useRef} from 'react';
+import {calculateSubtotalWithoutGift, GIFT_CONFIG, findAutoGiftLine} from '~/utils/giftWithPurchase';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -183,6 +184,9 @@ export function CartMain({
 
             {/* Free Shipping Progress Bar */}
             <FreeShippingProgress cart={cart} />
+
+            {/* Gift Progress Message */}
+            <GiftProgress cart={cart} />
           </div>
 
           {/* Cart Items - Maximized scrollable area */}
@@ -264,7 +268,7 @@ function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null | any})
         <p className="text-xs font-medium text-black/70 text-center">
           {isFreeShippingUnlocked ? (
             <span className="text-green-600 font-semibold flex items-center gap-1">
-              <span>Livraison gratuite</span>
+              <span>Livraison gratuite 🚚</span>
             </span>
           ) : (
             <span>
@@ -303,6 +307,66 @@ function FreeShippingProgress({cart}: {cart: CartApiQueryFragment | null | any})
       </p>
     </div>
   );
+}
+
+/**
+ * Gift Progress Component
+ * Shows progress towards free gift threshold (40€)
+ */
+function GiftProgress({cart}: {cart: CartApiQueryFragment | null | any}) {
+  if (!cart) return null;
+
+  // Calculate subtotal without gift
+  const subtotal = calculateSubtotalWithoutGift(cart);
+  const hasAutoGift = !!findAutoGiftLine(cart);
+  const isEligible = subtotal >= GIFT_CONFIG.threshold;
+
+  // Calculate amount remaining to reach gift threshold
+  const amountRemaining = Math.max(GIFT_CONFIG.threshold - subtotal, 0);
+
+  // Format currency for display with € at the end (French format)
+  const formatCurrency = (amount: number) => {
+    const formatted = new Intl.NumberFormat('fr-FR', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    return `${formatted}€`;
+  };
+
+  // Show progress message only when user is close to threshold but hasn't reached it
+  if (!isEligible && amountRemaining > 0 && amountRemaining <= GIFT_CONFIG.threshold) {
+    return (
+      <div className="px-3 pb-3" role="region" aria-label="Progression vers le cadeau gratuit">
+        <div className="p-3 bg-gradient-to-r from-pink-50 to-primary/10 border border-pink-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Gift className="w-5 h-5 text-primary flex-shrink-0" />
+            <span className="text-xs font-medium text-black">
+              Plus que <span className="font-bold text-primary">{formatCurrency(amountRemaining)}</span> pour obtenir votre cadeau !
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show success message when gift is unlocked
+  if (isEligible && hasAutoGift) {
+    return (
+      <div className="px-3 pb-3" role="region" aria-label="Cadeau gratuit débloqué">
+        <div className="p-3 bg-black border border-primary/30 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Gift className="w-5 h-5 flex-shrink-0" style={{color: 'rgb(250, 163, 174)'}} />
+            <span className="text-sm font-bold" style={{color: 'rgb(250, 163, 174)'}}>
+              🎉 Cadeau gratuit ajouté à votre panier !
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 function CartEmpty({

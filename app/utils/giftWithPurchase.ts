@@ -3,9 +3,9 @@
  */
 
 export const GIFT_CONFIG = {
-  // Produit cadeau - Variante "Cadeau" à 0€
+  // Produit cadeau - Variante "OFFERT" à 0€
   productHandle: 'brosse-plate-pour-baby-hair',
-  variantId: 'gid://shopify/ProductVariant/56841772630361', // Variante "Cadeau" à 0€
+  variantId: 'gid://shopify/ProductVariant/56860507439449', // Variante "OFFERT" à 0€
 
   // Seuil d'éligibilité
   threshold: 40, // en euros

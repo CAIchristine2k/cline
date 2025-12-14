@@ -64,7 +64,23 @@ export function ProductForm({
 
   // Initialize the selected variant
   useEffect(() => {
-    const variant = product.selectedVariant || product.variants?.nodes?.[0];
+    // Filtrer les variantes pour exclure "OFFERT"
+    const availableVariants = product.variants?.nodes?.filter(
+      (v) => !v.selectedOptions.some((opt) => opt.value === 'OFFERT')
+    ) || [];
+
+    // Pour le produit brosse, forcer la variante "NORMAL"
+    const normalVariant = product.variants?.nodes?.find(
+      (v) => v.selectedOptions.some((opt) => opt.value === 'NORMAL')
+    );
+
+    const variant = normalVariant || (
+      product.selectedVariant &&
+      !product.selectedVariant.selectedOptions.some((opt) => opt.value === 'OFFERT')
+        ? product.selectedVariant
+        : availableVariants[0]
+    );
+
     if (variant) {
       // Create a basic variant without the image field
       setSelectedVariant({
@@ -415,6 +431,9 @@ export function ProductForm({
               </h3>
               <div className="flex flex-wrap gap-2">
                 {option.values.map((value) => {
+                  // Masquer la variante "OFFERT" (cadeau automatique uniquement)
+                  if (value === 'OFFERT') return null;
+
                   const isSelected = selectedOptions[option.name] === value;
                   const variantNodes = product.variants?.nodes || [];
 

@@ -4,9 +4,10 @@ import {Link} from 'react-router';
 import {useConfig} from '~/utils/themeContext';
 import type {CartLineFragment} from 'storefrontapi.generated';
 import type {CartLayout} from './CartMain';
-import {Trash2, Plus, Minus} from 'lucide-react';
+import {Trash2, Plus, Minus, Gift} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {getCartLineDesigns} from '~/utils/designStorage';
+import {GIFT_CONFIG} from '~/utils/giftWithPurchase';
 
 /**
  * Modern cart line item with clean design and proper theme integration.
@@ -33,6 +34,12 @@ export function CartLineItem({
 
   // Find the custom design attributes for this line item (with null safety)
   const lineAttributes = line.attributes || [];
+
+  // Vérifier si c'est le cadeau automatique
+  const isAutoGift = lineAttributes.some(
+    (attr) => attr.key === GIFT_CONFIG.giftAttribute.key &&
+              attr.value === GIFT_CONFIG.giftAttribute.value
+  );
   
   const customDesignImage = lineAttributes.find(
     (attr) => attr.key === '_design_image_url' || attr.key === '_checkout_image' || attr.key === '_checkout_display_image',
@@ -480,9 +487,16 @@ export function CartLineItem({
               prefetch="intent"
               className="block group/title"
             >
-              <h3 className="font-semibold text-black text-sm leading-tight group-hover/title:text-primary transition-colors duration-200 line-clamp-2">
-                {product.title || 'Untitled Product'}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-black text-sm leading-tight group-hover/title:text-primary transition-colors duration-200 line-clamp-2">
+                  {product.title || 'Untitled Product'}
+                </h3>
+                {isAutoGift && (
+                  <div className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black text-primary text-xs font-bold shadow-sm">
+                    <span>🎁 Cadeau offert</span>
+                  </div>
+                )}
+              </div>
             </Link>
 
             {/* Product Description */}
@@ -602,8 +616,8 @@ export function CartLineItem({
 
       {/* Actions Row - Compact */}
       <div className="flex items-center justify-between mt-3">
-        <CartLineQuantityAdjust line={line} />
-        <CartLineRemoveButton lineId={id} disabled={!!line.isOptimistic} />
+        <CartLineQuantityAdjust line={line} isAutoGift={isAutoGift} />
+        <CartLineRemoveButton lineId={id} disabled={!!line.isOptimistic || isAutoGift} />
       </div>
     </div>
   );
@@ -614,14 +628,26 @@ export function CartLineItem({
  */
 function CartLineQuantityAdjust({
   line,
+  isAutoGift = false,
 }: {
   line: CartLineFragment & {isOptimistic?: boolean};
+  isAutoGift?: boolean;
 }) {
   if (!line || typeof line?.quantity === 'undefined') return null;
 
   const {id: lineId, quantity} = line;
   const prevQuantity = Number(Math.max(0, quantity - 1).toFixed(0));
   const nextQuantity = Number((quantity + 1).toFixed(0));
+
+  // Si c'est un cadeau automatique, afficher un message fixe
+  if (isAutoGift) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-pink-50 to-primary/10 backdrop-blur-sm border border-pink-200 rounded-lg">
+        <Gift className="w-4 h-4 text-primary" />
+        <span className="text-black/70 text-sm font-medium">Quantité: {quantity}</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-1">

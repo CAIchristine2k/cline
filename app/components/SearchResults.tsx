@@ -111,7 +111,15 @@ function SearchResultsProducts({
       <h3 className="text-xl font-bold mb-6 text-black border-b-2 border-primary/30 pb-3">Produits</h3>
       <Pagination connection={products}>
         {({nodes, isLoading, NextLink, PreviousLink}) => {
-          const ItemsMarkup = nodes.map((product) => {
+          // Filtrer les produits pour exclure ceux avec uniquement la variante "OFFERT"
+          const filteredNodes = nodes.filter((product) => {
+            const hasNonGiftVariant = product.variants?.nodes?.some(
+              (variant: any) => !variant.title.includes('OFFERT')
+            ) ?? true;
+            return hasNonGiftVariant;
+          });
+
+          const ItemsMarkup = filteredNodes.map((product) => {
             const productUrl = urlWithTrackingParams({
               baseUrl: `/products/${product.handle}`,
               trackingParams: product.trackingParameters,

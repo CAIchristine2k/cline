@@ -82,6 +82,11 @@ export function ProductItem({
 
   // Get product label based on tags or sale status
   const getProductLabel = () => {
+    // Ne pas afficher de badge pour le produit cadeau
+    if (handle === 'brosse-plate-pour-baby-hair') {
+      return null;
+    }
+
     if (isOnSale) {
       // Show "-40%" only on vente-flash collection page, "PROMO" elsewhere
       const promoText = collectionHandle === 'vente-flash' ? '-40%' : 'PROMO';
