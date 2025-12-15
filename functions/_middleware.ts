@@ -22,6 +22,32 @@ interface CloudflarePagesContext {
 // @ts-ignore - Types will be resolved at runtime
 export async function onRequest(context: CloudflarePagesContext) {
   try {
+    const url = new URL(context.request.url);
+
+    // Let Cloudflare Pages serve static assets directly (bypass SSR for performance)
+    if (
+      url.pathname.startsWith('/assets/') ||
+      url.pathname.startsWith('/images/') ||
+      url.pathname.startsWith('/manifest.json') ||
+      url.pathname.startsWith('/favicon') ||
+      url.pathname.startsWith('/videos/') ||
+      url.pathname.endsWith('.css') ||
+      url.pathname.endsWith('.js') ||
+      url.pathname.endsWith('.png') ||
+      url.pathname.endsWith('.PNG') ||
+      url.pathname.endsWith('.jpg') ||
+      url.pathname.endsWith('.JPG') ||
+      url.pathname.endsWith('.jpeg') ||
+      url.pathname.endsWith('.webp') ||
+      url.pathname.endsWith('.svg') ||
+      url.pathname.endsWith('.ico') ||
+      url.pathname.endsWith('.woff') ||
+      url.pathname.endsWith('.woff2') ||
+      url.pathname.endsWith('.ttf')
+    ) {
+      return context.next(); // Pass through to Cloudflare Pages static asset handler
+    }
+
     // Import React Router's createRequestHandler
     const {createRequestHandler} = await import('react-router');
 
@@ -38,7 +64,6 @@ export async function onRequest(context: CloudflarePagesContext) {
     };
 
     // Redirect non-www to www (SEO best practice) - from workers/app.ts
-    const url = new URL(context.request.url);
     if (url.hostname === 'clinehair.com') {
       return Response.redirect(`https://www.clinehair.com${url.pathname}${url.search}`, 301);
     }
