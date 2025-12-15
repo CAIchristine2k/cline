@@ -23,6 +23,12 @@ const requestHandler = createRequestHandler(
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     try {
+      // Redirect non-www to www (SEO best practice)
+      const url = new URL(request.url);
+      if (url.hostname === 'clinehair.com') {
+        return Response.redirect(`https://www.clinehair.com${url.pathname}${url.search}`, 301);
+      }
+
       // Create a timeout for the entire request
       const timeout = 10000; // 10 second timeout
 
