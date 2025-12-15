@@ -2,7 +2,7 @@ import {defineConfig} from 'vite';
 import {hydrogen} from '@shopify/hydrogen/vite';
 // import { oxygen } from '@shopify/mini-oxygen/vite';
 import {reactRouter} from '@react-router/dev/vite';
-import {cloudflare} from '@cloudflare/vite-plugin';
+// import {cloudflare} from '@cloudflare/vite-plugin';
 
 import tsconfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
@@ -11,7 +11,7 @@ import {resolve} from 'path';
 
 export default defineConfig({
   plugins: [
-    cloudflare({viteEnvironment: {name: 'ssr'}}),
+    // cloudflare({viteEnvironment: {name: 'ssr'}}), // Disabled for Cloudflare Pages compatibility
     tailwindcss(),
     hydrogen(),
     reactRouter(),

@@ -1,1 +1,2 @@
-/*    /index.html   200
+# Cloudflare Pages routing - handled by Functions middleware
+# All routes are processed by functions/_middleware.ts

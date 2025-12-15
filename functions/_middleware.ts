@@ -1,9 +1,11 @@
 /**
  * Cloudflare Pages Functions middleware
- * Handles all SSR requests by forwarding to the Workers entry point
+ * Handles all SSR requests using React Router + Shopify Hydrogen
  *
- * This middleware ensures compatibility between Cloudflare Pages and the
- * existing Hydrogen + React Router setup designed for Workers.
+ * This middleware integrates:
+ * - React Router SSR
+ * - Shopify Hydrogen context (storefront, cart, session)
+ * - Cloudflare Pages environment
  */
 
 interface CloudflarePagesContext {
@@ -20,8 +22,14 @@ interface CloudflarePagesContext {
 // @ts-ignore - Types will be resolved at runtime
 export async function onRequest(context: CloudflarePagesContext) {
   try {
-    // Import the Workers entry point via index.js (handles hash-based file names)
-    const workerModule = await import('../dist/server/index.js');
+    // Import React Router's createRequestHandler
+    const {createRequestHandler} = await import('react-router');
+
+    // Import Hydrogen's context creator
+    const {createAppLoadContext} = await import('../app/lib/context.ts');
+
+    // Import the server build
+    const serverBuild = await import('../dist/server/index.js');
 
     // Create ExecutionContext compatible object for Cloudflare Pages
     const executionContext = {
@@ -29,16 +37,41 @@ export async function onRequest(context: CloudflarePagesContext) {
       passThroughOnException: context.passThroughOnException.bind(context),
     };
 
-    // Call the Workers fetch handler with Pages context
-    if (workerModule.default && typeof workerModule.default.fetch === 'function') {
-      return await workerModule.default.fetch(
-        context.request,
-        context.env,
-        executionContext
+    // Redirect non-www to www (SEO best practice) - from workers/app.ts
+    const url = new URL(context.request.url);
+    if (url.hostname === 'clinehair.com') {
+      return Response.redirect(`https://www.clinehair.com${url.pathname}${url.search}`, 301);
+    }
+
+    // Create Hydrogen's app load context (includes storefront, session, etc.)
+    const hydrogenContext = await createAppLoadContext(
+      context.request,
+      context.env,
+      executionContext
+    );
+
+    // Merge with Cloudflare context
+    const appLoadContext = {
+      ...hydrogenContext,
+      cloudflare: {env: context.env, ctx: executionContext},
+      env: context.env, // Direct env access for backwards compatibility
+    };
+
+    // Create React Router request handler
+    const requestHandler = createRequestHandler(serverBuild, 'production');
+
+    // Handle the request
+    const response = await requestHandler(context.request, appLoadContext);
+
+    // Handle Hydrogen session commits
+    if (hydrogenContext.session && hydrogenContext.session.isPending) {
+      response.headers.set(
+        'Set-Cookie',
+        await hydrogenContext.session.commit()
       );
     }
 
-    throw new Error('Worker entry point not found or invalid');
+    return response;
   } catch (error) {
     console.error('SSR Error:', error);
 
@@ -47,7 +80,7 @@ export async function onRequest(context: CloudflarePagesContext) {
 
     return new Response(
       isDev
-        ? `Internal Server Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        ? `Internal Server Error: ${error instanceof Error ? error.message : 'Unknown error'}\n\nStack: ${error instanceof Error ? error.stack : ''}`
         : 'Internal Server Error',
       {
         status: 500,
